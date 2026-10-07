@@ -85,16 +85,7 @@ class AmaMemoryBackend:
                 # AMA's documented capture lifecycle is the paired user/assistant
                 # forward. It runs only after DSH has emitted a completed turn.
                 memory.forwardUser(user_text, showUsage=False)
-                after_user = self._stats(namespace, namespace)
-                try:
-                    memory.forwardRobot(assistant_text, showUsage=False)
-                except NameError:
-                    # The pinned upstream method writes the assistant records and
-                    # then returns an undefined local named `output`. Accept that
-                    # known post-write NameError only when its write is observable.
-                    after_robot = self._stats(namespace, namespace)
-                    if after_robot.records["raw"] <= after_user.records["raw"]:
-                        raise
+                memory.forwardRobot(assistant_text, showUsage=False)
 
                 after_stats = self._stats(namespace, namespace)
                 after = self._counters[namespace].snapshot()
