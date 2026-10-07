@@ -1,0 +1,26 @@
+[
+  {
+    "evidenceId": "synthetic-blood-pressure-log",
+    "title": "血压记录字段（合成示例）",
+    "snippet": "F0 合成测试片段：此条目仅用于验证证据检索的数据结构，不包含真实医学结论或诊疗建议。",
+    "keywords": ["血压", "测量", "记录", "blood pressure"]
+  },
+  {
+    "evidenceId": "synthetic-medication-review",
+    "title": "用药核对主题（合成示例）",
+    "snippet": "F0 合成测试片段：用于测试用药主题关键词的匹配、排序与来源标识，不提供药品或剂量信息。",
+    "keywords": ["用药", "药物", "核对", "medication"]
+  },
+  {
+    "evidenceId": "synthetic-symptom-followup",
+    "title": "症状随访主题（合成示例）",
+    "snippet": "F0 合成测试片段：仅作为症状与随访检索的占位数据，不描述真实症状分级或处理流程。",
+    "keywords": ["症状", "随访", "记录", "symptom"]
+  },
+  {
+    "evidenceId": "synthetic-discharge-summary",
+    "title": "出院材料主题（合成示例）",
+    "snippet": "F0 合成测试片段：用于测试出院材料相关关键词与证据卡片字段，不代表任何医院的实际材料。",
+    "keywords": ["出院", "材料", "摘要", "discharge"]
+  }
+]
