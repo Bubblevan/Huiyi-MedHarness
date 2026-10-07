@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "hc-rag-001-rag-metrics-v1",
+  "corpusVersion": "medtext-local-b48da9cc432fdda7",
+  "evaluationKind": "small local product integration slice; not a benchmark accuracy evaluation",
+  "cases": [
+    {
+      "turn": 1,
+      "case": "tool-required-iterative-real-evidence",
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 2,
+      "toolResultCount": 2,
+      "wallLatencyMs": 15821,
+      "toolResultIsError": false,
+      "hitCount": 3,
+      "mode": "iterative",
+      "rounds": 2,
+      "generatedQueries": 4,
+      "uniqueEvidenceCount": 3,
+      "candidateCount": 12,
+      "retrievalCalls": 4,
+      "plannerCalls": 2,
+      "retrievalLatencyMs": 134.7,
+      "plannerLatencyMs": 1354.7,
+      "ragLatencyMs": 1494,
+      "estimatedContextTokens": 846,
+      "corpusVersion": "medtext-local-b48da9cc432fdda7",
+      "plannerInputTokens": 1036,
+      "plannerOutputTokens": 57,
+      "toolResults": [
+        {
+          "isError": false,
+          "hitCount": 3,
+          "ragMode": "iterative",
+          "retrievalRounds": 2,
+          "generatedQueryCount": 4,
+          "uniqueEvidenceCount": 3,
+          "candidateCount": 12,
+          "retrievalCalls": 4,
+          "plannerCalls": 2,
+          "retrievalLatencyMs": 134.7,
+          "plannerLatencyMs": 1354.7,
+          "ragLatencyMs": 1494,
+          "estimatedContextTokens": 846,
+          "corpusVersion": "medtext-local-b48da9cc432fdda7"
+        },
+        {
+          "isError": false,
+          "hitCount": 3,
+          "ragMode": "iterative",
+          "retrievalRounds": 2,
+          "generatedQueryCount": 4,
+          "uniqueEvidenceCount": 3,
+          "candidateCount": 12,
+          "retrievalCalls": 4,
+          "plannerCalls": 2,
+          "retrievalLatencyMs": 82.8,
+          "plannerLatencyMs": 888.2,
+          "ragLatencyMs": 974.7,
+          "estimatedContextTokens": 846,
+          "corpusVersion": "medtext-local-b48da9cc432fdda7"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "case": "no-tool-trivial",
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 0,
+      "toolResultCount": 0,
+      "wallLatencyMs": 1324
+    },
+    {
+      "turn": 3,
+      "case": "single-retrieval",
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 1,
+      "toolResultCount": 1,
+      "wallLatencyMs": 11850,
+      "toolResultIsError": false,
+      "hitCount": 3,
+      "mode": "single",
+      "rounds": 1,
+      "generatedQueries": 0,
+      "uniqueEvidenceCount": 3,
+      "candidateCount": 3,
+      "retrievalCalls": 1,
+      "plannerCalls": 0,
+      "retrievalLatencyMs": 10.2,
+      "plannerLatencyMs": 0,
+      "ragLatencyMs": 13.9,
+      "estimatedContextTokens": 780,
+      "corpusVersion": "medtext-local-b48da9cc432fdda7",
+      "toolResults": [
+        {
+          "isError": false,
+          "hitCount": 3,
+          "ragMode": "single",
+          "retrievalRounds": 1,
+          "generatedQueryCount": 0,
+          "uniqueEvidenceCount": 3,
+          "candidateCount": 3,
+          "retrievalCalls": 1,
+          "plannerCalls": 0,
+          "retrievalLatencyMs": 10.2,
+          "plannerLatencyMs": 0,
+          "ragLatencyMs": 13.9,
+          "estimatedContextTokens": 780,
+          "corpusVersion": "medtext-local-b48da9cc432fdda7"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "case": "unsupported-topic-weak-evidence",
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 1,
+      "toolResultCount": 1,
+      "wallLatencyMs": 6320,
+      "toolResultIsError": false,
+      "hitCount": 3,
+      "mode": "single",
+      "rounds": 1,
+      "generatedQueries": 0,
+      "uniqueEvidenceCount": 3,
+      "candidateCount": 3,
+      "retrievalCalls": 1,
+      "plannerCalls": 0,
+      "retrievalLatencyMs": 11.2,
+      "plannerLatencyMs": 0,
+      "ragLatencyMs": 14.6,
+      "estimatedContextTokens": 688,
+      "corpusVersion": "medtext-local-b48da9cc432fdda7",
+      "toolResults": [
+        {
+          "isError": false,
+          "hitCount": 3,
+          "ragMode": "single",
+          "retrievalRounds": 1,
+          "generatedQueryCount": 0,
+          "uniqueEvidenceCount": 3,
+          "candidateCount": 3,
+          "retrievalCalls": 1,
+          "plannerCalls": 0,
+          "retrievalLatencyMs": 11.2,
+          "plannerLatencyMs": 0,
+          "ragLatencyMs": 14.6,
+          "estimatedContextTokens": 688,
+          "corpusVersion": "medtext-local-b48da9cc432fdda7"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "case": "health-engine-unavailable",
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 5,
+      "toolResultCount": 5,
+      "wallLatencyMs": 21664,
+      "toolResultIsError": true,
+      "toolResults": [
+        {
+          "isError": true
+        },
+        {
+          "isError": true
+        },
+        {
+          "isError": true
+        },
+        {
+          "isError": true
+        },
+        {
+          "isError": true
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "case": "health-engine-restart-recovery",
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 1,
+      "toolResultCount": 1,
+      "wallLatencyMs": 12390,
+      "toolResultIsError": false,
+      "hitCount": 3,
+      "mode": "single",
+      "rounds": 1,
+      "generatedQueries": 0,
+      "uniqueEvidenceCount": 3,
+      "candidateCount": 3,
+      "retrievalCalls": 1,
+      "plannerCalls": 0,
+      "retrievalLatencyMs": 48.8,
+      "plannerLatencyMs": 0,
+      "ragLatencyMs": 53.2,
+      "estimatedContextTokens": 780,
+      "corpusVersion": "medtext-local-b48da9cc432fdda7",
+      "toolResults": [
+        {
+          "isError": false,
+          "hitCount": 3,
+          "ragMode": "single",
+          "retrievalRounds": 1,
+          "generatedQueryCount": 0,
+          "uniqueEvidenceCount": 3,
+          "candidateCount": 3,
+          "retrievalCalls": 1,
+          "plannerCalls": 0,
+          "retrievalLatencyMs": 48.8,
+          "plannerLatencyMs": 0,
+          "ragLatencyMs": 53.2,
+          "estimatedContextTokens": 780,
+          "corpusVersion": "medtext-local-b48da9cc432fdda7"
+        }
+      ]
+    }
+  ],
+  "aggregates": {
+    "mainDshTurns": 6,
+    "completedTurns": 6,
+    "mainToolCalls": 10,
+    "successfulEvidenceToolCalls": 5,
+    "failedEvidenceToolCalls": 5,
+    "noToolTurns": 1,
+    "successfulEvidenceSearches": 5,
+    "meanSuccessfulRagLatencyMs": 510.1,
+    "meanRetrievalLatencyMs": 57.5,
+    "meanPlannerLatencyMs": 448.6,
+    "totalActiveDshCliWallLatencyMs": 69369
+  },
+  "iterativeEvidenceAcquisition": {
+    "perSearch": {
+      "rounds": 2,
+      "generatedQueries": 4,
+      "plannerCalls": 2,
+      "retrievalCalls": 4,
+      "candidateCount": 12,
+      "uniqueEvidenceCount": 3,
+      "returnedEvidenceCount": 3,
+      "estimatedEvidenceContextTokens": 846,
+      "retrievalLatencyMs": 134.7,
+      "plannerLatencyMs": 1354.7,
+      "totalLatencyMs": 1494,
+      "plannerInputTokens": 1036,
+      "plannerOutputTokens": 57
+    },
+    "DSHToolSearchCallsInTurn": 2,
+    "totalInternalPlannerCalls": 4,
+    "totalGeneratedQueries": 8,
+    "totalInternalRetrievalCalls": 8,
+    "totalCandidateResults": 24,
+    "totalEvidenceItemsReturned": 6,
+    "totalPlannerInputTokens": 2161,
+    "totalPlannerOutputTokens": 92,
+    "degraded": false,
+    "perSearchTrace": [
+      {
+        "retrievalRounds": 2,
+        "generatedQueryCount": 4,
+        "plannerCalls": 2,
+        "retrievalCalls": 4,
+        "candidateCount": 12,
+        "hitCount": 3,
+        "retrievalLatencyMs": 134.7,
+        "plannerLatencyMs": 1354.7,
+        "ragLatencyMs": 1494,
+        "plannerInputTokens": 1036,
+        "plannerOutputTokens": 57
+      },
+      {
+        "retrievalRounds": 2,
+        "generatedQueryCount": 4,
+        "plannerCalls": 2,
+        "retrievalCalls": 4,
+        "candidateCount": 12,
+        "hitCount": 3,
+        "retrievalLatencyMs": 82.8,
+        "plannerLatencyMs": 888.2,
+        "ragLatencyMs": 974.7,
+        "plannerInputTokens": 1125,
+        "plannerOutputTokens": 35
+      }
+    ]
+  },
+  "successfulToolResultLatencyBreakdown": [
+    {
+      "turn": 1,
+      "mode": "iterative",
+      "retrievalLatencyMs": 134.7,
+      "plannerLatencyMs": 1354.7,
+      "totalLatencyMs": 1494,
+      "plannerInputTokens": 1036,
+      "plannerOutputTokens": 57
+    },
+    {
+      "turn": 1,
+      "mode": "iterative",
+      "retrievalLatencyMs": 82.8,
+      "plannerLatencyMs": 888.2,
+      "totalLatencyMs": 974.7,
+      "plannerInputTokens": 1125,
+      "plannerOutputTokens": 35
+    },
+    {
+      "turn": 3,
+      "mode": "single",
+      "retrievalLatencyMs": 10.2,
+      "plannerLatencyMs": 0,
+      "totalLatencyMs": 13.9
+    },
+    {
+      "turn": 4,
+      "mode": "single",
+      "retrievalLatencyMs": 11.2,
+      "plannerLatencyMs": 0,
+      "totalLatencyMs": 14.6
+    },
+    {
+      "turn": 6,
+      "mode": "single",
+      "retrievalLatencyMs": 48.8,
+      "plannerLatencyMs": 0,
+      "totalLatencyMs": 53.2
+    }
+  ],
+  "singleModeLatencyMs": [
+    13.9,
+    14.6,
+    53.2
+  ],
+  "weakResult": {
+    "caseTurn": 4,
+    "returnedNearestCandidates": 3,
+    "assistantExplicitlyAcknowledgedInsufficientEvidence": true,
+    "assistantUsedEvidenceHandleCitation": false,
+    "liveZeroHitResultObserved": false,
+    "zeroHitBehaviorCoveredByTests": true,
+    "scoreThresholdCalibrated": false
+  },
+  "restart": {
+    "serviceProcessRestarted": true,
+    "sameQueryHitCountBeforeAndAfter": 3,
+    "corpusVersion": "medtext-local-b48da9cc432fdda7",
+    "stableEvidenceMetadataSha256Before": "c6cef17a2c7ec6f4762443dc6f016d88f2c1ab8b752dfd643b762fb09021cf10",
+    "stableEvidenceMetadataSha256After": "c6cef17a2c7ec6f4762443dc6f016d88f2c1ab8b752dfd643b762fb09021cf10",
+    "sameStructureAndRanking": true,
+    "postRestartDshTurn": 6,
+    "postRestartDshOutcome": "PASS"
+  },
+  "cancellation": {
+    "protocol": "DSH ACP v1",
+    "profile": "built-in ACP with pinned DSH agent-loop",
+    "sessionId": "5c8c8fb3-7dc0-4f27-a437-41718e306104",
+    "traceFile": "cancel-trace.jsonl",
+    "requestMethod": "session/cancel",
+    "cancelledAfterNativeToolCall": true,
+    "toolCallCount": 1,
+    "toolResultIsError": true,
+    "turnEndReason": "aborted",
+    "protocolStopReason": "cancelled",
+    "sessionCloseCompleted": true,
+    "stdoutParseErrors": 0,
+    "turnEventLatencyMs": 1359,
+    "healthEngineRemainedReadyAfterCancellation": true
+  },
+  "plannerTokenUsage": {
+    "source": "local OpenAI-compatible planner response usage returned by Qwen/vLLM",
+    "successfulPlannerCalls": 4,
+    "totalInputTokens": 2161,
+    "totalOutputTokens": 92,
+    "scope": "RAG planner calls only; DSH user-answer token usage was not collected in the metadata trace"
+  },
+  "evaluationCasesFile": "artifacts/hc-rag-001/evaluation-cases.json"
+}

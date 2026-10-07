@@ -3,9 +3,10 @@ import { Context } from '@deepseek-ai/cordis'
 import { ToolCallId } from '@deepseek-ai/dsh-llm'
 import ToolRuntime from '@deepseek-ai/dsh-tools'
 import fixtureData from '../fixtures/evidence.json' with { type: 'json' }
-import { apply as applyHuiyiBundle } from '../src/index.js'
+import { applyWithIdentity } from '../src/index.js'
 import { searchMedicalEvidence, validateSearchInput, type EvidenceFixture } from '../src/evidence.js'
 import { toSessionTraceRecord } from '../src/trace.js'
+import type { EvidenceSet, MedicalEvidenceClientPort } from '../src/rag/contracts.js'
 import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
 
 const fixtures = fixtureData as EvidenceFixture[]
@@ -178,20 +179,46 @@ describe('DSH native tool integration', () => {
       configurable: true,
     })
     new ToolRuntime(ctx)
+    const fixtureResult: EvidenceSet = {
+      query: 'blood pressure',
+      mode: 'single',
+      hits: [{
+        evidenceId: 'E1', rank: 1, title: 'Blood pressure', snippet: 'Source-backed snippet.',
+        source: 'textbooks', sourceType: 'medical_reference', corpus: 'textbooks',
+        sourceDocumentId: 'Anatomy_Gray', chunkId: '0', score: 0.91,
+        retrievalQuery: 'private generated query', retrievalQueries: ['private generated query'],
+        retrievalRound: 1, snippetTruncated: false,
+      }],
+      retrieval: {
+        rounds: 1, generatedQueries: 0, uniqueDocuments: 1, candidateCount: 1,
+        returnedEvidenceCount: 1, retrievalCalls: 1, plannerCalls: 0,
+        retrievalLatencyMs: 1, plannerLatencyMs: 0, latencyMs: 2,
+        estimatedContextTokens: 22, plannerModel: 'local-qwen-test', plannerPromptVersion: '',
+        generatedQueryHashes: [], degraded: false,
+      },
+      corpusVersion: 'fixture-v1',
+    }
+    const client: MedicalEvidenceClientPort = {
+      async search(request) { return { ...fixtureResult, query: request.query, mode: request.mode ?? 'single' } },
+      async health() { return { status: 'ok' } },
+    }
 
     try {
-      applyHuiyiBundle(ctx)
+      applyWithIdentity(ctx, () => undefined, client)
       const toolSchema = ctx.tools.schemas().find(schema => schema.name === 'search_medical_evidence')
       expect(toolSchema).toBeDefined()
       expect(toolSchema?.parameters).toMatchObject({
         type: 'object',
-        properties: { query: { type: 'string' }, topK: { type: 'integer' } },
+        properties: { query: { type: 'string' }, mode: { type: 'string' }, topK: { type: 'integer' } },
         required: ['query'],
       })
 
       const traceLines: string[] = []
+      const stdoutLines: string[] = []
+      const originalError = console.error
       const originalInfo = console.info
-      console.info = (...messages) => { traceLines.push(messages.map(String).join(' ')) }
+      console.error = (...messages) => { traceLines.push(messages.map(String).join(' ')) }
+      console.info = (...messages) => { stdoutLines.push(messages.map(String).join(' ')) }
       try {
         const session = { id: 'runtime-session' } as Session
         const events: unknown[] = [
@@ -202,9 +229,11 @@ describe('DSH native tool integration', () => {
         ]
         for (const event of events) ctx.emit('session/event', session, event as SessionEvent)
       } finally {
+        console.error = originalError
         console.info = originalInfo
       }
       expect(traceLines).toHaveLength(4)
+      expect(stdoutLines).toEqual([])
       expect(traceLines.join('\n')).toContain('"type":"tool/call"')
       expect(traceLines.join('\n')).toContain('"type":"tool/result"')
       expect(traceLines.join('\n')).toContain('"type":"assistant/message"')
@@ -223,10 +252,12 @@ describe('DSH native tool integration', () => {
       expect(result.isError).toBe(false)
       if (result.isError) throw new Error('expected the DSH tool call to succeed')
       expect(result.value).toMatchObject({
-        query: '血压',
-        hits: [{ evidenceId: 'synthetic-blood-pressure-log', rank: 1 }],
+        query: '血压', mode: 'single',
+        hits: [{ evidenceId: 'E1', rank: 1, corpus: 'textbooks' }],
       })
-      expect(result.content).toEqual([{ type: 'text', text: JSON.stringify(result.value) }])
+      expect(result.content[0]?.type).toBe('text')
+      expect(result.content[0]?.type === 'text' ? result.content[0].text : '').toContain('"evidenceId":"E1"')
+      expect(result.content[0]?.type === 'text' ? result.content[0].text : '').not.toContain('private generated query')
     } finally {
       await ctx.fiber.dispose()
     }

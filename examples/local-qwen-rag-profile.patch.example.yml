@@ -1,0 +1,21 @@
+# Example deployment overlay for the currently available loopback Qwen service.
+# Merge into the selected DSH profile; these values do not belong in Huiyi code.
+- id: llm-pi-ai
+  name: '@deepseek-ai/dsh-llm-pi-ai'
+  config:
+    providers:
+      local-qwen:
+        displayName: Local Qwen
+        api: openai-completions
+        baseURL: http://127.0.0.1:8001/v1
+        apiKeyEnv: HUIYI_LOCAL_QWEN_API_KEY
+        models:
+          - id: Qwen/Qwen3-8B
+            name: Local Qwen3-8B
+            contextWindow: 32768
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: local-qwen
+    model: Qwen/Qwen3-8B

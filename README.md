@@ -105,6 +105,43 @@ This smoke uses the real DSH `agent-loop` and its native `ctx.tools` dispatch pa
 
 The F0.1 live run is recorded in [`artifacts/f0.1-local-qwen-live-20261007/run-metadata.json`](artifacts/f0.1-local-qwen-live-20261007/run-metadata.json) and its metadata-only session trace is next to it. For future runs, save DSH commit, Huiyi commit, local model id, endpoint protocol, each turn outcome, and total tool-call count next to the JSONL trace. Calculate wall latency in milliseconds from the first `turn/start.time` to the last `turn/end.time`. Do not copy terminal conversation text into the trace artifact.
 
+## HC-MEM-001 long-term memory integration
+
+AMA is integrated as a Python memory service behind the single DSH runtime. Automatic recall contributes one cached, turn-scoped `<patient_memory>` context through DSH's prompt assembly waterfall. Only a successfully settled root turn is captured. Patient history is labeled as contextual history, separate from medical evidence. See [the memory boundary ADR](docs/adr/0002-ama-memory-boundary.md), [the lifecycle](docs/memory/lifecycle.md), and [health-engine setup](services/health-engine/README.md).
+
+The development health-engine uses the existing Python 3.12 uv environment with FAISS because the Health-Copilot training environment does not include `faiss-cpu`; the shared Health-Copilot environment remains available for local vLLM and was left unchanged. Set `HUIYI_MEMORY_USER_ID` only for a single-user local profile. A multi-user host should call exported `applyWithIdentity(ctx, resolver)` and resolve identity from authenticated host session metadata.
+
+## HC-RAG-001 medical evidence service
+
+`search_medical_evidence` calls the shared local `health-engine` RAG route. It returns a provenance-bearing `EvidenceSet` from the already-prepared MedCPT MedText sample. In `iterative` mode, a local Qwen planner generates a bounded number of structured search queries; the Python subsystem stops after evidence acquisition and never writes the user-facing answer. DSH's same AgentLoop consumes the tool result and produces the final answer. Patient `MemorySnapshot` and external `EvidenceSet` remain separate domains.
+
+The accepted reproduction was a small local smoke, not a MedQA accuracy run: 60 Textbooks chunks plus 33 chunks from one StatPearls article, MedCPT, Qwen3-8B, `n_rounds=1`, `n_queries=2`, and `k=3`. Its exact metadata-only trace and limitations are mapped in [the upstream audit](docs/rag/imedrag-upstream-map.md). Reusable retrieval/evaluation practices reviewed from Health-Copilot are recorded in [the engineering lessons note](docs/rag/health-copilot-engineering-lessons.md). Corpus and FAISS assets remain outside Git; the manifest records hashes, counts, model revisions, and the fact that the original dataset Git revisions were not captured.
+
+### Start the local RAG data plane
+
+Use the existing FAISS-capable Python environment documented above. Copy the deployment sample to an ignored local file and source it:
+
+```bash
+cp examples/local-rag.env.example .env.rag
+set -a
+source .env.rag
+set +a
+export PYTHONPATH="$PWD/services/health-engine/src"
+ENGINE_PYTHON=/root/gpufree-data/AMA/.venv/bin/python
+"$ENGINE_PYTHON" -m uvicorn huiyi_health_engine.app:app --host 127.0.0.1 --port 8322 --no-access-log
+```
+
+The RAG app validates the local corpus/index manifest and MedCPT revision at startup. Missing or mismatched assets fail startup; no request downloads, clones, or builds a corpus. `scripts/rag/verify_index.py --corpus-root "$HUIYI_RAG_CORPUS_ROOT" --manifest "$HUIYI_RAG_MANIFEST_PATH"` verifies the prepared assets. `scripts/rag/build_index.py` is an explicit offline rebuild using the configured local MedCPT Article Encoder. If the sample health-engine port is already occupied, choose another loopback port and set both `HUIYI_HEALTH_ENGINE_PORT` and `HUIYI_HEALTH_ENGINE_URL` to match; keep the existing shared process untouched.
+
+### Local Qwen live smoke
+
+1. Use the already-running vLLM OpenAI-compatible Qwen service if it is still available. The deployment sample points to `127.0.0.1:8001`; check the endpoint/model before use. The outer DSH route and health-engine planner may share it. Use the configured non-secret placeholder if the endpoint is keyless.
+2. Start the health-engine with `examples/local-rag.env.example`, then check `GET /v1/rag/status` reports `ready`.
+3. Install this bundle in the pinned DSH profile and merge [`examples/local-qwen-rag-profile.patch.example.yml`](examples/local-qwen-rag-profile.patch.example.yml). Keep one DSH Session ID for the acceptance turns. Exercise a tool-required medical query with `mode=iterative`, a simple no-tool turn, a `mode=single` query, and an intentionally unsupported topic to check weak-result handling. A dense index can return nearest neighbors for an unsupported query; verify DSH explicitly treats unrelated results as insufficient and does not cite them. Preserve the native DSH `tool/call` → `tool/result` → next model step → `turn/end` trace. The saved observer trace includes metadata only, not prompts, answers, snippets, or generated query text.
+4. Run the DSH + local-Qwen live acceptance; unit tests and direct HTTP/tool calls are not a substitute for the real AgentLoop turn.
+
+Live metrics, the local corpus manifest, limitations, frozen [acceptance prompts](artifacts/hc-rag-001/evaluation-cases.json), and the complete metadata-only DSH session trace belong under [`artifacts/hc-rag-001/`](artifacts/hc-rag-001/). They are separate from the earlier reproduction outcome. The synthetic fixture remains in `fixtures/evidence.json` for offline domain tests; live `search_medical_evidence` uses the prepared external corpus.
+
 ## Repository map
 
 - `src/index.ts` — DSH plugin entry and native tool definition.
@@ -114,4 +151,4 @@ The F0.1 live run is recorded in [`artifacts/f0.1-local-qwen-live-20261007/run-m
 - `tests/evidence.test.ts` — offline contract and event-observation tests.
 - `docs/adr/0001-dsh-runtime-boundary.md` — pinned-source research and ownership decision.
 
-This is the F0 implementation only. It deliberately has no Python runtime, HTTP service, RAG pipeline, memory, or multi-agent behavior.
+F0 established the native DSH tool boundary using deterministic synthetic evidence. HC-MEM-001 and HC-RAG-001 add separate capabilities behind the shared health-engine without changing DSH's ownership of the user turn. There is still no second AgentLoop, multi-agent orchestration, hosted OpenAI API dependency, or hospital-record integration.

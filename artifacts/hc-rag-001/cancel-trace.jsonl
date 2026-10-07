@@ -1,0 +1,9 @@
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":4,"time":1791383672979,"type":"turn/start","turn":1}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":8,"time":1791383673000,"type":"user/message"}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":9,"time":1791383673001,"type":"user/message"}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":10,"time":1791383673001,"type":"user/message"}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":12,"time":1791383673004,"type":"request/context","provider":"local-qwen","model":"Qwen/Qwen3-8B","contextWindow":32768}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":14,"time":1791383674075,"type":"assistant/message","turn":1,"step":1,"interrupted":false}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":15,"time":1791383674077,"type":"tool/call","turn":1,"step":1,"callId":"chatcmpl-tool-a42aa85168f40352","toolName":"search_medical_evidence"}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":16,"time":1791383674337,"type":"tool/result","turn":1,"step":1,"callId":"chatcmpl-tool-a42aa85168f40352","isError":true}
+{"sessionId":"5c8c8fb3-7dc0-4f27-a437-41718e306104","seq":18,"time":1791383674338,"type":"turn/end","turn":1,"reasonKind":"aborted"}

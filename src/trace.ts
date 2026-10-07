@@ -2,6 +2,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
 import { appendFileSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
+import { ragTraceMetadata } from './rag/trace.js'
 
 export interface SessionTraceRecord {
   sessionId: string
@@ -16,6 +17,26 @@ export interface SessionTraceRecord {
   model?: string
   contextWindow?: number
   hitCount?: number
+  ragMode?: 'single' | 'iterative'
+  retrievalRounds?: number
+  generatedQueryCount?: number
+  uniqueEvidenceCount?: number
+  candidateCount?: number
+  returnedEvidenceCount?: number
+  retrievalCalls?: number
+  plannerCalls?: number
+  retrievalLatencyMs?: number
+  plannerLatencyMs?: number
+  ragLatencyMs?: number
+  estimatedContextTokens?: number
+  corpusVersion?: string
+  plannerModel?: string
+  plannerPromptVersion?: string
+  plannerInputTokens?: number
+  plannerOutputTokens?: number
+  generatedQueryHashes?: string[]
+  degraded?: boolean
+  degradedErrorClass?: string
   isError?: boolean
   interrupted?: boolean
   reasonKind?: string
@@ -77,6 +98,7 @@ export function toSessionTraceRecord(session: Session, event: SessionEvent): Ses
         callId: event.data.message.toolCallId,
         isError: event.data.message.isError ?? false,
         ...hitCount === undefined ? {} : { hitCount },
+        ...ragTraceMetadata(event.data.message.content),
       }
     }
     case 'assistant/message':
@@ -115,6 +137,7 @@ export function observeSessionEvents(ctx: Context): void {
         console.error(`[huiyi-medharness] metadata trace write failed (${name})`)
       }
     }
-    console.info(`[huiyi-medharness] ${line}`)
+    // Keep stdout available to DSH apps such as ACP, whose stdio is a wire protocol.
+    console.error(`[huiyi-medharness] ${line}`)
   })
 }

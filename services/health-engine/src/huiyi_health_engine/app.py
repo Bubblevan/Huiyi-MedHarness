@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import os
+import asyncio
+import threading
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlparse
@@ -23,10 +26,14 @@ from .memory.schemas import (
     OpenAiEmbeddingResponse,
 )
 from .memory.service import MemoryConflictError, MemoryService
+from .rag.config import RagSettings
+from .rag.iterative import OperationCancelled, OperationTimeout
+from .rag.schemas import EvidenceSet, MedicalEvidenceRequest, RagStatus
+from .rag.service import RagService
 
 
 def _local_llm_url() -> str:
-    value = os.environ.get("HUIYI_LOCAL_LLM_BASE_URL", "http://127.0.0.1:8001/v1/chat/completions")
+    value = os.environ.get("HUIYI_LOCAL_LLM_BASE_URL", "http://127.0.0.1:8000/v1/chat/completions")
     parsed = urlparse(value)
     if parsed.scheme not in {"http", "https"} or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
         raise RuntimeError("HUIYI_LOCAL_LLM_BASE_URL must target a loopback OpenAI-compatible endpoint")
@@ -49,12 +56,86 @@ DATA_DIR = Path(os.environ.get(
     str(Path(__file__).resolve().parents[2] / "data"),
 )).expanduser().resolve()
 service = MemoryService(AmaMemoryBackend(DATA_DIR), DATA_DIR)
-app = FastAPI(title="Huiyi Health Engine", version="0.1.0")
+
+
+def _rag_enabled() -> bool:
+    return os.environ.get("HUIYI_RAG_ENABLED", "0").strip().lower() in {"1", "true", "yes"}
+
+
+def _consume_background_result(future: asyncio.Future[EvidenceSet]) -> None:
+    """Observe a worker result even when its HTTP request has already disconnected."""
+    try:
+        future.exception()
+    except asyncio.CancelledError:
+        pass
+
+
+@lru_cache(maxsize=1)
+def get_rag_service() -> RagService:
+    return RagService.from_settings(RagSettings.from_env())
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # An explicitly enabled RAG deployment validates and loads the pinned local
+    # assets at startup. Missing assets stop this process before it accepts turns.
+    if _rag_enabled():
+        get_rag_service()
+    yield
+
+
+app = FastAPI(title="Huiyi Health Engine", version="0.1.0", lifespan=lifespan)
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/v1/rag/status", response_model=RagStatus)
+def rag_status() -> RagStatus:
+    if not _rag_enabled():
+        return RagStatus(status="disabled")
+    try:
+        return get_rag_service().status()
+    except Exception as exc:
+        return RagStatus(status="not_ready", errorClass=type(exc).__name__)
+
+
+@app.post("/v1/rag/search", response_model=EvidenceSet, response_model_exclude_none=True)
+async def rag_search(body: MedicalEvidenceRequest, raw_request: Request) -> EvidenceSet:
+    if not _rag_enabled():
+        raise HTTPException(status_code=503, detail={"error": "rag_disabled"})
+    try:
+        rag_service = get_rag_service()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail={"error": type(exc).__name__}) from None
+
+    cancellation = threading.Event()
+    loop = asyncio.get_running_loop()
+    pending = loop.run_in_executor(None, rag_service.search, body, cancellation)
+    # The worker thread cannot be force-stopped. If the HTTP client disconnects,
+    # it cooperatively exits at the next cancellation check; always consume that
+    # eventual exception even though this route has already returned 499.
+    pending.add_done_callback(_consume_background_result)
+    try:
+        while not pending.done():
+            if await raw_request.is_disconnected():
+                cancellation.set()
+                raise HTTPException(status_code=499, detail={"error": "request_cancelled"})
+            await asyncio.sleep(0.05)
+        return await pending
+    except OperationCancelled:
+        raise HTTPException(status_code=499, detail={"error": "request_cancelled"}) from None
+    except OperationTimeout:
+        raise HTTPException(status_code=504, detail={"error": "rag_timeout"}) from None
+    except HTTPException:
+        raise
+    except asyncio.CancelledError:
+        cancellation.set()
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail={"error": type(exc).__name__}) from None
 
 
 @app.post("/v1/memory/recall", response_model=MemorySnapshot)

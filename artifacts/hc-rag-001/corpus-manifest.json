@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "medtext-local-b48da9cc432fdda7",
+  "sourceRepository": "MedRAG/MedText sample prepared by repro/imedrag-small-20261007",
+  "sources": [
+    {
+      "name": "textbooks",
+      "revision": null,
+      "documentCount": 1,
+      "chunkCount": 60,
+      "chunkFiles": [
+        {
+          "path": "textbooks/chunk/Anatomy_Gray.jsonl",
+          "sha256": "f5cf596f1d31efbff59cb47103d750328a076377250088d90a0eb4f821ef8740"
+        }
+      ]
+    },
+    {
+      "name": "statpearls",
+      "revision": null,
+      "documentCount": 1,
+      "chunkCount": 33,
+      "chunkFiles": [
+        {
+          "path": "statpearls/chunk/article-20094.jsonl",
+          "sha256": "f7ac5ba76df129afa461365de14f4d2aed2345dd23d006eb5404a857711adc14"
+        }
+      ]
+    }
+  ],
+  "retriever": {
+    "name": "MedCPT",
+    "queryEncoderModel": "ncbi/MedCPT-Query-Encoder",
+    "queryEncoderRevision": "d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc",
+    "articleEncoderModel": "ncbi/MedCPT-Article-Encoder",
+    "articleEncoderRevision": "d05a736da4bb84ee4057b7f7999485be6ed85465"
+  },
+  "indices": [
+    {
+      "corpus": "textbooks",
+      "indexType": "faiss.IndexFlatIP",
+      "vectorCount": 60,
+      "indexPath": "textbooks/index/ncbi/MedCPT-Article-Encoder/faiss.index",
+      "metadataPath": "textbooks/index/ncbi/MedCPT-Article-Encoder/metadatas.jsonl",
+      "files": [
+        {
+          "path": "textbooks/index/ncbi/MedCPT-Article-Encoder/faiss.index",
+          "sha256": "bca4726249ba8ee6fcb73cda8629e50e84583d7bba8476be5c9c0e78fe1686c2"
+        },
+        {
+          "path": "textbooks/index/ncbi/MedCPT-Article-Encoder/metadatas.jsonl",
+          "sha256": "4f137053237cdba8304626b45a7ded1d87efd215af1079b586b69704b42f5d10"
+        }
+      ]
+    },
+    {
+      "corpus": "statpearls",
+      "indexType": "faiss.IndexFlatIP",
+      "vectorCount": 33,
+      "indexPath": "statpearls/index/ncbi/MedCPT-Article-Encoder/faiss.index",
+      "metadataPath": "statpearls/index/ncbi/MedCPT-Article-Encoder/metadatas.jsonl",
+      "files": [
+        {
+          "path": "statpearls/index/ncbi/MedCPT-Article-Encoder/faiss.index",
+          "sha256": "bff0bbee1bca51ae9fa7d50413a8a51cf92dc2f0bf51f5a16c8c1f2658251fa3"
+        },
+        {
+          "path": "statpearls/index/ncbi/MedCPT-Article-Encoder/metadatas.jsonl",
+          "sha256": "86ac8b49be93d2aa0b2f72d9e6ac1b9276b061f787062415482595cc1164f364"
+        }
+      ]
+    }
+  ],
+  "indexHash": "2de1eda9463a8318b94e21366d71424aee65f4827359a48d5c2bc8ebcb4ebc3c"
+}

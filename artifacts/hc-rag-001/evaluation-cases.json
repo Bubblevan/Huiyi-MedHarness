@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "hc-rag-001-product-eval-cases-v1",
+  "purpose": "Frozen operational acceptance prompts for the small local product slice; not a MedQA accuracy set.",
+  "cases": [
+    {
+      "id": "tool-required-iterative-real-evidence",
+      "prompt": "请调用 search_medical_evidence，以 iterative 模式检索面神经的解剖和功能，最多返回 3 条证据，然后基于来源证据作简短总结。",
+      "expected": [
+        "native DSH tool call",
+        "valid source-backed EvidenceSet",
+        "bounded iterative retrieval",
+        "DSH turn completed"
+      ]
+    },
+    {
+      "id": "no-tool-trivial",
+      "prompt": "不要调用任何工具，只回答 2 + 2 的结果。",
+      "expected": [
+        "no RAG tool call",
+        "DSH turn completed"
+      ]
+    },
+    {
+      "id": "single-retrieval",
+      "prompt": "请只调用一次 search_medical_evidence，并将 mode 设置为 single、topK 设置为 3，检索面神经解剖的来源证据，然后简要总结。",
+      "expected": [
+        "one successful native RAG call",
+        "single mode",
+        "one retrieval round",
+        "DSH turn completed"
+      ]
+    },
+    {
+      "id": "unsupported-topic-weak-evidence",
+      "prompt": "请只调用一次 search_medical_evidence，以 single 模式检索“量子星云临床试验”，topK 为 3。若返回的最接近资料与该主题无关，请明确说明证据不足，不要编造引用。",
+      "expected": [
+        "weak or empty result is identified",
+        "no fabricated evidence citation",
+        "DSH turn completed"
+      ],
+      "observed": {
+        "returnedNearestCandidates": 3,
+        "explicitInsufficientEvidenceAcknowledgement": true,
+        "evidenceHandleCitation": false
+      }
+    },
+    {
+      "id": "health-engine-unavailable",
+      "prompt": "请只调用一次 search_medical_evidence，以 single 模式检索感染性心内膜炎的外部证据，并基于工具结果回答。",
+      "expected": [
+        "typed native tool failures are visible",
+        "DSH turn completed",
+        "no claim that retrieval succeeded"
+      ],
+      "observed": {
+        "toolCallCount": 5,
+        "failedToolResultCount": 5,
+        "turnEndReason": "completed",
+        "toolFailureAcknowledgementDetected": true,
+        "retrievedSourceClaimDetected": false,
+        "modelRetriedAfterFailure": true
+      }
+    },
+    {
+      "id": "health-engine-restart-recovery",
+      "prompt": "请只调用一次 search_medical_evidence，以 single 模式搜索面神经解剖证据，topK 为 3。",
+      "expected": [
+        "service reloads prepared corpus without rebuilding or downloading",
+        "successful EvidenceSet after restart",
+        "DSH turn completed"
+      ],
+      "observed": {
+        "hitCount": 3,
+        "sameCorpusVersion": true,
+        "stableEvidenceMetadataBeforeAndAfter": true
+      }
+    }
+  ],
+  "cancellationCase": {
+    "protocol": "DSH ACP v1",
+    "prompt": "请调用 search_medical_evidence 一次，以 iterative 模式检索面神经解剖与功能，topK 为 3。",
+    "expected": [
+      "observe native tool call",
+      "send session/cancel",
+      "DSH reports cancelled and turn ends aborted",
+      "health-engine remains ready"
+    ]
+  }
+}

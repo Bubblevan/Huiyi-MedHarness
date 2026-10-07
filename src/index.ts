@@ -1,76 +1,33 @@
 import type { Context } from '@deepseek-ai/cordis'
-import { defineTool } from '@deepseek-ai/dsh-tools'
-import fixtureData from '../fixtures/evidence.json' with { type: 'json' }
-import { searchMedicalEvidence, type EvidenceFixture, type EvidenceResult } from './evidence.js'
-import { observeSessionEvents } from './trace.js'
 import { MemoryClient } from './memory/client.js'
 import { installMemoryLifecycle, type MemoryUserIdResolver } from './memory/lifecycle.js'
 import { installMemoryTools } from './memory/tools.js'
 import { MetadataMemoryTrace } from './memory/trace.js'
+import type { MedicalEvidenceClientPort } from './rag/contracts.js'
+import { RagClient } from './rag/client.js'
+import { installRagTool } from './rag/tool.js'
+import { observeSessionEvents } from './trace.js'
 
 export * from './memory/index.js'
+export * from './rag/index.js'
 
 export const name = 'huiyi-medharness'
 export const inject = ['tools', 'systemPrompt']
-
-const fixtures = fixtureData as EvidenceFixture[]
-
-const evidenceHitSchema = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    evidenceId: { type: 'string', required: true },
-    rank: { type: 'integer', required: true },
-    title: { type: 'string', required: true },
-    snippet: { type: 'string', required: true },
-    source: { type: 'string', required: true },
-    sourceType: { type: 'string', required: true },
-    score: { type: 'number', required: true },
-  },
-} as const
-
-const evidenceResultSchema = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    query: { type: 'string', required: true },
-    hits: { type: 'array', required: true, items: evidenceHitSchema },
-  },
-} as const
 
 export function apply(ctx: Context): void {
   applyWithIdentity(ctx, () => process.env.HUIYI_MEMORY_USER_ID?.trim() || undefined)
 }
 
-/** Install memory with a host-owned trusted patient identity resolver. */
-export function applyWithIdentity(ctx: Context, resolveUserId: MemoryUserIdResolver): void {
-  ctx.tools.register(defineTool({
-    name: 'search_medical_evidence',
-    description: 'Search the F0 synthetic medical-evidence fixture by deterministic keyword matching. Returns fabricated test data only; it is not clinical guidance.',
-    parameters: {
-      query: {
-        type: 'string',
-        required: true,
-        description: 'Search keywords or phrase; must be non-empty after trimming.',
-      },
-      topK: {
-        type: 'integer',
-        description: 'Maximum hits, integer 1 through 10; defaults to 3.',
-        default: 3,
-      },
-    },
-    output: {
-      schema: evidenceResultSchema,
-      render: (_args, value) => [{ type: 'text', text: JSON.stringify(value) }],
-    },
-    async execute(args, exec): Promise<EvidenceResult> {
-      return searchMedicalEvidence(args, fixtures, exec.signal)
-    },
-  }))
-
+/** Install the bundle with a trusted host-owned patient/user identity resolver. */
+export function applyWithIdentity(
+  ctx: Context,
+  resolveUserId: MemoryUserIdResolver,
+  evidenceClient: MedicalEvidenceClientPort = new RagClient(),
+): void {
   const memoryClient = new MemoryClient()
   const memoryTrace = new MetadataMemoryTrace()
-  const lifecycle = installMemoryLifecycle(ctx, memoryClient, memoryTrace, resolveUserId)
-  installMemoryTools(ctx, memoryClient, lifecycle)
+  const memoryLifecycle = installMemoryLifecycle(ctx, memoryClient, memoryTrace, resolveUserId)
+  installMemoryTools(ctx, memoryClient, memoryLifecycle)
+  installRagTool(ctx, evidenceClient)
   observeSessionEvents(ctx)
 }

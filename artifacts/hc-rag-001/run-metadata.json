@@ -1,0 +1,406 @@
+{
+  "schemaVersion": "hc-rag-001-run-metadata-v1",
+  "task": "HC-RAG-001",
+  "recordedAt": "2026-10-07T14:36:27.914479+00:00",
+  "huiyi": {
+    "baseCommit": "78c1d4eb647725430223711fcd3acca48a622222",
+    "workingTreeDirty": true
+  },
+  "dsh": {
+    "repository": "deepseek-ai/deepseek-harness",
+    "commit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "runtimeVersion": "0.2.1-alpha.1",
+    "cliVersion": "0.2.1-alpha.1",
+    "agentRuntime": "@deepseek-ai/dsh-agent-loop",
+    "liveProfile": "built-in headless",
+    "sourceCheckoutModified": false,
+    "vendored": false
+  },
+  "imedragUpstream": {
+    "repository": "Teddy-XiongGZ/MedRAG",
+    "commit": "7599a728a28789fd601728c08d313b1148051f41"
+  },
+  "completedReproduction": {
+    "path": "/root/gpufree-data/repro/imedrag-small-20261007",
+    "wrapperGitCommit": null,
+    "result": "PASS_WITH_UNSUPPORTED_CASES",
+    "requiredSmoke": "PASS",
+    "traceSha256": "14089bd7abd192bcd81c000376c9d8660a3195ab8a8440464d272c8fc6533e89",
+    "fullReproductionRerun": false,
+    "generator": "Qwen3-8B",
+    "generatorServedAlias": "gpt-3.5-turbo-16k",
+    "endpointProtocol": "OpenAI-compatible Chat Completions",
+    "contextWindow": 16384,
+    "corpora": [
+      "Textbooks",
+      "StatPearls"
+    ],
+    "chunks": {
+      "textbooks": 60,
+      "statpearls": 33,
+      "total": 93
+    },
+    "retriever": "MedCPT dense",
+    "queryEncoderRevision": "d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc",
+    "articleEncoderRevision": "d05a736da4bb84ee4057b7f7999485be6ed85465",
+    "parameters": {
+      "n_rounds": 1,
+      "n_queries": 2,
+      "k": 3,
+      "max_tokens": 1024
+    },
+    "evaluation": "one README-based facial-nerve anatomy smoke; no MedQA split or accuracy evaluation"
+  },
+  "modelRoute": {
+    "modelId": "Qwen/Qwen3-8B",
+    "modelPath": "/root/gpufree-share/data/Qwen3-8B",
+    "provider": "local-qwen",
+    "endpointBaseURL": "http://127.0.0.1:8001/v1",
+    "endpointProtocol": "OpenAI-compatible Chat Completions via @deepseek-ai/dsh-llm-pi-ai api=openai-completions",
+    "contextWindow": 32768,
+    "profileConfig": "examples/local-qwen-rag-profile.patch.example.yml",
+    "apiKeyEnv": "HUIYI_LOCAL_QWEN_API_KEY",
+    "credentialPlaceholderSupplied": true,
+    "credentialValueStored": false
+  },
+  "healthEngine": {
+    "sharedApplication": "services/health-engine",
+    "ragRoute": "POST /v1/rag/search",
+    "liveLoopbackUrl": "http://127.0.0.1:8323",
+    "portOverrideReason": "8322 was already owned by an existing shared health-engine process; that process was left untouched.",
+    "plannerModel": "Qwen/Qwen3-8B",
+    "plannerProtocol": "OpenAI-compatible Chat Completions",
+    "plannerApiKeyEnv": "HUIYI_RAG_PLANNER_API_KEY",
+    "plannerCredentialPlaceholderSupplied": true,
+    "localOnly": true
+  },
+  "corpus": {
+    "version": "medtext-local-b48da9cc432fdda7",
+    "manifestPath": "artifacts/hc-rag-001/corpus-manifest.json",
+    "manifestSha256": "32a7a24399d029153656bb492f90fe07d7fb890bb92a20faefeef69d7144f473",
+    "sources": [
+      {
+        "name": "textbooks",
+        "datasetRevision": null,
+        "documentCount": 1,
+        "chunkCount": 60
+      },
+      {
+        "name": "statpearls",
+        "datasetRevision": null,
+        "documentCount": 1,
+        "chunkCount": 33
+      }
+    ],
+    "retriever": {
+      "name": "MedCPT",
+      "queryEncoderModel": "ncbi/MedCPT-Query-Encoder",
+      "queryEncoderRevision": "d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc",
+      "articleEncoderModel": "ncbi/MedCPT-Article-Encoder",
+      "articleEncoderRevision": "d05a736da4bb84ee4057b7f7999485be6ed85465",
+      "device": "cpu"
+    },
+    "indexType": "faiss.IndexFlatIP",
+    "indexHash": "2de1eda9463a8318b94e21366d71424aee65f4827359a48d5c2bc8ebcb4ebc3c",
+    "runtimeDownloadsOrBuilds": false
+  },
+  "bounds": {
+    "maxRounds": 2,
+    "maxQueriesPerRound": 2,
+    "candidatesPerQuery": 3,
+    "maxReturnedEvidence": 3,
+    "maxEvidenceTokens": 2048,
+    "requestTimeoutMs": 180000,
+    "modeDefault": "single"
+  },
+  "mainLiveSession": {
+    "sessionId": "session-d7eb83da-92c2-4116-af15-fb5bd048f0f8",
+    "traceFile": "live-trace.jsonl",
+    "traceMetadataOnly": true,
+    "traceRecordCount": 59,
+    "turns": [
+      {
+        "turn": 1,
+        "case": "tool-required-iterative-real-evidence",
+        "outcome": "PASS",
+        "turnEndReason": "completed",
+        "toolCallCount": 2,
+        "toolResultCount": 2,
+        "wallLatencyMs": 15821,
+        "toolResultIsError": false,
+        "hitCount": 3,
+        "mode": "iterative",
+        "rounds": 2,
+        "generatedQueries": 4,
+        "uniqueEvidenceCount": 3,
+        "candidateCount": 12,
+        "retrievalCalls": 4,
+        "plannerCalls": 2,
+        "retrievalLatencyMs": 134.7,
+        "plannerLatencyMs": 1354.7,
+        "ragLatencyMs": 1494,
+        "estimatedContextTokens": 846,
+        "corpusVersion": "medtext-local-b48da9cc432fdda7",
+        "plannerInputTokens": 1036,
+        "plannerOutputTokens": 57,
+        "toolResults": [
+          {
+            "isError": false,
+            "hitCount": 3,
+            "ragMode": "iterative",
+            "retrievalRounds": 2,
+            "generatedQueryCount": 4,
+            "uniqueEvidenceCount": 3,
+            "candidateCount": 12,
+            "retrievalCalls": 4,
+            "plannerCalls": 2,
+            "retrievalLatencyMs": 134.7,
+            "plannerLatencyMs": 1354.7,
+            "ragLatencyMs": 1494,
+            "estimatedContextTokens": 846,
+            "corpusVersion": "medtext-local-b48da9cc432fdda7",
+            "plannerInputTokens": 1036,
+            "plannerOutputTokens": 57
+          },
+          {
+            "isError": false,
+            "hitCount": 3,
+            "ragMode": "iterative",
+            "retrievalRounds": 2,
+            "generatedQueryCount": 4,
+            "uniqueEvidenceCount": 3,
+            "candidateCount": 12,
+            "retrievalCalls": 4,
+            "plannerCalls": 2,
+            "retrievalLatencyMs": 82.8,
+            "plannerLatencyMs": 888.2,
+            "ragLatencyMs": 974.7,
+            "estimatedContextTokens": 846,
+            "corpusVersion": "medtext-local-b48da9cc432fdda7",
+            "plannerInputTokens": 1125,
+            "plannerOutputTokens": 35
+          }
+        ]
+      },
+      {
+        "turn": 2,
+        "case": "no-tool-trivial",
+        "outcome": "PASS",
+        "turnEndReason": "completed",
+        "toolCallCount": 0,
+        "toolResultCount": 0,
+        "wallLatencyMs": 1324
+      },
+      {
+        "turn": 3,
+        "case": "single-retrieval",
+        "outcome": "PASS",
+        "turnEndReason": "completed",
+        "toolCallCount": 1,
+        "toolResultCount": 1,
+        "wallLatencyMs": 11850,
+        "toolResultIsError": false,
+        "hitCount": 3,
+        "mode": "single",
+        "rounds": 1,
+        "generatedQueries": 0,
+        "uniqueEvidenceCount": 3,
+        "candidateCount": 3,
+        "retrievalCalls": 1,
+        "plannerCalls": 0,
+        "retrievalLatencyMs": 10.2,
+        "plannerLatencyMs": 0,
+        "ragLatencyMs": 13.9,
+        "estimatedContextTokens": 780,
+        "corpusVersion": "medtext-local-b48da9cc432fdda7",
+        "toolResults": [
+          {
+            "isError": false,
+            "hitCount": 3,
+            "ragMode": "single",
+            "retrievalRounds": 1,
+            "generatedQueryCount": 0,
+            "uniqueEvidenceCount": 3,
+            "candidateCount": 3,
+            "retrievalCalls": 1,
+            "plannerCalls": 0,
+            "retrievalLatencyMs": 10.2,
+            "plannerLatencyMs": 0,
+            "ragLatencyMs": 13.9,
+            "estimatedContextTokens": 780,
+            "corpusVersion": "medtext-local-b48da9cc432fdda7"
+          }
+        ]
+      },
+      {
+        "turn": 4,
+        "case": "unsupported-topic-weak-evidence",
+        "outcome": "PASS",
+        "turnEndReason": "completed",
+        "toolCallCount": 1,
+        "toolResultCount": 1,
+        "wallLatencyMs": 6320,
+        "toolResultIsError": false,
+        "hitCount": 3,
+        "mode": "single",
+        "rounds": 1,
+        "generatedQueries": 0,
+        "uniqueEvidenceCount": 3,
+        "candidateCount": 3,
+        "retrievalCalls": 1,
+        "plannerCalls": 0,
+        "retrievalLatencyMs": 11.2,
+        "plannerLatencyMs": 0,
+        "ragLatencyMs": 14.6,
+        "estimatedContextTokens": 688,
+        "corpusVersion": "medtext-local-b48da9cc432fdda7",
+        "toolResults": [
+          {
+            "isError": false,
+            "hitCount": 3,
+            "ragMode": "single",
+            "retrievalRounds": 1,
+            "generatedQueryCount": 0,
+            "uniqueEvidenceCount": 3,
+            "candidateCount": 3,
+            "retrievalCalls": 1,
+            "plannerCalls": 0,
+            "retrievalLatencyMs": 11.2,
+            "plannerLatencyMs": 0,
+            "ragLatencyMs": 14.6,
+            "estimatedContextTokens": 688,
+            "corpusVersion": "medtext-local-b48da9cc432fdda7"
+          }
+        ]
+      },
+      {
+        "turn": 5,
+        "case": "health-engine-unavailable",
+        "outcome": "PASS",
+        "turnEndReason": "completed",
+        "toolCallCount": 5,
+        "toolResultCount": 5,
+        "wallLatencyMs": 21664,
+        "toolResultIsError": true,
+        "toolResults": [
+          {
+            "isError": true
+          },
+          {
+            "isError": true
+          },
+          {
+            "isError": true
+          },
+          {
+            "isError": true
+          },
+          {
+            "isError": true
+          }
+        ]
+      },
+      {
+        "turn": 6,
+        "case": "health-engine-restart-recovery",
+        "outcome": "PASS",
+        "turnEndReason": "completed",
+        "toolCallCount": 1,
+        "toolResultCount": 1,
+        "wallLatencyMs": 12390,
+        "toolResultIsError": false,
+        "hitCount": 3,
+        "mode": "single",
+        "rounds": 1,
+        "generatedQueries": 0,
+        "uniqueEvidenceCount": 3,
+        "candidateCount": 3,
+        "retrievalCalls": 1,
+        "plannerCalls": 0,
+        "retrievalLatencyMs": 48.8,
+        "plannerLatencyMs": 0,
+        "ragLatencyMs": 53.2,
+        "estimatedContextTokens": 780,
+        "corpusVersion": "medtext-local-b48da9cc432fdda7",
+        "toolResults": [
+          {
+            "isError": false,
+            "hitCount": 3,
+            "ragMode": "single",
+            "retrievalRounds": 1,
+            "generatedQueryCount": 0,
+            "uniqueEvidenceCount": 3,
+            "candidateCount": 3,
+            "retrievalCalls": 1,
+            "plannerCalls": 0,
+            "retrievalLatencyMs": 48.8,
+            "plannerLatencyMs": 0,
+            "ragLatencyMs": 53.2,
+            "estimatedContextTokens": 780,
+            "corpusVersion": "medtext-local-b48da9cc432fdda7"
+          }
+        ]
+      }
+    ],
+    "totalToolCallCount": 10,
+    "successfulEvidenceToolCalls": 5,
+    "failedToolCalls": 5,
+    "activeCliWallLatencyMs": 69369,
+    "sessionEventSpanMs": 153737,
+    "allTurnsCompleted": true,
+    "allRequestsUsedLocalQwen": true
+  },
+  "weakEvidenceCheck": {
+    "caseTurn": 4,
+    "returnedNearestCandidates": 3,
+    "assistantExplicitlyAcknowledgedInsufficientEvidence": true,
+    "assistantUsedEvidenceHandleCitation": false,
+    "liveZeroHitResultObserved": false,
+    "zeroHitBehaviorCoveredByTests": true,
+    "scoreThresholdCalibrated": false
+  },
+  "cancellation": {
+    "protocol": "DSH ACP v1",
+    "profile": "built-in ACP with pinned DSH agent-loop",
+    "sessionId": "5c8c8fb3-7dc0-4f27-a437-41718e306104",
+    "traceFile": "cancel-trace.jsonl",
+    "requestMethod": "session/cancel",
+    "cancelledAfterNativeToolCall": true,
+    "toolCallCount": 1,
+    "toolResultIsError": true,
+    "turnEndReason": "aborted",
+    "protocolStopReason": "cancelled",
+    "sessionCloseCompleted": true,
+    "stdoutParseErrors": 0,
+    "turnEventLatencyMs": 1359,
+    "healthEngineRemainedReadyAfterCancellation": true
+  },
+  "restartCheck": {
+    "serviceProcessRestarted": true,
+    "sameQueryHitCountBeforeAndAfter": 3,
+    "corpusVersion": "medtext-local-b48da9cc432fdda7",
+    "stableEvidenceMetadataSha256Before": "c6cef17a2c7ec6f4762443dc6f016d88f2c1ab8b752dfd643b762fb09021cf10",
+    "stableEvidenceMetadataSha256After": "c6cef17a2c7ec6f4762443dc6f016d88f2c1ab8b752dfd643b762fb09021cf10",
+    "sameStructureAndRanking": true,
+    "postRestartDshTurn": 6,
+    "postRestartDshOutcome": "PASS"
+  },
+  "tests": {
+    "typescriptTypecheck": "PASS",
+    "typescriptBuild": "PASS",
+    "vitestTests": 32,
+    "vitestResult": "PASS",
+    "pythonRagTestFunctions": 11,
+    "pythonRagCollectedCases": 11,
+    "pythonRagResult": "PASS",
+    "pythonCompileall": "PASS",
+    "indexManifestVerification": "PASS"
+  },
+  "limitations": [
+    "The product integration used the completed 93-chunk local MedText sample, not a full Textbooks/StatPearls corpus or MedQA accuracy evaluation.",
+    "Original Textbooks and StatPearls dataset Git revisions were not captured; manifest records null rather than inventing them.",
+    "FAISS top-k returns nearest candidates for the unsupported live topic; DSH explicitly marked them insufficient and did not cite an evidence handle. No calibrated relevance threshold was introduced.",
+    "The live zero-hit EvidenceSet path is verified by offline service/client tests, not by the non-empty prepared FAISS index."
+  ],
+  "evaluationCasesFile": "artifacts/hc-rag-001/evaluation-cases.json"
+}
