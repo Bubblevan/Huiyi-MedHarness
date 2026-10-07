@@ -4,3 +4,14 @@ coverage/
 .dsh-home/
 .env
 .env.*
+
+# HC-MEM-001 local health-engine data and logs
+services/health-engine/data/
+services/health-engine/.venv/
+services/health-engine/*.db
+services/health-engine/*.db-*
+services/health-engine/*.faiss
+services/health-engine/*.log
+services/health-engine/.pytest_cache/
+__pycache__/
+*.py[cod]

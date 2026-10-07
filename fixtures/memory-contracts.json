@@ -1,0 +1,63 @@
+{
+  "recallRequest": {
+    "userId": "synthetic-test-user",
+    "sessionId": "synthetic-session-a",
+    "turn": 1,
+    "query": "synthetic test history",
+    "strong": false
+  },
+  "snapshot": {
+    "snapshotId": "synthetic-snapshot-1",
+    "userId": "synthetic-test-user",
+    "sessionId": "synthetic-session-a",
+    "turn": 1,
+    "items": [
+      { "kind": "fact", "content": "Synthetic test history only." }
+    ],
+    "tokenEstimate": 8,
+    "retrievalRounds": 1,
+    "refreshTriggered": false,
+    "amaLlmCallCount": 2
+  },
+  "commitRequest": {
+    "idempotencyKey": "synthetic-session-a:1",
+    "userId": "synthetic-test-user",
+    "sessionId": "synthetic-session-a",
+    "turn": 1,
+    "userText": "Synthetic test user turn.",
+    "assistantText": "Synthetic test assistant turn."
+  },
+  "commitResult": {
+    "status": "committed",
+    "duplicate": false,
+    "rawCount": 2,
+    "factCount": 1,
+    "episodeCount": 0,
+    "amaLlmCallCount": 4,
+    "refreshTriggered": false,
+    "episodeGenerated": false
+  },
+  "sessionEndRequest": {
+    "userId": "synthetic-test-user",
+    "sessionId": "synthetic-session-a"
+  },
+  "sessionEndResult": {
+    "status": "skipped",
+    "duplicate": false,
+    "episodeGenerated": false,
+    "amaLlmCallCount": 0
+  },
+  "stats": {
+    "userId": "synthetic-test-user",
+    "memoryWindowItems": 2,
+    "records": { "raw": 2, "facts": 1, "episodes": 0 }
+  },
+  "forgetRequest": {
+    "userId": "synthetic-test-user",
+    "confirmation": "forget all patient memory"
+  },
+  "forgetResult": {
+    "status": "forgotten",
+    "recordsRemoved": 3
+  }
+}

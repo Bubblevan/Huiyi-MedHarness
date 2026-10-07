@@ -3,9 +3,15 @@ import { defineTool } from '@deepseek-ai/dsh-tools'
 import fixtureData from '../fixtures/evidence.json' with { type: 'json' }
 import { searchMedicalEvidence, type EvidenceFixture, type EvidenceResult } from './evidence.js'
 import { observeSessionEvents } from './trace.js'
+import { MemoryClient } from './memory/client.js'
+import { installMemoryLifecycle, type MemoryUserIdResolver } from './memory/lifecycle.js'
+import { installMemoryTools } from './memory/tools.js'
+import { MetadataMemoryTrace } from './memory/trace.js'
+
+export * from './memory/index.js'
 
 export const name = 'huiyi-medharness'
-export const inject = ['tools']
+export const inject = ['tools', 'systemPrompt']
 
 const fixtures = fixtureData as EvidenceFixture[]
 
@@ -33,6 +39,11 @@ const evidenceResultSchema = {
 } as const
 
 export function apply(ctx: Context): void {
+  applyWithIdentity(ctx, () => process.env.HUIYI_MEMORY_USER_ID?.trim() || undefined)
+}
+
+/** Install memory with a host-owned trusted patient identity resolver. */
+export function applyWithIdentity(ctx: Context, resolveUserId: MemoryUserIdResolver): void {
   ctx.tools.register(defineTool({
     name: 'search_medical_evidence',
     description: 'Search the F0 synthetic medical-evidence fixture by deterministic keyword matching. Returns fabricated test data only; it is not clinical guidance.',
@@ -57,5 +68,9 @@ export function apply(ctx: Context): void {
     },
   }))
 
+  const memoryClient = new MemoryClient()
+  const memoryTrace = new MetadataMemoryTrace()
+  const lifecycle = installMemoryLifecycle(ctx, memoryClient, memoryTrace, resolveUserId)
+  installMemoryTools(ctx, memoryClient, lifecycle)
   observeSessionEvents(ctx)
 }

@@ -1,0 +1,148 @@
+{
+  "task": "HC-MEM-001",
+  "status": "passed_live_acceptance",
+  "baselineCommit": "621caf9aa2aa74db02c49a12015d0e821c2af779",
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "dshVersion": "0.2.1-alpha.1",
+  "amaCommit": "a770f9aaef527ae589bf13015260cd24eda2d58c",
+  "verifiedAt": "2026-10-07T22:18:30+08:00",
+  "verification": {
+    "typescriptTypecheck": "passed",
+    "typescriptBuild": "passed",
+    "typescriptMemoryTests": {
+      "passed": 13,
+      "failed": 0
+    },
+    "pythonMemoryTests": {
+      "passed": 13,
+      "failed": 0
+    },
+    "localQwenEmbeddingSmoke": {
+      "model": "Qwen3-Embedding-0.6B",
+      "device": "cpu",
+      "outputShape": [
+        1,
+        3072
+      ],
+      "finite": true,
+      "normalizedSourceDimensions": 1024
+    }
+  },
+  "liveQwenDshAcceptance": {
+    "status": "passed",
+    "runtimeOwner": "DeepSeek Harness only",
+    "model": "Qwen/Qwen3-8B",
+    "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+    "cases": {
+      "crossSessionRecall": {
+        "status": "passed",
+        "automaticRecallCount": 1,
+        "snapshotContainedSyntheticPriorAllergy": true,
+        "qwenUsedRecalledAllergy": true
+      },
+      "userIsolation": {
+        "status": "passed",
+        "syntheticUserBRecallItems": 0,
+        "qwenClaimedNoPriorMemory": true,
+        "leakedSyntheticUserAAllergy": false
+      },
+      "multiStepOneRecallOneCommit": {
+        "status": "passed",
+        "dshModelSteps": 2,
+        "automaticRecallCount": 1,
+        "explicitManualRecallToolCalls": 1,
+        "completedRootTurnCommits": 1,
+        "commitStatus": "committed",
+        "sessionId": "session-678acc42-0915-420a-b525-1fe2839063e1"
+      },
+      "idempotencyRetry": {
+        "status": "passed",
+        "retryResult": "duplicate",
+        "ledgerRowsBefore": 10,
+        "ledgerRowsAfter": 10
+      },
+      "emptyMemory": {
+        "status": "passed",
+        "automaticRecallItems": 0,
+        "normalDshAnswer": true
+      },
+      "sidecarUnavailable": {
+        "status": "passed",
+        "automaticRecallStatus": "failed",
+        "dshTurnStatus": "completed",
+        "commitStatus": "failed",
+        "answerUnaffected": true
+      },
+      "restartPersistence": {
+        "status": "passed",
+        "serviceRestarted": true,
+        "postRestartRecallItems": 25,
+        "syntheticPriorAllergyFound": true
+      },
+      "conflictRefresh": {
+        "status": "passed",
+        "data": "synthetic non-clinical preference only",
+        "amaRefreshTriggeredOnConflictingCommit": true,
+        "episodeGenerated": true,
+        "dshSubagentsCreated": 0
+      }
+    }
+  },
+  "observedMetrics": {
+    "warmAutomaticRecallLatencyMs": {
+      "min": 2923,
+      "max": 3885
+    },
+    "sampleAutomaticRecall": {
+      "latencyMs": 3885,
+      "itemCount": 6,
+      "tokenEstimateUtf8Approximation": 1111,
+      "retrievalRounds": 1,
+      "amaLlmCalls": 2
+    },
+    "sampleExplicitRecall": {
+      "latencyMs": 3481,
+      "itemCount": 16,
+      "tokenEstimateUtf8Approximation": 1461,
+      "strongRetrieve": true,
+      "amaLlmCalls": 2
+    },
+    "sampleCompletedCommit": {
+      "latencyMs": 23167,
+      "amaLlmCalls": 6,
+      "refreshTriggered": false,
+      "episodeGenerated": true
+    },
+    "sameRootDshTurnLatencyMs": 9872,
+    "conflictingSyntheticCommit": {
+      "latencyMs": 20104,
+      "amaLlmCalls": 7,
+      "refreshTriggered": true,
+      "episodeGenerated": true
+    },
+    "tokenEstimateMeaning": "UTF-8 byte approximation, not the Qwen tokenizer count"
+  },
+  "failureBehavior": {
+    "recallFailure": "injects no memory, records sanitized error class, and lets DSH/Qwen complete",
+    "commitFailure": "records sanitized failure and does not retroactively fail a completed DSH turn",
+    "noMemoryFabricated": true
+  },
+  "resourceBoundary": {
+    "gpu": "NVIDIA L40; fresh pre-launch check showed 46068 MiB total and no other GPU process",
+    "vllm": "owned local service on 127.0.0.1:8001; 8000 was not stopped or reconfigured",
+    "healthEngine": "restored on 127.0.0.1:8322 after fail-open test",
+    "pythonEnvironment": "reused existing /root/gpufree-data/AMA/.venv with FAISS; Health-Copilot environment was not modified",
+    "data": "SQLite/FAISS remain in ignored services/health-engine/data"
+  },
+  "knownLimitations": [
+    "Memory identity in the one-shot profile comes from HUIYI_MEMORY_USER_ID; production hosts must inject a trusted authenticated user resolver.",
+    "The pinned DSH release has no generic user-intent session-end event; episode synthesis is available through the trusted health-engine session-end endpoint.",
+    "The one-shot DSH CLI has a bounded shutdown timeout. The completed-turn acceptance used a local test-only process-exit shim to await plugin cleanup; the DSH source and runtime were unchanged.",
+    "The current AMA backend shares one process lock around its upstream instance cache; this initial local integration favors correctness over concurrent throughput."
+  ],
+  "traceArtifacts": [
+    "live-dsh-trace.jsonl",
+    "live-memory-trace.jsonl"
+  ],
+  "privacy": "Only synthetic identifiers and metadata are recorded; no user text, assistant answer, recalled text, database rows, or vectors are in these traces."
+}
