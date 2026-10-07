@@ -1,8 +1,9 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { MemoryClient } from './memory/client.js'
-import { installMemoryLifecycle, type MemoryUserIdResolver } from './memory/lifecycle.js'
+import type { MemoryClientPort } from './memory/client.js'
+import { installMemoryLifecycle, type MemoryLifecycle, type MemoryLifecycleOptions, type MemoryUserIdResolver } from './memory/lifecycle.js'
 import { installMemoryTools } from './memory/tools.js'
-import { MetadataMemoryTrace } from './memory/trace.js'
+import { MetadataMemoryTrace, type MemoryTraceSink } from './memory/trace.js'
 import type { MedicalEvidenceClientPort } from './rag/contracts.js'
 import { RagClient } from './rag/client.js'
 import { installRagTool } from './rag/tool.js'
@@ -30,4 +31,16 @@ export function applyWithIdentity(
   installMemoryTools(ctx, memoryClient, memoryLifecycle)
   installRagTool(ctx, evidenceClient)
   observeSessionEvents(ctx)
+}
+
+/** Mount only the memory capability for read-only benchmark profiles. */
+export function applyMemoryOnly(
+  ctx: Context,
+  resolveUserId: MemoryUserIdResolver,
+  options: MemoryLifecycleOptions,
+  dependencies: { client?: MemoryClientPort; trace?: MemoryTraceSink } = {},
+): MemoryLifecycle {
+  const client = dependencies.client ?? new MemoryClient()
+  const trace = dependencies.trace ?? new MetadataMemoryTrace()
+  return installMemoryLifecycle(ctx, client, trace, resolveUserId, options)
 }

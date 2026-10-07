@@ -33,6 +33,15 @@ function errorClass(error: unknown): string {
 
 export type MemoryUserIdResolver = (agent: Agent) => string | undefined
 
+export interface MemoryLifecycleOptions {
+  /** Force AMA's dual-channel retrieval path for an evaluation profile. */
+  automaticStrongRetrieve?: boolean
+  /** Disable post-turn writes while keeping automatic recall enabled. */
+  readOnly?: boolean
+  /** Render an evaluation-only context from the snapshot and current question. */
+  renderContext?: (snapshot: MemorySnapshot, query: string) => string
+}
+
 export class MemoryLifecycle {
   private readonly turns = new Map<string, ActiveTurn>()
   private readonly pendingCommits = new Set<Promise<void>>()
@@ -41,6 +50,7 @@ export class MemoryLifecycle {
     private readonly client: MemoryClientPort,
     private readonly trace: MemoryTraceSink,
     private readonly resolveUserId: MemoryUserIdResolver = () => process.env.HUIYI_MEMORY_USER_ID?.trim() || undefined,
+    private readonly options: MemoryLifecycleOptions = {},
   ) {}
 
   noteClaimed(agent: Agent, message: { source: { kind: string }; content: readonly unknown[] }, turn: number): void {
@@ -78,6 +88,7 @@ export class MemoryLifecycle {
       sessionId: active.sessionId,
       turn: active.turn,
       query: active.query,
+      strong: this.options.automaticStrongRetrieve ?? false,
     }, { signal }).then(response => {
       const snapshot = freezeSnapshot(response)
       this.trace.record({
@@ -88,10 +99,13 @@ export class MemoryLifecycle {
         itemCount: snapshot.items.length,
         tokenEstimate: snapshot.tokenEstimate,
         latencyMs: elapsed(active.recallStartedAt),
-        strongRetrieve: false,
+        strongRetrieve: this.options.automaticStrongRetrieve ?? false,
         retrievalRounds: snapshot.retrievalRounds,
         refreshTriggered: snapshot.refreshTriggered,
         amaLlmCallCount: snapshot.amaLlmCallCount,
+        amaPromptTokens: snapshot.amaPromptTokens,
+        amaCompletionTokens: snapshot.amaCompletionTokens,
+        amaUsageReportCount: snapshot.amaUsageReportCount,
         time: Date.now(),
       })
       return snapshot
@@ -148,6 +162,10 @@ export class MemoryLifecycle {
     return this.turns.get(sessionId)?.turn
   }
 
+  queryForAgent(agentId: string): string {
+    return this.turns.get(agentId)?.query ?? ''
+  }
+
   userIdForAgent(agent: Agent): string | undefined {
     return this.resolveUserId(agent)
   }
@@ -167,7 +185,11 @@ export class MemoryLifecycle {
         itemCount: snapshot.items.length, tokenEstimate: snapshot.tokenEstimate,
         latencyMs: elapsed(startedAt), strongRetrieve: strong,
         retrievalRounds: snapshot.retrievalRounds, refreshTriggered: snapshot.refreshTriggered,
-        amaLlmCallCount: snapshot.amaLlmCallCount, time: Date.now(),
+        amaLlmCallCount: snapshot.amaLlmCallCount,
+        amaPromptTokens: snapshot.amaPromptTokens,
+        amaCompletionTokens: snapshot.amaCompletionTokens,
+        amaUsageReportCount: snapshot.amaUsageReportCount,
+        time: Date.now(),
       })
       return snapshot
     } catch (error) {
@@ -205,6 +227,21 @@ export class MemoryLifecycle {
         commitStatus: 'failed',
         totalDshTurnLatencyMs: latencyMs,
         errorClass: reason !== 'completed' ? `turn_${reason}` : !userId ? 'identity_unavailable' : 'final_pair_unavailable',
+        time: Date.now(),
+      })
+      this.turns.delete(sessionId)
+      this.sessionUsers.delete(sessionId)
+      return
+    }
+
+    if (this.options.readOnly) {
+      this.trace.record({
+        sessionId,
+        turn: active.turn,
+        operation: 'commit',
+        status: 'skipped',
+        totalDshTurnLatencyMs: latencyMs,
+        errorClass: 'evaluation_read_only',
         time: Date.now(),
       })
       this.turns.delete(sessionId)
@@ -278,8 +315,9 @@ export function installMemoryLifecycle(
   client: MemoryClientPort,
   trace: MemoryTraceSink,
   resolveUserId?: MemoryUserIdResolver,
+  options: MemoryLifecycleOptions = {},
 ): MemoryLifecycle {
-  const lifecycle = new MemoryLifecycle(client, trace, resolveUserId)
+  const lifecycle = new MemoryLifecycle(client, trace, resolveUserId, options)
 
   ctx.on('agent/inbox/claimed', ({ agent, message, turn }) => {
     lifecycle.noteClaimed(agent, message, turn)
@@ -291,10 +329,14 @@ export function installMemoryLifecycle(
     if (!agent) return base
 
     const snapshot = await lifecycle.recallOnce(agent, assembleContext.signal)
-    if (!snapshot || snapshot.items.length === 0) return base
+    if (!snapshot || (snapshot.items.length === 0 && !options.renderContext)) return base
+    const text = options.renderContext
+      ? options.renderContext(snapshot, lifecycle.queryForAgent(agent.id))
+      : renderMemorySnapshot(snapshot)
+    if (!text) return base
     const memoryContext = {
       name: 'huiyi:patient-memory',
-      text: renderMemorySnapshot(snapshot),
+      text,
     }
     return {
       ...base,

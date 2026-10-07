@@ -25,6 +25,9 @@ export interface MemorySnapshot {
   readonly retrievalRounds?: number
   readonly refreshTriggered?: boolean
   readonly amaLlmCallCount?: number
+  readonly amaPromptTokens?: number
+  readonly amaCompletionTokens?: number
+  readonly amaUsageReportCount?: number
 }
 
 export interface MemoryCommitRequest {
@@ -101,6 +104,9 @@ export interface MemoryTraceRecord {
   commitStatus?: MemoryCommitResult['status']
   errorClass?: string
   amaLlmCallCount?: number
+  amaPromptTokens?: number
+  amaCompletionTokens?: number
+  amaUsageReportCount?: number
   episodeGenerated?: boolean
   totalDshTurnLatencyMs?: number
   time: number

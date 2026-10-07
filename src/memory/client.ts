@@ -176,6 +176,8 @@ function decodeSnapshot(value: unknown): MemorySnapshot {
     || !Number.isInteger(row.turn) || !Array.isArray(row.items)
     || !optionalNumber(row.tokenEstimate) || !optionalNumber(row.retrievalRounds)
     || !optionalNumber(row.amaLlmCallCount)
+    || !optionalNumber(row.amaPromptTokens) || !optionalNumber(row.amaCompletionTokens)
+    || !optionalNumber(row.amaUsageReportCount)
     || (row.refreshTriggered !== undefined && typeof row.refreshTriggered !== 'boolean')) {
     throw new TypeError('invalid snapshot')
   }
@@ -201,6 +203,9 @@ function decodeSnapshot(value: unknown): MemorySnapshot {
     ...(row.retrievalRounds === undefined ? {} : { retrievalRounds: row.retrievalRounds as number }),
     ...(row.refreshTriggered === undefined ? {} : { refreshTriggered: row.refreshTriggered as boolean }),
     ...(row.amaLlmCallCount === undefined ? {} : { amaLlmCallCount: row.amaLlmCallCount as number }),
+    ...(row.amaPromptTokens === undefined ? {} : { amaPromptTokens: row.amaPromptTokens as number }),
+    ...(row.amaCompletionTokens === undefined ? {} : { amaCompletionTokens: row.amaCompletionTokens as number }),
+    ...(row.amaUsageReportCount === undefined ? {} : { amaUsageReportCount: row.amaUsageReportCount as number }),
   }
 }
 

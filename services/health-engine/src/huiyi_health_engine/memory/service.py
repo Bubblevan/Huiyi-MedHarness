@@ -30,6 +30,9 @@ class RecallOutcome:
     retrieval_rounds: int
     refresh_triggered: bool
     ama_llm_call_count: int
+    ama_prompt_tokens: int = 0
+    ama_completion_tokens: int = 0
+    ama_usage_report_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -85,6 +88,9 @@ class MemoryService:
             retrievalRounds=outcome.retrieval_rounds,
             refreshTriggered=outcome.refresh_triggered,
             amaLlmCallCount=outcome.ama_llm_call_count,
+            amaPromptTokens=outcome.ama_prompt_tokens,
+            amaCompletionTokens=outcome.ama_completion_tokens,
+            amaUsageReportCount=outcome.ama_usage_report_count,
         )
 
     def commit_turn(self, request: MemoryCommitRequest) -> MemoryCommitResult:

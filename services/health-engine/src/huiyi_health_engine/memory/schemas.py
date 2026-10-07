@@ -42,6 +42,9 @@ class MemorySnapshot(StrictModel):
     retrievalRounds: int | None = None
     refreshTriggered: bool | None = None
     amaLlmCallCount: int | None = None
+    amaPromptTokens: int | None = None
+    amaCompletionTokens: int | None = None
+    amaUsageReportCount: int | None = None
 
 
 class MemoryCommitRequest(StrictModel):

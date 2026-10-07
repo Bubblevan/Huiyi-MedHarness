@@ -27,6 +27,9 @@ class AmaBackendError(RuntimeError):
 @dataclass
 class _Counters:
     llm_calls: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    usage_reports: int = 0
     retrievals: int = 0
     refreshes: int = 0
     episodes: int = 0
@@ -40,6 +43,9 @@ class _Counters:
         with self.lock:
             return {
                 "llm_calls": self.llm_calls,
+                "prompt_tokens": self.prompt_tokens,
+                "completion_tokens": self.completion_tokens,
+                "usage_reports": self.usage_reports,
                 "retrievals": self.retrievals,
                 "refreshes": self.refreshes,
                 "episodes": self.episodes,
@@ -51,9 +57,11 @@ class AmaMemoryBackend:
 
     _lock = threading.RLock()
 
-    def __init__(self, data_dir: str | Path):
+    def __init__(self, data_dir: str | Path, *, turn_retrieve: int | None = None, top_k: int | None = None):
         self.data_dir = Path(data_dir).expanduser().resolve()
         self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.turn_retrieve = turn_retrieve if turn_retrieve is not None else _optional_int_env("HUIYI_MEMORY_TURN_RETRIEVE", minimum=1, maximum=10)
+        self.top_k = top_k if top_k is not None else _optional_int_env("HUIYI_MEMORY_TOP_K", minimum=1, maximum=100)
         self._instances: dict[str, Any] = {}
         self._counters: dict[str, _Counters] = {}
         self._ama_class: type[Any] | None = None
@@ -71,6 +79,9 @@ class AmaMemoryBackend:
                     retrieval_rounds=max(0, after["retrievals"] - before["retrievals"]),
                     refresh_triggered=after["refreshes"] > before["refreshes"],
                     ama_llm_call_count=max(0, after["llm_calls"] - before["llm_calls"]),
+                    ama_prompt_tokens=max(0, after["prompt_tokens"] - before["prompt_tokens"]),
+                    ama_completion_tokens=max(0, after["completion_tokens"] - before["completion_tokens"]),
+                    ama_usage_report_count=max(0, after["usage_reports"] - before["usage_reports"]),
                 )
             except Exception as exc:
                 raise AmaBackendError(type(exc).__name__) from None
@@ -141,10 +152,16 @@ class AmaMemoryBackend:
         instance = self._ama_class(
             user=namespace,
             modelMemory=os.environ.get("HUIYI_LOCAL_LLM_MODEL", "Qwen/Qwen3-8B"),
+            turnRetrieve=self.turn_retrieve if self.turn_retrieve is not None else 1,
             data_dir=str(self.data_dir),
         )
         counters = _Counters()
-        _instrument(instance, counters)
+        _instrument(
+            instance,
+            counters,
+            top_k=self.top_k,
+            capture_usage=os.environ.get("HUIYI_MEMORY_CAPTURE_USAGE", "0").strip().lower() in {"1", "true", "yes"},
+        )
         self._instances[namespace] = instance
         self._counters[namespace] = counters
         return instance
@@ -191,17 +208,56 @@ class AmaMemoryBackend:
             yield
 
 
-def _instrument(memory: Any, counters: _Counters) -> None:
+def _optional_int_env(name: str, *, minimum: int, maximum: int) -> int | None:
+    value = os.environ.get(name)
+    if value is None or not value.strip():
+        return None
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise RuntimeError(f"{name} must be an integer") from exc
+    if not minimum <= parsed <= maximum:
+        raise RuntimeError(f"{name} must be between {minimum} and {maximum}")
+    return parsed
+
+
+def _instrument(memory: Any, counters: _Counters, *, top_k: int | None = None, capture_usage: bool = False) -> None:
     original_inference = memory.memoryAgent.inference
 
     def counted_inference(*args: Any, **kwargs: Any) -> Any:
         counters.increment("llm_calls")
+        before_prompt = int(getattr(memory.memoryAgent, "promptToken", 0))
+        before_completion = int(getattr(memory.memoryAgent, "completionToken", 0))
+        if capture_usage:
+            kwargs["showUsage"] = True
         response = original_inference(*args, **kwargs)
+        if capture_usage:
+            after_prompt = int(getattr(memory.memoryAgent, "promptToken", before_prompt))
+            after_completion = int(getattr(memory.memoryAgent, "completionToken", before_completion))
+            prompt_delta = max(0, after_prompt - before_prompt)
+            completion_delta = max(0, after_completion - before_completion)
+            with counters.lock:
+                counters.prompt_tokens += prompt_delta
+                counters.completion_tokens += completion_delta
+                if prompt_delta or completion_delta:
+                    counters.usage_reports += 1
         if not isinstance(response, str) or not response.strip():
             raise AmaBackendError("EmptyLocalModelResponse")
         return response
 
     memory.memoryAgent.inference = counted_inference
+
+    if top_k is not None:
+        original_inference_retrieve = memory.memoryAgent.inferenceRetrieve
+
+        def configured_inference_retrieve(*args: Any, **kwargs: Any) -> Any:
+            decision = original_inference_retrieve(*args, **kwargs)
+            if not isinstance(decision, dict):
+                raise AmaBackendError("InvalidRetrievalDecision")
+            return {**decision, "topK": top_k}
+
+        memory.memoryAgent.inferenceRetrieve = configured_inference_retrieve
+
     for method_name, counter_name in (
         ("retrieve", "retrievals"),
         ("refresh", "refreshes"),
@@ -249,11 +305,16 @@ def _parse_retrievals(payload: str) -> list[MemoryItem]:
                     episode = json.loads(content)
                     if isinstance(episode, dict) and isinstance(episode.get("content"), str):
                         content = episode["content"].strip()
+                    if not isinstance(record.get("timestamp"), str) and isinstance(episode, dict):
+                        record = {**record, "timestamp": episode.get("timestamp")}
                 except json.JSONDecodeError:
                     pass
             if not content:
                 continue
             timestamp = record.get("timestamp")
+            if not isinstance(timestamp, str) and "\ntimestamp:" in content:
+                candidate = content.rsplit("\ntimestamp:", maxsplit=1)[-1].strip()
+                timestamp = candidate or None
             timestamp = timestamp if isinstance(timestamp, str) else None
             key = (item_kind, content, timestamp)
             if key in seen:

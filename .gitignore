@@ -13,5 +13,7 @@ services/health-engine/*.db-*
 services/health-engine/*.faiss
 services/health-engine/*.log
 services/health-engine/.pytest_cache/
+# LoCoMo contains private evaluation conversations; preserve all generated state locally only.
+/artifacts/hc-mem-002/
 __pycache__/
 *.py[cod]

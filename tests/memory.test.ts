@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { Context } from '@deepseek-ai/cordis'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
 import { MemoryClient, MemoryClientError, type MemoryClientPort } from '../src/memory/client.js'
@@ -17,6 +18,7 @@ import type {
 } from '../src/memory/contracts.js'
 import { MemoryLifecycle } from '../src/memory/lifecycle.js'
 import { renderMemorySnapshot } from '../src/memory/prompt.js'
+import { applyMemoryOnly } from '../src/index.js'
 import memoryContracts from '../fixtures/memory-contracts.json' with { type: 'json' }
 
 describe('cross-language HTTP contract fixture', () => {
@@ -116,6 +118,24 @@ describe('health-engine HTTP client', () => {
 })
 
 describe('DSH turn-scoped memory lifecycle', () => {
+  it('mounts the memory-only benchmark composition without registering tools or RAG hooks', () => {
+    const eventNames: string[] = []
+    const toolRegister = vi.fn()
+    const context = {
+      on: (name: string) => { eventNames.push(name) },
+      effect: () => undefined,
+      tools: { register: toolRegister },
+    } as unknown as Context
+
+    applyMemoryOnly(context, () => 'locomo-user', { automaticStrongRetrieve: true, readOnly: true }, {
+      client: {} as MemoryClientPort,
+      trace: { record: () => undefined },
+    })
+
+    expect(eventNames).toEqual(['agent/inbox/claimed', 'system-prompt/assemble', 'session/event', 'agent/disposed'])
+    expect(toolRegister).not.toHaveBeenCalled()
+  })
+
   it('reuses one snapshot across model steps and commits one completed root pair', async () => {
     const snapshot: MemorySnapshot = {
       snapshotId: 'snap-1', userId: 'patient-1', sessionId: 'session-1', turn: 1,
@@ -160,6 +180,47 @@ describe('DSH turn-scoped memory lifecycle', () => {
     expect(records.map(record => record.operation)).toEqual(['automatic_recall', 'commit'])
     expect(JSON.stringify(records)).not.toContain('synthetic test history')
     expect(JSON.stringify(records)).not.toContain('synthetic reply')
+  })
+
+  it('supports read-only LoCoMo recall with strong retrieval and no post-turn commit', async () => {
+    const snapshot: MemorySnapshot = {
+      snapshotId: 'locomo-snapshot', userId: 'locomo-user', sessionId: 'locomo-session', turn: 1,
+      items: [{ kind: 'raw', content: 'Earlier conversation item\ntimestamp:2023-05-08' }],
+    }
+    const client: MemoryClientPort = {
+      recall: vi.fn(async () => snapshot),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
+      stats: vi.fn(async userId => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const records: MemoryTraceRecord[] = []
+    const lifecycle = new MemoryLifecycle(
+      client,
+      { record: record => records.push(record) },
+      () => 'locomo-user',
+      { automaticStrongRetrieve: true, readOnly: true },
+    )
+    const session = { id: 'locomo-session' } as Session
+    const agent = { id: 'locomo-session' } as Agent
+    lifecycle.observeSessionEvent(session, event('turn/start', { turn: 1 }, 1))
+    lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: 'What happened before?' }] }, 1)
+
+    await lifecycle.recallOnce(agent)
+    lifecycle.observeSessionEvent(session, event('user/message', {
+      id: 'locomo-user-1', role: 'user', content: [{ type: 'text', text: 'What happened before?' }], source: { kind: 'user' },
+    }, 2))
+    lifecycle.observeSessionEvent(session, event('assistant/message', {
+      turn: 1, step: 1, interrupted: false, message: { content: [{ type: 'text', text: '{"answer":"something"}' }] }, stream: [],
+    }, 3))
+    lifecycle.observeSessionEvent(session, event('turn/end', { turn: 1, reason: { kind: 'completed' } }, 4))
+    await lifecycle.flush()
+
+    expect(client.recall).toHaveBeenCalledTimes(1)
+    expect(client.recall).toHaveBeenCalledWith(expect.objectContaining({ strong: true }), expect.anything())
+    expect(client.commitTurn).not.toHaveBeenCalled()
+    expect(records).toContainEqual(expect.objectContaining({ operation: 'commit', status: 'skipped', errorClass: 'evaluation_read_only' }))
   })
 
   it.each(['error', 'aborted', 'max-tokens'] as const)('does not capture a %s turn', async reason => {
