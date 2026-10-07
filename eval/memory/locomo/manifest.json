@@ -73,6 +73,7 @@
     "strongRetrieve": true,
     "turnRetrieve": 3,
     "topK": 10,
+    "isolateTransientRecallWindow": true,
     "construction": {
       "protocol": "pinned AMA evalProcess: AMA.forwardUser for each session dialogue item; judgeAndGenerate once at each session boundary",
       "turnRetrieve": 1,
@@ -89,7 +90,7 @@
   "scorer": {
     "source": "pinned AMA third_party/AMA/python/AdaptiveMemory/Core/eval.py",
     "sourceSha256": "462a2cc0110d4e2399fc190270f92821af8c95f4f33fcdc67b05172beb519fa2",
-    "localImplementationSha256": "497099240352dd3e73e53d01c527d5da097baeec84203b83f89720fd9f80a403",
+    "localImplementationSha256": "454a4010150a621ed3721e3ff975a5122efe22eaf548c79f378e72bd52247cd7",
     "nltkVersion": "3.10.3",
     "metrics": ["Token-F1", "BLEU-1"],
     "bleuTokenizer": "nltk.word_tokenize",

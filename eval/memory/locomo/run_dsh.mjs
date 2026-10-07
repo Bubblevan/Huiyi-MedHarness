@@ -60,7 +60,9 @@ if (frozenStateManifest.dataset_sha256 !== contract.dataset.sha256
   || frozenStateManifest.memory_model !== contract.models.memoryGenerator.id
   || frozenStateManifest.memory_api_model !== contract.models.memoryGenerator.servedModelName
   || frozenStateManifest.embedding_model !== contract.models.embedding.id
-  || !frozenStateManifest.files?.length) {
+  || !frozenStateManifest.files?.length
+  || !Array.isArray(frozenStateManifest.included_conversations)
+  || !Array.isArray(frozenStateManifest.selected_session_keys)) {
   throw new Error('frozen memory state manifest does not match the dataset contract')
 }
 for (const entry of frozenStateManifest.files) {
@@ -103,7 +105,9 @@ for (let convIndex = 0; convIndex < dataset.length; convIndex += 1) {
     })
   }
 }
-const questions = options.limit === undefined ? allQuestions : allQuestions.slice(0, Math.max(0, Number(options.limit)))
+const allowedConversations = new Set(frozenStateManifest.included_conversations)
+const scopedQuestions = allQuestions.filter(question => allowedConversations.has(question.conversation_id))
+const questions = options.limit === undefined ? scopedQuestions : scopedQuestions.slice(0, Math.max(0, Number(options.limit)))
 
 function sha256(value) {
   return createHash('sha256').update(value, 'utf8').digest('hex')
@@ -293,6 +297,8 @@ try {
       turn_retrieve: 3,
       strong_retrieve: true,
       read_only: true,
+      store_scope_partial: Boolean(frozenStateManifest.partial),
+      store_scope_max_sessions: frozenStateManifest.max_sessions ?? null,
       session_id: sessionId,
       model_step_count: metrics.stepCount,
       assistant_event_count: metrics.assistantEventCount,
@@ -356,4 +362,4 @@ try {
   await ctx.fiber.dispose()
 }
 
-console.log(`Arm C complete: ${loadCompleted(options.output).size}/${questions.length} questions; partial=${options.limit !== undefined}`)
+console.log(`Arm C complete: ${loadCompleted(options.output).size}/${questions.length} scoped questions; store_partial=${Boolean(frozenStateManifest.partial)}; debug_limit=${options.limit !== undefined}`)

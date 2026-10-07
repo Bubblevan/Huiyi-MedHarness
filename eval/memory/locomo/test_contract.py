@@ -1,13 +1,40 @@
 from __future__ import annotations
 
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
-from common import included_questions, snapshot_payload
+from build_reference_store import session_plan
+from common import included_questions, questions_for_state, snapshot_payload
 from compare import values_by_question
 from score import validate_ids
 
 
 class LocomoContractTests(unittest.TestCase):
+    def test_first_thirty_session_plan_is_an_explicit_dataset_order_prefix(self) -> None:
+        dataset = [
+            {"sample_id": "conv-a", "conversation": {"session_1": [{"text": "a1"}], "session_2": [{"text": "a2"}]}},
+            {"sample_id": "conv-b", "conversation": {"session_1": [{"text": "b1"}], "session_2": [{"text": "b2"}], "session_3": [{"text": "b3"}]}},
+        ]
+        plan = session_plan(dataset, 4)
+        keys = [f"{conv_id}:session-{session_number:02d}" for conv_id, _, session_number, _, _ in plan]
+        self.assertEqual(keys, ["conv-a:session-01", "conv-a:session-02", "conv-b:session-01", "conv-b:session-02"])
+        with self.assertRaises(SystemExit):
+            session_plan(dataset, 6)
+
+    def test_partial_state_scope_selects_identical_conversation_question_cohort(self) -> None:
+        dataset = [
+            {"sample_id": "conv-a", "qa": [{"question": "a", "answer": "a", "category": 1}]},
+            {"sample_id": "conv-b", "qa": [{"question": "b", "answer": "b", "category": 2}]},
+            {"sample_id": "conv-c", "qa": [{"question": "c", "answer": "c", "category": 3}]},
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest = Path(temp_dir) / "frozen-state-manifest.json"
+            manifest.write_text(json.dumps({"partial": True, "max_sessions": 30, "included_conversations": ["conv-a", "conv-c"]}), encoding="utf-8")
+            questions = questions_for_state(dataset, manifest)
+        self.assertEqual([row["question_id"] for row in questions], ["conv-a:qa-0001", "conv-c:qa-0001"])
+
     def test_category_five_is_excluded_and_included_question_ids_are_stable(self) -> None:
         dataset = [{
             "sample_id": "conv-test",

@@ -13,7 +13,7 @@ import requests
 
 from common import (
     AMA_ROOT, ARTIFACT_ROOT, CANONICAL_MODEL_ID, DEFAULT_DATASET, LOCAL_CHAT_URL, LOCAL_MODEL,
-    add_snapshot_metrics, append_jsonl, completed_keys, included_questions,
+    add_snapshot_metrics, append_jsonl, completed_keys, questions_for_state,
     configure_pinned_ama, load_dataset, require_loopback_http, snapshot_payload,
     verify_local_model_endpoint, verify_state_copy,
 )
@@ -49,7 +49,7 @@ def main() -> None:
     parser.add_argument("--memory-url", default=os.environ.get("HUIYI_HEALTH_ENGINE_URL", "http://127.0.0.1:8324"))
     parser.add_argument("--state-dir", type=Path, default=ARTIFACT_ROOT / "arm-b-sidecar" / "state")
     parser.add_argument("--output", type=Path, default=ARTIFACT_ROOT / "arm-b-sidecar" / "predictions.jsonl")
-    parser.add_argument("--limit", type=int, help="Debug-only prefix limit; any limited run is labeled partial.")
+    parser.add_argument("--limit", type=int, help="Optional debug-only question prefix within the frozen store scope.")
     parser.add_argument("--timeout", type=float, default=600)
     args = parser.parse_args()
 
@@ -58,7 +58,8 @@ def main() -> None:
     verify_state_copy(args.state_dir)
     configure_pinned_ama()
     require_loopback_http(args.memory_url, "HUIYI_HEALTH_ENGINE_URL")
-    questions = included_questions(dataset)
+    questions = questions_for_state(dataset)
+    scope = json.loads((ARTIFACT_ROOT / "frozen-state-manifest.json").read_text(encoding="utf-8"))
     if args.limit is not None:
         questions = questions[:max(0, args.limit)]
     todo = [item for item in questions if item["question_id"] not in completed_keys(args.output)]
@@ -119,6 +120,8 @@ def main() -> None:
             "turn_retrieve": 3,
             "strong_retrieve": True,
             "read_only": True,
+            "store_scope_partial": bool(scope.get("partial")),
+            "store_scope_max_sessions": scope.get("max_sessions"),
             "snapshot_id": snapshot.get("snapshotId"),
             "retrieval_rounds": snapshot.get("retrievalRounds"),
             "refresh_triggered": snapshot.get("refreshTriggered"),
@@ -137,7 +140,7 @@ def main() -> None:
         add_snapshot_metrics(record, items)
         append_jsonl(args.output, record)
 
-    print(f"Arm B complete: {len(completed_keys(args.output))}/{len(questions)} questions; partial={args.limit is not None}")
+    print(f"Arm B complete: {len(completed_keys(args.output))}/{len(questions)} scoped questions; store_partial={scope.get('partial')}; debug_limit={args.limit is not None}")
 
 
 def _parse_answer(raw: str) -> tuple[str, str | None]:

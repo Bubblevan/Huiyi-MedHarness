@@ -10,7 +10,7 @@ from typing import Any
 import nltk
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 
-from common import ARTIFACT_ROOT, CONTRACT_MANIFEST, DEFAULT_DATASET, included_questions, load_dataset, sha256_file
+from common import ARTIFACT_ROOT, CONTRACT_MANIFEST, DEFAULT_DATASET, included_questions, load_dataset, questions_for_state, sha256_file
 
 _NLTK_READY = False
 
@@ -134,12 +134,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Score one LoCoMo arm with the pinned AMA Token-F1 and BLEU-1 definitions.")
     parser.add_argument("predictions", type=Path)
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
+    parser.add_argument("--frozen-manifest", type=Path, default=ARTIFACT_ROOT / "frozen-state-manifest.json")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--allow-partial", action="store_true")
     args = parser.parse_args()
 
     scorer_sha256 = verify_scorer_hash()
-    expected = included_questions(load_dataset(args.dataset))
+    dataset = load_dataset(args.dataset)
+    expected = questions_for_state(dataset, args.frozen_manifest)
+    scope = json.loads(args.frozen_manifest.read_text(encoding="utf-8"))
     rows = load_jsonl(args.predictions)
     validate_ids(rows, expected, args.allow_partial)
     metrics = aggregate(rows)
@@ -147,7 +150,15 @@ def main() -> None:
         "arm": rows[0].get("arm") if rows else None,
         "question_count": len(rows),
         "included_count": len(expected),
-        "excluded_category_5_count": sum(1 for row in load_dataset(args.dataset) for qa in row.get("qa", []) if int(qa.get("category", 0)) == 5),
+        "full_dataset_included_count": len(included_questions(dataset)),
+        "scope": {
+            "partial": bool(scope.get("partial")),
+            "max_sessions": scope.get("max_sessions"),
+            "completed_session_count": scope.get("completed_session_count"),
+            "included_conversations": scope.get("included_conversations", []),
+            "diagnostic_only": bool(scope.get("partial")),
+        },
+        "excluded_category_5_count": sum(1 for row in dataset for qa in row.get("qa", []) if int(qa.get("category", 0)) == 5),
         "category_order": ["single-hop:1", "multi-hop:3", "temporal:2", "open-domain:4"],
         "scorer": {
             "source": "pinned AMA Core/eval.py token_f1 + nltk BLEU-1 (method1 smoothing)",

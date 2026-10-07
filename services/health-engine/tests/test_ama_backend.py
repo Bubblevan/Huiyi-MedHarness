@@ -89,6 +89,32 @@ class AmaBackendTests(unittest.TestCase):
         self.assertEqual(memory.kwargs["turnRetrieve"], 3)
         self.assertEqual(memory.memoryAgent.inferenceRetrieve()["topK"], 10)
 
+    def test_benchmark_recall_isolates_transient_memory_window_between_questions(self) -> None:
+        class FakeMemory:
+            def __init__(self) -> None:
+                self.memoryWindow: list[str] = []
+
+            def clearMemoryWindow(self) -> None:
+                self.memoryWindow.clear()
+
+            def forwardRetrieve(self, query: str, **_kwargs: object) -> str:
+                self.memoryWindow.append(query)
+                return json.dumps({"retrievals": {"text_match_results": [{"content": query}]}, "memoryWindow": self.memoryWindow})
+
+        with tempfile.TemporaryDirectory() as data_dir, patch.dict("os.environ", {"HUIYI_MEMORY_ISOLATE_RECALLS": "1"}):
+            backend = AmaMemoryBackend(data_dir)
+            namespace = namespace_for_user("locomo-isolated-recall-user")
+            memory = FakeMemory()
+            backend._instances[namespace] = memory
+            backend._counters[namespace] = _Counters()
+
+            first = backend.recall(namespace, "question one", strong=True)
+            second = backend.recall(namespace, "question two", strong=True)
+
+        self.assertEqual([item.content for item in first.items], ["question one"])
+        self.assertEqual([item.content for item in second.items], ["question two"])
+        self.assertEqual(memory.memoryWindow, [])
+
     def test_benchmark_usage_capture_counts_local_provider_tokens(self) -> None:
         class FakeMemoryAgent:
             promptToken = 0

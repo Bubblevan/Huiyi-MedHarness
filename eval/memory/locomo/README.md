@@ -13,7 +13,7 @@ All data, state, predictions, pairwise diffs, and runtime traces are written und
 - Use `strongRetrieve=true`, `turnRetrieve=3`, `topK=10`, and temperature 0 for each QA arm. Construction uses pinned AMA's default `turnRetrieve=1`.
 - Exclude category 5 exactly. The included question IDs are single-hop 282, multi-hop 96, temporal 321, and open-domain 841.
 - Run A, B, and C against independent byte-identical copies of one frozen memory state. Arm C creates a fresh in-memory DSH session for each question and uses the read-only Memory lifecycle.
-- The DSH composition mounts only core Session, Agent, AgentLoop, local Qwen, and automatic Huiyi Memory. It does not install the evidence capability or manual memory tools.
+- The DSH composition mounts only core Session, Agent, AgentLoop, local Qwen, and automatic Huiyi Memory. It does not install the evidence capability or manual memory tools. Benchmark health-engine processes enable `HUIYI_MEMORY_ISOLATE_RECALLS=1`, clearing AMA's transient `memoryWindow` before and after each question so one QA item cannot affect the next.
 - `A_UPSTREAM` and `B_SIDECAR` use the pinned official `QANemoriPrompt`. `C_DSH` uses the evaluation-only prompt adaptation in `prompt.ts`; product prompts are unchanged.
 - Only Token-F1 and BLEU-1 are scored. The full local reproduction judge could not be recovered, so no LLM judge score is claimed. The paper's GPT-4o-mini score remains an external reference.
 
@@ -40,7 +40,7 @@ HUIYI_HEALTH_ENGINE_HOST=127.0.0.1 \
 HUIYI_HEALTH_ENGINE_PORT=8324 \
 HUIYI_HEALTH_ENGINE_URL=http://127.0.0.1:8324 \
 HUIYI_MEMORY_DATA_DIR=/root/gpufree-data/Huiyi-MedHarness/artifacts/hc-mem-002/arm-b-sidecar/state \
-HUIYI_MEMORY_TURN_RETRIEVE=3 HUIYI_MEMORY_TOP_K=10 HUIYI_MEMORY_CAPTURE_USAGE=1 \
+HUIYI_MEMORY_TURN_RETRIEVE=3 HUIYI_MEMORY_TOP_K=10 HUIYI_MEMORY_CAPTURE_USAGE=1 HUIYI_MEMORY_ISOLATE_RECALLS=1 \
 PYTHONPATH=/root/gpufree-data/Huiyi-MedHarness/services/health-engine/src \
   $PYTHON -m huiyi_health_engine.app
 ```
@@ -53,9 +53,11 @@ The construction script checkpoints only complete LoCoMo sessions. It redirects 
 
 ```bash
 export PYTHONPATH="$PWD/eval/memory/locomo:$PWD/services/health-engine/src"
-$PYTHON eval/memory/locomo/build_reference_store.py
-$PYTHON eval/memory/locomo/build_reference_store.py --finalize
+$PYTHON eval/memory/locomo/build_reference_store.py --max-sessions 30
+$PYTHON eval/memory/locomo/build_reference_store.py --max-sessions 30 --finalize
 ```
+
+For the initial diagnostic run, use `--max-sessions 30` on both commands. This freezes the first 30 sessions in dataset order: all 19 sessions of `conv-26` and the first 11 sessions of `conv-30`. The arms then evaluate the same 233 non-category-5 questions from those two conversations. Since `conv-30` is only partially constructed, this run exercises the complete A/B/C flow and checks integration parity; its absolute QA scores are diagnostic-only and are not a full LoCoMo result or paper comparison. The frozen-state manifest records the partial scope, selected sessions, and included conversations. Resume and finalize with the same `--max-sessions` value.
 
 Copy `frozen-state/` byte-for-byte into:
 
@@ -65,7 +67,7 @@ artifacts/hc-mem-002/arm-b-sidecar/state/
 artifacts/hc-mem-002/arm-c-dsh/state/
 ```
 
-Copy `frozen-state/` into each `state/` directory with `cp -a frozen-state/. <arm>/state/`. Each runner checks all files against `frozen-state-manifest.json` before its first recall. The A/B comparison command below stops before Arm C unless all 1,540 questions were evaluated and both Token-F1 and BLEU-1 deltas are within 0.01 absolute.
+Copy `frozen-state/` into each `state/` directory with `cp -a frozen-state/. <arm>/state/`. Each runner checks all files against `frozen-state-manifest.json` before its first recall and derives question IDs from that manifest's conversation scope. The A/B comparison requires the complete scoped question cohort and reports the selected-session scope; partial-store metrics remain diagnostic-only.
 
 ## Run arms in order
 

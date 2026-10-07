@@ -27,6 +27,19 @@ def sessions_for(row: dict[str, Any]):
         index += 1
 
 
+def session_plan(dataset: list[dict[str, Any]], max_sessions: int | None) -> list[tuple[str, dict[str, Any], int, str, list[dict[str, Any]]]]:
+    plan = []
+    for conv_index, row in enumerate(dataset):
+        conv_id = str(row.get("sample_id", f"conversation-{conv_index + 1:02d}"))
+        for session_number, timestamp, dialogue in sessions_for(row):
+            plan.append((conv_id, row, session_number, timestamp, dialogue))
+    if max_sessions is not None:
+        if max_sessions < 1 or max_sessions > len(plan):
+            raise SystemExit(f"--max-sessions must be in 1..{len(plan)}")
+        return plan[:max_sessions]
+    return plan
+
+
 def write_json(path: Path, value: Any) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -96,10 +109,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build the frozen LoCoMo AMA store using the pinned official construction lifecycle.")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--work-dir", type=Path, default=ARTIFACT_ROOT)
-    parser.add_argument("--finalize", action="store_true", help="Freeze/hash the completed store; refuses incomplete conversations.")
+    parser.add_argument("--max-sessions", type=int, help="Build the first N sessions in dataset order as an explicitly partial diagnostic store.")
+    parser.add_argument("--finalize", action="store_true", help="Freeze/hash the completed selected session scope.")
     args = parser.parse_args()
 
     dataset = load_dataset(args.dataset)
+    plan = session_plan(dataset, args.max_sessions)
+    selected_keys = [f"{conv_id}:session-{session_number:02d}" for conv_id, _, session_number, _, _ in plan]
+    selected_conversations = list(dict.fromkeys(conv_id for conv_id, _, _, _, _ in plan))
     verify_local_model_endpoint()
     work_dir = args.work_dir.expanduser().resolve()
     working = work_dir / "build-state"
@@ -117,8 +134,10 @@ def main() -> None:
         progress = json.loads(progress_path.read_text(encoding="utf-8"))
         if progress.get("dataset_sha256") != sha256_file(args.dataset):
             raise SystemExit("dataset SHA256 changed since frozen-store construction began")
-        expected = sum(1 for conv_index, row in enumerate(dataset) for session, _, _ in sessions_for(row))
-        if len(progress.get("completed_sessions", [])) != expected:
+        if progress.get("selected_session_keys") != selected_keys:
+            raise SystemExit("finalize scope differs from the scope used by the construction run; pass the same --max-sessions value")
+        expected = len(selected_keys)
+        if set(progress.get("completed_sessions", [])) != set(selected_keys):
             raise SystemExit(f"refusing to freeze incomplete state: {len(progress.get('completed_sessions', []))}/{expected} sessions")
         if frozen.exists():
             raise SystemExit("frozen-state already exists; refusing to overwrite the frozen benchmark state")
@@ -135,7 +154,12 @@ def main() -> None:
             "memory_api_model": LOCAL_MODEL,
             "embedding_model": os.environ.get("HUIYI_LOCAL_EMBEDDING_MODEL", "Qwen3-Embedding-0.6B"),
             "construction": "official evalProcess protocol: forwardUser each session item, judgeAndGenerate at each session boundary",
-            "completed_sessions": expected,
+            "partial": args.max_sessions is not None,
+            "max_sessions": args.max_sessions,
+            "expected_sessions": expected,
+            "completed_session_count": expected,
+            "selected_session_keys": selected_keys,
+            "included_conversations": selected_conversations,
             "dialogue_items": progress["dialogue_items"],
             "llm_calls": progress["llm_calls"],
             "prompt_tokens": progress["prompt_tokens"],
@@ -156,6 +180,8 @@ def main() -> None:
             "dataset_sha256": dataset_hash,
             "completed_sessions": [], "dialogue_items": 0, "llm_calls": 0,
             "prompt_tokens": 0, "completion_tokens": 0,
+            "max_sessions": args.max_sessions,
+            "selected_session_keys": selected_keys,
         })
 
     if temporary.exists():
@@ -163,32 +189,41 @@ def main() -> None:
     progress = json.loads((working / "progress.json").read_text(encoding="utf-8"))
     if progress.get("dataset_sha256") != dataset_hash:
         raise SystemExit("dataset SHA256 changed since frozen-store construction began")
+    recorded_scope = progress.get("selected_session_keys")
+    if recorded_scope is None:
+        # Permit upgrading the existing pre-scope checkpoint only when all durable sessions
+        # are contained in the requested deterministic prefix.
+        if not set(progress.get("completed_sessions", [])).issubset(set(selected_keys)):
+            raise SystemExit("existing build checkpoint is outside the requested session scope")
+        progress["max_sessions"] = args.max_sessions
+        progress["selected_session_keys"] = selected_keys
+        write_json(working / "progress.json", progress)
+    elif recorded_scope != selected_keys or progress.get("max_sessions") != args.max_sessions:
+        raise SystemExit("resume scope differs from the existing build checkpoint")
     completed = set(progress["completed_sessions"])
-    total_sessions = sum(1 for row in dataset for _ in sessions_for(row))
+    total_sessions = len(selected_keys)
     done = len(completed)
 
-    for conv_index, row in enumerate(dataset):
-        conv_id = str(row.get("sample_id", f"conversation-{conv_index + 1:02d}"))
+    for conv_id, row, session_number, timestamp, dialogue in plan:
         namespace = _namespace_for_conv(conv_id)
-        for session_number, timestamp, dialogue in sessions_for(row):
-            session_key = f"{conv_id}:session-{session_number:02d}"
-            if session_key in completed:
-                continue
-            shutil.copytree(working, temporary)
-            stats = run_session(row, namespace, session_number, timestamp, dialogue, temporary)
-            progress = json.loads((temporary / "progress.json").read_text(encoding="utf-8"))
-            progress["completed_sessions"].append(session_key)
-            for key in ("dialogue_items", "llm_calls", "prompt_tokens", "completion_tokens"):
-                progress[key] = int(progress.get(key, 0)) + stats[key]
-            write_json(temporary / "progress.json", progress)
-            os.replace(working, backup)
-            os.replace(temporary, working)
-            shutil.rmtree(backup)
-            completed.add(session_key)
-            done += 1
-            print(f"session {done}/{total_sessions} frozen into build state; dialogue_items={stats['dialogue_items']} llm_calls={stats['llm_calls']}", flush=True)
+        session_key = f"{conv_id}:session-{session_number:02d}"
+        if session_key in completed:
+            continue
+        shutil.copytree(working, temporary)
+        stats = run_session(row, namespace, session_number, timestamp, dialogue, temporary)
+        progress = json.loads((temporary / "progress.json").read_text(encoding="utf-8"))
+        progress["completed_sessions"].append(session_key)
+        for key in ("dialogue_items", "llm_calls", "prompt_tokens", "completion_tokens"):
+            progress[key] = int(progress.get(key, 0)) + stats[key]
+        write_json(temporary / "progress.json", progress)
+        os.replace(working, backup)
+        os.replace(temporary, working)
+        shutil.rmtree(backup)
+        completed.add(session_key)
+        done += 1
+        print(f"session {done}/{total_sessions} frozen into build state; dialogue_items={stats['dialogue_items']} llm_calls={stats['llm_calls']}", flush=True)
 
-    print("construction complete; run with --finalize to hash and freeze the state")
+    print(f"construction complete for {total_sessions} selected sessions; run with the same --max-sessions value and --finalize to hash and freeze the state")
 
 
 def _namespace_for_conv(conv_id: str) -> str:

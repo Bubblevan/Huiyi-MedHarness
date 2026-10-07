@@ -15,7 +15,7 @@ import requests
 from common import (
     AMA_ROOT, ARTIFACT_ROOT, CANONICAL_MODEL_ID, DEFAULT_DATASET, LOCAL_CHAT_URL, LOCAL_MODEL,
     add_snapshot_metrics, append_jsonl, completed_keys, configure_pinned_ama,
-    included_questions, load_dataset, snapshot_payload, verify_local_model_endpoint, verify_state_copy,
+    load_dataset, questions_for_state, snapshot_payload, verify_local_model_endpoint, verify_state_copy,
 )
 
 
@@ -89,13 +89,14 @@ def main() -> None:
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--state-dir", type=Path, default=ARTIFACT_ROOT / "arm-a-upstream" / "state")
     parser.add_argument("--output", type=Path, default=ARTIFACT_ROOT / "arm-a-upstream" / "predictions.jsonl")
-    parser.add_argument("--limit", type=int, help="Debug-only prefix limit; any limited run is labeled partial.")
+    parser.add_argument("--limit", type=int, help="Optional debug-only question prefix within the frozen store scope.")
     parser.add_argument("--timeout", type=float, default=600)
     args = parser.parse_args()
 
     dataset = load_dataset(args.dataset)
     verify_local_model_endpoint()
-    questions = included_questions(dataset)
+    questions = questions_for_state(dataset)
+    scope = json.loads((ARTIFACT_ROOT / "frozen-state-manifest.json").read_text(encoding="utf-8"))
     if args.limit is not None:
         questions = questions[:max(0, args.limit)]
     todo = [item for item in questions if item["question_id"] not in completed_keys(args.output)]
@@ -156,6 +157,8 @@ def main() -> None:
             "turn_retrieve": 3,
             "strong_retrieve": True,
             "read_only": True,
+            "store_scope_partial": bool(scope.get("partial")),
+            "store_scope_max_sessions": scope.get("max_sessions"),
             "retrieval_payload_sha256": hashlib.sha256(snapshot_payload(normalized_items).encode("utf-8")).hexdigest(),
             "retrieval_rounds": counters["retrieval_rounds"] - retrievals_before,
             "ama_llm_call_count": counters["llm_calls"] - calls_before,
@@ -174,7 +177,7 @@ def main() -> None:
         append_jsonl(args.output, record)
         memory.clearMemoryWindow()
 
-    print(f"Arm A complete: {len(completed_keys(args.output))}/{len(questions)} questions; partial={args.limit is not None}")
+    print(f"Arm A complete: {len(completed_keys(args.output))}/{len(questions)} scoped questions; store_partial={scope.get('partial')}; debug_limit={args.limit is not None}")
 
 
 def _parse_answer(raw: str) -> tuple[str, str | None]:

@@ -7,7 +7,7 @@ import statistics
 from pathlib import Path
 from typing import Any
 
-from common import ARTIFACT_ROOT, CONTRACT_MANIFEST
+from common import ARTIFACT_ROOT, DEFAULT_DATASET, load_dataset, questions_for_state
 from score import aggregate, verify_scorer_hash
 
 
@@ -162,6 +162,8 @@ def main() -> None:
     parser.add_argument("--arm-b", type=Path, default=ARTIFACT_ROOT / "arm-b-sidecar/predictions.jsonl")
     parser.add_argument("--arm-c", type=Path, default=ARTIFACT_ROOT / "arm-c-dsh/predictions.jsonl")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
+    parser.add_argument("--frozen-manifest", type=Path, default=ARTIFACT_ROOT / "frozen-state-manifest.json")
     parser.add_argument("--ab-only", action="store_true", help="Enforce A/B adapter parity before C starts.")
     parser.add_argument("--allow-partial-debug", action="store_true", help="Write a non-gating diff for an explicitly partial diagnostic prefix.")
     args = parser.parse_args()
@@ -174,13 +176,18 @@ def main() -> None:
     }
     if not args.ab_only:
         arms["C_DSH"] = read_index(args.arm_c)
+    expected_questions = questions_for_state(load_dataset(args.dataset), args.frozen_manifest)
+    expected_ids = [item["question_id"] for item in expected_questions]
+    for name, rows in arms.items():
+        if list(rows) != expected_ids:
+            raise ValueError(f"{name} prediction ids differ from frozen session scope: {len(rows)}/{len(expected_ids)}")
     paired = values_by_question(arms)
     output_path = args.output or ARTIFACT_ROOT / ("paired-diff-ab.jsonl" if args.ab_only else "paired-diff.jsonl")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in paired), encoding="utf-8")
 
-    manifest = json.loads(CONTRACT_MANIFEST.read_text(encoding="utf-8"))
-    expected_count = int(manifest["dataset"]["includedQuestionCount"])
+    scope = json.loads(args.frozen_manifest.read_text(encoding="utf-8"))
+    expected_count = len(expected_ids)
     complete = len(paired) == expected_count
     score_metrics = {name: aggregate(list(index.values())) for name, index in arms.items()}
     gates = {}
@@ -206,6 +213,13 @@ def main() -> None:
         "included_questions": len(paired),
         "expected_included_questions": expected_count,
         "complete": complete,
+        "scope": {
+            "partial": bool(scope.get("partial")),
+            "max_sessions": scope.get("max_sessions"),
+            "completed_session_count": scope.get("completed_session_count"),
+            "included_conversations": scope.get("included_conversations", []),
+            "diagnostic_only": bool(scope.get("partial")),
+        },
         "paired_comparison": metrics_summary(paired),
         "metrics": score_metrics,
         "parity_gates": gates,

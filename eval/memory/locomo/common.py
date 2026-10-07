@@ -79,6 +79,27 @@ def included_questions(dataset: Iterable[dict[str, Any]]) -> list[dict[str, Any]
     return included
 
 
+def filter_questions_to_conversations(
+    questions: Iterable[dict[str, Any]], conversation_ids: Iterable[str]
+) -> list[dict[str, Any]]:
+    allowed = set(conversation_ids)
+    return [item for item in questions if item["conversation_id"] in allowed]
+
+
+def questions_for_state(
+    dataset: Iterable[dict[str, Any]],
+    manifest_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    path = manifest_path or (ARTIFACT_ROOT / "frozen-state-manifest.json")
+    if not path.is_file():
+        raise FileNotFoundError(f"frozen memory state manifest not found: {path}")
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    conversation_ids = manifest.get("included_conversations")
+    if not isinstance(conversation_ids, list) or not all(isinstance(value, str) for value in conversation_ids):
+        raise ValueError("frozen memory state manifest has no valid included_conversations scope")
+    return filter_questions_to_conversations(included_questions(dataset), conversation_ids)
+
+
 def parse_answer(raw: str) -> tuple[str, str | None]:
     """Apply the upstream evaluator's JSON-only QANemori output contract."""
     try:
@@ -228,6 +249,10 @@ def verify_state_copy(data_dir: Path) -> None:
         raise ValueError("frozen memory state was built with a different API model name")
     if manifest.get("embedding_model") != contract["models"]["embedding"]["id"]:
         raise ValueError("frozen memory state was built with a different embedding model")
+    if not isinstance(manifest.get("included_conversations"), list) or not isinstance(manifest.get("selected_session_keys"), list):
+        raise ValueError("frozen memory state manifest has no explicit session/conversation scope")
+    if manifest.get("completed_session_count") != len(manifest["selected_session_keys"]):
+        raise ValueError("frozen memory state manifest session count does not match its selected scope")
     data_dir = data_dir.expanduser().resolve()
     expected_files = manifest.get("files", [])
     if not expected_files:

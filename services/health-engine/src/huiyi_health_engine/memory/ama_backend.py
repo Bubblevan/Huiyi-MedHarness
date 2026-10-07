@@ -62,6 +62,7 @@ class AmaMemoryBackend:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.turn_retrieve = turn_retrieve if turn_retrieve is not None else _optional_int_env("HUIYI_MEMORY_TURN_RETRIEVE", minimum=1, maximum=10)
         self.top_k = top_k if top_k is not None else _optional_int_env("HUIYI_MEMORY_TOP_K", minimum=1, maximum=100)
+        self.isolate_recall_window = os.environ.get("HUIYI_MEMORY_ISOLATE_RECALLS", "0").strip().lower() in {"1", "true", "yes"}
         self._instances: dict[str, Any] = {}
         self._counters: dict[str, _Counters] = {}
         self._ama_class: type[Any] | None = None
@@ -71,7 +72,13 @@ class AmaMemoryBackend:
             try:
                 memory = self._get_instance(namespace)
                 before = self._counters[namespace].snapshot()
-                payload = memory.forwardRetrieve(query, showUsage=False, strongRetrieve=strong)
+                if self.isolate_recall_window:
+                    memory.clearMemoryWindow()
+                try:
+                    payload = memory.forwardRetrieve(query, showUsage=False, strongRetrieve=strong)
+                finally:
+                    if self.isolate_recall_window:
+                        memory.clearMemoryWindow()
                 retrievals = _parse_retrievals(payload)
                 after = self._counters[namespace].snapshot()
                 return RecallOutcome(
