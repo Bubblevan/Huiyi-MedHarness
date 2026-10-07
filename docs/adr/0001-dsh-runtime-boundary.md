@@ -14,7 +14,7 @@ The bundle is a standalone package with a `dsh.bundle.patch` manifest and a stab
 
 The canonical tool result is JSON shaped as `{ query, hits }`; each hit contains an evidence ID, rank, title, snippet, fixture URI, source type, and deterministic score. `output.schema` declares this value. `output.render()` presents the same JSON to the model. Fixture sources use `fixture://<evidenceId>` and are fabricated solely for pipeline verification.
 
-The observer subscribes to `ctx.on('session/event')` and emits metadata for tool call/result, assistant settlement, and turn end. It includes session/sequence/turn/step, tool name/call ID, error status, interruption status, or reason kind. It never copies user text, assistant content, tool arguments, result content, or snippets into the observer output. The normal DSH session still owns its conversation and tool-result history.
+The observer subscribes to `ctx.on('session/event')` and emits metadata for turn/user boundaries, the resolved model route, tool call/result, assistant settlement, and turn end. It includes session/sequence/turn/step, provider/model/context window, tool name/call ID, error status, interruption status, reason kind, and the hit count from a canonical evidence result. It never copies user text, assistant content, tool arguments, result content, or snippets into the observer output. The normal DSH session still owns its conversation and tool-result history.
 
 ## Pinned sources inspected
 
@@ -29,6 +29,28 @@ All source paths below are relative to the pinned upstream checkout at the SHA a
 - `packages/client/product-analytics/src/index.ts` — shipped `session/event` observer pattern; Huiyi intentionally records fewer fields.
 - `packages/core/tools/src/index.ts` — `ToolRunContext.signal` and the tool registry execution API.
 - `packages/core/session/src/types.ts` — event payloads for `tool/call`, `tool/result`, `assistant/message`, and `turn/end`.
+- `packages/llm/llm-pi-ai/README.md` — pinned profile contract for custom OpenAI-compatible routes (`api`, `baseURL`, `models[].contextWindow`, `apiKeyEnv`) and the requirement to pass a placeholder key or Authorization header to a keyless OpenAI-compatible endpoint.
+- `packages/llm/llm-pi-ai/src/config.ts` — pinned validation for custom routes and model profile fields; an unrecognized provider route requires an API protocol, endpoint, and non-empty model catalog.
+- `packages/bundle/base/cordis.patch.yml` — the existing `llm-pi-ai`, `agent-default-model`, and `agent-loop` entry ids; the base keeps the adapter dormant and leaves startup agents empty.
+- `packages/core/agent-loop/README.md` — the default AgentLoop lifecycle: model request, tool execution, durable result append, then next model step.
+- `packages/core/agent-loop/src/agent.ts` and `packages/core/agent-loop/src/tool-calls.ts` — the pinned Agent implementation and native tool-call dispatch path.
+- `docs/user/develop/basic/publish.md` — profile patch layering and the user's profile `cordis.patch.yml` override behavior.
+
+For F0.1 source inspection, the DSH checkout at the exact pinned SHA was kept outside the Huiyi repository and used as a read-only reference. No upstream source was changed or vendored into Huiyi. The inspected paths are also linked to immutable GitHub URLs at the exact SHA:
+
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/llm/llm-pi-ai/README.md>
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/llm/llm-pi-ai/src/config.ts>
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/bundle/base/cordis.patch.yml>
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/README.md>
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/agent.ts>
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/packages/core/agent-loop/src/tool-calls.ts>
+- <https://github.com/deepseek-ai/deepseek-harness/blob/5badb15009ae1756c3afe0ae0cef1faafc290ccc/docs/user/develop/basic/publish.md>
+
+## F0.1 local model deployment boundary
+
+The local Qwen route is profile-owned. The profile patch targets DSH's existing `llm-pi-ai` row and declares the OpenAI Chat Completions protocol, endpoint, model id, context window, and `apiKeyEnv` reference. `agent-default-model` selects that provider/model for newly created sessions. The Huiyi bundle still owns only the synthetic `search_medical_evidence` tool and metadata-only session observer. `HUIYI_SESSION_TRACE_FILE`, when set by the smoke invocation, appends the observer's already-filtered event records as JSONL; it never stores prompt, assistant, or tool content.
+
+F0.1 acceptance is backed by the live three-case run in `artifacts/f0.1-local-qwen-live-20261007/`: all three turns completed in one persisted DSH Session, the tool-required and empty-hit turns each made one native `search_medical_evidence` call, and the no-tool turn made none. The run metadata and complete same-session trace are saved together. The trace contains turn and user-message boundaries, model route metadata, tool call/result correlation and hit count, assistant settlement, and turn end; it omits all message and evidence content. Offline direct tool execution is not evidence for that criterion.
 
 ## Consequences
 

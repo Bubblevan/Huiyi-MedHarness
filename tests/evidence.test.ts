@@ -68,6 +68,49 @@ describe('searchMedicalEvidence', () => {
 describe('session event observation', () => {
   const session = { id: 'session-fixture' } as Session
 
+  it('records user and model route boundaries without their content', () => {
+    const userEvent = {
+      seq: 1,
+      type: 'user/message',
+      data: { role: 'user', content: [{ type: 'text', text: 'PRIVATE_PROMPT' }] },
+    } as unknown as SessionEvent
+    const contextEvent = {
+      seq: 2,
+      type: 'request/context',
+      data: { provider: 'local-qwen', model: 'local-qwen3-8b', contextWindow: 40960 },
+    } as unknown as SessionEvent
+
+    const records = [
+      toSessionTraceRecord(session, userEvent),
+      toSessionTraceRecord(session, contextEvent),
+    ]
+    expect(records).toEqual([
+      { sessionId: 'session-fixture', seq: 1, type: 'user/message' },
+      { sessionId: 'session-fixture', seq: 2, type: 'request/context', provider: 'local-qwen', model: 'local-qwen3-8b', contextWindow: 40960 },
+    ])
+    expect(JSON.stringify(records)).not.toContain('PRIVATE_PROMPT')
+  })
+
+  it('records only the evidence hit count from a canonical result', () => {
+    const resultEvent = {
+      seq: 3,
+      type: 'tool/result',
+      data: {
+        turn: 1,
+        step: 1,
+        message: {
+          toolCallId: 'call-empty',
+          isError: false,
+          content: [{ type: 'text', text: JSON.stringify({ query: 'PRIVATE_QUERY', hits: [] }) }],
+        },
+      },
+    } as unknown as SessionEvent
+
+    const record = toSessionTraceRecord(session, resultEvent)
+    expect(record).toMatchObject({ type: 'tool/result', isError: false, hitCount: 0 })
+    expect(JSON.stringify(record)).not.toContain('PRIVATE_QUERY')
+  })
+
   it('keeps tool arguments and result content out of trace metadata', () => {
     const callEvent = {
       seq: 7,

@@ -1,0 +1,35 @@
+{
+  "acceptance": false,
+  "diagnosticOnly": true,
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "dshRuntimeVersion": "0.2.1-alpha.1",
+  "huiyiCommit": "aaf15a4b2fbc1de79cfa39bcee40120e75836531",
+  "localModelId": "Qwen/Qwen3-8B",
+  "endpointProtocol": "OpenAI-compatible Chat Completions (openai-completions)",
+  "endpointBaseURL": "http://127.0.0.1:8000/v1",
+  "contextWindow": 32768,
+  "credentialConfig": {
+    "apiKeyEnv": "HUIYI_LOCAL_QWEN_API_KEY",
+    "valueStored": false
+  },
+  "sessionId": "session-62051d57-c8d4-4cfa-b480-cba7529d4461",
+  "turnOutcomes": [
+    {
+      "case": "no-tool",
+      "outcome": "error"
+    },
+    {
+      "case": "tool-required",
+      "outcome": "not-run"
+    },
+    {
+      "case": "empty-hit",
+      "outcome": "not-run"
+    }
+  ],
+  "toolCallCount": 0,
+  "wallLatencyMs": 2729,
+  "blocker": "The existing vLLM endpoint rejects tool_choice=auto until --enable-auto-tool-choice and --tool-call-parser are enabled. The DSH no-tool turn therefore ended with reasonKind=error before inference.",
+  "traceFile": "session-trace.jsonl",
+  "traceMetadataOnly": true
+}

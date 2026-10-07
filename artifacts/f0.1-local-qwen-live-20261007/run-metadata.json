@@ -1,0 +1,57 @@
+{
+  "acceptance": true,
+  "outcome": "PASS",
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "dshRuntimeVersion": "0.2.1-alpha.1",
+  "dshAgentRuntime": "@deepseek-ai/dsh-agent-loop (built-in headless profile)",
+  "huiyiCommit": "aaf15a4b2fbc1de79cfa39bcee40120e75836531",
+  "localModelId": "Qwen/Qwen3-8B",
+  "localModelPath": "/root/gpufree-share/data/Qwen3-8B",
+  "endpointProtocol": "OpenAI-compatible Chat Completions (DSH pi-ai openai-completions)",
+  "endpointBaseURL": "http://127.0.0.1:8000/v1",
+  "contextWindow": 32768,
+  "credentialConfig": {
+    "apiKeyEnv": "HUIYI_LOCAL_QWEN_API_KEY",
+    "placeholderSupplied": true,
+    "credentialValueStored": false
+  },
+  "sessionId": "session-f9fea279-2aad-49c9-8ffe-c9266643baa6",
+  "turnOutcomes": [
+    {
+      "case": "tool-required",
+      "turn": 1,
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 1,
+      "toolResultCount": 1,
+      "evidenceHitCount": 2,
+      "wallLatencyMs": 21294
+    },
+    {
+      "case": "no-tool",
+      "turn": 2,
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 0,
+      "toolResultCount": 0,
+      "wallLatencyMs": 6687
+    },
+    {
+      "case": "empty-hit",
+      "turn": 3,
+      "outcome": "PASS",
+      "turnEndReason": "completed",
+      "toolCallCount": 1,
+      "toolResultCount": 1,
+      "evidenceHitCount": 0,
+      "wallLatencyMs": 12055
+    }
+  ],
+  "toolCallCount": 2,
+  "wallLatencyMs": 58918,
+  "wallLatencyBasis": "first turn/start.time through final turn/end.time; includes inter-turn gaps",
+  "traceFile": "session-trace.jsonl",
+  "traceMetadataOnly": true,
+  "traceRecordCount": 21,
+  "evidenceSource": "synthetic fixture only; no real RAG"
+}

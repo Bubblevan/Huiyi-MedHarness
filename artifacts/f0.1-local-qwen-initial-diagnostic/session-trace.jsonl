@@ -1,0 +1,6 @@
+{"sessionId":"session-62051d57-c8d4-4cfa-b480-cba7529d4461","seq":4,"time":1791372137103,"type":"turn/start","turn":1}
+{"sessionId":"session-62051d57-c8d4-4cfa-b480-cba7529d4461","seq":8,"time":1791372139743,"type":"user/message"}
+{"sessionId":"session-62051d57-c8d4-4cfa-b480-cba7529d4461","seq":9,"time":1791372139745,"type":"user/message"}
+{"sessionId":"session-62051d57-c8d4-4cfa-b480-cba7529d4461","seq":10,"time":1791372139745,"type":"user/message"}
+{"sessionId":"session-62051d57-c8d4-4cfa-b480-cba7529d4461","seq":12,"time":1791372139748,"type":"request/context","provider":"local-qwen","model":"Qwen/Qwen3-8B","contextWindow":32768}
+{"sessionId":"session-62051d57-c8d4-4cfa-b480-cba7529d4461","seq":17,"time":1791372139832,"type":"turn/end","turn":1,"reasonKind":"error"}
