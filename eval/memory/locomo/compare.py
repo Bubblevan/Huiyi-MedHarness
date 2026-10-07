@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from common import ARTIFACT_ROOT, DEFAULT_DATASET, load_dataset, questions_for_state
-from score import aggregate, verify_scorer_hash
+from score import aggregate, bleu1, token_f1, verify_scorer_hash
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -55,6 +55,16 @@ def values_by_question(arms: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
         a_hash = a.get("retrieval_hash")
         b_hash = b.get("retrieval_hash")
         c_hash = c.get("snapshot_hash") if c else None
+        b_items = b.get("retrieved_items")
+        c_items = c.get("retrieved_items") if c else None
+        b_source_refs = [
+            (item.get("kind"), item.get("content_sha256"), item.get("source_id"))
+            for item in b_items
+        ] if isinstance(b_items, list) else None
+        c_source_refs = [
+            (item.get("kind"), item.get("content_sha256"), item.get("source_id"))
+            for item in c_items
+        ] if isinstance(c_items, list) else None
         result.append({
             "question_id": question_id,
             "conversation_id": a.get("conversation_id"),
@@ -64,6 +74,13 @@ def values_by_question(arms: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
             "A_correct": None,
             "B_correct": None,
             "C_correct": None,
+            "correctness_note": "No comparable LLM-judge protocol was recovered; use per-item Token-F1/BLEU-1 below.",
+            "A_token_f1": token_f1(a.get("response", ""), a.get("gold_answer", "")),
+            "B_token_f1": token_f1(b.get("response", ""), b.get("gold_answer", "")),
+            "C_token_f1": token_f1(c.get("response", ""), c.get("gold_answer", "")) if c else None,
+            "A_bleu1": bleu1(a.get("response", ""), a.get("gold_answer", "")),
+            "B_bleu1": bleu1(b.get("response", ""), b.get("gold_answer", "")),
+            "C_bleu1": bleu1(c.get("response", ""), c.get("gold_answer", "")) if c else None,
             "A_answer": a.get("response", ""),
             "B_answer": b.get("response", ""),
             "C_answer": c.get("response", "") if c else None,
@@ -72,6 +89,7 @@ def values_by_question(arms: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
             "C_parse_error": c.get("parse_error") if c else None,
             "A_B_retrieval_equivalent": a_hash == b_hash if a_hash is not None and b_hash is not None else None,
             "B_C_snapshot_equivalent": b_hash == c_hash if c and b_hash is not None and c_hash is not None else None,
+            "B_C_source_refs_equal": b_source_refs == c_source_refs if c and b_source_refs is not None and c_source_refs is not None else None,
             "A_B_answer_equal": a.get("response", "") == b.get("response", ""),
             "B_C_answer_equal": b.get("response", "") == c.get("response", "") if c else None,
             "A_retrieval_rounds": a.get("retrieval_rounds"),
@@ -89,6 +107,8 @@ def values_by_question(arms: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
             "C_dsh_steps": c.get("model_step_count") if c else None,
             "C_automatic_recall_count": c.get("automatic_recall_count") if c else None,
             "C_commit_status": c.get("commit_status") if c else None,
+            "C_turn_reason": c.get("turn_reason") if c else None,
+            "C_parse_error": c.get("parse_error") if c else None,
         })
     return result
 
@@ -103,10 +123,12 @@ def metrics_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "A_B_retrieval_comparable": count(lambda row: row["A_B_retrieval_equivalent"] is not None),
         "B_C_snapshot_equal": count(lambda row: row["B_C_snapshot_equivalent"] is True),
         "B_C_snapshot_comparable": count(lambda row: row["B_C_snapshot_equivalent"] is not None),
+        "B_C_source_refs_equal": count(lambda row: row["B_C_source_refs_equal"] is True),
+        "B_C_source_refs_comparable": count(lambda row: row["B_C_source_refs_equal"] is not None),
         "A_B_answer_equal": count(lambda row: row["A_B_answer_equal"] is True),
         "B_C_answer_equal": count(lambda row: row["B_C_answer_equal"] is True),
         "C_one_recall": count(lambda row: row["C_automatic_recall_count"] == 1),
-        "C_read_only_commit_skipped": count(lambda row: row["C_commit_status"] == "evaluation_read_only"),
+        "C_commit_skipped_without_write": count(lambda row: row["C_commit_status"] in {"evaluation_read_only", "turn_max-tokens"}),
     }
 
 
@@ -115,6 +137,17 @@ def safe_mean(values: list[float]) -> float | None:
 
 
 def usage_summary(arms: dict[str, dict[str, dict[str, Any]]]) -> dict[str, Any]:
+    def latency_mean(rows: list[dict[str, Any]], key: str, fallback: str | None = None) -> float | None:
+        values = []
+        for row in rows:
+            latency = row.get("latency_ms") or {}
+            value = latency.get(key)
+            if value is None and fallback is not None:
+                value = latency.get(fallback)
+            if isinstance(value, (float, int)):
+                values.append(float(value))
+        return safe_mean(values)
+
     result: dict[str, Any] = {}
     for arm, records in arms.items():
         rows = list(records.values())
@@ -124,18 +157,12 @@ def usage_summary(arms: dict[str, dict[str, dict[str, Any]]]) -> dict[str, Any]:
             "ama_prompt_tokens": sum(int(row.get("ama_prompt_tokens") or 0) for row in rows),
             "ama_completion_tokens": sum(int(row.get("ama_completion_tokens") or 0) for row in rows),
             "ama_llm_calls": sum(int(row.get("ama_llm_call_count") or 0) for row in rows),
-            "recall_latency_ms_mean": safe_mean([
-                float((row.get("latency_ms") or {}).get("recall")) for row in rows
-                if isinstance((row.get("latency_ms") or {}).get("recall"), (float, int))
-            ]),
-            "answer_latency_ms_mean": safe_mean([
-                float((row.get("latency_ms") or {}).get("answer_generation")) for row in rows
-                if isinstance((row.get("latency_ms") or {}).get("answer_generation"), (float, int))
-            ]),
-            "end_to_end_latency_ms_mean": safe_mean([
-                float((row.get("latency_ms") or {}).get("end_to_end")) for row in rows
-                if isinstance((row.get("latency_ms") or {}).get("end_to_end"), (float, int))
-            ]),
+            "recall_latency_ms_mean": latency_mean(rows, "recall"),
+            "dsh_pre_model_latency_ms_mean": latency_mean(rows, "dsh_pre_model"),
+            "answer_latency_ms_mean": latency_mean(rows, "answer_generation"),
+            "first_token_latency_ms_mean": latency_mean(rows, "first_token"),
+            "dsh_turn_latency_ms_mean": latency_mean(rows, "total_dsh_turn"),
+            "end_to_end_latency_ms_mean": latency_mean(rows, "end_to_end", "end_to_end_wall"),
         }
     return result
 
@@ -153,6 +180,15 @@ def _category_deltas(reference: dict[str, Any], candidate: dict[str, Any]) -> di
     return {
         category: _deltas(reference[category], candidate[category])
         for category in ("1", "3", "2", "4", "overall")
+    }
+
+
+def _material_category_regressions(category_deltas: dict[str, dict[str, float | None]]) -> dict[str, dict[str, float | None]]:
+    threshold = 0.05
+    return {
+        category: deltas
+        for category, deltas in category_deltas.items()
+        if category != "overall" and any(value is not None and value < -threshold for value in deltas.values())
     }
 
 
@@ -193,21 +229,29 @@ def main() -> None:
     gates = {}
     if args.ab_only:
         deltas = _deltas(score_metrics["A_UPSTREAM"]["overall"], score_metrics["B_SIDECAR"]["overall"])
+        category_deltas = _category_deltas(score_metrics["A_UPSTREAM"], score_metrics["B_SIDECAR"])
+        category_regressions = _material_category_regressions(category_deltas)
         gates["A_to_B"] = {
             "evaluated": complete,
-            "passed": complete and all(value is not None and abs(value) <= 0.01 for value in deltas.values()),
+            "passed": complete and all(value is not None and abs(value) <= 0.01 for value in deltas.values()) and not category_regressions,
             "tolerance": 0.01,
             "deltas": deltas,
-            "category_deltas": _category_deltas(score_metrics["A_UPSTREAM"], score_metrics["B_SIDECAR"]),
+            "category_deltas": category_deltas,
+            "material_category_regression_threshold": 0.05,
+            "material_category_regressions": category_regressions,
         }
     else:
         deltas = _deltas(score_metrics["B_SIDECAR"]["overall"], score_metrics["C_DSH"]["overall"])
+        category_deltas = _category_deltas(score_metrics["B_SIDECAR"], score_metrics["C_DSH"])
+        category_regressions = _material_category_regressions(category_deltas)
         gates["B_to_C"] = {
             "evaluated": complete,
-            "passed": complete and all(value is not None and abs(value) <= 0.01 for value in deltas.values()),
+            "passed": complete and all(value is not None and abs(value) <= 0.01 for value in deltas.values()) and not category_regressions,
             "tolerance": 0.01,
             "deltas": deltas,
-            "category_deltas": _category_deltas(score_metrics["B_SIDECAR"], score_metrics["C_DSH"]),
+            "category_deltas": category_deltas,
+            "material_category_regression_threshold": 0.05,
+            "material_category_regressions": category_regressions,
         }
     summary = {
         "included_questions": len(paired),

@@ -185,12 +185,14 @@ function decodeSnapshot(value: unknown): MemorySnapshot {
     const entry = object(item)
     if (!['raw', 'fact', 'episode'].includes(String(entry.kind)) || !string(entry.content)
       || !optionalStringOrNull(entry.timestamp)
-      || !optionalStringOrNull(entry.source)) throw new TypeError('invalid memory item')
+      || !optionalStringOrNull(entry.source)
+      || !optionalStringOrNull(entry.sourceId)) throw new TypeError('invalid memory item')
     return {
       kind: entry.kind as 'raw' | 'fact' | 'episode',
       content: entry.content,
       ...(typeof entry.timestamp === 'string' ? { timestamp: entry.timestamp } : {}),
       ...(typeof entry.source === 'string' ? { source: entry.source } : {}),
+      ...(typeof entry.sourceId === 'string' ? { sourceId: entry.sourceId } : {}),
     }
   })
   return {

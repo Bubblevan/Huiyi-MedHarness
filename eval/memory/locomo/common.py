@@ -113,6 +113,7 @@ def parse_answer(raw: str) -> tuple[str, str | None]:
 
 def canonical_items(items: Iterable[dict[str, Any]]) -> tuple[str, list[dict[str, Any]]]:
     digest_items = []
+    source_ids: list[str | None] = []
     for item in items:
         if not isinstance(item, dict) and hasattr(item, "model_dump"):
             item = item.model_dump(exclude_none=True)
@@ -123,11 +124,19 @@ def canonical_items(items: Iterable[dict[str, Any]]) -> tuple[str, list[dict[str
             continue
         canonical = {"kind": kind, "content": content, "timestamp": timestamp if isinstance(timestamp, str) else None}
         digest_items.append(canonical)
+        source_id = item.get("sourceId")
+        source_ids.append(source_id if isinstance(source_id, str) and source_id else None)
     compact = json.dumps(digest_items, ensure_ascii=False, separators=(",", ":"))
-    hashes = [
-        {"kind": item["kind"], "timestamp": item["timestamp"], "content_sha256": digest_text(item["content"])}
-        for item in digest_items
-    ]
+    hashes = []
+    for item, source_id in zip(digest_items, source_ids):
+        record = {
+            "kind": item["kind"],
+            "timestamp": item["timestamp"],
+            "content_sha256": digest_text(item["content"]),
+        }
+        if isinstance(source_id, str) and source_id:
+            record["source_id"] = source_id
+        hashes.append(record)
     return digest_text(compact), hashes
 
 
@@ -148,7 +157,11 @@ def snapshot_payload(items: Iterable[dict[str, Any]]) -> str:
             continue
         if isinstance(timestamp, str) and "\ntimestamp:" not in content:
             content = f"{content}\ntimestamp:{timestamp}"
-        grouped[names[kind]].append({"content": content})
+        record = {"content": content}
+        source_id = item.get("sourceId")
+        if isinstance(source_id, str) and source_id:
+            record["dia_id"] = source_id
+        grouped[names[kind]].append(record)
     return json.dumps({"retrievals": grouped, "memoryWindow": []}, ensure_ascii=False, indent=2)
 
 

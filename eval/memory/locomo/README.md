@@ -14,7 +14,8 @@ All data, state, predictions, pairwise diffs, and runtime traces are written und
 - Exclude category 5 exactly. The included question IDs are single-hop 282, multi-hop 96, temporal 321, and open-domain 841.
 - Run A, B, and C against independent byte-identical copies of one frozen memory state. Arm C creates a fresh in-memory DSH session for each question and uses the read-only Memory lifecycle.
 - The DSH composition mounts only core Session, Agent, AgentLoop, local Qwen, and automatic Huiyi Memory. It does not install the evidence capability or manual memory tools. Benchmark health-engine processes enable `HUIYI_MEMORY_ISOLATE_RECALLS=1`, clearing AMA's transient `memoryWindow` before and after each question so one QA item cannot affect the next.
-- `A_UPSTREAM` and `B_SIDECAR` use the pinned official `QANemoriPrompt`. `C_DSH` uses the evaluation-only prompt adaptation in `prompt.ts`; product prompts are unchanged.
+- The LoCoMo projection preserves AMA's `dia_id` as the optional `MemoryItem.sourceId` and renders it as the benchmark's `dia_id` citation reference. AMA SQLite row IDs, FAISS IDs, ranks, and scores remain excluded. The normal product memory prompt does not render `sourceId`.
+- `A_UPSTREAM` and `B_SIDECAR` use the pinned official `QANemoriPrompt`. `C_DSH` splits that same template at the memory placeholder: stable instructions use the DSH system-prompt section, while retrieved memory, question, and output contract travel in the lifecycle's dynamic MemorySnapshot context. The actual question remains a normal DSH user message. Product prompts are unchanged.
 - Only Token-F1 and BLEU-1 are scored. The full local reproduction judge could not be recovered, so no LLM judge score is claimed. The paper's GPT-4o-mini score remains an external reference.
 
 ## Environment
@@ -84,14 +85,16 @@ $PYTHON eval/memory/locomo/compare.py --ab-only
 After A↔B parity is resolved, run the real DSH path (the script uses the installed pinned DSH services, not a mock AgentLoop):
 
 ```bash
-PATH=/root/gpufree-data/.toolchain/node-v22.19.0/unpacked/bin:$PATH \
+PATH=/root/.nvm/versions/node/v22.23.3/bin:$PATH \
   node --experimental-strip-types eval/memory/locomo/run_dsh.mjs \
-    --memory-url http://127.0.0.1:8325
+    --memoryUrl http://127.0.0.1:8325
 $PYTHON eval/memory/locomo/score.py artifacts/hc-mem-002/arm-c-dsh/predictions.jsonl
 $PYTHON eval/memory/locomo/compare.py
 ```
 
 Each runner appends completed questions and skips them on restart. `--limit N` is only for a labeled debug prefix and must never be passed to the full evaluation. A/B/C must have identical ordered question IDs before scoring/comparison.
+
+Arm C records a DSH `max-tokens` turn as an evaluation failure with an empty scored answer, the partial raw completion, usage, and trace metadata. It does not treat a partial assistant stream as a final answer, and the read-only lifecycle performs no memory commit for that turn. Other non-completed turn reasons stop the runner for diagnosis.
 
 ## Metrics and cost
 
@@ -101,6 +104,6 @@ Run warm steady-state comparisons with the same local model process. Cold proces
 
 ## Interpretation
 
-Gate A→B isolates health-engine adapter normalization/configuration. Gate B→C isolates DSH lifecycle and prompt projection. The principal parity tolerances are absolute 0.01 for overall Token-F1 and BLEU-1. Report category-level changes for all four included categories. If an A→B gate fails, inspect `paired-diff.jsonl` and fix only demonstrated adapter/configuration losses before starting C.
+Gate A→B isolates health-engine adapter normalization/configuration. Gate B→C isolates DSH lifecycle and prompt projection. The principal parity tolerances are absolute 0.01 for overall Token-F1 and BLEU-1. Report category-level changes for all four included categories; any category decline worse than 0.05 absolute on either metric is a material regression even if the overall gate passes. If an A→B gate fails, inspect `paired-diff.jsonl` and fix only demonstrated adapter/configuration losses before starting C.
 
 Do not call the one-question local smoke a benchmark. Do not claim the local result is numerically equal to the paper's GPT-4o-mini judge score.

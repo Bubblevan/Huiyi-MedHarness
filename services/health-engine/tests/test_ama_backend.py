@@ -24,14 +24,15 @@ class AmaBackendTests(unittest.TestCase):
             for kind in ("text", "fact", "sentence"):
                 self.assertTrue((backend.data_dir / f"{namespace}_{kind}_Index.faiss").exists())
 
-    def test_retrieval_normalization_drops_internal_ids_and_empty_records(self) -> None:
+    def test_retrieval_normalization_drops_database_ids_but_preserves_source_references(self) -> None:
         records = _parse_retrievals(
-            '{"retrievals":{"text_match_results":[{"id":7,"content":"test-only history","timestamp":"2026-10-07","source":"user"}],'
+            '{"retrievals":{"text_match_results":[{"id":7,"dia_id":"D1:2","content":"test-only history","timestamp":"2026-10-07","source":"user"}],'
             '"fact_match_results":[{"id":2,"content":"test-only fact","timestamp":"2026-10-07"},{}]},"memoryWindow":[]}'
         )
         self.assertEqual([item.kind for item in records], ["raw", "fact"])
         self.assertEqual(records[0].content, "test-only history")
         self.assertFalse(hasattr(records[0], "id"))
+        self.assertEqual(records[0].sourceId, "D1:2")
 
     def test_retrieval_normalization_preserves_raw_fact_episode_text_and_timestamps(self) -> None:
         payload = json.dumps({

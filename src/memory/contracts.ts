@@ -13,6 +13,8 @@ export interface MemoryItem {
   readonly content: string
   readonly timestamp?: string
   readonly source?: string
+  /** Stable source reference when the backend provides one; never a storage row ID. */
+  readonly sourceId?: string
 }
 
 export interface MemorySnapshot {

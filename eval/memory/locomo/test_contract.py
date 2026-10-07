@@ -56,7 +56,7 @@ class LocomoContractTests(unittest.TestCase):
 
     def test_snapshot_reconstruction_keeps_three_groups_and_timestamps(self) -> None:
         payload = snapshot_payload([
-            {"kind": "raw", "content": "raw line", "timestamp": "2023-01-01"},
+            {"kind": "raw", "content": "raw line", "timestamp": "2023-01-01", "sourceId": "D1:2"},
             {"kind": "fact", "content": "fact line\ntimestamp:2023-01-02", "timestamp": "2023-01-02"},
             {"kind": "episode", "content": "episode line", "timestamp": "2023-01-03"},
         ])
@@ -64,6 +64,7 @@ class LocomoContractTests(unittest.TestCase):
         self.assertIn('"fact_match_results"', payload)
         self.assertIn('"episodes_results"', payload)
         self.assertIn('raw line\\ntimestamp:2023-01-01', payload)
+        self.assertIn('"dia_id": "D1:2"', payload)
         self.assertIn('episode line\\ntimestamp:2023-01-03', payload)
 
     def test_arm_comparison_supports_ab_gate_without_c_and_requires_identical_ids(self) -> None:
@@ -83,6 +84,26 @@ class LocomoContractTests(unittest.TestCase):
         arms["C_DSH"]["extra:qa-0002"] = dict(row, question_id="extra:qa-0002")
         with self.assertRaises(ValueError):
             values_by_question(arms)
+
+    def test_arm_comparison_checks_benchmark_source_references(self) -> None:
+        base = {
+            "question_id": "conv:qa-0001", "conversation_id": "conv", "category": 1,
+            "gold_answer": "same", "response": "answer", "retrieval_hash": "same",
+            "snapshot_hash": "same", "retrieved_items": [
+                {"kind": "raw", "content_sha256": "content", "source_id": "D1:2"},
+            ],
+        }
+        arms = {
+            "A_UPSTREAM": {"conv:qa-0001": dict(base)},
+            "B_SIDECAR": {"conv:qa-0001": dict(base)},
+            "C_DSH": {"conv:qa-0001": dict(base)},
+        }
+        paired = values_by_question(arms)
+        self.assertTrue(paired[0]["B_C_source_refs_equal"])
+        arms["C_DSH"]["conv:qa-0001"]["retrieved_items"] = [
+            {"kind": "raw", "content_sha256": "content", "source_id": "D1:3"},
+        ]
+        self.assertFalse(values_by_question(arms)[0]["B_C_source_refs_equal"])
 
     def test_arm_comparison_requires_identical_question_order(self) -> None:
         first = {"question_id": "conv:qa-0001", "category": 1, "gold_answer": "one", "response": "one"}

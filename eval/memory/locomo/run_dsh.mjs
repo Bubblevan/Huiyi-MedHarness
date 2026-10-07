@@ -122,10 +122,11 @@ function canonicalSnapshot(snapshot) {
   const compact = JSON.stringify(items)
   return {
     hash: sha256(compact),
-    retrievedItems: items.map(item => ({
-      kind: item.kind,
-      timestamp: item.timestamp,
-      content_sha256: sha256(item.content),
+    retrievedItems: snapshot.items.map((item, index) => ({
+      kind: items[index].kind,
+      timestamp: items[index].timestamp,
+      content_sha256: sha256(items[index].content),
+      ...(typeof item.sourceId === 'string' && item.sourceId ? { source_id: item.sourceId } : {}),
     })),
     retrievedCount: items.length,
     retrievedKinds: Object.fromEntries(['raw', 'fact', 'episode'].map(kind => [kind, items.filter(item => item.kind === kind).length])),
@@ -207,7 +208,7 @@ applyMemoryOnly(
   {
     automaticStrongRetrieve: true,
     readOnly: true,
-    renderContext: snapshot => renderLocomoMemoryContext(snapshot),
+    renderContext: (snapshot, query) => renderLocomoMemoryContext(snapshot, query),
   },
   {
     client: memoryClient,
@@ -263,19 +264,24 @@ try {
     const snapshot = snapshots.get(sessionId)
     const modelRequests = modelAdapter.metrics(sessionId)
     const firstModel = modelRequests[0]
-    if (turnReason !== 'completed') throw new Error(`DSH turn did not complete (${turnReason ?? 'no turn/end'}) for ${question.question_id}`)
-    if (!metrics.assistantText) throw new Error(`DSH turn produced no assistant text for ${question.question_id}`)
+    if (turnReason !== 'completed' && turnReason !== 'max-tokens') {
+      throw new Error(`DSH turn did not complete (${turnReason ?? 'no turn/end'}) for ${question.question_id}`)
+    }
+    if (turnReason === 'completed' && !metrics.assistantText) throw new Error(`DSH turn produced no assistant text for ${question.question_id}`)
     if (traceRows.filter(row => row.operation === 'automatic_recall').length !== 1 || recallTrace?.status !== 'completed' || !snapshot) {
       throw new Error(`DSH question did not produce exactly one completed automatic recall for ${question.question_id}`)
     }
-    if (commitTrace?.errorClass !== 'evaluation_read_only') {
+    if (commitTrace?.errorClass !== 'evaluation_read_only'
+      && !(turnReason === 'max-tokens' && commitTrace?.errorClass === 'turn_max-tokens')) {
       throw new Error(`DSH question was not protected by the read-only memory profile for ${question.question_id}`)
     }
     if (metrics.stepCount !== 1 || modelRequests.length !== 1 || ctx.tools.schemas().length !== 0) {
       throw new Error(`unexpected DSH tool or multi-step activity in the read-only parity profile for ${question.question_id}`)
     }
 
-    const parsedAnswer = parseAnswer(metrics.assistantText)
+    const parsedAnswer = turnReason === 'completed'
+      ? parseAnswer(metrics.assistantText)
+      : { answer: '', parseError: 'TurnMaxTokens' }
     const record = {
       question_id: question.question_id,
       conversation_id: question.conversation_id,
@@ -285,6 +291,7 @@ try {
       response: parsedAnswer.answer,
       response_raw: metrics.assistantText,
       parse_error: parsedAnswer.parseError,
+      turn_reason: turnReason,
       evidence: question.evidence,
       profile: 'locomo-parity',
       arm: 'C_DSH',
@@ -341,6 +348,8 @@ try {
       automatic_recall_count: record.automatic_recall_count,
       recall_status: record.recall_status,
       commit_status: record.commit_status,
+      turn_reason: record.turn_reason,
+      parse_error: record.parse_error,
       snapshot_hash: record.snapshot_hash,
       retrieved_count: record.retrieved_count,
       retrieved_kinds: record.retrieved_kinds,

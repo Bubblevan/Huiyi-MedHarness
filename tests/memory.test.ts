@@ -90,12 +90,12 @@ describe('health-engine HTTP client', () => {
   it('normalizes Pydantic nulls for optional memory item fields', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
       snapshotId: 'snap-1', userId: 'u1', sessionId: 's1', turn: 1,
-      items: [{ kind: 'fact', content: 'test-only', timestamp: null, source: null }],
+      items: [{ kind: 'fact', content: 'test-only', timestamp: null, source: null, sourceId: 'D1:2' }],
       tokenEstimate: 1, retrievalRounds: 1,
     }), { status: 200 }))
     const client = new MemoryClient()
     await expect(client.recall({ userId: 'u1', sessionId: 's1', turn: 1, query: 'history' }))
-      .resolves.toMatchObject({ items: [{ kind: 'fact', content: 'test-only' }] })
+      .resolves.toMatchObject({ items: [{ kind: 'fact', content: 'test-only', sourceId: 'D1:2' }] })
     fetchMock.mockRestore()
   })
 

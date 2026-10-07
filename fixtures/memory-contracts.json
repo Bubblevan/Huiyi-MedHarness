@@ -12,7 +12,7 @@
     "sessionId": "synthetic-session-a",
     "turn": 1,
     "items": [
-      { "kind": "fact", "content": "Synthetic test history only." }
+      { "kind": "fact", "content": "Synthetic test history only.", "sourceId": "D1:2" }
     ],
     "tokenEstimate": 8,
     "retrievalRounds": 1,

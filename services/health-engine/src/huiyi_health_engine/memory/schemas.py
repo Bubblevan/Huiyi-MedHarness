@@ -30,6 +30,7 @@ class MemoryItem(StrictModel):
     content: str = Field(min_length=1)
     timestamp: str | None = None
     source: str | None = None
+    sourceId: str | None = Field(default=None, max_length=512)
 
 
 class MemorySnapshot(StrictModel):

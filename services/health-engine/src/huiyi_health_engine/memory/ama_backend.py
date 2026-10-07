@@ -328,10 +328,14 @@ def _parse_retrievals(payload: str) -> list[MemoryItem]:
                 continue
             seen.add(key)
             source = record.get("source")
+            source_id = record.get("dia_id")
             typed.append(MemoryItem(
                 kind=item_kind,
                 content=content,
                 timestamp=timestamp,
                 source=source if isinstance(source, str) else None,
+                # dia_id is an upstream conversation reference (for example D2:6),
+                # not AMA's SQLite row id or a FAISS identifier.
+                sourceId=source_id if isinstance(source_id, str) else None,
             ))
     return typed
