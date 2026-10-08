@@ -1,0 +1,28 @@
+{
+  "task": "HC-RAG-002",
+  "arm": "B",
+  "method": "Huiyi health-engine benchmark i-MedRAG, direct final answer",
+  "modelId": "Qwen3-8B",
+  "sampleCount": 45,
+  "idsSha256": "eb5c651010ccbc7bafd153954fb0079d22332ce8256504f797b475d1aef79bc7",
+  "inputProjectionSha256": "63432a396b0882fd0314f45849d43afa88eea14160bae49423fd902ac985ac82",
+  "predictionsSha256": "59b5d1a930a6c0062153a28e0947dcef13928c90e3beed6d40201f6a4e0d6115",
+  "metadataTraceSha256": "b0e62b1724a82fcaa7560e5f68d46c0679ab8dc60d559c602408467ffb771017",
+  "parseStatusCounts": {
+    "json_choice": 44,
+    "parse_failure": 1
+  },
+  "runtimeFailures": 0,
+  "researchIncomplete": 0,
+  "researchParseFailures": 0,
+  "modelCalls": 991,
+  "retrievalCalls": 541,
+  "generatedQueries": 541,
+  "roundsCompletedCounts": {
+    "4": 45
+  },
+  "meanWallLatencyMs": 211601.9,
+  "medianWallLatencyMs": 211643.2,
+  "labelsRead": false,
+  "completedAt": "2026-10-08T09:04:27.370824+00:00"
+}

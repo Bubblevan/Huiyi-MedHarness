@@ -1,0 +1,30 @@
+# Merge into the dedicated HC-RAG-002 DSH profile after it is created from a
+# minimal/headless template. Do not install the normal Huiyi product bundle.
+- id: llm-pi-ai
+  name: '@deepseek-ai/dsh-llm-pi-ai'
+  config:
+    providers:
+      hc-rag-local-qwen:
+        displayName: Local Qwen3-8B MedQA parity model
+        api: openai-completions
+        baseURL: http://127.0.0.1:8000/v1
+        apiKeyEnv: HC_RAG_LOCAL_API_KEY
+        models:
+          - id: Qwen3-8B
+            name: Local Qwen3-8B
+            contextWindow: 16384
+            maxTokens: 1024
+
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: hc-rag-local-qwen
+    model: Qwen3-8B
+
+- id: system-prompt
+  name: '@deepseek-ai/dsh-system-prompt'
+  config:
+    includeHarnessIdentity: false
+    includeRuntimeContext: false
+    personaPrefix: ''
+    personaSuffix: ''

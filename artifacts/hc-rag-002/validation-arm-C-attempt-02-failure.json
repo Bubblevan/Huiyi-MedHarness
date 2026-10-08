@@ -1,0 +1,26 @@
+{
+  "task": "HC-RAG-002",
+  "arm": "C",
+  "attempt": 2,
+  "status": "invalid_runtime_aborted",
+  "reason": "The global DSH CLI was 0.2.0-rc.2. Its profile loader skipped huiyi-rag-parity-eval because the plugin peer range pins dsh-tools 0.2.1-alpha.1. DSH therefore exposed only default web_search tools; no research_medical_question tool was registered.",
+  "runtimeVersionUsed": "0.2.0-rc.2",
+  "pinnedRuntimeVersion": "0.2.1-alpha.1",
+  "failedTurns": 3,
+  "nativeResearchToolCalls": 0,
+  "unexpectedToolCalls": 14,
+  "unexpectedToolCallCountByCase": [
+    5,
+    5,
+    4
+  ],
+  "turnOutcomeCounts": {
+    "completed": 3
+  },
+  "predictionSha256": "1bdb8363240d4fc507c58584692ca684c440baf9c55fab0e729f317d2ab0db68",
+  "metadataTraceSha256": "8841ed9aade396115f378b3ddc08c3f1a96360e1b2c59955d92f4c971b04bdd7",
+  "sampleIDsSha256": "643538ee47edc6133a90ff4ee7b1c61791b447ffd1e4a03c0ab5170559cd241f",
+  "labelsRead": false,
+  "recordedAt": "2026-10-08T09:12:31.362386+00:00",
+  "resolution": "Use the local dsh-runtime entry with version 0.2.1-alpha.1. Its read-only config dump confirms huiyi-rag-parity-eval is included with no skipped-bundle warning."
+}

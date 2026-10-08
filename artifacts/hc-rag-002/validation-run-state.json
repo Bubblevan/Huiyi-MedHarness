@@ -1,0 +1,197 @@
+{
+  "task": "HC-RAG-002",
+  "status": "validation_45_parity_gate_failed_stop_before_test",
+  "updatedAt": "2026-10-08T12:05:19.342060+00:00",
+  "HuiyiCommit": "6ad0222117e350ca0cb0810f34ee78a5c26f304f",
+  "DSHCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "MedRAGCommit": "7599a728a28789fd601728c08d313b1148051f41",
+  "modelId": "Qwen3-8B",
+  "endpointProtocol": "OpenAI-compatible Chat Completions over loopback HTTP",
+  "publishedLlamaModelUsed": false,
+  "validation": {
+    "subsetCount": 45,
+    "completedArmA": 45,
+    "pendingArmA": 0,
+    "armBStarted": true,
+    "armCStarted": true,
+    "testLabelsRead": false,
+    "validationLabelsRead": true,
+    "completedArmARows": 45,
+    "armAModelCalls": 990,
+    "armARetrievalCalls": 540,
+    "armAParseFailures": 0,
+    "armAMeanWallLatencyMs": 235002.0,
+    "originalSubsetCount": 100,
+    "armAMedianWallLatencyMs": 239959.9,
+    "completedArmCRows": 45,
+    "pendingArmCRows": 0,
+    "completedArmC": true,
+    "predictionFreezeManifestPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/prediction-freeze-manifest.json",
+    "predictionFreezeManifestSha256": "9851b3ba4f78cffde726ef7f898509b0c7504bebbdb47dfc964b3a008cbc8b55",
+    "scorerResultPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/score.json",
+    "scorerResultSha256": "1e7ad144a9bcc08488b86741e04e9c642ea46c8a17d405f0690d4ea53881cc48",
+    "metadataSummaryPath": "artifacts/hc-rag-002/validation-parity-45-metadata.json",
+    "metadataSummarySha256": "4d6b2b8fbef57974862de8706626523ffd8aebc9f4ef9a442f586ad1654df205",
+    "gates": {
+      "AtoB": "PASS",
+      "BtoC": "FAIL",
+      "stopBeforeTest": true
+    },
+    "accuracy": {
+      "A": 0.7778,
+      "B": 0.8222,
+      "C": 0.6889
+    },
+    "frozenEvalConfigSha256": "defa3d69fcde943cc400ae6178501d5846a0f732724f4c98f2f46ac56a4ed0ac",
+    "freezeManifestSha256": "9851b3ba4f78cffde726ef7f898509b0c7504bebbdb47dfc964b3a008cbc8b55",
+    "scoreSha256": "1e7ad144a9bcc08488b86741e04e9c642ea46c8a17d405f0690d4ea53881cc48",
+    "pairedSummarySha256": "abd73144c0ea9889b4ba41e310fb3f1b292aebb5fccb3d066624bcbbab9c0ef5",
+    "status": "parity_gate_failed",
+    "testStarted": false,
+    "labelsReadAfterFreeze": true
+  },
+  "AOutputSegments": {
+    "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A": {
+      "predictionCount": 4,
+      "traceCount": 4,
+      "predictionsSha256": "d08d5e794c0c0d55d9d62d6194ae66fb6f6d52fcfdfd91c28496cb0701e2181a",
+      "traceSha256": "5e4b46a5c4d37a0feeddef0f649e428028395f97505e5436e074f954f21f7b8a"
+    },
+    "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A-resume/segment-20261008-01": {
+      "predictionCount": 1,
+      "traceCount": 1,
+      "predictionsSha256": "29711a2b864301de2eee5c4facaf8ab3a0b1164a7e6db675cb6aba0be658c760",
+      "traceSha256": "570719543ee079e02f703afff3efc1c0855fce6c182c92dafd1d6eb37c0afe60"
+    },
+    "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A-resume/segment-20261008-02": {
+      "predictionCount": 40,
+      "traceCount": 40,
+      "predictionsSha256": "a91377956721a194f4ba97756453b713d14c66d233f4b7d4f7d558bd336e079b",
+      "traceSha256": "31cff49d3ac5b46a8a71233e1cbac5f3f0f303a870663521b9326e454670cb5e"
+    }
+  },
+  "concurrentQwenClient": "AMA LoCoMo reference-store build; process left untouched.",
+  "frozenEvalConfigSha256": "11f37848bac6260317b9be6144d22d50d5ee208ee0f6e230db2bde177787788c",
+  "activeSegment": {
+    "path": "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A-resume/segment-20261008-02",
+    "completedRows": 40,
+    "inputSha256": "b323133c6d817978fb76be3765648b5588ab9605667bf02c781d58e6e977a6ee",
+    "stoppedAtActiveScopeBoundary": true
+  },
+  "HuiyiHeadObservedAtScopeAmendment": "92252c96ad28e642631a9175f74f9b9af30b1a4e",
+  "activeValidationScope": {
+    "sampleCount": 45,
+    "idsManifest": "artifacts/hc-rag-002/active-validation-ids-45.json",
+    "idsManifestSha256": "0ab19e43ed545455901befdaf9508aca0a11127aa970be305f5059df21a691d6",
+    "idsSha256": "eb5c651010ccbc7bafd153954fb0079d22332ce8256504f797b475d1aef79bc7",
+    "inferenceProjectionPath": "/root/gpufree-data/repro/hc-rag-002/datasets/validation-45.inference.jsonl",
+    "inferenceProjectionSha256": "63432a396b0882fd0314f45849d43afa88eea14160bae49423fd902ac985ac82",
+    "labelsRead": false
+  },
+  "activeEvalConfigPath": "artifacts/hc-rag-002/active-eval-config-45.json",
+  "activeEvalConfigSha256": "defa3d69fcde943cc400ae6178501d5846a0f732724f4c98f2f46ac56a4ed0ac",
+  "validationArmASummaryPath": "artifacts/hc-rag-002/validation-arm-A-45-metadata.json",
+  "validationArmASummarySha256": "8819f62c4fad6291de1f68d0b456993b7754fdc57e7113c55d8d88bb00ed84f4",
+  "activeSegmentB": {
+    "path": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-B-direct",
+    "expectedRows": 45,
+    "completedRows": 45,
+    "started": true,
+    "predictionSha256": "59b5d1a930a6c0062153a28e0947dcef13928c90e3beed6d40201f6a4e0d6115",
+    "traceSha256": "b0e62b1724a82fcaa7560e5f68d46c0679ab8dc60d559c602408467ffb771017",
+    "parseFailures": 1,
+    "runtimeFailures": 0,
+    "meanWallLatencyMs": 211601.9,
+    "completed": true
+  },
+  "BOutput": {
+    "sampleCount": 45,
+    "inputProjectionSha256": "63432a396b0882fd0314f45849d43afa88eea14160bae49423fd902ac985ac82",
+    "predictionsSha256": "59b5d1a930a6c0062153a28e0947dcef13928c90e3beed6d40201f6a4e0d6115",
+    "metadataTraceSha256": "b0e62b1724a82fcaa7560e5f68d46c0679ab8dc60d559c602408467ffb771017",
+    "parseStatusCounts": {
+      "json_choice": 44,
+      "parse_failure": 1
+    },
+    "runtimeFailures": 0,
+    "modelCalls": 991,
+    "retrievalCalls": 541,
+    "generatedQueries": 541,
+    "meanWallLatencyMs": 211601.9,
+    "medianWallLatencyMs": 211643.2
+  },
+  "validationArmBSummaryPath": "artifacts/hc-rag-002/validation-arm-B-45-metadata.json",
+  "validationArmBSummarySha256": "c5c42c243bdb2043aef094247d80ec015e2859eaa6a7db371022214d00b387b2",
+  "activeSegmentC": {
+    "path": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-C-dsh-pinned-runtime",
+    "expectedRows": 45,
+    "completedRows": 45,
+    "started": true,
+    "method": "imedrag",
+    "dshProfile": "hc-rag-002",
+    "credentialEnv": "HC_RAG_LOCAL_API_KEY",
+    "deploymentFile": "eval/rag-parity/deployment.env",
+    "dshRuntimeVersion": "0.2.1-alpha.1",
+    "dshEntry": "/root/gpufree-data/repro/hc-rag-002/dsh-runtime/node_modules/@deepseek-ai/dsh/lib/bin.js",
+    "predictionSha256": "52552e7b3cac41dc9f813cee24f01101147971f59b98d31f2803a2dc3b6d404f",
+    "traceSha256": "ca91ab1d8411e5fce94565ea0da03be61e376c288cd28578e57e260e6b309b8c",
+    "nativeResearchCalls": 47,
+    "unexpectedToolCalls": 0,
+    "turnCompleted": 38,
+    "parseFailures": 7,
+    "toolFailures": 2,
+    "meanWallLatencyMs": 220062.2,
+    "runtimeFailures": 6,
+    "maxTokensTurns": 7,
+    "medianWallLatencyMs": 221058.6,
+    "p95WallLatencyMs": 298576.3,
+    "researchModelCalls": 901,
+    "retrievalCalls": 541,
+    "roundsAllFour": 45,
+    "parseStatusCounts": {
+      "json_choice": 38,
+      "runtime_failure": 6,
+      "research_tool_failure": 1
+    },
+    "turnOutcomeCounts": {
+      "completed": 38,
+      "max-tokens": 7
+    },
+    "casesWithMultipleToolCalls": 1,
+    "researchToolFailureCases": 1,
+    "completed": true,
+    "summaryPath": "artifacts/hc-rag-002/validation-arm-C-45-metadata.json",
+    "summarySha256": "5a9e60dd93f204ec714cdaaaf1de5de0ca4b24871d8ea0ac22d58962a6d3c4cb"
+  },
+  "CInvalidAttempt01": {
+    "status": "invalid_setup_aborted",
+    "failureCode": "MISSING_CREDENTIAL",
+    "failedTurns": 31,
+    "toolCalls": 0,
+    "modelEndpointCalls": 0,
+    "predictionSha256": "fe2359ed1ee2c34b4228eeca0abd5c0ac2f701fe4c6b98bc0ef18a87e9d38dcf",
+    "metadataTraceSha256": "79d2cdb87d01ea618fa81afc5fdba5f6a5066aa468221d2968a891905423c958",
+    "labelsRead": false,
+    "artifactPath": "artifacts/hc-rag-002/validation-arm-C-attempt-01-failure.json",
+    "artifactSha256": "e0f68365fff1fb697439e1fdf51d0a1032364450c712ea0154d78b450011d6c4"
+  },
+  "CInvalidAttempt02": {
+    "status": "invalid_runtime_aborted",
+    "runtimeVersionUsed": "0.2.0-rc.2",
+    "pinnedRuntimeVersion": "0.2.1-alpha.1",
+    "failedTurns": 3,
+    "nativeResearchToolCalls": 0,
+    "unexpectedToolCalls": 14,
+    "predictionSha256": "1bdb8363240d4fc507c58584692ca684c440baf9c55fab0e729f317d2ab0db68",
+    "metadataTraceSha256": "8841ed9aade396115f378b3ddc08c3f1a96360e1b2c59955d92f4c971b04bdd7",
+    "labelsRead": false,
+    "artifactPath": "artifacts/hc-rag-002/validation-arm-C-attempt-02-failure.json",
+    "artifactSha256": "3057219abd868d84bfdb8b15f024b187dd693aac5a5310c18fe00dc6ddfee3f6"
+  },
+  "gpuRelease": {
+    "qwenVllmStopped": true,
+    "gpuMemoryUsedMiB": 0,
+    "healthEnginePid": 2122,
+    "healthEngineLeftRunning": true
+  }
+}

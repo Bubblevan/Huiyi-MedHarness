@@ -1,0 +1,304 @@
+{
+  "task": "HC-RAG-002",
+  "status": "research-audit-and-retrieval-parity-complete; local-Qwen-live-A-B-C-pending",
+  "createdAt": "2026-10-07",
+  "baseline": {
+    "requestedHuiyiMain": "e3b35a7dc53a48c66ae247124a34b876e7bc70ba",
+    "auditedHuiyiHead": "ae90221b9ee3ad6c9aa146845e22811cb26d572b",
+    "auditedHuiyiHeadParent": "e3b35a7dc53a48c66ae247124a34b876e7bc70ba",
+    "dshRepository": "deepseek-ai/deepseek-harness",
+    "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "dshVersion": "0.2.1-alpha.1",
+    "medragRepository": "gzxiong/MedRAG",
+    "medragCommit": "7599a728a28789fd601728c08d313b1148051f41"
+  },
+  "benchmark": {
+    "name": "MedQA-USMLE",
+    "primarySplit": "test",
+    "primaryCount": 1273,
+    "optionLabels": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "testSnapshot": {
+      "repository": "gzxiong/MIRAGE",
+      "revision": "392943af99cd94cafd50a0de2e7fca24bbf65494",
+      "path": "benchmark.json#medqa",
+      "rawFileBytes": 4296735,
+      "rawFileSha256": "6f7f08c64cd2efe02a5d0c247229813c90db345d9dd6e3a451b5d24146d0f8fa",
+      "itemKeyOrderSha256": "682bb6d08ef35f8cede8c294f8e10b1a815ca23d9aedba15ec1a6063c013c81c",
+      "questionOptionsOrderSha256": "afe13a0ae4a4b0567c52da319f988ea3c082a9f8d220114942df5be35993ad6a",
+      "answerField": "answer",
+      "answerNormalization": "MIRAGE scorer maps the answer label A-D to its corresponding option index; the raw MedQA mirror uses answer_idx. Inference receives only question and options."
+    },
+    "crossCheck": {
+      "repository": "awinml/medqa",
+      "revision": "afdb980b627374a7f10a0a11ed68455596c52742",
+      "testPath": "questions/test.jsonl",
+      "testCount": 1273,
+      "testRawFileSha256": "c3b905ccfa66152dc25afbcb2c10e86c0bdb208824f0658fcdb2c040f60a2beb",
+      "testQuestionOptionsOrderSha256": "afe13a0ae4a4b0567c52da319f988ea3c082a9f8d220114942df5be35993ad6a",
+      "sameQuestionOptionsAndOrderAsMirage": true
+    },
+    "testGoldBoundary": "The test files were used only to check count, field schema, file hash, option-label set, question/options order hash, and parity between the pinned snapshots. Gold values were not printed, used for tuning, or passed to a model. Inference must consume a question/options-only projection. Scoring is permitted only after predictions and execution/configuration hashes are frozen."
+  },
+  "validation": {
+    "repository": "awinml/medqa",
+    "revision": "afdb980b627374a7f10a0a11ed68455596c52742",
+    "split": "validation",
+    "path": "questions/validation.jsonl",
+    "count": 1272,
+    "rawFileSha256": "774bbd90103af43badbe8d5294e336443573fc37b918763920b8fc3b3df581d9",
+    "frozenSubsetCount": 100,
+    "frozenSubsetSelection": "Python random.Random(42).sample(range(1272), 100), sorted by source row order; IDs are source row index plus SHA-256 of canonical question/options only.",
+    "originalPaperSelectionReproducedExactly": false,
+    "originalPaperSelectionReason": "The paper reports a 100-example validation tuning set but does not publish its IDs/order or random seed.",
+    "frozenSubsetManifest": "artifacts/hc-rag-002/frozen-validation-ids.json",
+    "frozenSubsetManifestSha256": "f2526c7bf8f22c4ff86f7fe57aa71b5193d4be335b421a1379e436b62d2ac834",
+    "orderedSelectionSha256": "86c512d1cf503602f018200778af830c12a9f0f6830e27e1e3f951ad86fe9d47"
+  },
+  "publishedReference": {
+    "paper": "Xiong et al., Improving Retrieval-Augmented Generation in Medicine with Iterative Follow-up Questions, arXiv:2408.00727v3",
+    "table2MedQAAccuracyPercent": {
+      "cot": 64.73,
+      "medrag": 66.54,
+      "imedrag": 73.61
+    },
+    "proseDiscrepancyPercent": 75.02,
+    "acceptanceValue": null,
+    "useAsAcceptanceGateForThisRun": false,
+    "scopeNote": "These values are for the paper Llama setup. The user selected local Qwen3-8B for HC-RAG-002; paper numbers are background only and are not a Qwen acceptance gate."
+  },
+  "paperParityModel": {
+    "paperLabel": "Llama-3.1-8B",
+    "exactHuggingFaceIdentifier": null,
+    "exactCheckpointRevision": null,
+    "status": "not-selected-by-user; local-Qwen-adaptation-selected",
+    "evidence": "The paper model identity remains documented for historical reference only. The user explicitly selected the already-present local Qwen3-8B; HC-RAG-002 will not run or claim the Llama paper setup."
+  },
+  "corpusAndRetriever": {
+    "paperCorpora": [
+      "Textbooks",
+      "StatPearls"
+    ],
+    "paperRetriever": "MedCPT",
+    "auditedSourceSnapshots": {
+      "textbooks": {
+        "repository": "MedRAG/textbooks",
+        "revision": "9c72838920a1323ffa867467d3f7aa7b36b0f994",
+        "treeFiles": 20,
+        "chunkFiles": 18,
+        "advertisedBytes": 211564327
+      },
+      "statpearls": {
+        "repository": "MedRAG/statpearls",
+        "revision": "ba1fe2918a0225586ad8db4697fc3eb7f240196e",
+        "treeFiles": 2,
+        "contentSource": "https://ftp.ncbi.nlm.nih.gov/pub/litarch/3d/12/statpearls_NBK430685.tar.gz",
+        "contentRevision": null,
+        "contentLengthAtAuditBytes": 2046896634,
+        "retrievedAt": null,
+        "contentSha256": null
+      }
+    },
+    "queryEncoder": {
+      "model": "ncbi/MedCPT-Query-Encoder",
+      "revision": "d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc"
+    },
+    "articleEncoder": {
+      "model": "ncbi/MedCPT-Article-Encoder",
+      "revision": "d05a736da4bb84ee4057b7f7999485be6ed85465"
+    },
+    "upstreamReportedCounts": {
+      "textbooksDocumentsApprox": 18,
+      "textbooksSnippetsApprox": 125800,
+      "statpearlsDocumentsApprox": 9300,
+      "statpearlsSnippetsApprox": 301200
+    },
+    "currentFullCorpusPrepared": true,
+    "existingLocalSmokeFixture": {
+      "textbooksChunks": 60,
+      "statpearlsArticles": 1,
+      "statpearlsChunks": 33,
+      "medqaBenchmarkRun": false
+    },
+    "sourceSnapshotStatus": "Full Textbooks + current NCBI StatPearls MedText was prepared offline from the pinned Textbooks revision and the official NCBI rolling archive. The rolling StatPearls content has revision=null and is identified by its archive SHA-256 and measured retrieval timestamp. Current counts differ from the historical README: 125847 Textbooks chunks and 384050 StatPearls chunks. The full MedCPT IndexFlatIP files are stored outside Git and verified by corpus-manifest.json.",
+    "preparedSnapshot": {
+      "corpusRootExternalToGit": "/root/gpufree-data/repro/hc-rag-002/corpus/prepared",
+      "manifest": "artifacts/hc-rag-002/corpus-manifest.json",
+      "manifestSha256": "a549da7a018df831d02774e387cc0f40b616fbd47eefba38339a7086213cb252",
+      "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+      "corpusHash": "c840ea8370341f41d988a38777d8116f79094adb4aa695f34a3180381f94bb7f",
+      "indexHash": "dc46eed5d538987687ac54ec16cd44a3e477f551d28051e95001871a1bd44bcf",
+      "totalChunks": 509897,
+      "sources": [
+        {
+          "name": "textbooks",
+          "revision": "9c72838920a1323ffa867467d3f7aa7b36b0f994",
+          "documentCount": 18,
+          "chunkCount": 125847,
+          "chunkContentHash": "a32e2cb4410c151a108fc4ca360ab75f9ffbc8a1825545bcc31ff213119cf73a"
+        },
+        {
+          "name": "statpearls",
+          "revision": null,
+          "retrievedAtUtc": "2026-10-07T15:20:19.043487+00:00",
+          "lastModifiedUtc": "2026-10-04T07:25:26+00:00",
+          "archiveSha256": "d784de13a6f11252e4625663e1a0228eef2ee93431353ece7e87369889c8a91b",
+          "documentCount": 9651,
+          "chunkCount": 384050,
+          "chunkContentHash": "867e0bbcc7b4ae688f09a9f2dbc5919bb9bfd75e5aa5d3f56cbd12eba3b4e681"
+        }
+      ],
+      "retriever": {
+        "name": "MedCPT",
+        "queryEncoderModel": "ncbi/MedCPT-Query-Encoder",
+        "queryEncoderRevision": "d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc",
+        "articleEncoderModel": "ncbi/MedCPT-Article-Encoder",
+        "articleEncoderRevision": "d05a736da4bb84ee4057b7f7999485be6ed85465",
+        "sentenceTransformersVersion": "2.2.2",
+        "indexType": "faiss.IndexFlatIP",
+        "normalization": "none"
+      },
+      "indexFiles": [
+        {
+          "path": "textbooks/index/ncbi/MedCPT-Article-Encoder/faiss.index",
+          "sha256": "89fc5521e767a3bba97b5376b5fabf72af5f943015470ae9f85da727d67a257e"
+        },
+        {
+          "path": "textbooks/index/ncbi/MedCPT-Article-Encoder/metadatas.jsonl",
+          "sha256": "71d3839feae3ce2baa096b1c45592d4b617a57fab5f13c9e462d70ce0c4ffd96"
+        },
+        {
+          "path": "statpearls/index/ncbi/MedCPT-Article-Encoder/faiss.index",
+          "sha256": "1b8641d5d520c5e82f38824951906f34e96925a5523cb4a83fd748fdfa5467d2"
+        },
+        {
+          "path": "statpearls/index/ncbi/MedCPT-Article-Encoder/metadatas.jsonl",
+          "sha256": "589a648d023bde941cbd6deb4b4844527bc78031ddb51a33ba564c7d35e0c05e"
+        }
+      ]
+    }
+  },
+  "parameterAudit": {
+    "exactFinalPaperConfigurationRecovered": false,
+    "sourceDefaultsAndReadmeExample": {
+      "k": 32,
+      "nRounds": 4,
+      "nQueries": 3,
+      "rrfK": 100,
+      "temperature": 0.0,
+      "retriever": "MedCPT",
+      "corpus": "Textbooks + StatPearls"
+    },
+    "paperProtocol": "The paper tuned i-MedRAG parameters on 100 validation samples. The exact Llama experiment configuration is not recovered. Because this run uses the user-selected local Qwen3-8B, it is scoped to A/B/C implementation parity and does not claim to reproduce the paper tuning protocol or its absolute accuracy.",
+    "nextAction": "Restart the local Qwen endpoint with the frozen chat-template default, confirm a completed DSH no-tool turn and native tool call, then enable the existing shared health-engine benchmark route for single/iterative and empty-result live cases.",
+    "localQwenParityProtocol": {
+      "k": 32,
+      "nRounds": 4,
+      "nQueries": 3,
+      "temperature": 0.0,
+      "maxOutputTokens": 1024,
+      "contextWindow": 16384,
+      "retrievalContextTokens": 14336,
+      "seed": 0,
+      "status": "declared local-Qwen parity bootstrap; these are not claimed as the paper-tuned parameters",
+      "chatTemplateDefault": {
+        "enable_thinking": false
+      },
+      "reason": "A real DSH CoT smoke exhausted 1,024 and 2,048 output tokens under the Qwen3 default hidden-thinking mode; a request-level vLLM check with enable_thinking=false completed within 285 output tokens. This is a declared shared serving setting for A/B/C, not a prompt change."
+    }
+  },
+  "dshToolChoiceAudit": {
+    "nativeForcedToolChoiceAvailable": false,
+    "evidence": "At DSH 5badb150, GenerateOptions supports tools but has no tool_choice/toolChoice field; the pi-ai and DeepSeek adapters document tool_choice as unmapped.",
+    "allowedBenchmarkBehavior": "Use a benchmark system instruction requesting exactly one research tool call; zero or more-than-one outer calls are execution failures. Do not patch or vendor DSH and do not implement a second loop."
+  },
+  "localRuntimeAtAudit": {
+    "qwenModelDirectoryPresent": true,
+    "llama31_8bModelDirectoryPresent": false,
+    "vllmRunning": false,
+    "gpu": "NVIDIA L40, 0 MiB used at latest pre-start check",
+    "fullPaperModelBenchmarkReady": false,
+    "auditDate": "2026-10-08",
+    "selectedModelId": "Qwen3-8B",
+    "selectedModelRevision": null,
+    "selectedModelContextWindow": 16384,
+    "vllmVersion": "0.30.1rc1.dev622+gf03026a54",
+    "endpointProtocol": "OpenAI-compatible Chat Completions",
+    "paperAccuracyGateApplies": false
+  },
+  "previousReproduction": {
+    "path": "/root/gpufree-data/repro/imedrag-small-20261007",
+    "type": "official MedRAG entrypoint smoke only",
+    "medragCommit": "7599a728a28789fd601728c08d313b1148051f41",
+    "model": "Qwen3-8B via local vLLM OpenAI-compatible endpoint",
+    "corpus": "60 Textbooks chunks + 33 chunks from one StatPearls article",
+    "medqaEvaluation": false,
+    "paperReproduction": false
+  },
+  "phaseStatus": {
+    "002AResearchAudit": "COMPLETE: pinned i-MedRAG semantics, MedQA split contract, local Qwen selection, and paper-reference scope recorded",
+    "002BFullCorpus": "PASS: full pinned Textbooks plus measured NCBI StatPearls snapshot prepared offline; see preparedSnapshot manifest",
+    "002CRetrievalParity": "PASS: 100 validation cases; top1 100%, mean/min topK overlap 100%, rank agreement 100%, max score delta 0.0",
+    "002DABCLiveBenchmark": "PENDING: start local Qwen, enable existing shared health-engine benchmark route, run smoke then frozen 100-case A/B/C",
+    "testLabelsOpenedForScoring": false
+  },
+  "retrievalParity": {
+    "artifact": "artifacts/hc-rag-002/retrieval-parity.json",
+    "caseCount": 100,
+    "topK": 32,
+    "metrics": {
+      "top1MatchRate": 1.0,
+      "meanTopKOverlap": 1.0,
+      "minimumTopKOverlap": 1.0,
+      "meanRankAgreement": 1.0,
+      "medianRankAgreement": 1.0,
+      "maxAbsoluteScoreDelta": 0.0
+    },
+    "gate": {
+      "top1Match100Percent": true,
+      "topKOverlapAtLeast99Percent": true,
+      "scoreDeltaAtFloatingPointScale": true
+    },
+    "inferenceInputSha256": "75249dab3bf047d58e2a0729477d7463825a1306ae33a5a5812ac79181f38415",
+    "adapterNote": "The pinned MedRAG retrieval class was used with its canonical model identifier mapped at runtime to the same pinned local MedCPT Query Encoder snapshot; no upstream checkout files were modified."
+  },
+  "selectedEvaluationModel": {
+    "modelId": "Qwen3-8B",
+    "localPath": "/root/gpufree-share/data/Qwen3-8B",
+    "revision": null,
+    "revisionStatus": "not-recoverable-from-local-model-directory; SHA-256 identities recorded below",
+    "selectedBy": "user",
+    "architecture": "Qwen3ForCausalLM",
+    "modelType": "qwen3",
+    "maxPositionEmbeddings": 40960,
+    "artifactSha256": {
+      "config.json": "f7c4eadfbbf522470667b797a3c89be2524832d2d599797248dc304fff447c30",
+      "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "model.safetensors.index.json": "f9fdbcb91c23971c13ec5d5f2573d2349e8f61f2f049371ec699281748fdb1bc"
+    },
+    "serving": {
+      "runtime": "vLLM",
+      "version": "0.30.1rc1.dev622+gf03026a54",
+      "dtype": "bfloat16",
+      "tensorParallelSize": 1,
+      "contextWindow": 16384,
+      "retrievalContextTokens": 14336,
+      "maxOutputTokens": 1024,
+      "temperature": 0.0,
+      "seed": 0,
+      "endpointProtocol": "OpenAI-compatible Chat Completions",
+      "endpoint": "http://127.0.0.1:8000/v1",
+      "servedModelAlias": "Qwen3-8B",
+      "toolCallParser": "hermes",
+      "generationConfig": "vllm",
+      "chatTemplateDefault": {
+        "enable_thinking": false,
+        "reason": "avoid Qwen3 hidden-thinking output consuming the fixed 1,024-token cap; unchanged i-MedRAG prompts still request visible analysis"
+      }
+    }
+  }
+}

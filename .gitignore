@@ -4,6 +4,7 @@ coverage/
 .dsh-home/
 .env
 .env.*
+/eval/rag-parity/deployment.env
 
 # HC-MEM-001 local health-engine data and logs
 services/health-engine/data/

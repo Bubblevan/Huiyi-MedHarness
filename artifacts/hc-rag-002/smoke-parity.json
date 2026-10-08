@@ -1,0 +1,56 @@
+{
+  "A": {
+    "predictionSha256": "b62894994bae88bec6d683a9c47c1327d27409f1cb94636cd4be8436a94c8071",
+    "id": "validation-0013-04f868b2df52",
+    "choice": "A",
+    "parseStatus": "json_choice",
+    "wallLatencyMs": 179409.9,
+    "toolCalls": null,
+    "toolFailures": null,
+    "turnOutcome": null,
+    "researchMetadata": null
+  },
+  "B": {
+    "predictionSha256": "a5582fcf92eca05c3614e69ee9c5e6a5db3c81939b815261524415c3f9258a60",
+    "id": "validation-0013-04f868b2df52",
+    "choice": "A",
+    "parseStatus": "json_choice",
+    "wallLatencyMs": 166890.9,
+    "toolCalls": null,
+    "toolFailures": null,
+    "turnOutcome": null,
+    "researchMetadata": null
+  },
+  "C": {
+    "predictionSha256": "e809db098adbe890e66f075c7c3710e2af2ca76ba673fc7ad672e4560120902a",
+    "id": "validation-0013-04f868b2df52",
+    "choice": "A",
+    "parseStatus": "json_choice",
+    "wallLatencyMs": 197125.9,
+    "toolCalls": 1,
+    "toolFailures": 0,
+    "turnOutcome": "completed",
+    "researchMetadata": {
+      "caseId": "c42263c7553ff669faf652807857de326554e9a9b6d022376bf88cd8709d02a2",
+      "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+      "method": "imedrag",
+      "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+      "plannerModel": "Qwen3-8B",
+      "roundsCompleted": 4,
+      "generatedQueries": 12,
+      "modelCalls": 20,
+      "retrievalCalls": 12,
+      "inputTokens": 94875,
+      "outputTokens": 7271,
+      "retrievalLatencyMs": 2791.5,
+      "modelLatencyMs": 175569.4,
+      "latencyMs": 179106.8,
+      "parseFailures": 0
+    }
+  },
+  "task": "HC-RAG-002",
+  "evaluationKind": "one-case execution smoke; not accuracy evidence",
+  "inferenceInputSha256": "75249dab3bf047d58e2a0729477d7463825a1306ae33a5a5812ac79181f38415",
+  "testGoldRead": false,
+  "sameChoiceAcrossArms": true
+}

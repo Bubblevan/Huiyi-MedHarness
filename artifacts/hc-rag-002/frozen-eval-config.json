@@ -1,0 +1,144 @@
+{
+  "task": "HC-RAG-002",
+  "status": "frozen-for-100-case-validation",
+  "createdAt": "2026-10-07T16:43:17.013792+00:00",
+  "labelsOpened": false,
+  "evaluationModel": {
+    "id": "Qwen3-8B",
+    "path": "/root/gpufree-share/data/Qwen3-8B",
+    "revision": null,
+    "selectedBy": "user",
+    "artifactSha256": {
+      "config.json": "f7c4eadfbbf522470667b797a3c89be2524832d2d599797248dc304fff447c30",
+      "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "model.safetensors.index.json": "f9fdbcb91c23971c13ec5d5f2573d2349e8f61f2f049371ec699281748fdb1bc"
+    }
+  },
+  "repositories": {
+    "huiyiHead": "6ad0222117e350ca0cb0810f34ee78a5c26f304f",
+    "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "medragCommit": "7599a728a28789fd601728c08d313b1148051f41"
+  },
+  "dataset": {
+    "source": "MedQA validation split from pinned MIRAGE/MedRAG distribution",
+    "rowCount": 1272,
+    "sourceFileSha256": "774bbd90103af43badbe8d5294e336443573fc37b918763920b8fc3b3df581d9",
+    "frozenSubsetCount": 100,
+    "inferenceProjectionSha256": "75249dab3bf047d58e2a0729477d7463825a1306ae33a5a5812ac79181f38415",
+    "frozenIdsSha256": "f2526c7bf8f22c4ff86f7fe57aa71b5193d4be335b421a1379e436b62d2ac834",
+    "inferenceFields": [
+      "id",
+      "question",
+      "options"
+    ]
+  },
+  "corpus": {
+    "manifestSha256": "a549da7a018df831d02774e387cc0f40b616fbd47eefba38339a7086213cb252",
+    "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+    "chunkCount": 509897,
+    "sources": [
+      "Textbooks",
+      "StatPearls"
+    ]
+  },
+  "retriever": {
+    "name": "MedCPT",
+    "queryEncoderRevision": "d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc",
+    "articleEncoderRevision": "d05a736da4bb84ee4057b7f7999485be6ed85465",
+    "indexType": "FAISS IndexFlatIP",
+    "topK": 32,
+    "retrievalParityArtifactSha256": "ecf5a82332fb0105cdf2035878c14731e0e9d8f94fe8b8ab47b82baafa5281ae"
+  },
+  "imedrag": {
+    "promptSourceCommit": "7599a728a28789fd601728c08d313b1148051f41",
+    "rounds": 4,
+    "queriesPerRound": 3,
+    "semantics": "follow-up queries -> top-k retrieval -> per-query follow-up answer -> accumulated Query/Answer history",
+    "finalUserAnswerOwner": "DSH only for C; upstream/direct produce their comparator answer",
+    "queryExecutionSemantics": "All queries accepted by the pinned upstream query-list parser are executed; nQueries is the requested count, not an output truncation cap."
+  },
+  "serving": {
+    "runtime": "vLLM",
+    "version": "0.30.1rc1.dev622+gf03026a54",
+    "dtype": "bfloat16",
+    "tensorParallelSize": 1,
+    "contextWindow": 16384,
+    "retrievalContextTokens": 14336,
+    "maxOutputTokens": 1024,
+    "temperature": 0.0,
+    "seed": 0,
+    "enableThinking": false,
+    "toolCallParser": "hermes",
+    "endpointProtocol": "OpenAI-compatible Chat Completions",
+    "baseURL": "http://127.0.0.1:8000/v1",
+    "servedModelAlias": "Qwen3-8B"
+  },
+  "arms": {
+    "A": "Pinned MedRAG upstream runner; MedText + MedCPT + official i-MedRAG procedure",
+    "B": "Huiyi health-engine benchmark route + direct final answer with upstream-equivalent prompts",
+    "C": "Pinned DSH headless Session/AgentLoop; one native research_medical_question call per case; same Huiyi service"
+  },
+  "capabilities": {
+    "dshMemoryTools": false,
+    "dshF0Fixture": false,
+    "dshOtherTools": false,
+    "normalProductBundle": false,
+    "benchmarkInferenceReadsGold": false
+  },
+  "runtimeVersions": {
+    "A_python": "3.9.18",
+    "A_faiss": "1.7.4",
+    "A_openai": "1.61.1",
+    "A_pythonLiquid": "1.10.2 overlay-only",
+    "B_C_healthEnginePython": "3.12.3",
+    "B_C_faiss": "1.15.1",
+    "C_dsh": "0.2.1-alpha.1",
+    "node": "v22.23.3"
+  },
+  "answerParserSha256": "d53634227960acfe16c96730da365ba0e368f49d703644587deccb77237a3607",
+  "codeSha256": {
+    "eval/rag-parity/answer_parser.py": "d53634227960acfe16c96730da365ba0e368f49d703644587deccb77237a3607",
+    "eval/rag-parity/runner.py": "d9ef3adff5901dd8ac84b0f8a8276708f51bdd4b6423d6e4bf7229013f9e55d4",
+    "eval/rag-parity/direct_runner.py": "c175aa39ca0d0dfbbc043d29f56d778941d6a7a173c788877ad39ad601b82477",
+    "eval/rag-parity/upstream_runner.py": "84179456accaf1749091b72ad504c433c44ec1f88a0a66e22e282294a4c1f293",
+    "eval/rag-parity/index.js": "2879176aeb1db7fa10bc3ec9c9f40dd1bf52e29ecb720637fb9b6156500ca712",
+    "eval/rag-parity/cordis.patch.yml": "6783eecf792bb17e5557a1e41e69877102777163009e20d07999e54841aa21f8",
+    "eval/rag-parity/profile-patch.example.yml": "d750fb67535ad636c3b7b3c6b8505d0eb5cdc0142dd84bfb28acc5d792aba0d4",
+    "eval/rag-parity/deployment.example.env": "4728a81aafe332372a7b083adfbb3d238851cb3b8059ac6a3733ab055a08ac14",
+    "eval/rag-parity/serve-qwen.sh": "5cbdcdef8ae0a5106272123e54dd8e85c09e4b37d1344124e8a97d98129ac935",
+    "services/health-engine/src/huiyi_health_engine/app.py": "26d9a98a7cab17a4658321e193933e1fa67b6227b6296a95a9032341ff9c5862",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/prompts.py": "e429d2edadd789ab5d1b27755153cc9ab1382bd9125af4cd1139b185fc6f280d",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/schemas.py": "f185d66b7f98aae3793288312483e6437a8fcdc5c427cca4db2a5feb5e8fef7c",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/service.py": "e2973d31483e6f04226658b5853d4922632485af90065759aec1c08e6bce7ecb",
+    "services/health-engine/src/huiyi_health_engine/rag/config.py": "ebab578ba527eb9e797d331aa543b82c5b067d4fdf62e89d43a9a0176d909cc8",
+    "services/health-engine/src/huiyi_health_engine/rag/corpus.py": "eb9bdfad33afdde78c58d98ddb8ba2b7ecdd7256541905d626c49cd809562969",
+    "services/health-engine/src/huiyi_health_engine/rag/retriever.py": "8e30c309c939bc9211fb469c559778275d83446d8abaa63baa29d39dffff1a73",
+    "services/health-engine/src/huiyi_health_engine/rag/service.py": "bbe809fe30321734ca327ea023cb304c340966301e0e1024fca6d9c1ec914636",
+    "artifacts/hc-rag-002/benchmark-contract.json": "a3dfbfc7007dade582822dc8291cca8de3d64964f04dcbd916f4024d4ba75fb4",
+    "artifacts/hc-rag-002/corpus-manifest.json": "a549da7a018df831d02774e387cc0f40b616fbd47eefba38339a7086213cb252",
+    "artifacts/hc-rag-002/frozen-validation-ids.json": "f2526c7bf8f22c4ff86f7fe57aa71b5193d4be335b421a1379e436b62d2ac834",
+    "artifacts/hc-rag-002/retrieval-parity.json": "ecf5a82332fb0105cdf2035878c14731e0e9d8f94fe8b8ab47b82baafa5281ae"
+  },
+  "notes": [
+    "Qwen was explicitly selected by the user; no Llama checkpoint is used.",
+    "Published Llama accuracy is not an acceptance target for this local-Qwen experiment.",
+    "Pinned upstream checkout was not modified.",
+    "Arm A disables environment proxies and SDK retries for its loopback client.",
+    "Qwen tokenizer emits JSON wrapped in <tool_call>; Hermes parser matches that local template.",
+    "Parity audit before validation B/C: removed a local query-count truncation; pinned upstream executes every parsed query, including over-generation."
+  ],
+  "parameterAuditSha256": "e0dd8a4bfaa682eeffcb7da38a286dbd443d4316a5cbfb6f5c17bb3141010b50",
+  "lastAuditedAt": "2026-10-07T16:59:04.730893+00:00",
+  "amendments": [
+    {
+      "at": "2026-10-07T16:59:04.730893+00:00",
+      "source": "services/health-engine/src/huiyi_health_engine/rag/benchmark/service.py",
+      "change": "Execute all parsed follow-up queries, matching pinned upstream behavior when the model returns more than nQueries.",
+      "armsAffected": [
+        "B",
+        "C"
+      ],
+      "armAUnaffected": "Arm A directly invokes pinned MedRAG source and was already running."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "task": "HC-RAG-002",
+  "arm": "C",
+  "attempt": 1,
+  "status": "invalid_setup_aborted",
+  "reason": "The runner process did not source eval/rag-parity/deployment.env, so the pinned DSH pi-ai profile could not resolve HC_RAG_LOCAL_API_KEY.",
+  "failureCode": "MISSING_CREDENTIAL",
+  "failedTurns": 31,
+  "toolCalls": 0,
+  "modelEndpointCalls": 0,
+  "turnOutcomeCounts": {
+    "error": 31
+  },
+  "exitCodeCounts": {
+    "1": 31
+  },
+  "predictionSha256": "fe2359ed1ee2c34b4228eeca0abd5c0ac2f701fe4c6b98bc0ef18a87e9d38dcf",
+  "metadataTraceSha256": "79d2cdb87d01ea618fa81afc5fdba5f6a5066aa468221d2968a891905423c958",
+  "sameStderrHashForAllTurns": true,
+  "sampleIDsSha256": "27202e10dda0a905c29c6107fac198c5f184bc7f2f0e72d4cd5bbc3ce20f2ba2",
+  "labelsRead": false,
+  "recordedAt": "2026-10-08T09:08:27.873284+00:00",
+  "resolution": "Load the ignored local eval/rag-parity/deployment.env before starting a separate full C run; its HC_RAG_LOCAL_API_KEY value is a local placeholder and is not recorded here."
+}

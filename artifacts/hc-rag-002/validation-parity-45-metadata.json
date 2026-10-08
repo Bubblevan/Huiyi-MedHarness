@@ -1,0 +1,226 @@
+{
+  "task": "HC-RAG-002",
+  "scope": "User-directed 45-case subset: first 45 IDs from the originally frozen 100-case MedQA validation selection",
+  "status": "VALIDATION_PARITY_GATE_FAILED_STOP_BEFORE_TEST",
+  "HuiyiBaseCommit": "6ad0222117e350ca0cb0810f34ee78a5c26f304f",
+  "HuiyiHeadAtScopeAmendment": "92252c96ad28e642631a9175f74f9b9af30b1a4e",
+  "HuiyiHeadAtFreeze": "92252c96ad28e642631a9175f74f9b9af30b1a4e",
+  "workingTreeCodeWasUncommitted": true,
+  "DSHCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "DSHRuntimeVersion": "0.2.1-alpha.1",
+  "MedRAGCommit": "7599a728a28789fd601728c08d313b1148051f41",
+  "modelId": "Qwen3-8B",
+  "endpointProtocol": "OpenAI-compatible Chat Completions over loopback HTTP; vLLM has since been stopped",
+  "validation": {
+    "sampleCount": 45,
+    "idsSha256": "eb5c651010ccbc7bafd153954fb0079d22332ce8256504f797b475d1aef79bc7",
+    "inferenceProjectionSha256": "63432a396b0882fd0314f45849d43afa88eea14160bae49423fd902ac985ac82",
+    "sourceDatasetSha256": "774bbd90103af43badbe8d5294e336443573fc37b918763920b8fc3b3df581d9",
+    "validationLabelsReadAfterPredictionFreeze": true,
+    "testLabelsRead": false,
+    "predictionFreezeManifestPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/prediction-freeze-manifest.json",
+    "predictionFreezeManifestSha256": "9851b3ba4f78cffde726ef7f898509b0c7504bebbdb47dfc964b3a008cbc8b55",
+    "predictionFreezeLabelsClosed": true,
+    "scorerResultPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/score.json",
+    "scorerResultSha256": "1e7ad144a9bcc08488b86741e04e9c642ea46c8a17d405f0690d4ea53881cc48",
+    "pairedResultPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/paired-results.json",
+    "pairedResultSha256": "abd73144c0ea9889b4ba41e310fb3f1b292aebb5fccb3d066624bcbbab9c0ef5",
+    "arms": {
+      "A": {
+        "count": 45,
+        "correct": 35,
+        "accuracy": 0.7778,
+        "accuracyWilson95": {
+          "lower95": 0.6373,
+          "upper95": 0.8746
+        },
+        "parseFailures": 0,
+        "runtimeFailures": 0,
+        "meanWallLatencyMs": 235002.0,
+        "medianWallLatencyMs": 239959.9
+      },
+      "B": {
+        "count": 45,
+        "correct": 37,
+        "accuracy": 0.8222,
+        "accuracyWilson95": {
+          "lower95": 0.6867,
+          "upper95": 0.9071
+        },
+        "parseFailures": 1,
+        "runtimeFailures": 0,
+        "meanWallLatencyMs": 211601.9,
+        "medianWallLatencyMs": 211643.2
+      },
+      "C": {
+        "count": 45,
+        "correct": 31,
+        "accuracy": 0.6889,
+        "accuracyWilson95": {
+          "lower95": 0.5434,
+          "upper95": 0.8047
+        },
+        "parseFailures": 7,
+        "runtimeFailures": 6,
+        "meanWallLatencyMs": 220062.2,
+        "medianWallLatencyMs": 221058.6
+      }
+    },
+    "pairedComparisons": {
+      "A-B": {
+        "answerDisagreements": 6,
+        "accuracyDifference": -0.0444,
+        "pairedBootstrap95": {
+          "lower95": -0.1556,
+          "upper95": 0.0667
+        }
+      },
+      "B-C": {
+        "answerDisagreements": 9,
+        "accuracyDifference": 0.1333,
+        "pairedBootstrap95": {
+          "lower95": 0.0222,
+          "upper95": 0.2444
+        }
+      },
+      "A-C": {
+        "answerDisagreements": 12,
+        "accuracyDifference": 0.0889,
+        "pairedBootstrap95": {
+          "lower95": -0.0444,
+          "upper95": 0.2222
+        }
+      }
+    }
+  },
+  "CArmExecution": {
+    "parseStatusCounts": {
+      "json_choice": 38,
+      "runtime_failure": 6,
+      "research_tool_failure": 1
+    },
+    "turnOutcomeCounts": {
+      "completed": 38,
+      "max-tokens": 7
+    },
+    "toolCallCountDistribution": {
+      "1": 44,
+      "3": 1
+    },
+    "toolFailureCount": 2,
+    "exactlyOneResearchCallCases": 44,
+    "researchModelCalls": 901,
+    "retrievalCalls": 541,
+    "generatedQueries": 541,
+    "roundsCompletedCounts": {
+      "4": 45
+    },
+    "meanWallLatencyMs": 220062.2,
+    "medianWallLatencyMs": 221058.6,
+    "p95WallLatencyMs": 298576.3,
+    "predictionsSha256": "52552e7b3cac41dc9f813cee24f01101147971f59b98d31f2803a2dc3b6d404f",
+    "metadataTraceSha256": "ca91ab1d8411e5fce94565ea0da03be61e376c288cd28578e57e260e6b309b8c"
+  },
+  "diagnosis": {
+    "AtoB": {
+      "accuracyDeltaBMinusA": 0.0444,
+      "gate": "PASS"
+    },
+    "BtoC": {
+      "accuracyDeltaCMinusB": -0.1333,
+      "requiredMinimumDelta": -0.02,
+      "gate": "FAIL"
+    },
+    "CValidChoices": {
+      "count": 38,
+      "correct": 31,
+      "BcorrectOnSameRows": 31,
+      "sameChoiceCount": 36
+    },
+    "BcorrectAmongCFailedCases": 6,
+    "interpretation": "On the 38 C cases with parsed choices, B and C each had 31 correct and matched on 36 choices; the 7 C failures account for the net accuracy loss, with B correct on 6 of those rows. Six C failures were final-turn max-tokens/runtime failures; one case had two research-tool failures across three calls and then max-tokens. Exact lower-level cause of max-tokens is unresolved."
+  },
+  "paperReference": {
+    "Llama31ReferenceUsed": false,
+    "reason": "User selected local Qwen3-8B; this validation does not test the published Llama-3.1-8B result."
+  },
+  "sourceFileSha256": {
+    "eval/rag-parity/runner.py": "d9ef3adff5901dd8ac84b0f8a8276708f51bdd4b6423d6e4bf7229013f9e55d4",
+    "eval/rag-parity/index.js": "2879176aeb1db7fa10bc3ec9c9f40dd1bf52e29ecb720637fb9b6156500ca712",
+    "eval/rag-parity/direct_runner.py": "c175aa39ca0d0dfbbc043d29f56d778941d6a7a173c788877ad39ad601b82477",
+    "eval/rag-parity/upstream_runner.py": "84179456accaf1749091b72ad504c433c44ec1f88a0a66e22e282294a4c1f293",
+    "eval/rag-parity/freeze_predictions.py": "5995b380112e3ed959cfb2aedb5457fc7b4f53b6c375edd1caccab6accea6bed",
+    "eval/rag-parity/score_validation.py": "0d78a34080a89252b425ad49b04b1e498ecd101f67e107fffd3fd2b6f5433abe",
+    "eval/rag-parity/serve-qwen.sh": "5cbdcdef8ae0a5106272123e54dd8e85c09e4b37d1344124e8a97d98129ac935",
+    "eval/rag-parity/profile-patch.example.yml": "d750fb67535ad636c3b7b3c6b8505d0eb5cdc0142dd84bfb28acc5d792aba0d4",
+    "eval/rag-parity/deployment.example.env": "4728a81aafe332372a7b083adfbb3d238851cb3b8059ac6a3733ab055a08ac14",
+    "artifacts/hc-rag-002/active-eval-config-45.json": "defa3d69fcde943cc400ae6178501d5846a0f732724f4c98f2f46ac56a4ed0ac",
+    "services/health-engine/src/huiyi_health_engine/app.py": "26d9a98a7cab17a4658321e193933e1fa67b6227b6296a95a9032341ff9c5862",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/__init__.py": "47b9d94820ecd64b8f9e8143bb961eedac10ba7968f44322a7c2b198b61f159e",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/prompts.py": "e429d2edadd789ab5d1b27755153cc9ab1382bd9125af4cd1139b185fc6f280d",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/schemas.py": "f185d66b7f98aae3793288312483e6437a8fcdc5c427cca4db2a5feb5e8fef7c",
+    "services/health-engine/src/huiyi_health_engine/rag/benchmark/service.py": "e2973d31483e6f04226658b5853d4922632485af90065759aec1c08e6bce7ecb",
+    "services/health-engine/src/huiyi_health_engine/rag/__init__.py": "c8277ba2659419fcbee1269d2538303ca87c8940162f71d40382000da29a35be",
+    "services/health-engine/src/huiyi_health_engine/rag/config.py": "ebab578ba527eb9e797d331aa543b82c5b067d4fdf62e89d43a9a0176d909cc8",
+    "services/health-engine/src/huiyi_health_engine/rag/corpus.py": "eb9bdfad33afdde78c58d98ddb8ba2b7ecdd7256541905d626c49cd809562969",
+    "services/health-engine/src/huiyi_health_engine/rag/iterative.py": "798203ef22a361a5a81ed78e7d9022d88d02a759f5ce38b3209ad2d667d79824",
+    "services/health-engine/src/huiyi_health_engine/rag/planner.py": "53cd375e2c6a108be0f555120b50f3441bedfb5c4915195af23f47ffaace6ab3",
+    "services/health-engine/src/huiyi_health_engine/rag/prompts.py": "abea0359c2e65e2c4673f9cbddf3ab2f4f159a3aee93b2f51ec0a993d8c67373",
+    "services/health-engine/src/huiyi_health_engine/rag/retriever.py": "8e30c309c939bc9211fb469c559778275d83446d8abaa63baa29d39dffff1a73",
+    "services/health-engine/src/huiyi_health_engine/rag/schemas.py": "a5a3715a1986c1328f9d87a2525642f54dc0ed84ef3907e461277221761ea74f",
+    "services/health-engine/src/huiyi_health_engine/rag/service.py": "bbe809fe30321734ca327ea023cb304c340966301e0e1024fca6d9c1ec914636"
+  },
+  "nextGate": "Do not open MedQA TEST. Investigate the DSH final-generation/token-limit failures and the single multi-call research failure, then obtain review before any new test evaluation.",
+  "activeEvalConfigSha256": "defa3d69fcde943cc400ae6178501d5846a0f732724f4c98f2f46ac56a4ed0ac",
+  "model": {
+    "id": "Qwen3-8B",
+    "localPath": "/root/gpufree-share/data/Qwen3-8B",
+    "hfRevision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "endpoint": "http://127.0.0.1:8000/v1",
+    "protocol": "OpenAI-compatible Chat Completions"
+  },
+  "serving": {
+    "vllmVersion": "0.30.1rc1.dev622+gf03026a54",
+    "dtype": "bfloat16",
+    "maxModelLen": 16384,
+    "gpuMemoryUtilization": 0.8,
+    "temperature": 0.0,
+    "maxOutputTokens": 1024,
+    "enableThinking": false,
+    "stoppedAfterRun": true,
+    "gpuMemoryAfterStopMiB": 0
+  },
+  "frozenArmArtifacts": {
+    "A": {
+      "outputDirectory": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-A-upstream-merged",
+      "predictionsPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-A-upstream-merged/predictions.jsonl",
+      "predictionsSha256": "371b040dd50dc85d6ba3bdbca15b80a4565a0a9e91585b4ad4f97ba93223fa53",
+      "metadataTracePath": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-A-upstream-merged/metadata-trace.jsonl",
+      "metadataTraceSha256": "8cf5c1af702e0e865aac95ad6790068a2e9c7a0bdcd9036e6112dbe86db50317",
+      "count": 45
+    },
+    "B": {
+      "outputDirectory": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-B-direct",
+      "predictionsPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-B-direct/predictions.jsonl",
+      "predictionsSha256": "59b5d1a930a6c0062153a28e0947dcef13928c90e3beed6d40201f6a4e0d6115",
+      "metadataTracePath": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-B-direct/metadata-trace.jsonl",
+      "metadataTraceSha256": "b0e62b1724a82fcaa7560e5f68d46c0679ab8dc60d559c602408467ffb771017",
+      "count": 45
+    },
+    "C": {
+      "outputDirectory": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-C-dsh-pinned-runtime",
+      "predictionsPath": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-C-dsh-pinned-runtime/predictions.jsonl",
+      "predictionsSha256": "52552e7b3cac41dc9f813cee24f01101147971f59b98d31f2803a2dc3b6d404f",
+      "metadataTracePath": "/root/gpufree-data/repro/hc-rag-002/validation-45/arm-C-dsh-pinned-runtime/dsh-metadata.jsonl",
+      "metadataTraceSha256": "ca91ab1d8411e5fce94565ea0da03be61e376c288cd28578e57e260e6b309b8c",
+      "count": 45
+    }
+  },
+  "postRunStatus": {
+    "validationParityGate": "FAIL",
+    "testEvaluationStarted": false,
+    "qwenVllmStopped": true,
+    "gpuReleased": true,
+    "sharedHealthEngineLeftRunning": true
+  }
+}

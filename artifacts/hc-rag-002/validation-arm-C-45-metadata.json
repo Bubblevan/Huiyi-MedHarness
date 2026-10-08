@@ -1,0 +1,59 @@
+{
+  "task": "HC-RAG-002",
+  "arm": "C",
+  "method": "DSH AgentLoop + one benchmark research tool + Huiyi health-engine i-MedRAG",
+  "modelId": "Qwen3-8B",
+  "dshRuntime": "0.2.1-alpha.1",
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "huiyiBaseCommit": "6ad0222117e350ca0cb0810f34ee78a5c26f304f",
+  "huiyiHeadAtFreeze": "92252c96ad28e642631a9175f74f9b9af30b1a4e",
+  "medragCommit": "7599a728a28789fd601728c08d313b1148051f41",
+  "sampleCount": 45,
+  "idsSha256": "eb5c651010ccbc7bafd153954fb0079d22332ce8256504f797b475d1aef79bc7",
+  "inputProjectionPath": "/root/gpufree-data/repro/hc-rag-002/datasets/validation-45.inference.jsonl",
+  "inputProjectionSha256": "63432a396b0882fd0314f45849d43afa88eea14160bae49423fd902ac985ac82",
+  "predictionsSha256": "52552e7b3cac41dc9f813cee24f01101147971f59b98d31f2803a2dc3b6d404f",
+  "metadataTraceSha256": "ca91ab1d8411e5fce94565ea0da03be61e376c288cd28578e57e260e6b309b8c",
+  "predictionsAndTraceIDsMatch": true,
+  "parseStatusCounts": {
+    "json_choice": 38,
+    "runtime_failure": 6,
+    "research_tool_failure": 1
+  },
+  "turnOutcomeCounts": {
+    "completed": 38,
+    "max-tokens": 7
+  },
+  "turnCompleted": 38,
+  "runtimeFailures": 6,
+  "researchToolFailureCases": 1,
+  "maxTokensTurns": 7,
+  "toolCallCountDistribution": {
+    "1": 44,
+    "3": 1
+  },
+  "exactlyOneResearchCallCases": 44,
+  "unexpectedToolCalls": 0,
+  "toolFailureCount": 2,
+  "roundsCompletedCounts": {
+    "4": 45
+  },
+  "modelCalls": 901,
+  "retrievalCalls": 541,
+  "generatedQueries": 541,
+  "researchTokenUsage": {
+    "inputTokens": 3375337,
+    "outputTokens": 363755
+  },
+  "dshTokenUsage": {
+    "inputTokens": 508091,
+    "outputTokens": 28554
+  },
+  "meanWallLatencyMs": 220062.2,
+  "medianWallLatencyMs": 221058.6,
+  "p95WallLatencyMs": 298576.3,
+  "labelsRead": false,
+  "testGoldRead": false,
+  "completedAt": "2026-10-08T12:00:01.609844+00:00",
+  "artifactKind": "metadata-only; predictions remain outside Git"
+}

@@ -1,0 +1,43 @@
+{
+  "task": "HC-RAG-002",
+  "arm": "A",
+  "method": "pinned MedRAG upstream i-MedRAG",
+  "modelId": "Qwen3-8B",
+  "sampleCount": 45,
+  "predictionIdsSha256": "eb5c651010ccbc7bafd153954fb0079d22332ce8256504f797b475d1aef79bc7",
+  "predictionsAndTraceIDsMatch": true,
+  "inputProjectionPath": "/root/gpufree-data/repro/hc-rag-002/datasets/validation-45.inference.jsonl",
+  "inputProjectionSha256": "63432a396b0882fd0314f45849d43afa88eea14160bae49423fd902ac985ac82",
+  "parseStatusCounts": {
+    "json_choice": 45
+  },
+  "runtimeFailures": 0,
+  "modelCalls": 990,
+  "retrievalCalls": 540,
+  "meanWallLatencyMs": 235002.0,
+  "medianWallLatencyMs": 239959.9,
+  "labelsRead": false,
+  "segments": [
+    {
+      "path": "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A",
+      "predictionCount": 4,
+      "traceCount": 4,
+      "predictionsSha256": "d08d5e794c0c0d55d9d62d6194ae66fb6f6d52fcfdfd91c28496cb0701e2181a",
+      "traceSha256": "5e4b46a5c4d37a0feeddef0f649e428028395f97505e5436e074f954f21f7b8a"
+    },
+    {
+      "path": "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A-resume/segment-20261008-01",
+      "predictionCount": 1,
+      "traceCount": 1,
+      "predictionsSha256": "29711a2b864301de2eee5c4facaf8ab3a0b1164a7e6db675cb6aba0be658c760",
+      "traceSha256": "570719543ee079e02f703afff3efc1c0855fce6c182c92dafd1d6eb37c0afe60"
+    },
+    {
+      "path": "/root/gpufree-data/repro/hc-rag-002/validation-100/upstream-A-resume/segment-20261008-02",
+      "predictionCount": 40,
+      "traceCount": 40,
+      "predictionsSha256": "a91377956721a194f4ba97756453b713d14c66d233f4b7d4f7d558bd336e079b",
+      "traceSha256": "31cff49d3ac5b46a8a71233e1cbac5f3f0f303a870663521b9326e454670cb5e"
+    }
+  ]
+}

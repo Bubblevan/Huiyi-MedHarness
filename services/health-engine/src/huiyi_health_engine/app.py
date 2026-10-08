@@ -6,6 +6,7 @@ import threading
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
 import numpy as np
@@ -27,6 +28,15 @@ from .memory.schemas import (
 )
 from .memory.service import MemoryConflictError, MemoryService
 from .rag.config import RagSettings
+from .rag.benchmark import (
+    ImedragResearchRequest,
+    ImedragResearchResult,
+    ImedragResearchService,
+    MedragRetrievalRequest,
+    MedragRetrievalResult,
+    MedragRetrievalService,
+)
+from .rag.benchmark.service import BenchmarkCancelled, BenchmarkModelError, BenchmarkTimeout
 from .rag.iterative import OperationCancelled, OperationTimeout
 from .rag.schemas import EvidenceSet, MedicalEvidenceRequest, RagStatus
 from .rag.service import RagService
@@ -62,7 +72,11 @@ def _rag_enabled() -> bool:
     return os.environ.get("HUIYI_RAG_ENABLED", "0").strip().lower() in {"1", "true", "yes"}
 
 
-def _consume_background_result(future: asyncio.Future[EvidenceSet]) -> None:
+def _rag_benchmark_enabled() -> bool:
+    return os.environ.get("HUIYI_RAG_BENCHMARK_ENABLED", "0").strip().lower() in {"1", "true", "yes"}
+
+
+def _consume_background_result(future: asyncio.Future[Any]) -> None:
     """Observe a worker result even when its HTTP request has already disconnected."""
     try:
         future.exception()
@@ -75,12 +89,32 @@ def get_rag_service() -> RagService:
     return RagService.from_settings(RagSettings.from_env())
 
 
+@lru_cache(maxsize=1)
+def get_imedrag_research_service() -> ImedragResearchService:
+    raw_context_length = os.environ.get("HUIYI_RAG_BENCHMARK_CONTEXT_TOKENS", "").strip()
+    if not raw_context_length.isdigit() or int(raw_context_length) < 1:
+        raise RuntimeError("HUIYI_RAG_BENCHMARK_CONTEXT_TOKENS must be configured for the parity endpoint")
+    return ImedragResearchService(get_rag_service(), int(raw_context_length))
+
+
+@lru_cache(maxsize=1)
+def get_medrag_retrieval_service() -> MedragRetrievalService:
+    raw_context_length = os.environ.get("HUIYI_RAG_BENCHMARK_CONTEXT_TOKENS", "").strip()
+    if not raw_context_length.isdigit() or int(raw_context_length) < 1:
+        raise RuntimeError("HUIYI_RAG_BENCHMARK_CONTEXT_TOKENS must be configured for the parity endpoint")
+    return MedragRetrievalService(get_rag_service(), int(raw_context_length))
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # An explicitly enabled RAG deployment validates and loads the pinned local
     # assets at startup. Missing assets stop this process before it accepts turns.
     if _rag_enabled():
         get_rag_service()
+    if _rag_benchmark_enabled():
+        if not _rag_enabled():
+            raise RuntimeError("the benchmark i-MedRAG route requires HUIYI_RAG_ENABLED=1")
+        get_imedrag_research_service()
     yield
 
 
@@ -129,6 +163,77 @@ async def rag_search(body: MedicalEvidenceRequest, raw_request: Request) -> Evid
         raise HTTPException(status_code=499, detail={"error": "request_cancelled"}) from None
     except OperationTimeout:
         raise HTTPException(status_code=504, detail={"error": "rag_timeout"}) from None
+    except HTTPException:
+        raise
+    except asyncio.CancelledError:
+        cancellation.set()
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail={"error": type(exc).__name__}) from None
+
+
+@app.post("/_internal/eval/rag/imedrag", response_model=ImedragResearchResult, include_in_schema=False)
+async def imedrag_benchmark(body: ImedragResearchRequest, raw_request: Request) -> ImedragResearchResult:
+    if not _rag_benchmark_enabled():
+        raise HTTPException(status_code=404, detail={"error": "not_found"})
+    peer = raw_request.client.host if raw_request.client is not None else None
+    if peer not in {"127.0.0.1", "::1", "localhost"}:
+        raise HTTPException(status_code=403, detail={"error": "loopback_only"})
+    try:
+        benchmark_service = get_imedrag_research_service()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail={"error": type(exc).__name__}) from None
+    cancellation = threading.Event()
+    loop = asyncio.get_running_loop()
+    pending = loop.run_in_executor(None, benchmark_service.research, body, cancellation)
+    pending.add_done_callback(_consume_background_result)
+    try:
+        while not pending.done():
+            if await raw_request.is_disconnected():
+                cancellation.set()
+                raise HTTPException(status_code=499, detail={"error": "request_cancelled"})
+            await asyncio.sleep(0.05)
+        return await pending
+    except BenchmarkCancelled:
+        raise HTTPException(status_code=499, detail={"error": "request_cancelled"}) from None
+    except BenchmarkTimeout:
+        raise HTTPException(status_code=504, detail={"error": "benchmark_timeout"}) from None
+    except BenchmarkModelError:
+        raise HTTPException(status_code=503, detail={"error": "research_model_unavailable"}) from None
+    except HTTPException:
+        raise
+    except asyncio.CancelledError:
+        cancellation.set()
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail={"error": type(exc).__name__}) from None
+
+
+@app.post("/_internal/eval/rag/medrag", response_model=MedragRetrievalResult, include_in_schema=False)
+async def medrag_benchmark(body: MedragRetrievalRequest, raw_request: Request) -> MedragRetrievalResult:
+    if not _rag_benchmark_enabled():
+        raise HTTPException(status_code=404, detail={"error": "not_found"})
+    peer = raw_request.client.host if raw_request.client is not None else None
+    if peer not in {"127.0.0.1", "::1", "localhost"}:
+        raise HTTPException(status_code=403, detail={"error": "loopback_only"})
+    try:
+        benchmark_service = get_medrag_retrieval_service()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail={"error": type(exc).__name__}) from None
+
+    cancellation = threading.Event()
+    loop = asyncio.get_running_loop()
+    pending = loop.run_in_executor(None, benchmark_service.retrieve, body, cancellation)
+    pending.add_done_callback(_consume_background_result)
+    try:
+        while not pending.done():
+            if await raw_request.is_disconnected():
+                cancellation.set()
+                raise HTTPException(status_code=499, detail={"error": "request_cancelled"})
+            await asyncio.sleep(0.05)
+        return await pending
+    except BenchmarkCancelled:
+        raise HTTPException(status_code=499, detail={"error": "request_cancelled"}) from None
     except HTTPException:
         raise
     except asyncio.CancelledError:
