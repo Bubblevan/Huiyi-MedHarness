@@ -35,3 +35,9 @@ Health-engine SQLite/FAISS state lives in its configured data directory. Python 
 ## Future clinical workers
 
 A future DSH clinical team may read the same immutable `MemorySnapshot` created for the root turn. Workers do not recall, refresh, construct, or write AMA state. The root turn alone commits after its completed final response. `patientMemory` remains separate from any future RAG `externalEvidence` set.
+
+## LoCoMo read-only evaluation profile
+
+HC-MEM-003 keeps the product lifecycle above unchanged. The LoCoMo profile supplies the pinned QANemori instructions through a DSH system-prompt section, then adds the question and recalled `MemorySnapshot` through the DSH dynamic context projection; the question itself remains the normal DSH user message. The profile sets the DSH `AgentOptions.maxTokens=256` and sets `temperature=0` through `agent/request`. The local adapter maps `maxTokens` to the OpenAI-compatible `max_tokens` field and maps a `length` finish to the DSH `max-tokens` turn reason.
+
+Each benchmark question receives one automatic recall, one DSH model step, no tools, and no AMA write. A fresh DSH session ID is created for every question on each runner invocation, so a restarted runner cannot resume an unrecorded QA transcript. The AMA memory window is cleared around each recall. The 256-token cap applies to A, B, and C and is an evaluation control only; product defaults and the product memory prompt are unchanged. The full evaluation contract and exact run sequence live in `eval/memory/locomo/README.md` and `manifest-hc-mem-003.json`.

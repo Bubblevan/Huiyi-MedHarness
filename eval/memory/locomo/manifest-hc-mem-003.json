@@ -1,0 +1,202 @@
+{
+  "task": "HC-MEM-003",
+  "state": "full-contract-frozen-before-evaluation",
+  "acceptedBaselineCommit": "78c1d4eb647725430223711fcd3acca48a622222",
+  "initialProductHead": "e3b35a7dc53a48c66ae247124a34b876e7bc70ba",
+  "p0CleanupCommit": "ae90221b9ee3ad6c9aa146845e22811cb26d572b",
+  "amaCommit": "a770f9aaef527ae589bf13015260cd24eda2d58c",
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "dshVersion": "0.2.1-alpha.1",
+  "dataset": {
+    "name": "LoCoMo mc10",
+    "source": "https://github.com/snap-research/locomo",
+    "sourceRevision": "unknown; exact local source file pinned by SHA-256",
+    "localPath": "/root/gpufree-share/data/locomo-mc10/raw/locomo10.json",
+    "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+    "conversationCount": 10,
+    "totalQuestionCount": 1986,
+    "includedQuestionCount": 1540,
+    "excludedQuestionCount": 446,
+    "categoryCountsIncluded": {
+      "1_single_hop": 282,
+      "2_temporal": 321,
+      "3_multi_hop": 96,
+      "4_open_domain": 841
+    },
+    "excludedCategories": [
+      5
+    ],
+    "sessionCount": 272,
+    "dialogueItemCount": 5882
+  },
+  "models": {
+    "qaGenerator": {
+      "id": "Qwen/Qwen3-8B",
+      "servedModelName": "Qwen3-8B",
+      "localPath": "/root/gpufree-share/data/Qwen3-8B",
+      "sourceRevision": "b968826d9c46dd6066d109eabc6255188de91218",
+      "contextWindow": 16384,
+      "thinkingEnabled": false
+    },
+    "memoryGenerator": {
+      "id": "Qwen/Qwen3-8B",
+      "servedModelName": "Qwen3-8B",
+      "sourceRevision": "b968826d9c46dd6066d109eabc6255188de91218"
+    },
+    "embedding": {
+      "id": "Qwen3-Embedding-0.6B",
+      "localPath": "/root/gpufree-share/models/Qwen3-Embedding-0.6B",
+      "device": "cpu",
+      "sourceRevision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+      "amaDimension": 3072,
+      "nativeOutputDimension": 1024
+    }
+  },
+  "inferenceEngine": {
+    "name": "vLLM",
+    "version": "0.30.1rc1.dev622+gf03026a54",
+    "runtime": "one loopback Qwen3-8B vLLM service started after the adjacent GPU workload released the L40; endpoint, loaded root, model alias, version, and context were verified before evaluation",
+    "servedModelName": "Qwen3-8B",
+    "maxModelLen": 16384,
+    "dtype": "bfloat16",
+    "seed": 0,
+    "gpuMemoryUtilization": 0.8,
+    "enforceEager": true,
+    "generationConfig": "vllm",
+    "chatTemplateKwargs": {
+      "enable_thinking": false
+    },
+    "device": "NVIDIA L40"
+  },
+  "generation": {
+    "temperature": 0,
+    "randomSeed": 0,
+    "chatTemplateKwargs": {
+      "enable_thinking": false
+    },
+    "outputTokenLimit": 256,
+    "maxTokens": 256,
+    "limitRationale": "common A/B/C QA cap introduced after the HC-MEM-002 max-context runaway"
+  },
+  "memoryRetrieval": {
+    "strongRetrieve": true,
+    "turnRetrieve": 3,
+    "topK": 10,
+    "isolateTransientRecallWindow": true,
+    "construction": {
+      "protocol": "pinned AMA evalProcess: AMA.forwardUser for each session dialogue item; judgeAndGenerate once at each session boundary",
+      "turnRetrieve": 1,
+      "strongRetrieve": false,
+      "memoryGenerator": "Qwen/Qwen3-8B"
+    },
+    "qaEvaluationReadOnly": true,
+    "qaReadOnly": true,
+    "clearTransientMemoryWindowBeforeEachQuestion": true,
+    "serviceProfileEnv": {
+      "HUIYI_LOCAL_LLM_MODEL": "Qwen3-8B",
+      "HUIYI_MEMORY_ISOLATE_RECALLS": "1",
+      "HUIYI_MEMORY_TURN_RETRIEVE": "3",
+      "HUIYI_MEMORY_TOP_K": "10",
+      "HUIYI_MEMORY_CAPTURE_USAGE": "1"
+    }
+  },
+  "prompt": {
+    "armAAndB": "pinned AMA QANemoriPrompt",
+    "armC": "Huiyi evaluation-only adaptation with the same memory-only, temporal, conflict, concise JSON semantics",
+    "productionPromptChanged": false,
+    "officialPromptFile": "third_party/AMA/python/AdaptiveMemory/Settings/prompt.py",
+    "officialPromptSha256": "04e4dccf317c38c1381ab90f26693b6c443405b94f4cfbd90928420a9ce88066",
+    "dshProjectionFile": "eval/memory/locomo/prompt.ts",
+    "dshProjectionSha256": "761164170b6a65977a35c0efabf8cb62e16ac5032ae31e2a0968f63fc41f62f4",
+    "qaMaxTokens": 256
+  },
+  "scorer": {
+    "source": "pinned AMA third_party/AMA/python/AdaptiveMemory/Core/eval.py",
+    "sourceSha256": "462a2cc0110d4e2399fc190270f92821af8c95f4f33fcdc67b05172beb519fa2",
+    "localImplementationSha256": "454a4010150a621ed3721e3ff975a5122efe22eaf548c79f378e72bd52247cd7",
+    "nltkVersion": "3.10.3",
+    "metrics": [
+      "Token-F1",
+      "BLEU-1"
+    ],
+    "bleuTokenizer": "nltk.word_tokenize",
+    "bleuSmoothing": "SmoothingFunction.method1",
+    "category5Excluded": true
+  },
+  "judge": {
+    "armMetric": "not run",
+    "reason": "No full frozen local reproduction judge configuration was recoverable. One DeepSeek-Flash smoke judgment is not a comparable benchmark baseline.",
+    "paperJudge": "GPT-4o-mini; external reference only and not numerically interchangeable with other judges"
+  },
+  "localFrozenReference": {
+    "status": "not_recovered",
+    "fullPredictions": null,
+    "fullMetrics": null,
+    "provenanceCompleteness": "unknown; full-run evidence was not found in local AMA or Health-Copilot artifacts",
+    "smokeArtifacts": [
+      "/root/gpufree-data/AMA/runs/locomo_smoke_20261006T164359Z",
+      "/root/gpufree-data/AMA/runs/locomo_smoke_20261006T172338Z",
+      "/root/gpufree-data/AMA/runs/locomo_smoke_20261006T173030Z",
+      "/root/gpufree-data/AMA/runs/locomo_smoke_20261006T173619Z"
+    ],
+    "smokeUseAsParityBaseline": false
+  },
+  "paperReference": {
+    "model": "Qwen3-8B",
+    "llmScore": 0.707,
+    "tokenF1": 0.51,
+    "bleu1": 0.432,
+    "categoryLlmScore": {
+      "singleHop": 0.78,
+      "multiHop": 0.628,
+      "temporal": 0.671,
+      "openDomain": 0.482
+    },
+    "judge": "GPT-4o-mini",
+    "source": "https://aclanthology.org/2026.findings-acl.152.pdf",
+    "use": "external target only; local judge score is not comparable"
+  },
+  "arms": {
+    "A_UPSTREAM": "Pinned AMA.forwardRetrieve(strongRetrieve=true) -> official QANemoriPrompt -> local Qwen3-8B",
+    "B_SIDECAR": "Huiyi health-engine /v1/memory/recall -> MemorySnapshot -> official QANemoriPrompt -> local Qwen3-8B",
+    "C_DSH": "Real DSH Session/Agent/AgentLoop + Huiyi automatic Memory lifecycle + local Qwen3-8B adapter; no evidence or manual memory tools"
+  },
+  "artifacts": {
+    "root": "artifacts/hc-mem-003/",
+    "storeName": "frozen-state-full",
+    "storeManifest": "frozen-state-full-manifest.json",
+    "allArmStatesMustBeByteIdentical": true,
+    "privatePredictionsAndStateGitIgnored": true
+  },
+  "startingCommits": {
+    "hcMem001": "78c1d4eb647725430223711fcd3acca48a622222",
+    "p0Cleanup": "ae90221b9ee3ad6c9aa146845e22811cb26d572b",
+    "hcMem002Diagnostic": "92252c96ad28e642631a9175f74f9b9af30b1a4e"
+  },
+  "requiredStoreScope": "full",
+  "p0Preflight": {
+    "runawayQuestion": "conv-30:qa-0001",
+    "runawayQuestionMustUseSameThreeArmCap": 256,
+    "fixedDiagnosticSliceSize": 12,
+    "expectedReadOnly": true
+  },
+  "finalTarget": {
+    "tokenF1": 0.51,
+    "bleu1": 0.432,
+    "judgeScore": "external only; exact GPT-4o-mini judge not run"
+  },
+  "bootstrap": {
+    "method": "paired percentile question bootstrap and conversation-cluster bootstrap",
+    "replicates": 10000,
+    "confidenceLevel": 0.95,
+    "seed": 3003
+  },
+  "qaComposition": {
+    "dshOwns": "Session, Agent, AgentLoop, SystemPrompt and model dispatch",
+    "tools": [],
+    "automaticRecallPerQuestion": 1,
+    "modelStepsPerQuestion": 1,
+    "memoryWritesPerQuestion": 0,
+    "turnScopedSessionHistory": "fresh DSH session id per runner invocation and question"
+  }
+}

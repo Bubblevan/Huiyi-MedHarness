@@ -16,5 +16,17 @@ services/health-engine/*.log
 services/health-engine/.pytest_cache/
 # LoCoMo contains private evaluation conversations; preserve all generated state locally only.
 /artifacts/hc-mem-002/
+# HC-MEM-003 dataset-derived state, traces, and predictions stay local by default.
+/artifacts/hc-mem-003/
+/artifacts/hc-mem-003/build-state-full/
+/artifacts/hc-mem-003/frozen-state-full/
+/artifacts/hc-mem-003/.build-state-full-*
+/artifacts/hc-mem-003/arm-a-upstream/
+/artifacts/hc-mem-003/arm-b-sidecar/
+/artifacts/hc-mem-003/arm-c-dsh/
+/artifacts/hc-mem-003/paired-diff*.jsonl
+/artifacts/hc-mem-003/preflight/arm-a-upstream/
+/artifacts/hc-mem-003/preflight/arm-b-sidecar/
+/artifacts/hc-mem-003/preflight/arm-c-dsh/
 __pycache__/
 *.py[cod]

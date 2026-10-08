@@ -83,6 +83,14 @@ class MemoryServiceTests(unittest.TestCase):
         self.assertNotIn("patient-A", first)
         self.assertEqual(len(first), 38)
 
+    def test_idempotency_ledger_can_live_outside_a_frozen_ama_store(self) -> None:
+        ledger_path = Path(self.temp_dir.name) / "metadata" / "ledger.sqlite3"
+        store_path = Path(self.temp_dir.name) / "ama-state"
+        isolated = MemoryService(FakeBackend(), store_path, ledger_path=ledger_path)
+        self.assertTrue(ledger_path.is_file())
+        self.assertFalse((store_path / "health-engine.sqlite3").exists())
+        self.assertEqual(isolated.ledger_path, ledger_path.resolve())
+
     def test_completed_commit_is_idempotent_across_service_restart(self) -> None:
         first = self.service.commit_turn(self.commit_request())
         restarted_backend = FakeBackend()

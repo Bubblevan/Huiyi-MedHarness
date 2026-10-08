@@ -11,8 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from common import (
-    AMA_ROOT, ARTIFACT_ROOT, CANONICAL_MODEL_ID, DEFAULT_DATASET, LOCAL_MODEL,
-    configure_pinned_ama, load_dataset, sha256_file, verify_local_model_endpoint,
+    AMA_ROOT, ARTIFACT_ROOT, CANONICAL_MODEL_ID, CONTRACT_MANIFEST, DEFAULT_DATASET, LOCAL_MODEL,
+    STATE_NAME,
+    configure_pinned_ama, load_dataset, sha256_file, verify_embedding_endpoint, verify_local_model_endpoint,
 )
 
 
@@ -109,23 +110,33 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build the frozen LoCoMo AMA store using the pinned official construction lifecycle.")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--work-dir", type=Path, default=ARTIFACT_ROOT)
+    parser.add_argument("--state-name", default=STATE_NAME, help="Frozen store name, e.g. frozen-state-full.")
     parser.add_argument("--max-sessions", type=int, help="Build the first N sessions in dataset order as an explicitly partial diagnostic store.")
     parser.add_argument("--finalize", action="store_true", help="Freeze/hash the completed selected session scope.")
     args = parser.parse_args()
 
+    if not args.state_name.startswith("frozen-state") or "/" in args.state_name or "\\" in args.state_name:
+        raise SystemExit("--state-name must be a simple name starting with 'frozen-state'")
     dataset = load_dataset(args.dataset)
     plan = session_plan(dataset, args.max_sessions)
     selected_keys = [f"{conv_id}:session-{session_number:02d}" for conv_id, _, session_number, _, _ in plan]
     selected_conversations = list(dict.fromkeys(conv_id for conv_id, _, _, _, _ in plan))
-    verify_local_model_endpoint()
     work_dir = args.work_dir.expanduser().resolve()
-    working = work_dir / "build-state"
-    frozen = work_dir / "frozen-state"
-    temporary = work_dir / ".session-build-tmp"
-    backup = work_dir / ".build-state-backup"
+    contract = json.loads(CONTRACT_MANIFEST.read_text(encoding="utf-8"))
+    build_name = args.state_name.replace("frozen-state", "build-state", 1)
+    working = work_dir / build_name
+    frozen = work_dir / args.state_name
+    manifest_path = work_dir / f"{args.state_name}-manifest.json"
+    temporary = work_dir / f".{build_name}-session-tmp"
+    backup = work_dir / f".{build_name}-backup"
     work_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     if work_dir.is_relative_to(ARTIFACT_ROOT):
         work_dir.chmod(0o700)
+
+    if not args.finalize:
+        configure_pinned_ama()
+        verify_local_model_endpoint()
+        verify_embedding_endpoint()
 
     if args.finalize:
         if not working.is_dir():
@@ -139,28 +150,49 @@ def main() -> None:
         expected = len(selected_keys)
         if set(progress.get("completed_sessions", [])) != set(selected_keys):
             raise SystemExit(f"refusing to freeze incomplete state: {len(progress.get('completed_sessions', []))}/{expected} sessions")
-        if frozen.exists():
-            raise SystemExit("frozen-state already exists; refusing to overwrite the frozen benchmark state")
+        if contract.get("requiredStoreScope") == "full" and (
+            args.max_sessions is not None
+            or len(selected_conversations) != contract["dataset"]["conversationCount"]
+            or expected != contract["dataset"]["sessionCount"]
+            or progress["dialogue_items"] != contract["dataset"]["dialogueItemCount"]
+        ):
+            raise SystemExit("refusing to finalize a store that does not cover the frozen full-dataset scope")
+        if frozen.exists() or manifest_path.exists():
+            raise SystemExit("frozen store or manifest already exists; refusing to overwrite it")
         progress_path.unlink(missing_ok=True)
         entries = []
         for path in sorted(working.rglob("*")):
             if not path.is_file():
                 continue
             entries.append({"path": path.relative_to(working).as_posix(), "sha256": sha256_file(path), "bytes": path.stat().st_size})
-        write_json(work_dir / "frozen-state-manifest.json", {
+        write_json(manifest_path, {
             "dataset_sha256": sha256_file(args.dataset),
             "ama_commit": "a770f9aaef527ae589bf13015260cd24eda2d58c",
             "memory_model": CANONICAL_MODEL_ID,
             "memory_api_model": LOCAL_MODEL,
+            "memory_model_revision": contract["models"]["memoryGenerator"]["sourceRevision"],
             "embedding_model": os.environ.get("HUIYI_LOCAL_EMBEDDING_MODEL", "Qwen3-Embedding-0.6B"),
+            "embedding_model_revision": contract["models"]["embedding"]["sourceRevision"],
             "construction": "official evalProcess protocol: forwardUser each session item, judgeAndGenerate at each session boundary",
+            "construction_settings": {
+                "turnRetrieve": 1,
+                "strongRetrieve": False,
+                "temperature": 0.0,
+                "dialogue_items_are_history_source_of_truth": True,
+                "assistant_replies_generated": False,
+            },
             "partial": args.max_sessions is not None,
             "max_sessions": args.max_sessions,
+            "conversation_count": len(selected_conversations),
+            "session_count": expected,
             "expected_sessions": expected,
             "completed_session_count": expected,
             "selected_session_keys": selected_keys,
             "included_conversations": selected_conversations,
             "dialogue_items": progress["dialogue_items"],
+            "construction_llm_calls": progress["llm_calls"],
+            "construction_prompt_tokens": progress["prompt_tokens"],
+            "construction_completion_tokens": progress["completion_tokens"],
             "llm_calls": progress["llm_calls"],
             "prompt_tokens": progress["prompt_tokens"],
             "completion_tokens": progress["completion_tokens"],
@@ -171,8 +203,8 @@ def main() -> None:
         return
 
     recover_working_state(working, backup)
-    if frozen.exists():
-        raise SystemExit("frozen-state exists; refusing to rebuild or overwrite it")
+    if frozen.exists() or manifest_path.exists():
+        raise SystemExit("frozen store or manifest exists; refusing to rebuild or overwrite it")
     dataset_hash = sha256_file(args.dataset)
     if not working.exists():
         working.mkdir(parents=True)

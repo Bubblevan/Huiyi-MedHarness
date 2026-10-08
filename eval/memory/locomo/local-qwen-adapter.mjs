@@ -86,6 +86,7 @@ export class LocalQwenAdapter extends LlmAdapter {
       model: MODEL,
       messages: options.messages.map(message => ({ role: message.role, content: textFromMessage(message) })),
       temperature: options.temperature ?? 0,
+      seed: options.seed ?? 0,
       stream: true,
       stream_options: { include_usage: true },
       chat_template_kwargs: { enable_thinking: false },

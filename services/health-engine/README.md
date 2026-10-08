@@ -20,6 +20,8 @@ export HUIYI_MEMORY_DATA_DIR="$PWD/services/health-engine/data"
 
 The inference URL must be a loopback OpenAI-compatible chat-completions endpoint. Do not put API credentials in these variables. AMA is configured with a local-only placeholder key; the internal embedding route also binds through the loopback-only health-engine. Qwen3-Embedding runs on CPU and is padded from its configured output width to AMA's pinned 3,072 index dimensions.
 
+The idempotency ledger defaults to `health-engine.sqlite3` under `HUIYI_MEMORY_DATA_DIR`. Set `HUIYI_MEMORY_LEDGER_PATH` to place that metadata database separately when the configured data directory is a frozen read-only AMA benchmark store. Its default product behavior is unchanged.
+
 The service runtime must provide FastAPI, Uvicorn, Pydantic v2, Requests, NumPy, `faiss-cpu`, `tiktoken`, and `sentence-transformers`. A sandboxed `uv pip install faiss-cpu` into the Health-Copilot environment was blocked by outbound network policy, so that environment was left unchanged. Do not use `uv sync` on the Health-Copilot environment because it also contains vLLM.
 
 ## Product endpoints

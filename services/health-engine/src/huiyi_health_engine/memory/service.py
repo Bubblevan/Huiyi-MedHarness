@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import sqlite3
 import threading
 import uuid
@@ -67,11 +68,17 @@ class MemoryConflictError(RuntimeError):
 class MemoryService:
     """Huiyi semantics and idempotency, independent of AMA internals."""
 
-    def __init__(self, backend: MemoryBackend, data_dir: str | Path):
+    def __init__(self, backend: MemoryBackend, data_dir: str | Path, ledger_path: str | Path | None = None):
         self.backend = backend
         self.data_dir = Path(data_dir).expanduser().resolve()
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.ledger_path = self.data_dir / "health-engine.sqlite3"
+        configured_ledger = ledger_path or os.environ.get("HUIYI_MEMORY_LEDGER_PATH")
+        self.ledger_path = (
+            Path(configured_ledger).expanduser().resolve()
+            if configured_ledger
+            else self.data_dir / "health-engine.sqlite3"
+        )
+        self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self._initialize_ledger()
 

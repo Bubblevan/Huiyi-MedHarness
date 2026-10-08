@@ -7,8 +7,18 @@ import statistics
 from pathlib import Path
 from typing import Any
 
-from common import ARTIFACT_ROOT, DEFAULT_DATASET, load_dataset, questions_for_state
+from common import ARTIFACT_ROOT, DEFAULT_DATASET, STATE_MANIFEST, load_dataset, questions_for_state
 from score import aggregate, bleu1, token_f1, verify_scorer_hash
+
+
+def write_artifact_text(path: Path, value: str) -> None:
+    private_output = path.expanduser().resolve().is_relative_to(ARTIFACT_ROOT)
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700 if private_output else 0o755)
+    if private_output:
+        path.parent.chmod(0o700)
+    path.write_text(value, encoding="utf-8")
+    if private_output:
+        path.chmod(0o600)
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -87,6 +97,12 @@ def values_by_question(arms: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
             "A_parse_error": a.get("parse_error"),
             "B_parse_error": b.get("parse_error"),
             "C_parse_error": c.get("parse_error") if c else None,
+            "A_turn_reason": a.get("turn_reason"),
+            "B_turn_reason": b.get("turn_reason"),
+            "C_turn_reason": c.get("turn_reason") if c else None,
+            "A_citation_ref_validity": a.get("citation_ref_validity"),
+            "B_citation_ref_validity": b.get("citation_ref_validity"),
+            "C_citation_ref_validity": c.get("citation_ref_validity") if c else None,
             "A_B_retrieval_equivalent": a_hash == b_hash if a_hash is not None and b_hash is not None else None,
             "B_C_snapshot_equivalent": b_hash == c_hash if c and b_hash is not None and c_hash is not None else None,
             "B_C_source_refs_equal": b_source_refs == c_source_refs if c and b_source_refs is not None and c_source_refs is not None else None,
@@ -105,7 +121,12 @@ def values_by_question(arms: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
             "B_usage": b.get("qa_usage"),
             "C_usage": c.get("qa_usage") if c else None,
             "C_dsh_steps": c.get("model_step_count") if c else None,
+            "C_tool_call_count": c.get("tool_call_count") if c else None,
             "C_automatic_recall_count": c.get("automatic_recall_count") if c else None,
+            "C_memory_write_count": c.get("memory_write_count") if c else None,
+            "A_qa_max_tokens": a.get("qa_max_tokens"),
+            "B_qa_max_tokens": b.get("qa_max_tokens"),
+            "C_qa_max_tokens": c.get("qa_max_tokens") if c else None,
             "C_commit_status": c.get("commit_status") if c else None,
             "C_turn_reason": c.get("turn_reason") if c else None,
             "C_parse_error": c.get("parse_error") if c else None,
@@ -117,6 +138,21 @@ def metrics_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     def count(predicate):
         return sum(1 for row in rows if predicate(row))
 
+    citation = {}
+    for arm in ("A", "B", "C"):
+        values = [row.get(f"{arm}_citation_ref_validity") for row in rows]
+        values = [value for value in values if isinstance(value, dict)]
+        reference_count = sum(int(value.get("reference_count", 0)) for value in values)
+        valid_count = sum(int(value.get("valid_reference_count", 0)) for value in values)
+        invalid_count = sum(int(value.get("invalid_reference_count", 0)) for value in values)
+        citation[arm] = {
+            "questions_with_invalid_refs": sum(bool(value.get("has_invalid_reference")) for value in values),
+            "questions_with_parsed_citations": sum(int(value.get("reference_count", 0)) > 0 for value in values),
+            "total_refs": reference_count,
+            "valid_refs": valid_count,
+            "invalid_refs": invalid_count,
+            "validity_rate": (valid_count / reference_count) if reference_count else None,
+        }
     return {
         "count": len(rows),
         "A_B_retrieval_equal": count(lambda row: row["A_B_retrieval_equivalent"] is True),
@@ -128,7 +164,15 @@ def metrics_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "A_B_answer_equal": count(lambda row: row["A_B_answer_equal"] is True),
         "B_C_answer_equal": count(lambda row: row["B_C_answer_equal"] is True),
         "C_one_recall": count(lambda row: row["C_automatic_recall_count"] == 1),
+        "C_one_model_step": count(lambda row: row["C_dsh_steps"] == 1),
+        "C_zero_tool_calls": count(lambda row: row["C_tool_call_count"] == 0),
+        "C_zero_memory_writes": count(lambda row: row["C_memory_write_count"] == 0),
         "C_commit_skipped_without_write": count(lambda row: row["C_commit_status"] in {"evaluation_read_only", "turn_max-tokens"}),
+        "max_token_failures": {
+            arm: count(lambda row: row.get(f"{arm}_turn_reason") == "max-tokens")
+            for arm in ("A", "B", "C")
+        },
+        "citation_ref_validity": citation,
     }
 
 
@@ -137,7 +181,7 @@ def safe_mean(values: list[float]) -> float | None:
 
 
 def usage_summary(arms: dict[str, dict[str, dict[str, Any]]]) -> dict[str, Any]:
-    def latency_mean(rows: list[dict[str, Any]], key: str, fallback: str | None = None) -> float | None:
+    def latency_distribution(rows: list[dict[str, Any]], key: str, fallback: str | None = None) -> dict[str, float | int | None]:
         values = []
         for row in rows:
             latency = row.get("latency_ms") or {}
@@ -146,23 +190,88 @@ def usage_summary(arms: dict[str, dict[str, dict[str, Any]]]) -> dict[str, Any]:
                 value = latency.get(fallback)
             if isinstance(value, (float, int)):
                 values.append(float(value))
-        return safe_mean(values)
+        values.sort()
+        if not values:
+            return {"count": 0, "mean_ms": None, "median_ms": None, "p50_ms": None, "p95_ms": None, "max_ms": None}
+        p95_index = max(0, min(len(values) - 1, int((0.95 * len(values) + 0.999999)) - 1))
+        median = statistics.median(values)
+        return {
+            "count": len(values),
+            "mean_ms": statistics.mean(values),
+            "median_ms": median,
+            "p50_ms": median,
+            "p95_ms": values[p95_index],
+            "max_ms": values[-1],
+        }
+
+    def latency_by_turn_reason(rows: list[dict[str, Any]]) -> dict[str, Any]:
+        keys = ("recall", "dsh_pre_model", "answer_generation", "first_token", "dsh_turn", "end_to_end")
+        return {
+            reason: {
+                key: latency_distribution(
+                    [row for row in rows if row.get("turn_reason") == reason],
+                    key,
+                    "end_to_end_wall" if key == "end_to_end" else None,
+                )
+                for key in keys
+            }
+            for reason in ("completed", "max-tokens")
+        }
+
+    def value_distribution(rows: list[dict[str, Any]], key: str) -> dict[str, Any]:
+        values = sorted(float(row[key]) for row in rows if isinstance(row.get(key), (int, float)))
+        if not values:
+            return {"count": 0, "mean": None, "median": None, "p50": None, "p95": None, "max": None}
+        p95_index = max(0, min(len(values) - 1, int((0.95 * len(values) + 0.999999)) - 1))
+        median = statistics.median(values)
+        return {
+            "count": len(values),
+            "mean": statistics.mean(values),
+            "median": median,
+            "p50": median,
+            "p95": values[p95_index],
+            "max": values[-1],
+        }
+
+    def histogram(rows: list[dict[str, Any]], key: str) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for row in rows:
+            value = row.get(key)
+            label = str(value) if isinstance(value, (int, float)) else "unknown"
+            counts[label] = counts.get(label, 0) + 1
+        return dict(sorted(counts.items()))
 
     result: dict[str, Any] = {}
     for arm, records in arms.items():
         rows = list(records.values())
+        qa_usage_rows = [row.get("qa_usage") for row in rows]
+        qa_prompt_values = [usage.get("prompt_tokens") for usage in qa_usage_rows if isinstance(usage, dict)]
+        qa_completion_values = [usage.get("completion_tokens") for usage in qa_usage_rows if isinstance(usage, dict)]
+        qa_total_values = [usage.get("total_tokens") for usage in qa_usage_rows if isinstance(usage, dict)]
         result[arm] = {
-            "qa_prompt_tokens": sum(int((row.get("qa_usage") or {}).get("prompt_tokens") or 0) for row in rows),
-            "qa_completion_tokens": sum(int((row.get("qa_usage") or {}).get("completion_tokens") or 0) for row in rows),
+            "qa_prompt_tokens": sum(int(value) for value in qa_prompt_values if isinstance(value, (int, float))),
+            "qa_completion_tokens": sum(int(value) for value in qa_completion_values if isinstance(value, (int, float))),
+            "qa_total_tokens": sum(int(value) for value in qa_total_values if isinstance(value, (int, float))),
+            "qa_usage_missing_count": sum(
+                1 for usage in qa_usage_rows
+                if not isinstance(usage, dict)
+                or any(not isinstance(usage.get(key), (int, float)) for key in ("prompt_tokens", "completion_tokens", "total_tokens"))
+            ),
             "ama_prompt_tokens": sum(int(row.get("ama_prompt_tokens") or 0) for row in rows),
             "ama_completion_tokens": sum(int(row.get("ama_completion_tokens") or 0) for row in rows),
             "ama_llm_calls": sum(int(row.get("ama_llm_call_count") or 0) for row in rows),
-            "recall_latency_ms_mean": latency_mean(rows, "recall"),
-            "dsh_pre_model_latency_ms_mean": latency_mean(rows, "dsh_pre_model"),
-            "answer_latency_ms_mean": latency_mean(rows, "answer_generation"),
-            "first_token_latency_ms_mean": latency_mean(rows, "first_token"),
-            "dsh_turn_latency_ms_mean": latency_mean(rows, "total_dsh_turn"),
-            "end_to_end_latency_ms_mean": latency_mean(rows, "end_to_end", "end_to_end_wall"),
+            "ama_usage_report_count": sum(int(row.get("ama_usage_report_count") or 0) for row in rows),
+            "retrieval_round_distribution": histogram(rows, "retrieval_rounds"),
+            "retrieved_item_count": value_distribution(rows, "retrieved_count"),
+            "latency_ms": {
+                "recall": latency_distribution(rows, "recall"),
+                "dsh_pre_model": latency_distribution(rows, "dsh_pre_model"),
+                "answer_generation": latency_distribution(rows, "answer_generation"),
+                "first_token": latency_distribution(rows, "first_token"),
+                "dsh_turn": latency_distribution(rows, "total_dsh_turn"),
+                "end_to_end": latency_distribution(rows, "end_to_end", "end_to_end_wall"),
+            },
+            "latency_ms_by_turn_reason": latency_by_turn_reason(rows),
         }
     return result
 
@@ -199,7 +308,7 @@ def main() -> None:
     parser.add_argument("--arm-c", type=Path, default=ARTIFACT_ROOT / "arm-c-dsh/predictions.jsonl")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
-    parser.add_argument("--frozen-manifest", type=Path, default=ARTIFACT_ROOT / "frozen-state-manifest.json")
+    parser.add_argument("--frozen-manifest", type=Path, default=STATE_MANIFEST)
     parser.add_argument("--ab-only", action="store_true", help="Enforce A/B adapter parity before C starts.")
     parser.add_argument("--allow-partial-debug", action="store_true", help="Write a non-gating diff for an explicitly partial diagnostic prefix.")
     args = parser.parse_args()
@@ -219,8 +328,10 @@ def main() -> None:
             raise ValueError(f"{name} prediction ids differ from frozen session scope: {len(rows)}/{len(expected_ids)}")
     paired = values_by_question(arms)
     output_path = args.output or ARTIFACT_ROOT / ("paired-diff-ab.jsonl" if args.ab_only else "paired-diff.jsonl")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text("".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in paired), encoding="utf-8")
+    write_artifact_text(
+        output_path,
+        "".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in paired),
+    )
 
     scope = json.loads(args.frozen_manifest.read_text(encoding="utf-8"))
     expected_count = len(expected_ids)
@@ -270,7 +381,7 @@ def main() -> None:
         "usage_latency": usage_summary(arms),
     }
     output_json = output_path.with_name("comparison-summary-ab.json" if args.ab_only else "comparison-summary.json")
-    output_json.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_artifact_text(output_json, json.dumps(summary, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
     if not complete and not args.allow_partial_debug:

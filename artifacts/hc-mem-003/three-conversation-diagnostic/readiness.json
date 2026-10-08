@@ -1,0 +1,216 @@
+{
+  "task": "HC-MEM-003 complete-conversation diagnostic",
+  "scope": "diagnostic_only_not_full_locomo",
+  "status": "PASS_DSH_PARITY_DIAGNOSTIC_WITH_A_B_BLEU_NEAR_MISS",
+  "finalCommit": null,
+  "workingTreeHead": "e3b35a7dc53a48c66ae247124a34b876e7bc70ba",
+  "baselineCommit": "78c1d4eb647725430223711fcd3acca48a622222",
+  "amaCommit": "a770f9aaef527ae589bf13015260cd24eda2d58c",
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "datasetSha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+  "includedConversations": [
+    "conv-26",
+    "conv-30",
+    "conv-41"
+  ],
+  "completedSessions": 70,
+  "datasetTotalSessions": 272,
+  "dialogueItems": 1451,
+  "includedQuestions": 385,
+  "excludedCategory5InCohort": 112,
+  "categoryCounts": {
+    "1_single_hop": 74,
+    "2_temporal": 90,
+    "3_multi_hop": 21,
+    "4_open_domain": 200
+  },
+  "model": "Qwen/Qwen3-8B",
+  "modelRevision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "embedding": "Qwen3-Embedding-0.6B",
+  "embeddingRevision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+  "config": {
+    "temperature": 0,
+    "seed": 0,
+    "thinkingEnabled": false,
+    "qaMaxTokens": 256,
+    "strongRetrieve": true,
+    "turnRetrieve": 3,
+    "topK": 10,
+    "memoryWritesEnabled": false
+  },
+  "frozenStore": {
+    "partial": true,
+    "maxSessions": 70,
+    "byteIdenticalArmCopies": true,
+    "treeSha256": "c00f7fc17d3fce48ecc0049c8434ff6d5d686ea50717fec5a3593901e25ad010"
+  },
+  "arms": {
+    "A_UPSTREAM": {
+      "count": 385,
+      "token_f1": 0.442852665282109,
+      "bleu1": 0.3930587849067309,
+      "parse_error_count": 2
+    },
+    "B_SIDECAR": {
+      "count": 385,
+      "token_f1": 0.438654685354542,
+      "bleu1": 0.38177651021840975,
+      "parse_error_count": 2
+    },
+    "C_DSH": {
+      "count": 385,
+      "token_f1": 0.4408316919384323,
+      "bleu1": 0.38597662146513045,
+      "parse_error_count": 0
+    }
+  },
+  "deltas": {
+    "A_to_B": {
+      "token_f1": -0.004197979927566986,
+      "bleu1": -0.011282274688321159
+    },
+    "B_to_C": {
+      "token_f1": 0.0021770065838903063,
+      "bleu1": 0.004200111246720706
+    },
+    "A_to_C": {
+      "token_f1": -0.0020209733436766797,
+      "bleu1": -0.007082163441600453
+    }
+  },
+  "integrity": {
+    "A_B_retrieval_equal": 385,
+    "B_C_snapshot_equal": 385,
+    "B_C_source_refs_equal": 385,
+    "C_one_recall": 385,
+    "C_one_model_step": 385,
+    "C_zero_tool_calls": 385,
+    "C_zero_memory_writes": 385,
+    "questionCount": 385
+  },
+  "gates": {
+    "B_to_C_overall_abs_delta_lte_0_01": true,
+    "B_to_C_category_regression_worse_than_0_05": false,
+    "A_to_B_f1_abs_delta_lte_0_01": true,
+    "A_to_B_bleu_abs_delta_lte_0_01": false,
+    "A_to_B_bleu_near_miss": true
+  },
+  "limitations": [
+    "Only the first three fully constructed conversations in dataset order were scored; not a full LoCoMo result.",
+    "No LLM judge was run; paper LLM Score is not evaluated.",
+    "The pre-existing full local reproduction reference was not recovered.",
+    "A/B retrieval hashes match, but A/B generated answers are not identical; A-to-B BLEU misses the 0.01 tolerance by 0.00128."
+  ],
+  "latencyMs": {
+    "A_UPSTREAM": {
+      "recall": {
+        "mean": 5251.971473008419,
+        "p50": 4576.065914938226,
+        "p95": 9473.355456953868,
+        "max": 11820.69613202475
+      },
+      "answer_generation": {
+        "mean": 1828.1707094044896,
+        "p50": 1672.8213599417359,
+        "p95": 2693.7864678911865,
+        "max": 6392.63992710039
+      },
+      "end_to_end": {
+        "mean": 7080.142182412908,
+        "p50": 6239.280397072434,
+        "p95": 12162.79656207189,
+        "max": 14823.413745034486
+      }
+    },
+    "B_SIDECAR": {
+      "recall": {
+        "mean": 5127.4237795599865,
+        "p50": 4420.450685080141,
+        "p95": 9421.530444873497,
+        "max": 11971.246589906514
+      },
+      "answer_generation": {
+        "mean": 1640.2247465747807,
+        "p50": 1491.3971519563347,
+        "p95": 2417.8641331382096,
+        "max": 7088.485743151978
+      },
+      "end_to_end": {
+        "mean": 6767.648526134768,
+        "p50": 5974.29399099201,
+        "p95": 11614.129762165248,
+        "max": 16737.085769185796
+      }
+    },
+    "C_DSH": {
+      "recall": {
+        "mean": 5125.973517353246,
+        "p50": 4441.611718000029,
+        "p95": 9350.599653999787,
+        "max": 12132.264319000067
+      },
+      "dsh_pre_model": {
+        "mean": 5127.181818181818,
+        "p50": 4442.0,
+        "p95": 9351.0,
+        "max": 12134.0
+      },
+      "answer_generation": {
+        "mean": 1643.5816035298674,
+        "p50": 1541.0061910001095,
+        "p95": 2414.226340999827,
+        "max": 4504.902768000029
+      },
+      "first_token": {
+        "mean": 499.1246753246753,
+        "p50": 380.0,
+        "p95": 1044.0,
+        "max": 1278.0
+      },
+      "dsh_turn": {
+        "mean": 6771.277922077922,
+        "p50": 5994.0,
+        "p95": 11675.0,
+        "max": 14740.0
+      },
+      "end_to_end": {
+        "mean": 6771.627309122082,
+        "p50": 5994.266240000026,
+        "p95": 11676.301215999993,
+        "max": 14739.645707999938
+      }
+    }
+  },
+  "tokenUsage": {
+    "A_UPSTREAM": {
+      "qa_prompt_tokens": 1719539,
+      "qa_completion_tokens": 19964,
+      "qa_total_tokens": 1739503,
+      "ama_prompt_tokens": 3502050,
+      "ama_completion_tokens": 57030,
+      "ama_llm_calls": 893
+    },
+    "B_SIDECAR": {
+      "qa_prompt_tokens": 1351946,
+      "qa_completion_tokens": 19797,
+      "qa_total_tokens": 1371743,
+      "ama_prompt_tokens": 3502048,
+      "ama_completion_tokens": 57024,
+      "ama_llm_calls": 893
+    },
+    "C_DSH": {
+      "qa_prompt_tokens": 1365068,
+      "qa_completion_tokens": 19647,
+      "qa_total_tokens": 1384715,
+      "ama_prompt_tokens": 3502048,
+      "ama_completion_tokens": 57024,
+      "ama_llm_calls": 893
+    }
+  },
+  "paperReferenceNotEvaluated": {
+    "tokenF1": 0.51,
+    "bleu1": 0.432,
+    "llmScore": 0.707,
+    "reason": "full-scope paper comparison is invalid for this diagnostic cohort; judge is GPT-4o-mini and was not run"
+  }
+}

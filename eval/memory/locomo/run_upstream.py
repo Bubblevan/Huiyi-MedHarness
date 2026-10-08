@@ -14,8 +14,9 @@ import requests
 
 from common import (
     AMA_ROOT, ARTIFACT_ROOT, CANONICAL_MODEL_ID, DEFAULT_DATASET, LOCAL_CHAT_URL, LOCAL_MODEL,
-    add_snapshot_metrics, append_jsonl, completed_keys, configure_pinned_ama,
-    load_dataset, questions_for_state, snapshot_payload, verify_local_model_endpoint, verify_state_copy,
+    add_snapshot_metrics, append_jsonl, citation_ref_validity, completed_keys, configure_pinned_ama,
+    QA_MAX_TOKENS, STATE_MANIFEST, load_dataset, questions_for_state, snapshot_payload,
+    verify_embedding_endpoint, verify_local_model_endpoint, verify_state_copy,
 )
 
 
@@ -60,7 +61,13 @@ def memory_for(namespace: str, data_dir: Path):
     return memory, counts
 
 
-def local_chat(prompt_text: str, timeout_s: float) -> tuple[str, dict[str, int], float]:
+def retrieve_question(memory: Any, question: str) -> str:
+    """Start every independent benchmark QA item with an empty transient AMA window."""
+    memory.clearMemoryWindow()
+    return memory.forwardRetrieve(question, showUsage=True, strongRetrieve=True)
+
+
+def local_chat(prompt_text: str, timeout_s: float) -> tuple[str, dict[str, int | None], float, str | None]:
     started = time.perf_counter()
     response = requests.post(
         LOCAL_CHAT_URL,
@@ -69,6 +76,8 @@ def local_chat(prompt_text: str, timeout_s: float) -> tuple[str, dict[str, int],
             "model": LOCAL_MODEL,
             "messages": [{"role": "system", "content": prompt_text}],
             "temperature": 0.0,
+            "max_tokens": QA_MAX_TOKENS,
+            "seed": 0,
             "chat_template_kwargs": {"enable_thinking": False},
         },
         timeout=timeout_s,
@@ -76,12 +85,13 @@ def local_chat(prompt_text: str, timeout_s: float) -> tuple[str, dict[str, int],
     response.raise_for_status()
     payload = response.json()
     text = payload["choices"][0]["message"].get("content") or ""
-    usage = payload.get("usage", {})
+    finish_reason = payload["choices"][0].get("finish_reason")
+    usage = payload.get("usage")
     return text, {
-        "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-        "completion_tokens": int(usage.get("completion_tokens", 0)),
-        "total_tokens": int(usage.get("total_tokens", 0)),
-    }, max(0.0, (time.perf_counter() - started) * 1000)
+        "prompt_tokens": int(usage["prompt_tokens"]) if isinstance(usage, dict) and isinstance(usage.get("prompt_tokens"), (int, float)) else None,
+        "completion_tokens": int(usage["completion_tokens"]) if isinstance(usage, dict) and isinstance(usage.get("completion_tokens"), (int, float)) else None,
+        "total_tokens": int(usage["total_tokens"]) if isinstance(usage, dict) and isinstance(usage.get("total_tokens"), (int, float)) else None,
+    }, max(0.0, (time.perf_counter() - started) * 1000), finish_reason
 
 
 def main() -> None:
@@ -90,15 +100,22 @@ def main() -> None:
     parser.add_argument("--state-dir", type=Path, default=ARTIFACT_ROOT / "arm-a-upstream" / "state")
     parser.add_argument("--output", type=Path, default=ARTIFACT_ROOT / "arm-a-upstream" / "predictions.jsonl")
     parser.add_argument("--limit", type=int, help="Optional debug-only question prefix within the frozen store scope.")
+    parser.add_argument("--question-id", help="Run one exact question for a bounded diagnostic.")
     parser.add_argument("--timeout", type=float, default=600)
     args = parser.parse_args()
 
     dataset = load_dataset(args.dataset)
+    configure_pinned_ama()
     verify_local_model_endpoint()
+    verify_embedding_endpoint()
     questions = questions_for_state(dataset)
-    scope = json.loads((ARTIFACT_ROOT / "frozen-state-manifest.json").read_text(encoding="utf-8"))
+    scope = json.loads(STATE_MANIFEST.read_text(encoding="utf-8"))
     if args.limit is not None:
         questions = questions[:max(0, args.limit)]
+    if args.question_id is not None:
+        questions = [item for item in questions if item["question_id"] == args.question_id]
+        if len(questions) != 1:
+            raise ValueError(f"question id is not in the selected frozen scope: {args.question_id}")
     todo = [item for item in questions if item["question_id"] not in completed_keys(args.output)]
     verify_state_copy(args.state_dir)
 
@@ -126,7 +143,7 @@ def main() -> None:
         recall_started = time.perf_counter()
         with open(os.devnull, "w", encoding="utf-8") as sink:
             with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
-                retrieval_payload = memory.forwardRetrieve(item["question"], showUsage=True, strongRetrieve=True)
+                retrieval_payload = retrieve_question(memory, item["question"])
         recall_ms = max(0.0, (time.perf_counter() - recall_started) * 1000)
         retrieval = json.loads(retrieval_payload)
         normalized_items = _parse_retrievals(retrieval_payload)
@@ -134,8 +151,10 @@ def main() -> None:
             memoryInfo=retrieval_payload or "None",
             userInput=item["question"],
         )
-        answer_raw, answer_usage, answer_ms = local_chat(qa_prompt, args.timeout)
+        answer_raw, answer_usage, answer_ms, finish_reason = local_chat(qa_prompt, args.timeout)
         answer, parse_error = _parse_answer(answer_raw)
+        if finish_reason == "length":
+            answer, parse_error = "", "MaxTokens"
         record: dict[str, Any] = {
             "question_id": item["question_id"],
             "conversation_id": conv_id,
@@ -145,6 +164,9 @@ def main() -> None:
             "response": answer,
             "response_raw": answer_raw,
             "parse_error": parse_error,
+            "turn_reason": "max-tokens" if finish_reason == "length" else "completed",
+            "max_token_failure": finish_reason == "length",
+            "citation_ref_validity": citation_ref_validity(answer_raw, normalized_items, parse_error),
             "evidence": item["evidence"],
             "profile": "locomo-parity",
             "arm": "A_UPSTREAM",
@@ -153,6 +175,8 @@ def main() -> None:
             "memory_model": CANONICAL_MODEL_ID,
             "memory_api_model": LOCAL_MODEL,
             "temperature": 0,
+            "seed": 0,
+            "qa_max_tokens": QA_MAX_TOKENS,
             "top_k": 10,
             "turn_retrieve": 3,
             "strong_retrieve": True,
@@ -166,6 +190,7 @@ def main() -> None:
             "ama_completion_tokens": counters["completion_tokens"] - completion_tokens_before,
             "ama_usage_report_count": counters["usage_reports"] - usage_reports_before,
             "qa_usage": answer_usage,
+            "finish_reason": finish_reason,
             "latency_ms": {
                 "recall": recall_ms,
                 "answer_generation": answer_ms,
@@ -177,6 +202,7 @@ def main() -> None:
         append_jsonl(args.output, record)
         memory.clearMemoryWindow()
 
+    verify_state_copy(args.state_dir)
     print(f"Arm A complete: {len(completed_keys(args.output))}/{len(questions)} scoped questions; store_partial={scope.get('partial')}; debug_limit={args.limit is not None}")
 
 

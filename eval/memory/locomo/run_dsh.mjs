@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { createHash } from 'node:crypto'
-import { appendFileSync, chmodSync, mkdirSync, readFileSync, statSync } from 'node:fs'
+import { createHash, randomUUID } from 'node:crypto'
+import { appendFileSync, chmodSync, mkdirSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
@@ -21,7 +21,10 @@ import { LocalQwenAdapter, LOCAL_QWEN_PROVIDER } from './local-qwen-adapter.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(here, '../../..')
-const artifactRoot = resolve(process.env.HC_MEM_002_ARTIFACT_DIR ?? resolve(repoRoot, 'artifacts/hc-mem-002'))
+const artifactRoot = resolve(process.env.HC_MEM_ARTIFACT_DIR ?? process.env.HC_MEM_003_ARTIFACT_DIR ?? process.env.HC_MEM_002_ARTIFACT_DIR ?? resolve(repoRoot, 'artifacts/hc-mem-002'))
+const stateName = process.env.HC_MEM_STATE_NAME ?? 'frozen-state'
+const stateManifestPath = resolve(process.env.HC_MEM_STATE_MANIFEST ?? resolve(artifactRoot, `${stateName}-manifest.json`))
+const contractPath = resolve(process.env.HC_MEM_CONTRACT ?? resolve(here, 'manifest.json'))
 const parsed = parseArgs({
   options: {
     dataset: { type: 'string', default: process.env.LOCOMO_DATASET ?? '/root/gpufree-share/data/locomo-mc10/raw/locomo10.json' },
@@ -31,6 +34,7 @@ const parsed = parseArgs({
     trace: { type: 'string', default: resolve(artifactRoot, 'arm-c-dsh/trace-metadata.jsonl') },
     stateDir: { type: 'string', default: resolve(artifactRoot, 'arm-c-dsh/state') },
     limit: { type: 'string' },
+    questionId: { type: 'string' },
     timeoutMs: { type: 'string', default: '600000' },
   },
   strict: true,
@@ -40,6 +44,41 @@ function sha256File(path) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
 }
 
+function filesUnder(directory, relative = '') {
+  const result = []
+  const current = relative ? resolve(directory, relative) : directory
+  for (const entry of readdirSync(current, { withFileTypes: true }).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)) {
+    const childRelative = relative ? `${relative}/${entry.name}` : entry.name
+    const childPath = resolve(directory, childRelative)
+    if (entry.isDirectory()) result.push(...filesUnder(directory, childRelative))
+    else if (entry.isFile()) result.push({ path: childRelative, bytes: statSync(childPath).size, sha256: sha256File(childPath) })
+    else throw new Error(`unexpected non-file in frozen memory state: ${childRelative}`)
+  }
+  return result
+}
+
+function verifyAllFullArmStates(manifest) {
+  const copyManifest = JSON.parse(readFileSync(resolve(artifactRoot, `${stateName}-copies-manifest.json`), 'utf8'))
+  if (copyManifest.source_manifest_sha256 !== sha256File(stateManifestPath)) {
+    throw new Error('A/B/C copy manifest points to a different full-store manifest')
+  }
+  const arms = { A_UPSTREAM: 'arm-a-upstream', B_SIDECAR: 'arm-b-sidecar', C_DSH: 'arm-c-dsh' }
+  const expectedFiles = manifest.files
+    .map(item => ({ path: item.path, bytes: Number(item.bytes), sha256: item.sha256 }))
+    .sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)
+  const treeHashes = new Set()
+  for (const [arm, name] of Object.entries(arms)) {
+    const relativeStateDir = `${name}/state`
+    const entry = copyManifest.arms?.[arm]
+    if (!entry || entry.relative_state_dir !== relativeStateDir) throw new Error(`missing or invalid frozen state copy for ${arm}`)
+    if (JSON.stringify(entry.files) !== JSON.stringify(expectedFiles)) throw new Error(`${arm} copy manifest differs from full-store manifest`)
+    const actual = filesUnder(resolve(artifactRoot, relativeStateDir))
+    if (JSON.stringify(actual) !== JSON.stringify(expectedFiles)) throw new Error(`${arm} memory state is not byte-identical to the common frozen store`)
+    treeHashes.add(entry.tree_sha256)
+  }
+  if (treeHashes.size !== 1) throw new Error('A/B/C memory state copies are not byte-identical')
+}
+
 function assertLoopbackUrl(value, label) {
   const url = new URL(value)
   if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) {
@@ -47,14 +86,29 @@ function assertLoopbackUrl(value, label) {
   }
 }
 
-const contract = JSON.parse(readFileSync(resolve(here, 'manifest.json'), 'utf8'))
+const contract = JSON.parse(readFileSync(contractPath, 'utf8'))
+const qaMaxTokens = Number(process.env.LOCOMO_QA_MAX_TOKENS ?? contract.generation.maxTokens)
+if (!Number.isInteger(qaMaxTokens) || qaMaxTokens < 1) throw new Error('LoCoMo contract must freeze a positive QA max token limit')
+for (const model of [contract.models.qaGenerator, contract.models.embedding]) {
+  const metadataPath = resolve(model.localPath, '.hfd/repo_metadata.json')
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'))
+  const metadataId = metadata.id ?? metadata.modelId
+  if (metadataId !== model.id && !String(metadataId).endsWith(`/${model.id}`)) {
+    throw new Error(`local model metadata identity differs from the benchmark contract: ${model.id}`)
+  }
+  if (metadata.sha !== model.sourceRevision) throw new Error(`local model revision differs from the benchmark contract: ${model.id}`)
+}
+const embeddingConfig = JSON.parse(readFileSync(resolve(contract.models.embedding.localPath, 'config.json'), 'utf8'))
+if (Number(embeddingConfig.hidden_size) !== Number(contract.models.embedding.nativeOutputDimension)) {
+  throw new Error('local embedding model dimension differs from the benchmark contract')
+}
 if (sha256File(options.dataset) !== contract.dataset.sha256) {
   throw new Error('LoCoMo dataset SHA256 does not match the frozen contract')
 }
 if ((process.env.HUIYI_LOCAL_LLM_MODEL ?? contract.models.qaGenerator.servedModelName) !== contract.models.qaGenerator.servedModelName) {
-  throw new Error(`HC-MEM-002 requires served model ${contract.models.qaGenerator.servedModelName}`)
+  throw new Error(`${contract.task} requires served model ${contract.models.qaGenerator.servedModelName}`)
 }
-const frozenStateManifest = JSON.parse(readFileSync(resolve(artifactRoot, 'frozen-state-manifest.json'), 'utf8'))
+const frozenStateManifest = JSON.parse(readFileSync(stateManifestPath, 'utf8'))
 if (frozenStateManifest.dataset_sha256 !== contract.dataset.sha256
   || frozenStateManifest.ama_commit !== contract.amaCommit
   || frozenStateManifest.memory_model !== contract.models.memoryGenerator.id
@@ -65,6 +119,17 @@ if (frozenStateManifest.dataset_sha256 !== contract.dataset.sha256
   || !Array.isArray(frozenStateManifest.selected_session_keys)) {
   throw new Error('frozen memory state manifest does not match the dataset contract')
 }
+if (contract.requiredStoreScope === 'full'
+  && (frozenStateManifest.partial !== false
+    || frozenStateManifest.max_sessions !== null
+    || frozenStateManifest.included_conversations.length !== contract.dataset.conversationCount
+    || frozenStateManifest.conversation_count !== contract.dataset.conversationCount
+    || frozenStateManifest.session_count !== contract.dataset.sessionCount
+    || frozenStateManifest.dialogue_items !== contract.dataset.dialogueItemCount
+    || frozenStateManifest.selected_session_keys.length !== contract.dataset.sessionCount)) {
+  throw new Error('full LoCoMo evaluation requires a finalized non-partial memory store')
+}
+if (contract.requiredStoreScope === 'full') verifyAllFullArmStates(frozenStateManifest)
 for (const entry of frozenStateManifest.files) {
   const path = resolve(options.stateDir, entry.path)
   if (path !== resolve(options.stateDir) && !path.startsWith(`${resolve(options.stateDir)}/`)) {
@@ -76,15 +141,43 @@ for (const entry of frozenStateManifest.files) {
 }
 assertLoopbackUrl(options.memoryUrl, 'memory service URL')
 assertLoopbackUrl(options.modelUrl, 'local model URL')
+const embeddingProbeResponse = await fetch(new URL('/_internal/ama/embeddings', options.memoryUrl), {
+  method: 'POST',
+  headers: { authorization: 'Bearer local-only', 'content-type': 'application/json' },
+  body: JSON.stringify({
+    model: contract.models.embedding.id,
+    input: 'HC-MEM-003 local embedding contract probe',
+  }),
+  signal: AbortSignal.timeout(30_000),
+})
+if (!embeddingProbeResponse.ok) throw new Error(`local embedding endpoint returned HTTP ${embeddingProbeResponse.status}`)
+const embeddingProbe = await embeddingProbeResponse.json()
+const embeddingVector = embeddingProbe.data?.[0]?.embedding
+if (embeddingProbe.model !== contract.models.embedding.id
+  || !Array.isArray(embeddingVector)
+  || embeddingVector.length !== Number(contract.models.embedding.amaDimension)
+  || embeddingVector.some(value => typeof value !== 'number' || !Number.isFinite(value))) {
+  throw new Error('local embedding endpoint differs from the frozen model/vector contract')
+}
 const modelListUrl = new URL(options.modelUrl)
 if (!modelListUrl.pathname.endsWith('/chat/completions')) throw new Error('local model URL must end in /chat/completions')
 modelListUrl.pathname = modelListUrl.pathname.slice(0, -'/chat/completions'.length) + '/models'
+const versionUrl = new URL('/version', options.modelUrl)
+const versionResponse = await fetch(versionUrl, { signal: AbortSignal.timeout(5_000) })
+if (!versionResponse.ok) throw new Error(`local vLLM version endpoint returned HTTP ${versionResponse.status}`)
+const versionPayload = await versionResponse.json()
+if (versionPayload.version !== contract.inferenceEngine.version) {
+  throw new Error('local vLLM version differs from the frozen benchmark contract')
+}
 const modelListResponse = await fetch(modelListUrl)
 if (!modelListResponse.ok) throw new Error(`local model endpoint returned HTTP ${modelListResponse.status}`)
 const modelList = await modelListResponse.json()
 const servedModels = (modelList.data ?? []).filter(model => model.id === contract.models.qaGenerator.servedModelName)
 if (servedModels.length !== 1 || servedModels[0].max_model_len !== contract.models.qaGenerator.contextWindow) {
   throw new Error('local model endpoint differs from the frozen served-model/context contract')
+}
+if (servedModels[0].root && resolve(servedModels[0].root) !== resolve(contract.models.qaGenerator.localPath)) {
+  throw new Error('local model endpoint root differs from the frozen Qwen model path')
 }
 const dataset = JSON.parse(readFileSync(options.dataset, 'utf8'))
 const allQuestions = []
@@ -107,7 +200,23 @@ for (let convIndex = 0; convIndex < dataset.length; convIndex += 1) {
 }
 const allowedConversations = new Set(frozenStateManifest.included_conversations)
 const scopedQuestions = allQuestions.filter(question => allowedConversations.has(question.conversation_id))
-const questions = options.limit === undefined ? scopedQuestions : scopedQuestions.slice(0, Math.max(0, Number(options.limit)))
+if (contract.requiredStoreScope === 'full') {
+  const expectedConversations = dataset.map((row, index) => String(row.sample_id ?? `conversation-${String(index + 1).padStart(2, '0')}`))
+  const categoryFiveCount = dataset.reduce((sum, row) => sum + (row.qa ?? []).filter(qa => Number(qa.category ?? 0) === 5).length, 0)
+  const actualCategoryCounts = Object.fromEntries(['1', '2', '3', '4'].map(category => [category, allQuestions.filter(question => String(question.category) === category).length]))
+  const expectedCategoryCounts = { '1': 282, '2': 321, '3': 96, '4': 841 }
+  if (JSON.stringify(frozenStateManifest.included_conversations) !== JSON.stringify(expectedConversations)
+    || allowedConversations.size !== 10 || scopedQuestions.length !== 1540
+    || dataset.length !== 10 || dataset.reduce((sum, row) => sum + (row.qa ?? []).length, 0) !== 1986
+    || categoryFiveCount !== 446 || JSON.stringify(actualCategoryCounts) !== JSON.stringify(expectedCategoryCounts)) {
+    throw new Error('full LoCoMo evaluation requires all 10 conversations in dataset order and 1540 category-5-excluded questions')
+  }
+}
+let questions = options.limit === undefined ? scopedQuestions : scopedQuestions.slice(0, Math.max(0, Number(options.limit)))
+if (options.questionId !== undefined) {
+  questions = questions.filter(question => question.question_id === options.questionId)
+  if (questions.length !== 1) throw new Error(`question id is outside the selected frozen scope: ${options.questionId}`)
+}
 
 function sha256(value) {
   return createHash('sha256').update(value, 'utf8').digest('hex')
@@ -140,10 +249,31 @@ function messageText(content) {
 function parseAnswer(raw) {
   try {
     const value = JSON.parse(raw)
-    if (typeof value?.answer !== 'string') return { answer: '', parseError: 'MissingAnswerField' }
-    return { answer: value.answer.trim(), parseError: null }
+    if (typeof value?.answer !== 'string') return { answer: '', evidence: [], parseError: 'MissingAnswerField' }
+    const evidence = Array.isArray(value.evidence)
+      ? value.evidence.filter(item => typeof item === 'string').map(item => item.trim()).filter(Boolean)
+      : typeof value.evidence === 'string' && value.evidence.trim() ? [value.evidence.trim()] : []
+    return { answer: value.answer.trim(), evidence, parseError: null }
   } catch {
-    return { answer: '', parseError: 'InvalidJson' }
+    return { answer: '', evidence: [], parseError: 'InvalidJson' }
+  }
+}
+
+function citationRefValidity(providedItems, parsed) {
+  const provided = [...new Set(providedItems.map(item => item.sourceId).filter(value => typeof value === 'string' && value))].sort()
+  const referenced = parsed.evidence ?? []
+  const providedSet = new Set(provided)
+  const invalid = referenced.filter(value => !providedSet.has(value))
+  const validCount = referenced.length - invalid.length
+  return {
+    provided_ref_count: provided.length,
+    reference_count: referenced.length,
+    valid_reference_count: validCount,
+    invalid_reference_count: invalid.length,
+    referenced_ids: referenced,
+    invalid_ids: invalid,
+    validity_rate: referenced.length ? validCount / referenced.length : null,
+    has_invalid_reference: invalid.length > 0,
   }
 }
 
@@ -165,8 +295,10 @@ function loadCompleted(path) {
   }
 }
 
+const evaluationRunId = randomUUID()
+
 function sessionIdFor(questionId) {
-  return `locomo-${sha256(questionId).slice(0, 24)}`
+  return `locomo-${evaluationRunId.slice(0, 8)}-${sha256(questionId).slice(0, 24)}`
 }
 
 class RecordingMemoryClient extends MemoryClient {
@@ -198,7 +330,10 @@ new ToolRuntime(ctx, { mode: 'native', maxParallelSubCalls: 1 })
 ctx.llm.registerAdapter([LOCAL_QWEN_PROVIDER], modelAdapter)
 new AgentLoop(ctx, AgentLoop.Config({ agents: [], maxParallelToolCalls: 1 }))
 ctx.systemPrompt.section({ name: 'huiyi:locomo-parity-qa', order: 250, text: LOCOMO_QA_SYSTEM_PROMPT })
-ctx.on('agent/request', async (_request, next) => ({ ...(await next()), temperature: 0 }))
+ctx.on('agent/request', async (_request, next) => ({
+  ...(await next()),
+  temperature: 0,
+}))
 
 const memoryClient = new RecordingMemoryClient({ baseUrl: options.memoryUrl, recallTimeoutMs: Number(options.timeoutMs) }, snapshots)
 await memoryClient.health()
@@ -248,7 +383,11 @@ try {
 
     const handle = await ctx.agents.create({
       sessionId,
-      agentOptions: { provider: LOCAL_QWEN_PROVIDER, model: process.env.HUIYI_LOCAL_LLM_MODEL ?? contract.models.qaGenerator.servedModelName },
+      agentOptions: {
+        provider: LOCAL_QWEN_PROVIDER,
+        model: process.env.HUIYI_LOCAL_LLM_MODEL ?? contract.models.qaGenerator.servedModelName,
+        maxTokens: qaMaxTokens,
+      },
     })
     const startedAt = performance.now()
     handle.agent.followup(createUserMessage({
@@ -281,7 +420,11 @@ try {
 
     const parsedAnswer = turnReason === 'completed'
       ? parseAnswer(metrics.assistantText)
-      : { answer: '', parseError: 'TurnMaxTokens' }
+      : { answer: '', evidence: [], parseError: 'TurnMaxTokens' }
+    const citationRefs = citationRefValidity(
+      snapshot.retrievedItems.map(item => ({ sourceId: item.source_id })),
+      parsedAnswer,
+    )
     const record = {
       question_id: question.question_id,
       conversation_id: question.conversation_id,
@@ -291,6 +434,7 @@ try {
       response: parsedAnswer.answer,
       response_raw: metrics.assistantText,
       parse_error: parsedAnswer.parseError,
+      citation_ref_validity: citationRefs,
       turn_reason: turnReason,
       evidence: question.evidence,
       profile: 'locomo-parity',
@@ -300,6 +444,8 @@ try {
       memory_model: contract.models.memoryGenerator.id,
       memory_api_model: contract.models.memoryGenerator.servedModelName,
       temperature: 0,
+      seed: Number(contract.generation.randomSeed ?? 0),
+      qa_max_tokens: qaMaxTokens,
       top_k: 10,
       turn_retrieve: 3,
       strong_retrieve: true,
@@ -307,7 +453,10 @@ try {
       store_scope_partial: Boolean(frozenStateManifest.partial),
       store_scope_max_sessions: frozenStateManifest.max_sessions ?? null,
       session_id: sessionId,
+      evaluation_run_id: evaluationRunId,
       model_step_count: metrics.stepCount,
+      tool_call_count: 0,
+      memory_write_count: 0,
       assistant_event_count: metrics.assistantEventCount,
       automatic_recall_count: traceRows.filter(row => row.operation === 'automatic_recall').length,
       recall_status: recallTrace?.status ?? 'missing',
@@ -344,12 +493,17 @@ try {
       session_id: sessionId,
       turn: metrics.turn ?? null,
       step_count: metrics.stepCount,
+      tool_call_count: record.tool_call_count,
+      memory_write_count: record.memory_write_count,
       model_request_count: modelRequests.length,
       automatic_recall_count: record.automatic_recall_count,
       recall_status: record.recall_status,
       commit_status: record.commit_status,
       turn_reason: record.turn_reason,
       parse_error: record.parse_error,
+      citation_reference_count: citationRefs.reference_count,
+      citation_valid_reference_count: citationRefs.valid_reference_count,
+      citation_invalid_reference_count: citationRefs.invalid_reference_count,
       snapshot_hash: record.snapshot_hash,
       retrieved_count: record.retrieved_count,
       retrieved_kinds: record.retrieved_kinds,
@@ -371,4 +525,5 @@ try {
   await ctx.fiber.dispose()
 }
 
+if (contract.requiredStoreScope === 'full') verifyAllFullArmStates(frozenStateManifest)
 console.log(`Arm C complete: ${loadCompleted(options.output).size}/${questions.length} scoped questions; store_partial=${Boolean(frozenStateManifest.partial)}; debug_limit=${options.limit !== undefined}`)
