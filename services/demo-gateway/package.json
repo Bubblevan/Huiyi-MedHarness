@@ -1,0 +1,18 @@
+{
+  "name": "@huiyi/demo-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=../../.env --import tsx --watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node --env-file-if-exists=../../.env dist/server.js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "tsx": "^4.19.4",
+    "typescript": "~5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,13 @@
+DEMO-EDGE-LOCAL-001 build summary
+Date: 2026-10-09
+Node: v22.20.0
+pnpm: 11.7.0
+
+PASS  root TypeScript bundle: pnpm build
+PASS  gateway TypeScript output: pnpm --filter @huiyi/demo-gateway build
+PASS  Vite static production bundle: pnpm --filter @huiyi/demo-web build
+PASS  aggregate build: pnpm demo:build
+
+Static web output: apps/demo-web/dist/ (ignored build output)
+Gateway output: services/demo-gateway/dist/ (ignored build output)
+Vite reports the single app JavaScript chunk at about 824 kB uncompressed / 249 kB gzip. It builds successfully; consider splitting if the workbench grows.

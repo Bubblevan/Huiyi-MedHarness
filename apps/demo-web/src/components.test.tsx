@@ -1,0 +1,52 @@
+import { fireEvent, render } from "@testing-library/react";
+import { screen } from "@testing-library/dom";
+import { describe, expect, it, vi } from "vitest";
+import { AgentActivity, BackendBadge, ErrorNotice, EvidenceDrawer, PatientContext, type EvidenceRecord } from "./components.js";
+import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
+import type { WireDemoEvent } from "./runtime/adapter.js";
+
+const patient: PatientRecord = {
+  patientId: "patient-htn", displayName: "张某", age: 52, sex: "男", encounter: "高血压复诊 · 示例",
+  conditions: ["高血压（合成示例）"], medications: ["示例药物"], allergies: ["合成过敏信息"],
+  memory: { summary: "合成长期记忆摘要。", items: 6, updatedLabel: "上次复诊" }, suggestedQuestion: "演示问题",
+};
+
+describe("clinical demo panels", () => {
+  it("shows synthetic patient, context, and a memory card separate from evidence", () => {
+    render(<PatientContext patient={patient} />);
+    expect(screen.getByText("Synthetic demo patient")).toBeInTheDocument();
+    expect(screen.getByText("长期记忆摘要")).toBeInTheDocument();
+    expect(screen.getByText("合成长期记忆摘要。")).toBeInTheDocument();
+    expect(screen.queryByText("Demo evidence fixture")).not.toBeInTheDocument();
+  });
+
+  it("shows structured activity without any prompt or answer text", () => {
+    const events: WireDemoEvent[] = [
+      { version: 1, event: "context.memory", runId: "r-1", sessionId: "s-1", timestamp: "2026-10-09T10:00:00.000Z", data: { itemCount: 6 } },
+      { version: 1, event: "agent.classified", runId: "r-1", sessionId: "s-1", timestamp: "2026-10-09T10:00:01.000Z", data: { complexity: "intermediate", simulated: true } },
+      { version: 1, event: "assistant.delta", runId: "r-1", sessionId: "s-1", timestamp: "2026-10-09T10:00:02.000Z", data: { text: "private answer omitted" } },
+    ];
+    render(<AgentActivity events={events} />);
+    expect(screen.getByText("6 条摘要项")).toBeInTheDocument();
+    expect(screen.getByText(/simulated execution/)).toBeInTheDocument();
+    expect(screen.queryByText("private answer omitted")).not.toBeInTheDocument();
+  });
+
+  it("shows evidence source fixture cards and closes its drawer", () => {
+    const item: EvidenceRecord = { evidenceId: "ev-001", rank: 1, source: "Demo evidence fixture", title: "居家血压记录（合成资料）", snippet: "合成证据摘要。" };
+    const onClose = vi.fn();
+    render(<EvidenceDrawer open items={[item]} onClose={onClose} />);
+    expect(screen.getByRole("dialog", { name: "Evidence Sources" })).toBeInTheDocument();
+    expect(screen.getAllByText("Demo evidence fixture")).toHaveLength(2);
+    expect(screen.getByText("ev-001")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "关闭证据抽屉" }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("identifies the backend mode and presents safe service errors", () => {
+    render(<><BackendBadge backend="fixture" /><ErrorNotice message="FIXTURE_FAILURE" /></>);
+    expect(screen.getByText("Local · fixture")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("服务暂时不可用，请稍后重试。");
+    expect(screen.getByRole("alert")).toHaveTextContent("FIXTURE_FAILURE");
+  });
+});

@@ -1,9 +1,14 @@
 node_modules/
 lib/
+dist/
 coverage/
 .dsh-home/
+.playwright/
+playwright-report/
+test-results/
 .env
 .env.*
+!.env.example
 /eval/rag-parity/deployment.env
 
 # HC-MEM-001 local health-engine data and logs

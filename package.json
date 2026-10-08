@@ -16,9 +16,14 @@
   "packageManager": "pnpm@11.7.0",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "build:core": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
-    "test": "vitest run",
-    "prepare": "pnpm build"
+    "test": "vitest run tests/evidence.test.ts tests/locomo-dsh-lifecycle.test.ts tests/locomo-prompt.test.ts tests/memory.test.ts tests/rag.test.ts",
+    "prepare": "pnpm build:core",
+    "demo:dev": "pnpm --parallel --filter @huiyi/demo-gateway --filter @huiyi/demo-web dev",
+    "demo:build": "pnpm --filter @huiyi/demo-gateway build && pnpm --filter @huiyi/demo-web build",
+    "demo:test": "pnpm --filter @huiyi/demo-gateway test && pnpm --filter @huiyi/demo-web test",
+    "demo:trace": "node scripts/demo/write-fixture-trace.mjs"
   },
   "dsh": {
     "bundle": {

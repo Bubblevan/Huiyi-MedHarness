@@ -75,7 +75,7 @@ describe('HC-MEM-002 DSH lifecycle profile', () => {
       recall: vi.fn(async () => snapshot),
       commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
       sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
-      stats: vi.fn(async userId => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
       forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
       health: vi.fn(async () => ({ status: 'ok' as const })),
     }

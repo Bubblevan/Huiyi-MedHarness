@@ -117,6 +117,17 @@ The development health-engine uses the existing Python 3.12 uv environment with 
 
 The accepted reproduction was a small local smoke, not a MedQA accuracy run: 60 Textbooks chunks plus 33 chunks from one StatPearls article, MedCPT, Qwen3-8B, `n_rounds=1`, `n_queries=2`, and `k=3`. Its exact metadata-only trace and limitations are mapped in [the upstream audit](docs/rag/imedrag-upstream-map.md). Reusable retrieval/evaluation practices reviewed from Health-Copilot are recorded in [the engineering lessons note](docs/rag/health-copilot-engineering-lessons.md). Corpus and FAISS assets remain outside Git; the manifest records hashes, counts, model revisions, and the fact that the original dataset Git revisions were not captured.
 
+## Huiyi Demo Workstation
+
+The local product demo runs with deterministic synthetic fixtures and needs no model, GPU, API key, or patient data:
+
+```powershell
+pnpm install
+pnpm demo:dev
+```
+
+Open <http://localhost:5173>. Patient, memory, evidence, and answers are synthetic; fixture output is not medical advice or verified evidence. The future DSH adapter remains an explicit unavailable boundary and must be enabled only through a separately accepted integration. See [the local runbook](docs/demo/local-runbook.md) and [architecture decision](docs/adr/0004-local-demo-workstation.md).
+
 ### Start the local RAG data plane
 
 Use the existing FAISS-capable Python environment documented above. Copy the deployment sample to an ignored local file and source it:

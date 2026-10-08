@@ -1,0 +1,18 @@
+DEMO-EDGE-LOCAL-001 offline test summary
+Date: 2026-10-09
+Environment: Windows, Node v22.20.0, pnpm 11.7.0; CPU-only, fixture backend.
+
+PASS  corepack pnpm build
+PASS  corepack pnpm typecheck
+PASS  corepack pnpm test — 5 files, 37 tests
+PASS  corepack pnpm --filter @huiyi/demo-web typecheck
+PASS  corepack pnpm --filter @huiyi/demo-gateway build
+PASS  corepack pnpm --filter @huiyi/demo-gateway test — 2 files, 7 tests
+PASS  corepack pnpm --filter @huiyi/demo-web build
+PASS  corepack pnpm --filter @huiyi/demo-web test — 1 file, 4 tests
+PASS  corepack pnpm demo:build
+PASS  corepack pnpm demo:test
+PASS  corepack pnpm --filter @huiyi/demo-web browser:smoke — 2 Playwright tests in installed Google Chrome
+PASS  corepack pnpm demo:dev — Gateway health returned `ok:fixture`; Vite returned HTTP 200; both processes bound to loopback.
+
+No Qwen, vLLM, Health Engine, DSH process, GPU, remote inference host, or real patient records were used. The temporary Chromium download was blocked by network reset; the installed system Chrome was used for the successful Playwright run.

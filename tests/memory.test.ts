@@ -145,7 +145,7 @@ describe('DSH turn-scoped memory lifecycle', () => {
       recall: vi.fn(async () => snapshot),
       commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
       sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
-      stats: vi.fn(async userId => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
       forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
       health: vi.fn(async () => ({ status: 'ok' as const })),
     }
@@ -191,7 +191,7 @@ describe('DSH turn-scoped memory lifecycle', () => {
       recall: vi.fn(async () => snapshot),
       commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
       sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
-      stats: vi.fn(async userId => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
       forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
       health: vi.fn(async () => ({ status: 'ok' as const })),
     }
@@ -223,12 +223,12 @@ describe('DSH turn-scoped memory lifecycle', () => {
     expect(records).toContainEqual(expect.objectContaining({ operation: 'commit', status: 'skipped', errorClass: 'evaluation_read_only' }))
   })
 
-  it.each(['error', 'aborted', 'max-tokens'] as const)('does not capture a %s turn', async reason => {
+  it.each(['error', 'aborted', 'max-tokens'] as const)('does not capture a %s turn', async (reason: 'error' | 'aborted' | 'max-tokens') => {
     const client: MemoryClientPort = {
-      recall: vi.fn(async (_request): Promise<MemorySnapshot> => ({ snapshotId: 's', userId: 'u', sessionId: 'x', turn: 1, items: [] })),
+      recall: vi.fn(async (_request: unknown): Promise<MemorySnapshot> => ({ snapshotId: 's', userId: 'u', sessionId: 'x', turn: 1, items: [] })),
       commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
       sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
-      stats: vi.fn(async userId => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
       forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
       health: vi.fn(async () => ({ status: 'ok' as const })),
     }
@@ -251,7 +251,7 @@ describe('DSH turn-scoped memory lifecycle', () => {
       recall: vi.fn(async () => { throw new MemoryClientError('unavailable', 'service is down') }),
       commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
       sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
-      stats: vi.fn(async userId => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
       forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
       health: vi.fn(async () => ({ status: 'ok' as const })),
     }

@@ -1,0 +1,24 @@
+{"version":1,"event":"run.started","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.099Z","data":{"backend":"fixture","scenario":"complex"}}
+{"version":1,"event":"context.patient","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"patientId":"patient-complex"}}
+{"version":1,"event":"context.memory","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"itemCount":11}}
+{"version":1,"event":"evidence.started","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"queryLabel":"合成证据检索"}}
+{"version":1,"event":"tool.started","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"tool":"search_demo_evidence"}}
+{"version":1,"event":"evidence.item","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"evidenceId":"ev-001","rank":1,"source":"Demo evidence fixture","title":"居家血压记录（合成资料）","snippet":"记录测量时间、读数和相关情况，供复诊讨论。"}}
+{"version":1,"event":"evidence.item","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"evidenceId":"ev-002","rank":2,"source":"Demo evidence fixture","title":"随访信息核对（合成资料）","snippet":"整理当前用药与随访问题，交由医疗专业人员结合完整病史核对。"}}
+{"version":1,"event":"evidence.completed","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"count":2}}
+{"version":1,"event":"tool.completed","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"tool":"search_demo_evidence","durationMs":18,"status":"completed"}}
+{"version":1,"event":"agent.classified","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"complexity":"intermediate","simulated":true}}
+{"version":1,"event":"specialist.started","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"specialist":"心内科","simulated":true}}
+{"version":1,"event":"specialist.completed","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"specialist":"心内科","durationMs":42,"simulated":true}}
+{"version":1,"event":"specialist.started","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"specialist":"内分泌科","simulated":true}}
+{"version":1,"event":"specialist.completed","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"specialist":"内分泌科","durationMs":42,"simulated":true}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"text":"这份合成病例适合先核对近期"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.102Z","data":{"text":"血压、血糖记录及正在使用的"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"药物，再由相关专科结合完整"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"病史评估。演示中的专家步骤"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"仅模拟界面流程，不构成真实"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"会诊或诊疗建议。 [1]("}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"#evidence:ev-"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"001) [2](#evi"}}
+{"version":1,"event":"assistant.delta","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"text":"dence:ev-002)"}}
+{"version":1,"event":"run.completed","runId":"run_synthetic_artifact","sessionId":"session_synthetic_artifact","timestamp":"2026-10-08T17:23:27.103Z","data":{"durationMs":4}}
