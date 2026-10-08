@@ -9,6 +9,8 @@
         api: openai-completions
         baseURL: http://127.0.0.1:8000/v1
         apiKeyEnv: HC_RAG_LOCAL_API_KEY
+        compat:
+          maxTokensField: max_tokens
         models:
           - id: Qwen3-8B
             name: Local Qwen3-8B

@@ -1,0 +1,152 @@
+{
+  "task": "HC-RAG-002 post-hoc provider compatibility diagnostic",
+  "createdAt": "2026-10-09",
+  "scope": "one case only; original validation and sealed TEST were not rerun/opened",
+  "huiyiCommit": "e84bfc979dc36ef113918ade26a581229a77066f",
+  "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+  "dshPiAiVersion": "0.2.1-alpha.1",
+  "modelId": "Qwen3-8B",
+  "vllmVersion": "0.30.1rc1.dev622+gf03026a54",
+  "endpointProtocol": "OpenAI-compatible chat completions",
+  "providerCompat": {
+    "maxTokensField": "max_tokens"
+  },
+  "case": {
+    "sourceRow1Based": 6,
+    "id": "validation-0088-785e0184f4d1",
+    "testGoldRead": false
+  },
+  "wire": {
+    "proxy": "127.0.0.1:8001 -> 127.0.0.1:8000",
+    "requestCount": 7,
+    "requestsWithMaxTokens1024": 6,
+    "allMainRequestsUseMaxTokens": true,
+    "mainRequestResponses": [
+      {
+        "maxTokens": 1024,
+        "maxTokensPresent": true,
+        "maxCompletionTokensPresent": false,
+        "messageCount": 3,
+        "messageChars": 9128,
+        "promptTokens": 6750,
+        "completionTokens": 216,
+        "finishReasons": [
+          "tool_calls"
+        ],
+        "status": 200,
+        "toolCount": 24,
+        "requestId": "1b7aaee2a151463bb2d820ef635ba4db"
+      },
+      {
+        "maxTokens": 1024,
+        "maxTokensPresent": true,
+        "maxCompletionTokensPresent": false,
+        "messageCount": 5,
+        "messageChars": 9456,
+        "promptTokens": 7049,
+        "completionTokens": 57,
+        "finishReasons": [
+          "tool_calls"
+        ],
+        "status": 200,
+        "toolCount": 24,
+        "requestId": "5a77f547d682420db800d165b294f5e6"
+      },
+      {
+        "maxTokens": 1024,
+        "maxTokensPresent": true,
+        "maxCompletionTokensPresent": false,
+        "messageCount": 7,
+        "messageChars": 9784,
+        "promptTokens": 7189,
+        "completionTokens": 40,
+        "finishReasons": [
+          "tool_calls"
+        ],
+        "status": 200,
+        "toolCount": 24,
+        "requestId": "92474c0af1b24bfb96d557a66ef05c0e"
+      },
+      {
+        "maxTokens": 1024,
+        "maxTokensPresent": true,
+        "maxCompletionTokensPresent": false,
+        "messageCount": 9,
+        "messageChars": 10112,
+        "promptTokens": 7312,
+        "completionTokens": 44,
+        "finishReasons": [
+          "tool_calls"
+        ],
+        "status": 200,
+        "toolCount": 24,
+        "requestId": "0c73bafa48f545acbc963490ec456abd"
+      },
+      {
+        "maxTokens": 1024,
+        "maxTokensPresent": true,
+        "maxCompletionTokensPresent": false,
+        "messageCount": 11,
+        "messageChars": 10440,
+        "promptTokens": 7439,
+        "completionTokens": 41,
+        "finishReasons": [
+          "tool_calls"
+        ],
+        "status": 200,
+        "toolCount": 24,
+        "requestId": "f6bd87016e2340b9a33e90344d216588"
+      },
+      {
+        "maxTokens": 1024,
+        "maxTokensPresent": true,
+        "maxCompletionTokensPresent": false,
+        "messageCount": 13,
+        "messageChars": 10768,
+        "promptTokens": 7563,
+        "completionTokens": 371,
+        "finishReasons": [
+          "stop"
+        ],
+        "status": 200,
+        "toolCount": 24,
+        "requestId": "e026213a07744556a570e86162eae98f"
+      }
+    ],
+    "wireMetadataPath": "/root/gpufree-data/repro/hc-rag-002/posthoc-provider-compat/case-6-wire-probe/wire-events.jsonl",
+    "wireMetadataSha256": "a872657f4388dfca2151012ed35c0d35b7c52f0f0caae609273d77b939266661",
+    "targetRequestModelContextWindow": 16384,
+    "lastMainRequestPromptTokens": 7563
+  },
+  "dshOutcome": {
+    "turnOutcome": "completed",
+    "parseStatus": "research_metadata_missing",
+    "choiceProduced": null,
+    "expectedResearchToolCalls": 0,
+    "unexpectedToolCalls": 5,
+    "toolFailures": 0,
+    "wallLatencyMs": 23304.2,
+    "researchMetadataPresent": false,
+    "predictionSha256": "b1f91a652d049510f7be6f11e3fb1281d3c19d8afab20a29323cfa7d6ba5743d",
+    "metadataTraceSha256": "05ef7907e39b6ce290a81cecc2f877db8462a456c6de90348d0d8c3982fc8098",
+    "localPredictionsPath": "/root/gpufree-data/repro/hc-rag-002/posthoc-provider-compat/case-6-wire-probe/run-with-compat/predictions.jsonl"
+  },
+  "originalFailureArtifact": {
+    "path": "artifacts/hc-rag-002/validation-parity-45-metadata.json",
+    "sha256BeforeAndAfterProbe": "4d6b2b8fbef57974862de8706626523ffd8aebc9f4ef9a442f586ad1654df205",
+    "dshArmArtifactPath": "artifacts/hc-rag-002/validation-arm-C-45-metadata.json",
+    "dshArmArtifactSha256": "5a9e60dd93f204ec714cdaaaf1de5de0ca4b24871d8ea0ac22d58962a6d3c4cb",
+    "originalDshAccuracy": 0.6889,
+    "originalDshCorrect": 31,
+    "originalDshCount": 45
+  },
+  "assessment": {
+    "wireMaxTokensFieldConfirmed": true,
+    "normalStopObserved": true,
+    "endToEndRecovery": false,
+    "reason": "DSH turn completed and final generation stopped normally, but it made no expected research tool call, had five unexpected tool calls, returned no parsed choice/research metadata, and therefore did not exercise the long research-history context implicated by the hypothesis.",
+    "sevenCasePostHocRerunStarted": false,
+    "whySevenCaseRerunWasNotStarted": "The single probe did not recover the complete benchmark path, so the conditional follow-up gate was not met.",
+    "probeExercisedLongResearchHistory": false
+  }
+}
