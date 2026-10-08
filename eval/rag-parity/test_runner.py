@@ -41,6 +41,12 @@ def test_runner_uses_new_dsh_session_and_counts_native_events(tmp_path: Path, mo
     def fake_run(command, *, env, **_kwargs):
         assert "--session-id" not in command
         assert command[-1] == "-"
+        assert json.loads(env["HUIYI_RAG_BENCHMARK_CASE_JSON"]) == {
+            "id": "validation-1",
+            "question": "Q",
+            "options": {"A": "a", "B": "b", "C": "c", "D": "d"},
+        }
+        assert "answer" not in env["HUIYI_RAG_BENCHMARK_CASE_JSON"]
         trace_path = Path(env["HUIYI_RAG_BENCHMARK_TRACE_FILE"])
         trace_path.parent.mkdir(parents=True, exist_ok=True)
         trace_path.write_text(json.dumps(metadata) + "\n", encoding="utf-8")

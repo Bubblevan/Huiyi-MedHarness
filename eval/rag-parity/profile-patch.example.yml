@@ -14,7 +14,7 @@
         models:
           - id: Qwen3-8B
             name: Local Qwen3-8B
-            contextWindow: 16384
+            contextWindow: 40960
             maxTokens: 1024
 
 - id: agent-default-model

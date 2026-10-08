@@ -105,7 +105,7 @@ export function apply(ctx) {
   const methodSystem = method === 'imedrag' ? I_MEDRAG_SYSTEM : method === 'medrag' ? MEDRAG_SYSTEM : COT_SYSTEM
   const methodInstructions = method === 'cot'
     ? methodSystem
-    : `${methodSystem}\n\nFor this MedQA benchmark case, call ${toolName} exactly once before answering. Do not call any other tools. Use the returned ${method === 'imedrag' ? 'Query/Answer history' : 'retrieved documents'}, then answer the original multiple-choice question.`
+    : `${methodSystem}\n\nFor this MedQA benchmark case, call ${toolName} exactly once before answering. Do not call any other tools. Use the returned ${method === 'imedrag' ? 'Query/Answer history' : 'retrieved documents'}, then answer the original multiple-choice question.${method === 'imedrag' ? ' The evaluation harness supplies the current original question and its A/B/C/D options; call this tool with an empty argument object {}.' : ''}`
 
   ctx.systemPrompt.section({
     name: 'huiyi:hc-rag-002-benchmark-policy',
@@ -133,7 +133,7 @@ export function apply(ctx) {
     description: method === 'imedrag'
       ? 'Run the pinned i-MedRAG follow-up query → retrieval → follow-up answer research procedure exactly once for one MedQA case. Returns its bounded Query/Answer history; it never chooses the final answer.'
       : 'Run one MedCPT retrieval over the prepared full MedText corpus. Returns source snippets only; it never chooses the final answer.',
-    parameters: {
+    parameters: method === 'imedrag' ? {} : {
       question: { type: 'string', required: true },
       options: {
         type: 'object',
@@ -150,10 +150,11 @@ export function apply(ctx) {
     output: {
       schema: method === 'imedrag' ? outputSchema : retrievalOutputSchema,
       render: (args, result) => [{ type: 'text', text: method === 'imedrag'
-        ? renderFinalResearchContext(args, result)
+        ? renderFinalResearchContext(loadBenchmarkCase(), result)
         : renderFinalMedragContext(args, result) }],
     },
     async execute(args, exec) {
+      const requestArgs = method === 'imedrag' ? loadBenchmarkCase() : args
       const k = positiveInteger(process.env.HUIYI_RAG_BENCHMARK_K, 32)
       const timeoutMs = positiveInteger(process.env.HUIYI_RAG_BENCHMARK_TIMEOUT_MS, 180000)
       const controller = AbortSignal.timeout(timeoutMs)
@@ -163,8 +164,8 @@ export function apply(ctx) {
         ? process.env.HUIYI_RAG_BENCHMARK_URL
         : process.env.HUIYI_RAG_MEDRAG_URL
       const url = localEndpoint(configuredUrl ?? defaultUrl)
-      const canonicalOptions = Object.fromEntries(Object.entries(args.options).sort(([left], [right]) => left.localeCompare(right)))
-      const caseId = createHash('sha256').update(JSON.stringify({ question: args.question, options: canonicalOptions })).digest('hex')
+      const canonicalOptions = Object.fromEntries(Object.entries(requestArgs.options).sort(([left], [right]) => left.localeCompare(right)))
+      const caseId = createHash('sha256').update(JSON.stringify({ question: requestArgs.question, options: canonicalOptions })).digest('hex')
       const rounds = method === 'imedrag'
         ? positiveInteger(process.env.HUIYI_RAG_BENCHMARK_ROUNDS, 4)
         : undefined
@@ -173,13 +174,14 @@ export function apply(ctx) {
         : undefined
       const body = method === 'imedrag'
         ? {
-            ...args,
+            question: requestArgs.question,
+            options: canonicalOptions,
             caseId,
             k,
             nRounds: rounds,
             nQueries: queries,
           }
-        : { ...args, caseId, topK: k }
+        : { ...requestArgs, caseId, topK: k }
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -193,6 +195,26 @@ export function apply(ctx) {
       return result
     },
   }))
+}
+
+function loadBenchmarkCase() {
+  const raw = process.env.HUIYI_RAG_BENCHMARK_CASE_JSON
+  if (!raw) throw new Error('i-MedRAG evaluation requires a gold-free current-case input')
+  let value
+  try {
+    value = JSON.parse(raw)
+  } catch {
+    throw new Error('i-MedRAG evaluation current-case input is invalid JSON')
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+      || Object.keys(value).sort().join(',') !== 'id,options,question'
+      || typeof value.id !== 'string' || typeof value.question !== 'string'
+      || !value.options || typeof value.options !== 'object' || Array.isArray(value.options)
+      || Object.keys(value.options).sort().join(',') !== 'A,B,C,D'
+      || Object.values(value.options).some((option) => typeof option !== 'string')) {
+    throw new Error('i-MedRAG evaluation current-case input must contain only id, question, and A/B/C/D options')
+  }
+  return { id: value.id, question: value.question, options: value.options }
 }
 
 function renderFinalResearchContext(args, result) {

@@ -1,0 +1,429 @@
+{
+  "task": "HC-RAG-002 post-hoc DSH context-budget remediation",
+  "createdAt": "2026-10-09",
+  "disposition": "RUNTIME_FAILURES_REPAIRED; STRICT_B_TO_C_PARITY_NOT_PASSED",
+  "repository": {
+    "dshCommit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "dshRuntime": "0.2.1-alpha.1",
+    "dshCheckoutModified": false,
+    "huiyiBaseCommit": "7f6dff25de8648f9a6cc97797c1d4318e42a401a",
+    "huiyiWorkingTreeHasRemediationChanges": true,
+    "huiyiRemediationSourceFiles": [
+      "eval/rag-parity/README.md",
+      "eval/rag-parity/deployment.example.env",
+      "eval/rag-parity/index.js",
+      "eval/rag-parity/profile-patch.example.yml",
+      "eval/rag-parity/runner.py",
+      "eval/rag-parity/test_runner.py",
+      "artifacts/hc-rag-002/posthoc-provider-compat/diagnosis.json",
+      "artifacts/hc-rag-002/posthoc-context-budget-repair-metadata.json"
+    ]
+  },
+  "model": {
+    "id": "Qwen3-8B",
+    "path": "/root/gpufree-share/data/Qwen3-8B",
+    "endpointProtocol": "OpenAI-compatible chat completions",
+    "vllmVersion": "0.30.1rc1.dev622+gf03026a54",
+    "nativeMaxPositionEmbeddings": 40960,
+    "vllmMaxModelLen": 40960,
+    "dshContextWindow": 40960,
+    "configuredMaxTokens": 1024,
+    "wireMaxTokensField": "max_tokens",
+    "wireMaxCompletionTokensPresent": false,
+    "providerFieldMismatchHypothesis": "FALSIFIED_AS_ROOT_CAUSE"
+  },
+  "causalEvidence": {
+    "before": {
+      "dshContextWindow": 16384,
+      "configuredMaxTokens": 1024,
+      "wireField": "max_tokens",
+      "wireValue": 1,
+      "promptTokens": 10079,
+      "completionTokens": 1,
+      "finishReason": "length",
+      "turnOutcome": "max-tokens"
+    },
+    "afterProbe": {
+      "dshContextWindow": 40960,
+      "configuredMaxTokens": 1024,
+      "wireField": "max_tokens",
+      "wireValue": 1024,
+      "promptTokens": 9774,
+      "completionTokens": 286,
+      "finishReason": "stop",
+      "turnOutcome": "completed",
+      "toolCalls": 1,
+      "toolFailures": 0
+    },
+    "interpretation": "The pinned pi-ai client had already emitted the field accepted by vLLM. The 16,384 DSH profile context budget caused pi-ai to clamp the generation cap to one token; aligning the profile and server to the local checkpoint native 40,960 context restored the 1,024-token request. This is a context configuration error, not a max_tokens field-name provider defect.",
+    "wireMetadataSha256": "cadfaeb3676c8b2a10dbc85be7e0636b2a02f7c79a5c3f4ff27025b7c6c7efc0",
+    "sevenFinalRequests": [
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 9774,
+        "completionTokens": 286,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      },
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 9833,
+        "completionTokens": 423,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      },
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 9954,
+        "completionTokens": 453,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      },
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 12223,
+        "completionTokens": 495,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      },
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 10034,
+        "completionTokens": 460,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      },
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 11969,
+        "completionTokens": 691,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      },
+      {
+        "maxTokens": 1024,
+        "maxCompletionTokens": null,
+        "promptTokens": 9580,
+        "completionTokens": 564,
+        "finishReasons": [
+          "stop"
+        ],
+        "httpStatus": 200
+      }
+    ],
+    "providerDiagnosisMetadataSha256": "c5a5c5c5f7f270ea49c84a9584b39c13508e2466c4fabf631276d9634021f0b8"
+  },
+  "benchmarkScope": {
+    "split": "MedQA validation, frozen first-45 selection",
+    "testGoldRead": false,
+    "testOpened": false,
+    "original45ArtifactsModified": false,
+    "originalPairedResultsSha256": "abd73144c0ea9889b4ba41e310fb3f1b292aebb5fccb3d066624bcbbab9c0ef5",
+    "originalArmCPredictionsSha256": "52552e7b3cac41dc9f813cee24f01101147971f59b98d31f2803a2dc3b6d404f",
+    "posthocProbeInputSha256": "f52adcdb54bb76393c81809713c723153eac653c2b1f9d6f6733f04ea1407ec3",
+    "remainingSixInputSha256": "7a7488bfece8dabb6ceccbb231ff888391d1ad447b5617866a42c7e4fb7225e7",
+    "probePredictionsSha256": "665f2c700768d1068131e96fef584d9afc7285c34b80104798b672a81152fb17",
+    "remainingSixPredictionsSha256": "c46202c239eb4ae3294b56d2197bd185d6f5c0a764709ff99ac365a87c2ce30c",
+    "remainingSixMetadataSha256": "ba898210ee06bdc5fc3e7eac0b21bbd6445c36d94d8f96304a6fc34ac4f78823",
+    "posthocCases": [
+      {
+        "id": "validation-0088-785e0184f4d1",
+        "posthocChoice": "B",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "B",
+        "validationGold": "B",
+        "posthocCorrect": true,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 231448.7,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 85021,
+          "outputTokens": 8929,
+          "retrievalLatencyMs": 1120.5,
+          "modelLatencyMs": 216836.6,
+          "latencyMs": 218570.4,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      },
+      {
+        "id": "validation-0326-abb5ca5ffaf9",
+        "posthocChoice": "C",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "C",
+        "validationGold": "C",
+        "posthocCorrect": true,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 232013.5,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 79071,
+          "outputTokens": 8838,
+          "retrievalLatencyMs": 1251.2,
+          "modelLatencyMs": 216323.9,
+          "latencyMs": 218071.5,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      },
+      {
+        "id": "validation-0334-08d5a1d4fc4c",
+        "posthocChoice": "B",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "B",
+        "validationGold": "C",
+        "posthocCorrect": false,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 240270.9,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 78338,
+          "outputTokens": 9177,
+          "retrievalLatencyMs": 1470.5,
+          "modelLatencyMs": 221346.8,
+          "latencyMs": 223388.3,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      },
+      {
+        "id": "validation-0350-58d34a6e3dbd",
+        "posthocChoice": "A",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "B",
+        "validationGold": "B",
+        "posthocCorrect": false,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 285677.9,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 62838,
+          "outputTokens": 11187,
+          "retrievalLatencyMs": 1171.7,
+          "modelLatencyMs": 265610.4,
+          "latencyMs": 267097.5,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      },
+      {
+        "id": "validation-0440-89c7e98ea2e5",
+        "posthocChoice": "B",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "B",
+        "validationGold": "B",
+        "posthocCorrect": true,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 233859.5,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 59840,
+          "outputTokens": 8990,
+          "retrievalLatencyMs": 1296.2,
+          "modelLatencyMs": 215011.2,
+          "latencyMs": 216792.9,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      },
+      {
+        "id": "validation-0451-80ae5b9a353c",
+        "posthocChoice": "D",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "D",
+        "validationGold": "D",
+        "posthocCorrect": true,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 294922.7,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 77290,
+          "outputTokens": 11110,
+          "retrievalLatencyMs": 1276.9,
+          "modelLatencyMs": 269277.8,
+          "latencyMs": 271590.5,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      },
+      {
+        "id": "validation-0538-69dcc56dc3bd",
+        "posthocChoice": "C",
+        "posthocParseStatus": "json_choice",
+        "directChoice": "C",
+        "validationGold": "C",
+        "posthocCorrect": true,
+        "toolCalls": 1,
+        "toolFailures": 0,
+        "turnOutcome": "completed",
+        "wallLatencyMs": 236291.5,
+        "research": {
+          "roundsCompleted": 4,
+          "generatedQueries": 12,
+          "modelCalls": 20,
+          "retrievalCalls": 12,
+          "inputTokens": 94754,
+          "outputTokens": 8527,
+          "retrievalLatencyMs": 1223.5,
+          "modelLatencyMs": 214918,
+          "latencyMs": 216874.5,
+          "parseFailures": 0,
+          "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+          "promptVersion": "medrag-7599a728a28789fd601728c08d313b1148051f41",
+          "plannerModel": "Qwen3-8B"
+        }
+      }
+    ]
+  },
+  "results": {
+    "originalArmC": {
+      "correct": 31,
+      "total": 45,
+      "accuracyPercent": 68.89,
+      "runtimeFailures": 7
+    },
+    "directArmB": {
+      "correct": 37,
+      "total": 45,
+      "accuracyPercent": 82.22
+    },
+    "posthocSeven": {
+      "correct": 5,
+      "total": 7,
+      "accuracyPercent": 71.43,
+      "runtimeFailures": 0,
+      "oneNativeResearchCallPerCase": true,
+      "researchMetrics": {
+        "roundsCompleted": {
+          "min": 4,
+          "max": 4
+        },
+        "generatedQueries": {
+          "mean": 12
+        },
+        "modelCalls": {
+          "mean": 20
+        },
+        "retrievalCalls": {
+          "mean": 12
+        },
+        "inputTokens": {
+          "mean": 76736
+        },
+        "outputTokens": {
+          "mean": 9536.9
+        },
+        "researchLatencyMs": {
+          "mean": 233197.9,
+          "median": 218570.4,
+          "max": 271590.5
+        }
+      }
+    },
+    "illustrativeHybridOnly": {
+      "correct": 36,
+      "total": 45,
+      "accuracyPercent": 80.0,
+      "deltaVsOriginalArmCPercentagePoints": 11.11,
+      "deltaVsDirectBPercentagePoints": -2.22,
+      "validFrozenBenchmarkScore": false,
+      "reason": "Only the seven previously failed cases were rerun under repaired DSH configuration; the remaining 38 retain predictions from the original run.",
+      "pairedDescriptive": {
+        "bothCorrect": 35,
+        "directOnlyCorrect": 2,
+        "dshOnlyCorrect": 1,
+        "bothWrong": 7,
+        "choiceAgreement": 42,
+        "choiceDisagreement": 2,
+        "directChoiceMissing": 1,
+        "pairedChoiceAgreementAmongBothParsed": 95.45,
+        "exactMcNemarTwoSidedP": 1.0,
+        "interpretation": "Descriptive only: this combines 38 original DSH predictions with 7 post-hoc repairs; it is not a full frozen rerun and must not be presented as a final parity estimate."
+      }
+    },
+    "latencyMs": {
+      "mean": 250640.7,
+      "median": 236291.5,
+      "max": 294922.7
+    },
+    "strictBtoCGate": "NOT_PASSED; illustrative hybrid is one answer (0.22 percentage points) below B, and is not a valid full rerun."
+  },
+  "runtime": {
+    "allSevenParseStatusJsonChoice": true,
+    "allSevenTurnOutcomeCompleted": true,
+    "allSevenNativeResearchToolCallsExactlyOne": true,
+    "allSevenToolFailures": 0,
+    "gpuReleasedMiBUsedAfterStop": 0,
+    "healthEngine8322LeftRunning": true,
+    "vllmStopped": true,
+    "wireProxyStopped": true,
+    "dshProfileBaseUrlAfterCleanup": "http://127.0.0.1:8000/v1",
+    "dshProfileContextWindowAfterCleanup": 40960
+  },
+  "limitations": [
+    "Post-hoc 7-case repair is not a replacement for the frozen original 45-case score.",
+    "One repaired case that Direct B answered correctly received a different DSH choice; another case was incorrect in both B and repaired DSH.",
+    "No full 45-case rerun was performed and MedQA TEST remains unopened.",
+    "Paper Llama-3.1-8B accuracy is not a target for this Qwen3-8B local-model experiment."
+  ]
+}

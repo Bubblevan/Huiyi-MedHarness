@@ -1,0 +1,168 @@
+{
+  "task": "HC-RAG-002 post-hoc provider-defect causal diagnosis",
+  "createdAt": "2026-10-09",
+  "disposition": "FALSIFIED_AS_ROOT_CAUSE_ON_TESTED_PINNED_STACK",
+  "scope": {
+    "case": "validation-0088-785e0184f4d1 (validation row 6)",
+    "testGoldRead": false,
+    "fullBenchmarkRerun": false,
+    "original45ArtifactsModified": false
+  },
+  "runtimeSelection": {
+    "globalCliVersion": "0.2.0-rc.2",
+    "globalCliFailure": "profile loader skipped huiyi-rag-parity-eval because peer runtime was incompatible; observed model request exposed 24 default tools and omitted research_medical_question.",
+    "pinnedRuntimePackageVersion": "0.2.1-alpha.1",
+    "pinnedCliEntry": "/root/gpufree-data/repro/hc-rag-002/dsh-runtime/node_modules/@deepseek-ai/dsh/lib/bin.js",
+    "pinnedProfileLoadWarnings": "none",
+    "pinnedPluginVisibleTool": [
+      "research_medical_question"
+    ],
+    "dshCommitRecordedInFrozenManifest": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "sourceCheckoutGitMetadataAvailable": false
+  },
+  "actualDshLongContextRun": {
+    "huiyiCommit": "7f6dff25de8648f9a6cc97797c1d4318e42a401a",
+    "dshRuntime": "0.2.1-alpha.1",
+    "modelId": "Qwen3-8B",
+    "endpointProtocol": "OpenAI-compatible chat completions",
+    "providerCompat": {
+      "maxTokensField": "max_tokens"
+    },
+    "outerResearchToolCalls": 1,
+    "unexpectedToolCalls": 0,
+    "research": {
+      "roundsCompleted": 4,
+      "generatedQueries": 12,
+      "modelCalls": 20,
+      "retrievalCalls": 12,
+      "inputTokens": 85021,
+      "outputTokens": 8929,
+      "retrievalLatencyMs": 1565.2,
+      "modelLatencyMs": 216386.7,
+      "latencyMs": 218804.9,
+      "parseFailures": 0
+    },
+    "sessionHeader": {
+      "configuredMaxTokens": 1024,
+      "contextWindow": 16384,
+      "headerToolCount": 1
+    },
+    "finalWireRequest": {
+      "requestId": "70f298193a8c4e32a75cd3f7fe9b746b",
+      "wireField": "max_tokens",
+      "wireValue": 1,
+      "maxCompletionTokensPresent": false,
+      "promptTokens": 10079,
+      "completionTokens": 1,
+      "finishReasons": [
+        "length"
+      ],
+      "httpStatus": 200,
+      "latencyMs": 1532.0,
+      "toolNames": [
+        "research_medical_question"
+      ]
+    },
+    "turnOutcome": "max-tokens",
+    "parseStatus": "runtime_failure",
+    "wallLatencyMs": 230252.9,
+    "sessionFileSha256": "4995134873b45759b9f14fa6195ddeb73d6c2c6980952c57aed87b1c1eeb92e6",
+    "metadataSha256": "ffd0845cd2146f4e5711d605f65fac4994f599c6ed8decd0bb68e66acb9d41fc",
+    "wireMetadataSha256": "76e7caa5e6454054c065443b268ece83d78cb293e54be806dfd2a49631db6fbf"
+  },
+  "vllmFieldSemantics": {
+    "version": "0.30.1rc1.dev622+gf03026a54",
+    "sourceEvidence": [
+      {
+        "path": "Health-Copilot/training/posttrain/.venv/lib/python3.11/site-packages/vllm/entrypoints/openai/chat_completion/protocol.py",
+        "lines": "223-228",
+        "finding": "ChatCompletionRequest declares both max_tokens and max_completion_tokens."
+      },
+      {
+        "path": "Health-Copilot/training/posttrain/.venv/lib/python3.11/site-packages/vllm/entrypoints/openai/chat_completion/protocol.py",
+        "lines": "609-617",
+        "finding": "The request parser selects max_completion_tokens when present; otherwise it selects max_tokens."
+      },
+      {
+        "path": "Health-Copilot/training/posttrain/.venv/lib/python3.11/site-packages/vllm/entrypoints/openai/chat_completion/serving.py",
+        "lines": "321-329",
+        "finding": "Serving passes either recognized field into get_max_tokens."
+      }
+    ],
+    "identicalPromptAndSettingsFieldProbe": [
+      {
+        "field": "max_tokens",
+        "requested": 1,
+        "status": 200,
+        "finishReason": "length",
+        "completionTokens": 1,
+        "promptTokens": 28,
+        "outputTextChars": 1,
+        "outputTextSha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+        "latencyMs": 33.4,
+        "errorType": null
+      },
+      {
+        "field": "max_completion_tokens",
+        "requested": 1,
+        "status": 200,
+        "finishReason": "length",
+        "completionTokens": 1,
+        "promptTokens": 28,
+        "outputTextChars": 1,
+        "outputTextSha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+        "latencyMs": 29.6,
+        "errorType": null
+      }
+    ],
+    "interpretation": "Both field names returned HTTP 200, finish_reason=length, completion_tokens=1, and identical output hash when each was set to 1."
+  },
+  "dshNoCompatRouteProbe": {
+    "method": "cot",
+    "providerCompatMaxTokensField": null,
+    "wireRequest": {
+      "maxTokensPresent": false,
+      "maxCompletionTokensPresent": true,
+      "maxCompletionTokens": 1024,
+      "toolNames": []
+    },
+    "modelResponse": {
+      "httpStatus": 200,
+      "finishReasons": [
+        "stop"
+      ],
+      "promptTokens": 1604,
+      "completionTokens": 50
+    },
+    "turnOutcome": "completed",
+    "wallLatencyMs": 4952.2,
+    "metadataSha256": "cd895def396c393f103c68620450ad86b909a18d6761f24c2b16d6bde6c01dea",
+    "wireMetadataSha256": "329ea14ff393daaed03050d454fa4625095d35852847dfac57c267f9c5ca101a"
+  },
+  "assessment": {
+    "hypothesis": "Unknown-provider pi-ai emits max_completion_tokens, vLLM ignores it, and the long prompt therefore leaves only one generation token.",
+    "result": "FALSIFIED_FOR_THIS_QWEN_VLLM_STACK",
+    "reasons": [
+      "Pinned DSH with compat enabled completed the actual four-round research call and its long-context final request explicitly sent max_tokens=1; the server returned one token with finish_reason=length. The field-name mismatch was absent in that failing request.",
+      "The local vLLM request schema and serving code accept both max_tokens and max_completion_tokens.",
+      "Direct same-prompt tests with either field set to 1 produced the same one-token length-limited response.",
+      "Pinned DSH with compat omitted sent max_completion_tokens=1024 to the same endpoint; vLLM returned HTTP 200 with finish_reason=stop and 50 completion tokens on a short no-tool diagnostic."
+    ],
+    "unresolved": "The actual long-context DSH request header/session records maxTokens=1024, but the final HTTP body carries max_tokens=1. This value discrepancy is outside the proposed field-name compatibility defect and needs a separate DSH request-path diagnosis.",
+    "interpretationLimit": "The no-compat live DSH probe was no-tool and short-context; it validates field routing and server acceptance, while the real long-context case was run with compat enabled."
+  },
+  "originalArtifacts": {
+    "validationParity45Sha256": "4d6b2b8fbef57974862de8706626523ffd8aebc9f4ef9a442f586ad1654df205",
+    "validationArmC45Sha256": "5a9e60dd93f204ec714cdaaaf1de5de0ca4b24871d8ea0ac22d58962a6d3c4cb",
+    "expectedValidationParity45Sha256": "4d6b2b8fbef57974862de8706626523ffd8aebc9f4ef9a442f586ad1654df205",
+    "expectedValidationArmC45Sha256": "5a9e60dd93f204ec714cdaaaf1de5de0ca4b24871d8ea0ac22d58962a6d3c4cb",
+    "earlierUnpinnedProbeReclassified": "The prior case-6 wire probe used global DSH 0.2.0-rc.2, which skipped the eval plugin; it did not exercise the benchmark tool or research history and is not evidence about the pinned-path root cause."
+  },
+  "cleanup": {
+    "localProfileRestoredTo": "compat.maxTokensField=max_tokens; baseURL=http://127.0.0.1:8000/v1",
+    "vllmStopped": true,
+    "temporaryProxyStopped": true,
+    "sharedHealthEngine8322LeftRunning": true,
+    "gpuMiBUsedAfterCleanup": 0
+  }
+}

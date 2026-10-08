@@ -77,6 +77,13 @@ def run_one(
     env["DSH_HOME"] = str(dsh_home)
     env["HUIYI_RAG_BENCHMARK_METHOD"] = method
     env["HUIYI_RAG_BENCHMARK_TRACE_FILE"] = str(rag_trace_path)
+    if method == "imedrag":
+        # The runner loads a strict question/options-only projection. Supplying
+        # it to the eval-only tool avoids asking the model to reproduce all
+        # option text inside its function arguments.
+        env["HUIYI_RAG_BENCHMARK_CASE_JSON"] = json.dumps(
+            case, ensure_ascii=False, separators=(",", ":")
+        )
     node_dir = str(node.parent)
     env["PATH"] = f"{node_dir}{os.pathsep}{env.get('PATH', '')}"
     command = [
