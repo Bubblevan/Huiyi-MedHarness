@@ -11,6 +11,8 @@ import { observeSessionEvents } from './trace.js'
 
 export * from './memory/index.js'
 export * from './rag/index.js'
+export * from './case/index.js'
+export * from './collaboration/index.js'
 
 export const name = 'huiyi-medharness'
 export const inject = ['tools', 'systemPrompt']

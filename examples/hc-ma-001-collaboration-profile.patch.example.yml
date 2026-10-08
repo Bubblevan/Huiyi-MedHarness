@@ -1,0 +1,13 @@
+# Optional host profile composition for HC-MA-001.
+# Keep these rows out of Huiyi's normal cordis.patch.yml until live validation.
+- insert:
+    - id: hc-ma-subagent
+      name: '@deepseek-ai/dsh-subagent'
+
+    - id: hc-ma-spawn-provider
+      name: '@deepseek-ai/dsh-subagent-spawn-in-process'
+      config:
+        providerName: spawn
+
+# The Huiyi bundle is already installed in the host profile. The host's typed
+# composition code calls installCollaboration(ctx) explicitly when desired.

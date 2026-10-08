@@ -1,0 +1,79 @@
+# ADR 0004: MDAgents method semantics on the DSH runtime
+
+- Status: Accepted for HC-MA-001
+- Date: 2026-10-09
+- Huiyi base: `c349337e39e97d6ee7e971821af82ee22dde1290`
+- MDAgents: `mitmedialab/MDAgents` at `3adbd760ca809b4e7b0c1085d68314b6e7d91e1b`
+- DSH: `deepseek-ai/deepseek-harness` at `5badb15009ae1756c3afe0ae0cef1faafc290ccc`, package/runtime `0.2.1-alpha.1`
+
+## Context
+
+Huiyi already treats DeepSeek Harness as the only owner of Agent, Session, AgentLoop, provider/model routing, tool dispatch, cancellation, result admission, and durable lifecycle. The product task is to translate MDAgents' adaptive medical collaboration method into that architecture without importing its Python runtime or changing existing Memory and RAG lifecycles.
+
+Pinned source inspection confirmed that the DSH `ctx.subagents` service has the required one-shot seam. The `spawn` provider supports object-rooted structured output, a depth limit, a tool restriction, and a per-child persona. Spawn starts a fresh child without parent conversation history. Its `SubagentRun` exposes `result` and `dispose()`. Non-completed stop reasons can carry partial output, so Huiyi admits no output unless the stop reason is `completed`, structured data exists, and domain validation passes.
+
+## Decision
+
+HC-MA-001 implements **MDAgents-derived adaptive medical collaboration** through a typed collaboration plan, DSH native child Agents, bounded execution policy, structured findings, and metadata-only trace. It is not an exact MDAgents reproduction.
+
+### Upstream reproduction semantics
+
+The original MDAgents implementation owns:
+
+- adaptive complexity classification;
+- basic, intermediate, and advanced branches;
+- expert recruitment and role assignment;
+- collaborative discussion;
+- MDT organization;
+- moderator/final decision.
+
+The pinned benchmark shape uses one agent for basic cases, five recruited experts with up to five rounds and five turns for intermediate cases, and three MDTs with three clinicians per team for advanced cases. These are benchmark profile values, not live product defaults. The advanced recruitment prompt also asks for Initial Assessment and Final Review/Decision teams despite the three-team count; this source inconsistency is documented in the upstream map.
+
+### Not preserved as implementation
+
+Huiyi does not preserve:
+
+- the MDAgents `Agent` class;
+- its OpenAI Python client or Gemini Python client;
+- mutable per-Agent `messages` arrays;
+- a Python-owned conversation runtime;
+- `prettytable` / `pptree` runtime behavior;
+- raw-text parsing as the main product contract.
+
+### Huiyi adaptation
+
+The MDAgents method is translated into:
+
+```text
+typed collaboration plan
++ DSH native child Agents
++ bounded execution policy
++ structured results
++ metadata-only trace
+```
+
+DSH's `spawn` provider is the default. The adapter passes the exact root Agent, a request AbortSignal, an object-rooted `outputSchema`, `maxDepth: 1`, a specialist persona, and `toolFilter: { allow: [] }`. The child receives only the explicitly built case prompt; it receives no root transcript and no inherited tools. All child results require `stopReason === 'completed'`, a structured value, and successful Huiyi validation. Every published run is disposed in `finally`.
+
+Huiyi product policy bounds specialists, teams, rounds, concurrency, and total child runs. Benchmark policy separately encodes the pinned upstream structure and is not run live by HC-MA-001. Advanced team membership is represented in Huiyi metadata; all children remain direct children of the root so `maxDepth` stays one.
+
+## Peer communication seam
+
+MDAgents models expert-to-expert discussion. DSH's `sendMessage` is authorized for adjacent Agents in the continuable-child lifecycle; it does not authorize arbitrary sibling-to-sibling messages. Huiyi will not call `ctx.subagents.sendMessage()` to simulate sibling chat. The first product skeleton captures independent structured findings, projects a bounded set of peer summaries, and supplies those summaries explicitly to any bounded refinement child run. A future continuable-child adapter may use DSH's authorized adjacency path when its lifecycle is specifically designed and tested.
+
+## Ownership and activation
+
+There is one Huiyi-owned outer control path. DSH may internally run child Agents through its native subagent service. Huiyi introduces no second custom AgentLoop. The normal product `apply()` path does not install or invoke live collaboration. An explicit `installCollaboration(...)` composition API is exposed for a later validated host integration.
+
+Product-mode moderator output is decision support for the root Agent; it does not replace the root DSH AgentLoop's user-facing answer. A future benchmark adapter may separately interpret a moderator choice as an evaluation answer. The two outcomes are not conflated.
+
+## Consequences
+
+- `HealthCaseState.patientMemory` and `HealthCaseState.externalEvidence` remain separate optional contracts; HC-MA-001 does not rewrite either runtime.
+- A failed or incomplete child is recorded as failure metadata. Partial output is never promoted to a medical finding.
+- A partial team may continue when at least one specialist succeeds; a moderator is absent unless its own structured run completes. If no specialist succeeds, the snapshot degrades and the root may fall back to its ordinary Single Agent path.
+- Traces contain identifiers, role labels, counts, timing, stop reasons, and status only. They omit case text, memory content, evidence passages, prompts, findings, and hidden reasoning.
+- CPU acceptance uses deterministic fakes. HC-MA-001 performs no model inference and does not alter normal product answer behavior.
+
+## Pinned source map
+
+The source-to-domain mapping and immutable source links are in [the MDAgents upstream map](../collaboration/mdagents-upstream-map.md). The DSH lifecycle types are in `packages/subagent/subagent/src/types.ts`; provider dispatch and capability validation are in `packages/subagent/subagent/src/index.ts`; fresh spawn behavior and supported features are in `packages/subagent/subagent-spawn-in-process/src/index.ts`; and `ToolRestriction` is defined in `packages/core/tools/src/index.ts` at the pinned commit. No upstream checkout is vendored or modified.
