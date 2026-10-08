@@ -1,0 +1,66 @@
+{
+  "task": "HC-MA-001",
+  "status": "PASS",
+  "huiyi": {
+    "repository": "Bubblevan/Huiyi-MedHarness",
+    "baseCommit": "c349337e39e97d6ee7e971821af82ee22dde1290",
+    "testedHeadCommit": "21a863342c6b57d3c17668c5498eb962800766e6",
+    "branch": "codex/hc-ma-001-dsh-native-mdagents"
+  },
+  "environment": {
+    "node": "v22.23.3",
+    "pnpmCli": "12.9.1",
+    "packageManagerDeclaredByRepository": "pnpm@11.7.0",
+    "packageManagerVersionMismatch": true,
+    "gpuInference": false,
+    "modelInference": false,
+    "medqaTestLabelsRead": false
+  },
+  "commands": {
+    "install": {
+      "status": "PASS",
+      "command": "npm_config_manage_package_manager_versions=false pnpm install --offline --trust-lockfile --ignore-scripts",
+      "note": "Used the local package store because network access was unavailable; lifecycle scripts were skipped."
+    },
+    "typecheck": {
+      "status": "PASS",
+      "command": "npm_config_manage_package_manager_versions=false pnpm typecheck"
+    },
+    "build": {
+      "status": "PASS",
+      "command": "npm_config_manage_package_manager_versions=false pnpm build"
+    },
+    "test": {
+      "status": "PASS",
+      "command": "npm_config_manage_package_manager_versions=false pnpm test",
+      "testFilesPassed": 7,
+      "testFilesFailed": 0,
+      "testsPassed": 60,
+      "testsFailed": 0
+    }
+  },
+  "acceptanceCoverage": {
+    "basicRoute": "PASS",
+    "intermediateBenchmarkAndProductRecruitmentCaps": "PASS",
+    "intermediateBoundedParallelExecutionAndModerator": "PASS",
+    "specialistFailureDegradesAndContinues": "PASS",
+    "maxTokensPartialOutputRejected": "PASS",
+    "moderatorFailureDoesNotFabricateDecision": "PASS",
+    "adversarialRecruitmentNormalizedAndCapped": "PASS",
+    "advancedThreeByThreeBenchmarkPlan": "PASS",
+    "budgetEnforcedBeforeStart": "PASS",
+    "noNestedDelegationAndRestrictedTools": "PASS",
+    "boundedConcurrencyObserved": "PASS",
+    "cancelBeforeFirstRun": "PASS",
+    "cancelDuringParallelSpecialists": "PASS",
+    "cancelBeforeModerator": "PASS",
+    "publishedRunDisposalAfterCompletedErrorMaxTokensMissingStructureValidationFailureCancellationAndDownstreamFailure": "PASS",
+    "metadataOnlyTrace": "PASS"
+  },
+  "gitStateAtSourceValidation": {
+    "workingTreeClean": true,
+    "existingMemoryBehaviorModified": false,
+    "existingRagBehaviorModified": false,
+    "existingBenchmarkArtifactsModified": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "mdagents": {
+    "repository": "mitmedialab/MDAgents",
+    "commit": "3adbd760ca809b4e7b0c1085d68314b6e7d91e1b"
+  },
+  "dsh": {
+    "repository": "deepseek-ai/deepseek-harness",
+    "commit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "version": "0.2.1-alpha.1"
+  },
+  "huiyi": {
+    "repository": "Bubblevan/Huiyi-MedHarness",
+    "baseCommit": "c349337e39e97d6ee7e971821af82ee22dde1290",
+    "testedHeadCommit": "21a863342c6b57d3c17668c5498eb962800766e6",
+    "branch": "codex/hc-ma-001-dsh-native-mdagents"
+  }
+}

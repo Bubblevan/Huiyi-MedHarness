@@ -1,0 +1,88 @@
+{
+  "task": "HC-MA-001",
+  "type": "product integration / architecture adaptation",
+  "methodName": "MDAgents-derived adaptive medical collaboration",
+  "notAnExactReproduction": true,
+  "upstreamSemantics": {
+    "basic": {
+      "complexity": "basic",
+      "medicalAgents": 1,
+      "huiyiRepresentation": "empty collaboration plan; root DSH AgentLoop owns the ordinary response"
+    },
+    "intermediate": {
+      "recruiterTarget": 5,
+      "maxRounds": 5,
+      "maxTurnsPerRound": 5,
+      "method": [
+        "recruit specialists",
+        "represent hierarchy or independent relations",
+        "collect independent findings",
+        "support bounded peer discussion",
+        "collect specialist final findings",
+        "moderator review"
+      ],
+      "profile": "benchmark"
+    },
+    "advanced": {
+      "teamCount": 3,
+      "specialistsPerTeam": 3,
+      "method": [
+        "plan MDT goals and membership",
+        "collect member findings",
+        "synthesize each team",
+        "moderator review across findings"
+      ],
+      "profile": "benchmark",
+      "sourceCaveat": "Pinned prompt requests Initial Assessment and Final Review/Decision teams despite the three-team count."
+    }
+  },
+  "runtimeBoundary": {
+    "runtimeOwner": "DSH",
+    "providerDefault": "spawn",
+    "inheritsParentContext": false,
+    "maxDepth": 1,
+    "toolFilter": {
+      "allow": []
+    },
+    "requiresCompletedStopReason": true,
+    "requiresStructuredOutput": true,
+    "requiresDomainValidation": true,
+    "alwaysDisposePublishedRuns": true,
+    "peerCommunication": "orchestrator projects bounded peer summaries into new child inputs; no sibling sendMessage bypass"
+  },
+  "profiles": {
+    "benchmark": {
+      "recruitmentTarget": 5,
+      "maxRounds": 5,
+      "maxTurnsPerRound": 5,
+      "teamCount": 3,
+      "specialistsPerTeam": 3,
+      "maxChildRuns": 128,
+      "liveExecutionInHCMA001": false
+    },
+    "product": {
+      "maxSpecialists": 3,
+      "maxTeams": 2,
+      "maxRounds": 1,
+      "maxChildRuns": 16,
+      "maxConcurrency": 3,
+      "maxDepth": 1,
+      "peerRefinementEnabled": false
+    }
+  },
+  "activation": {
+    "explicitCompositionApi": "installCollaboration(ctx)",
+    "normalApplyAutoEnabled": false
+  },
+  "privacy": {
+    "trace": "metadata only",
+    "rawPatientTextRecorded": false,
+    "rawMemoryRecorded": false,
+    "rawEvidenceRecorded": false,
+    "fullPromptsRecorded": false,
+    "fullChildOutputsRecorded": false,
+    "chainOfThoughtRecorded": false
+  },
+  "inferencePerformed": false,
+  "gpuWorkPerformed": false
+}
