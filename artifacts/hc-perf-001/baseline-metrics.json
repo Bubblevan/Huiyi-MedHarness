@@ -1,0 +1,41 @@
+{
+  "task": "HC-PERF-001",
+  "baselineKind": "historical 68-case partial E2E record; not a controlled full-makespan benchmark",
+  "runDirectory": "/root/gpufree-data/repro/hc-ma-002/medqa-dev-e2e-final-harness-promptfix-v2-20261009",
+  "predictionFileSha256": "77a260ad48c1335882125239f62f3c4fc17d10ef6a1549124985e416ac05b4ee",
+  "caseIdSha256": "a58faff04e71b4afb744b8e26fd85b3ca940ba2719200ceb508e1e2e2e87b72b",
+  "cases": 68,
+  "complexity": {"basic": 25, "intermediate": 40, "advanced": 3},
+  "adaptiveCalls": {
+    "childRuns": 285,
+    "specialistRuns": 127,
+    "completedSpecialists": 127,
+    "failedChildren": 0,
+    "moderatorRuns": 43,
+    "ragCalls": 68,
+    "ragHits": 204,
+    "memoryRecallCalls": 68,
+    "emptyMemorySnapshots": 68
+  },
+  "caseLatencyMs": {
+    "mean": 15905.3,
+    "median": 19486.6,
+    "p95NearestRank": 24540.5,
+    "sumOfRecordedWallLatencies": 1081557.5,
+    "rootTurnSpanMsFromMetadata": 1091640
+  },
+  "memoryRecallLatencyMs": {
+    "mean": 4912.8,
+    "median": 4881.6,
+    "p95NearestRank": 6324.3
+  },
+  "parsedChoices": 66,
+  "failedRootTurns": 0,
+  "baselineOutputTokens": "NOT RECORDED",
+  "baselineTTFT": "NOT RECORDED",
+  "baselineTPOT": "NOT RECORDED",
+  "baselineVllmMetrics": "NOT RECORDED",
+  "gpuTelemetryDuringRun": "NOT RECORDED",
+  "interpretation": "Sequential root-turn metadata indicates roughly 18.2 minutes of root-turn span. It excludes some setup and evidence-prefetch work; do not treat it as full evaluation makespan or as a model throughput measurement.",
+  "testLabelsRead": false
+}

@@ -1,0 +1,475 @@
+{
+  "date": "2026-10-09",
+  "e2eRuns": {
+    "eager-c1-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 5.425288387837658,
+        "mean": 1.0561287024177815,
+        "p95": 2.9749578220308304
+      },
+      "cgroupMemoryBytesMax": 32595976192,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 93.01955990220048,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 99.33420365535248
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 87.74572127139365,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 93.7023498694517
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36885.0,
+        "allSamplesMean": 36885.0,
+        "turnWindowMax": 36885.0,
+        "turnWindowMean": 36885.0
+      },
+      "powerW": {
+        "allSamplesMax": 304.01,
+        "allSamplesMean": 263.17533007334964,
+        "turnWindowMax": 304.01,
+        "turnWindowMean": 274.5987989556136
+      },
+      "rows": 409,
+      "temperatureC": {
+        "allSamplesMax": 75.0,
+        "allSamplesMean": 66.38875305623472,
+        "turnWindowMax": 75.0,
+        "turnWindowMean": 67.2402088772846
+      },
+      "turnWindowRows": 383,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 23387.0,
+        "maxKvCacheUsageFraction": 0.031774051191526875,
+        "maxRunningRequests": 3.0,
+        "maxWaitingRequests": 0.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 79952.0,
+        "prefixCacheQueriesCounterDelta": 283427.0,
+        "promptTokensCounterDelta": 283427.0
+      }
+    },
+    "eager-c16-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 14.63473214513012,
+        "mean": 2.088824673911335,
+        "p95": 13.997916202984749
+      },
+      "cgroupMemoryBytesMax": 33570451456,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 78.97354497354497,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 96.29677419354839
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 71.65079365079364,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 87.36774193548388
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36885.0,
+        "allSamplesMean": 36885.0,
+        "turnWindowMax": 36885.0,
+        "turnWindowMean": 36885.0
+      },
+      "powerW": {
+        "allSamplesMax": 291.48,
+        "allSamplesMean": 225.75714285714287,
+        "turnWindowMax": 291.48,
+        "turnWindowMean": 255.71090322580645
+      },
+      "rows": 189,
+      "temperatureC": {
+        "allSamplesMax": 69.0,
+        "allSamplesMean": 58.142857142857146,
+        "turnWindowMax": 69.0,
+        "turnWindowMean": 60.12258064516129
+      },
+      "turnWindowRows": 155,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 22473.0,
+        "maxKvCacheUsageFraction": 0.07987643424536628,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 83488.0,
+        "prefixCacheQueriesCounterDelta": 281924.0,
+        "promptTokensCounterDelta": 281924.0
+      }
+    },
+    "eager-c2-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 14.242008880835636,
+        "mean": 1.2234757765648403,
+        "p95": 3.444964235318
+      },
+      "cgroupMemoryBytesMax": 32742961152,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 89.73333333333333,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 99.48695652173913
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 82.7607843137255,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 91.75652173913043
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36885.0,
+        "allSamplesMean": 36885.0,
+        "turnWindowMax": 36885.0,
+        "turnWindowMean": 36885.0
+      },
+      "powerW": {
+        "allSamplesMax": 296.34,
+        "allSamplesMean": 244.81145098039215,
+        "turnWindowMax": 296.34,
+        "turnWindowMean": 261.3455652173913
+      },
+      "rows": 255,
+      "temperatureC": {
+        "allSamplesMax": 72.0,
+        "allSamplesMean": 61.72549019607843,
+        "turnWindowMax": 72.0,
+        "turnWindowMean": 63.004347826086956
+      },
+      "turnWindowRows": 230,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 22576.0,
+        "maxKvCacheUsageFraction": 0.05417034421888789,
+        "maxRunningRequests": 6.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 79552.0,
+        "prefixCacheQueriesCounterDelta": 281780.0,
+        "promptTokensCounterDelta": 281780.0
+      }
+    },
+    "eager-c4-batched4096-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 9.961514612951868,
+        "mean": 0.9664621920569624,
+        "p95": 2.214920084557602
+      },
+      "cgroupMemoryBytesMax": 33171787776,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 87.20652173913044,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 99.66459627329192
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 75.75,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 86.57142857142857
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 37185.0,
+        "allSamplesMean": 37091.07608695652,
+        "turnWindowMax": 37185.0,
+        "turnWindowMean": 37137.28571428572
+      },
+      "powerW": {
+        "allSamplesMax": 297.36,
+        "allSamplesMean": 240.9808152173913,
+        "turnWindowMax": 297.36,
+        "turnWindowMean": 262.53198757763977
+      },
+      "rows": 184,
+      "temperatureC": {
+        "allSamplesMax": 69.0,
+        "allSamplesMean": 59.31521739130435,
+        "turnWindowMax": 69.0,
+        "turnWindowMean": 60.70807453416149
+      },
+      "turnWindowRows": 161,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 23075.0,
+        "maxKvCacheUsageFraction": 0.08259028087382969,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 0.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 76352.0,
+        "prefixCacheQueriesCounterDelta": 282796.0,
+        "promptTokensCounterDelta": 282796.0
+      }
+    },
+    "eager-c4-full68": {
+      "cgroupCpuCoresApprox": {
+        "max": 12.420144464684196,
+        "mean": 1.2505428562426297,
+        "p95": 3.2233303099196142
+      },
+      "cgroupMemoryBytesMax": 36263596032,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 94.0657894736842,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 99.29166666666667
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 84.03728070175438,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 88.70601851851852
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36895.0,
+        "allSamplesMean": 36881.2149122807,
+        "turnWindowMax": 36895.0,
+        "turnWindowMean": 36893.03240740741
+      },
+      "powerW": {
+        "allSamplesMax": 304.29,
+        "allSamplesMean": 257.7240789473684,
+        "turnWindowMax": 304.29,
+        "turnWindowMean": 266.98949074074073
+      },
+      "rows": 456,
+      "temperatureC": {
+        "allSamplesMax": 73.0,
+        "allSamplesMean": 65.10964912280701,
+        "turnWindowMax": 73.0,
+        "turnWindowMean": 66.09953703703704
+      },
+      "turnWindowRows": 432,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 61249.0,
+        "maxKvCacheUsageFraction": 0.0778905560458959,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 222608.0,
+        "prefixCacheQueriesCounterDelta": 778864.0,
+        "promptTokensCounterDelta": 778864.0
+      }
+    },
+    "eager-c4-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 7.644602658142406,
+        "mean": 1.0017148882685756,
+        "p95": 2.2904441948086536
+      },
+      "cgroupMemoryBytesMax": 32993841152,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 87.10614525139665,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 100.0
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 75.72625698324022,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 86.80645161290323
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36885.0,
+        "allSamplesMean": 36885.0,
+        "turnWindowMax": 36885.0,
+        "turnWindowMean": 36885.0
+      },
+      "powerW": {
+        "allSamplesMax": 296.56,
+        "allSamplesMean": 239.55659217877096,
+        "turnWindowMax": 296.56,
+        "turnWindowMean": 261.8357419354839
+      },
+      "rows": 179,
+      "temperatureC": {
+        "allSamplesMax": 69.0,
+        "allSamplesMean": 59.63128491620112,
+        "turnWindowMax": 69.0,
+        "turnWindowMean": 60.987096774193546
+      },
+      "turnWindowRows": 155,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 22706.0,
+        "maxKvCacheUsageFraction": 0.081972639011474,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 79952.0,
+        "prefixCacheQueriesCounterDelta": 282377.0,
+        "promptTokensCounterDelta": 282377.0
+      }
+    },
+    "eager-c4-seq16-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 13.32468022147946,
+        "mean": 0.9680507613575413,
+        "p95": 2.063885268344103
+      },
+      "cgroupMemoryBytesMax": 33088262144,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 85.34042553191489,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 98.42944785276073
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 76.09042553191489,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 87.76073619631902
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36971.0,
+        "allSamplesMean": 36935.67021276596,
+        "turnWindowMax": 36971.0,
+        "turnWindowMean": 36958.079754601225
+      },
+      "powerW": {
+        "allSamplesMax": 301.35,
+        "allSamplesMean": 237.08255319148935,
+        "turnWindowMax": 301.35,
+        "turnWindowMean": 259.62503067484664
+      },
+      "rows": 188,
+      "temperatureC": {
+        "allSamplesMax": 69.0,
+        "allSamplesMean": 58.351063829787236,
+        "turnWindowMax": 69.0,
+        "turnWindowMean": 59.74846625766871
+      },
+      "turnWindowRows": 163,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 23157.0,
+        "maxKvCacheUsageFraction": 0.07358781994704322,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 76064.0,
+        "prefixCacheQueriesCounterDelta": 283014.0,
+        "promptTokensCounterDelta": 283014.0
+      }
+    },
+    "eager-c8-rag-enabled": {
+      "cgroupCpuCoresApprox": {
+        "max": 14.314689077707333,
+        "mean": 1.1958397629376663,
+        "p95": 2.7155461811646426
+      },
+      "cgroupMemoryBytesMax": 33255297024,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 85.55555555555556,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 99.35483870967742
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 76.00555555555556,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 88.26451612903226
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 36885.0,
+        "allSamplesMean": 36885.0,
+        "turnWindowMax": 36885.0,
+        "turnWindowMean": 36885.0
+      },
+      "powerW": {
+        "allSamplesMax": 301.58,
+        "allSamplesMean": 238.9496111111111,
+        "turnWindowMax": 301.58,
+        "turnWindowMean": 263.3688387096774
+      },
+      "rows": 180,
+      "temperatureC": {
+        "allSamplesMax": 70.0,
+        "allSamplesMean": 60.28333333333333,
+        "turnWindowMax": 70.0,
+        "turnWindowMean": 61.83225806451613
+      },
+      "turnWindowRows": 155,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 22998.0,
+        "maxKvCacheUsageFraction": 0.07369814651368045,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 79184.0,
+        "prefixCacheQueriesCounterDelta": 282625.0,
+        "promptTokensCounterDelta": 282625.0
+      }
+    },
+    "graph-full-piecewise-c4-hermes": {
+      "cgroupCpuCoresApprox": {
+        "max": 11.584225617188531,
+        "mean": 0.42992648095196667,
+        "p95": 1.7358207984154115
+      },
+      "cgroupMemoryBytesMax": 35556405248,
+      "gpuUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 76.4423076923077,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 100.0
+      },
+      "memoryControllerUtilizationPercent": {
+        "allSamplesMax": 100.0,
+        "allSamplesMean": 68.57692307692308,
+        "turnWindowMax": 100.0,
+        "turnWindowMean": 89.71069182389937
+      },
+      "memoryUsedMiB": {
+        "allSamplesMax": 35937.0,
+        "allSamplesMean": 35901.903846153844,
+        "turnWindowMax": 35937.0,
+        "turnWindowMean": 35930.25786163522
+      },
+      "powerW": {
+        "allSamplesMax": 295.17,
+        "allSamplesMean": 226.00403846153847,
+        "turnWindowMax": 295.17,
+        "turnWindowMean": 268.49194968553456
+      },
+      "rows": 208,
+      "temperatureC": {
+        "allSamplesMax": 70.0,
+        "allSamplesMean": 58.55288461538461,
+        "turnWindowMax": 70.0,
+        "turnWindowMean": 61.0188679245283
+      },
+      "turnWindowRows": 159,
+      "vllmMetrics": {
+        "generationTokensCounterDelta": 23898.0,
+        "maxKvCacheUsageFraction": 0.08418723800652073,
+        "maxRunningRequests": 8.0,
+        "maxWaitingRequests": 1.0,
+        "preemptionCounterDelta": 0.0,
+        "prefixCacheHitsCounterDelta": 76848.0,
+        "prefixCacheQueriesCounterDelta": 288590.0,
+        "promptTokensCounterDelta": 288590.0
+      }
+    }
+  },
+  "limitations": [
+    "No Nsight Systems/Profiler run; compute and bandwidth saturation were not causally separated.",
+    "At final shutdown, nvidia-smi driver communication became intermittent and a snapshot showed 36895 MiB used without process attribution; no new GPU jobs were started."
+  ],
+  "loadAudit": {
+    "clockObservedMemoryMHz": 9001,
+    "clockObservedSmMHz": 2490,
+    "full68ActiveTurnGpuUtilizationMeanPercent": 99.29,
+    "full68ActiveTurnMemoryControllerMeanPercent": 88.71,
+    "full68PeakVramMiB": 36895,
+    "hardwarePowerBrake": "not active",
+    "peakTemperatureC": 73,
+    "powerLimitW": 300,
+    "softwarePowerCap": "active at times",
+    "thermalSlowdown": "not active"
+  },
+  "rawTelemetryDirectory": "/root/gpufree-data/repro/hc-perf-001/phase-b-20261009",
+  "task": "HC-PERF-001",
+  "telemetrySource": "metadata-only summaries from external GPU sampler and vLLM Prometheus scraper",
+  "testLabelsRead": false
+}

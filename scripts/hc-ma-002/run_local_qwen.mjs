@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createHash, randomUUID } from 'node:crypto'
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
@@ -33,8 +33,11 @@ const parsed = parseArgs({
     output: { type: 'string', default: '/root/gpufree-data/repro/hc-ma-002/medqa-dev-diagnostic/predictions.jsonl' },
     sessionTrace: { type: 'string', default: '/root/gpufree-data/repro/hc-ma-002/medqa-dev-diagnostic/session-metadata.jsonl' },
     collaborationTrace: { type: 'string', default: '/root/gpufree-data/repro/hc-ma-002/medqa-dev-diagnostic/collaboration-metadata.jsonl' },
+    requestTrace: { type: 'string', default: '/root/gpufree-data/repro/hc-ma-002/medqa-dev-diagnostic/request-metadata.jsonl' },
     arm: { type: 'string', default: 'both' },
     caseId: { type: 'string' },
+    concurrency: { type: 'string', default: '1' },
+    calibrationSet: { type: 'boolean', default: false },
   },
   strict: true,
 })
@@ -45,8 +48,13 @@ const inputPath = resolve(options.input)
 const outputPath = resolve(options.output)
 const sessionTracePath = resolve(options.sessionTrace)
 const collaborationTracePath = resolve(options.collaborationTrace)
+const requestTracePath = resolve(options.requestTrace)
+const maxConcurrency = Number(options.concurrency)
+if (!Number.isInteger(maxConcurrency) || maxConcurrency < 1 || maxConcurrency > 16) {
+  throw new Error('--concurrency must be an integer from 1 through 16')
+}
 const insideRepo = path => path === repoRoot || path.startsWith(`${repoRoot}/`)
-if ([inputPath, outputPath, sessionTracePath, collaborationTracePath].some(insideRepo)) {
+if ([inputPath, outputPath, sessionTracePath, collaborationTracePath, requestTracePath].some(insideRepo)) {
   throw new Error('questions and runtime traces must stay outside the Git worktree')
 }
 const frozenCases = readFileSync(inputPath, 'utf8').split(/\r?\n/).filter(Boolean).map((line, index) => {
@@ -61,9 +69,20 @@ const frozenCases = readFileSync(inputPath, 'utf8').split(/\r?\n/).filter(Boolea
   }
   return value
 })
-if (frozenCases.length !== 4) throw new Error('HC-MA-002 local diagnostic requires the frozen four-case projection')
+if (options.calibrationSet) {
+  if (options.arm !== 'adaptive') throw new Error('the HC-PERF-001 calibration set runs only the existing adaptive harness method')
+  if (frozenCases.length < 1 || frozenCases.length > 68) throw new Error('the HC-PERF-001 calibration input must contain 1–68 of the authorized Dev cases')
+  const ids = frozenCases.map(item => item.id)
+  if (new Set(ids).size !== ids.length || ids.some(id => !/^medqa-dev-000(?:0[0-9]|[1-5][0-9]|6[0-7])$/.test(id))) {
+    throw new Error('the HC-PERF-001 calibration input must use unique IDs from medqa-dev-00000 through medqa-dev-00067')
+  }
+} else if (frozenCases.length !== 4) {
+  throw new Error('HC-MA-002 local diagnostic requires the frozen four-case projection')
+}
 const cases = options.caseId ? frozenCases.filter(item => item.id === options.caseId) : frozenCases
 if (options.caseId && cases.length !== 1) throw new Error('--case-id must identify one row from the frozen diagnostic projection')
+if (options.calibrationSet && options.caseId) throw new Error('--case-id is not allowed with --calibration-set; pass a frozen subset file')
+if (!options.calibrationSet && maxConcurrency !== 1) throw new Error('--concurrency greater than 1 requires --calibration-set')
 
 const providerName = 'hc-ma-002-local-qwen'
 const modelId = 'Qwen/Qwen3-8B'
@@ -105,12 +124,77 @@ function appendJsonl(path, value) {
   appendFileSync(path, `${JSON.stringify(value)}\n`, { encoding: 'utf8', mode: 0o600 })
 }
 
-async function compose(arm, queryHash, queryText, sessionMetadata, collaborationRecords, memoryRecords, evidenceMetrics) {
+function installRequestTrace(ctx, caseMetadata, rootSessionId, requestRows) {
+  ctx.on('llm/stream', (request, next) => {
+    const requestId = randomUUID()
+    const startedAt = Date.now()
+    const started = performance.now()
+    let firstTokenAt
+    let usage
+    let finishReason = 'missing'
+    let errorClass
+    let errorCode
+    const source = next()
+    return (async function* () {
+      try {
+        for await (const chunk of source) {
+          if (firstTokenAt === undefined && ['text-delta', 'reasoning-delta', 'tool-call-delta'].includes(chunk.type)) {
+            firstTokenAt = performance.now()
+          }
+          if (chunk.type === 'usage') usage = chunk.usage
+          else if (chunk.type === 'finish') finishReason = chunk.reason.kind
+          yield chunk
+        }
+      } catch (error) {
+        errorClass = error instanceof Error ? error.name : 'UnknownError'
+        const reference = error instanceof ReferenceError
+          ? /^([A-Za-z_$][A-Za-z0-9_$]*) is not defined$/.exec(error.message)
+          : undefined
+        if (reference) errorCode = `reference_${reference[1]}_not_defined`
+        throw error
+      } finally {
+        requestRows.push({
+          requestId,
+          questionId: caseMetadata.id,
+          caseHash: caseMetadata.caseHash,
+          sessionId: request.sessionId ?? null,
+          agentRole: request.sessionId === rootSessionId ? 'root' : 'child',
+          phase: request.sessionId === rootSessionId ? 'root-answer' : 'collaboration-child',
+          provider: request.provider,
+          model: request.model,
+          requestedMaxTokens: request.maxTokens ?? null,
+          temperature: request.temperature ?? null,
+          startedAt,
+          endedAt: Date.now(),
+          durationMs: Math.max(0, performance.now() - started),
+          ttftMs: firstTokenAt === undefined ? null : Math.max(0, firstTokenAt - started),
+          promptTokens: usage?.inputTokens ?? null,
+          outputTokens: usage?.outputTokens ?? null,
+          cacheReadTokens: usage?.cacheReadTokens ?? null,
+          cacheWriteTokens: usage?.cacheWriteTokens ?? null,
+          reasoningTokens: usage?.reasoningTokens ?? null,
+          finishReason,
+          ...(errorClass ? { errorClass } : {}),
+          ...(errorCode ? { errorCode } : {}),
+        })
+      }
+    })()
+  })
+}
+
+async function compose(arm, item, queryHash, queryText, sessionMetadata, collaborationRecords, memoryRecords, evidenceMetrics, requestRows) {
+  const caseStarted = performance.now()
   const ctx = new Context()
   let rootHandle
   const sessionId = `hcma2-${arm}-${randomUUID()}`
+  const memoryUserId = options.calibrationSet
+    ? `hc-ma-perf-${queryHash.slice(0, 40)}`
+    : process.env.HUIYI_MEMORY_USER_ID?.trim() || undefined
+  const memoryNamespaceHash = memoryUserId
+    ? hash(`huiyi_${hash(memoryUserId).slice(0, 32)}`)
+    : null
   const sessionMetrics = { turnReason: undefined, assistantText: '', toolCalls: [], endTime: undefined, startTime: undefined, steps: 0 }
-  const memoryTrace = { record(record) { memoryRecords.push({ caseHash: queryHash, arm, ...record }) } }
+  const memoryTrace = { record(record) { memoryRecords.push({ caseHash: queryHash, memoryNamespaceHash, arm, ...record }) } }
   const evidence = new RagClient()
   const evidenceCache = new Map()
   const evidenceClient = {
@@ -131,10 +215,13 @@ async function compose(arm, queryHash, queryText, sessionMetadata, collaboration
     health: options => evidence.health(options),
   }
   let caseEvidence
+  const evidenceStarted = performance.now()
   try {
     caseEvidence = await evidenceClient.search({ query: queryText, mode: 'single', topK: 5 }, { signal: new AbortController().signal })
   } catch {
     evidenceMetrics.degraded = true
+  } finally {
+    evidenceMetrics.durationMs = Math.max(0, performance.now() - evidenceStarted)
   }
 
   try {
@@ -165,11 +252,12 @@ async function compose(arm, queryHash, queryText, sessionMetadata, collaboration
       },
     })
     ctx.on('agent/request', async (_request, next) => ({ ...(await next()), temperature: 0 }))
+    installRequestTrace(ctx, { id: item.id, caseHash: queryHash }, sessionId, requestRows)
 
     const trace = new MetadataCollaborationTrace(record => collaborationRecords.push({ caseHash: queryHash, arm, ...record }))
     applyWithIdentity(
       ctx,
-      () => process.env.HUIYI_MEMORY_USER_ID,
+      () => memoryUserId,
       evidenceClient,
       {
         memory: { readOnly: true },
@@ -233,6 +321,7 @@ async function compose(arm, queryHash, queryText, sessionMetadata, collaboration
       result: {
         sessionId,
         arm,
+        memoryNamespaceHash,
         turnReason: sessionMetrics.turnReason ?? 'missing',
         choice: parseChoice(sessionMetrics.assistantText),
         toolCalls: [...sessionMetrics.toolCalls],
@@ -247,6 +336,7 @@ async function compose(arm, queryHash, queryText, sessionMetadata, collaboration
         dshTurnLatencyMs: sessionMetrics.startTime !== undefined && sessionMetrics.endTime !== undefined
           ? Math.max(0, sessionMetrics.endTime - sessionMetrics.startTime)
           : null,
+        caseWallLatencyMs: Math.max(0, performance.now() - caseStarted),
         memory: memoryRecords.filter(record => record.caseHash === queryHash && record.arm === arm),
         evidence: { ...evidenceMetrics },
       },
@@ -263,52 +353,123 @@ const sessionRows = []
 const collaborationRows = []
 const memoryRows = []
 const safeMetrics = []
+const requestRows = []
 mkdirSync(dirname(outputPath), { recursive: true })
 mkdirSync(dirname(sessionTracePath), { recursive: true })
 mkdirSync(dirname(collaborationTracePath), { recursive: true })
+mkdirSync(dirname(requestTracePath), { recursive: true })
+if (options.calibrationSet && [outputPath, sessionTracePath, collaborationTracePath, requestTracePath].some(path => existsSync(path))) {
+  throw new Error('refusing to overwrite an existing HC-PERF-001 output; choose a fresh output directory')
+}
 writeFileSync(outputPath, '', { mode: 0o600 })
 writeFileSync(sessionTracePath, '', { mode: 0o600 })
 writeFileSync(collaborationTracePath, '', { mode: 0o600 })
+writeFileSync(requestTracePath, '', { mode: 0o600 })
 
-for (const item of cases) {
-  const query = questionText(item)
-  const queryHash = hash(query)
-  for (const arm of selectedArms) {
-    const evidenceMetrics = { calls: 0, hitCount: 0, degraded: false }
-    const run = await compose(arm, queryHash, query, sessionRows, collaborationRows, memoryRows, evidenceMetrics)
-    const result = run.result
-    const row = {
-      id: item.id,
-      arm,
-      caseHash: queryHash,
-      sessionId: result.sessionId,
-      turnReason: result.turnReason,
-      choice: result.choice,
-      toolCalls: result.toolCalls,
-      rootStepCount: result.rootStepCount,
-      childRuns: result.childRuns,
-      failedChildRuns: result.failedChildRuns,
-      specialistRuns: result.specialistRuns,
-      specialistFindingsCompleted: result.specialistFindingsCompleted,
-      moderatorRuns: result.moderatorRuns,
-      complexity: result.complexity,
-      wallLatencyMs: result.wallLatencyMs,
-      dshTurnLatencyMs: result.dshTurnLatencyMs,
-      memory: result.memory.map(record => ({
-        operation: record.operation, status: record.status, itemCount: record.itemCount ?? null,
-        errorClass: record.errorClass ?? null, latencyMs: record.latencyMs ?? null,
-      })),
-      evidence: result.evidence,
+const runStarted = performance.now()
+let nextCase = 0
+let activeCases = 0
+let maxObservedCaseConcurrency = 0
+const caseWorkers = Array.from({ length: Math.min(maxConcurrency, cases.length) }, async () => {
+  while (true) {
+    const index = nextCase++
+    if (index >= cases.length) return
+    const item = cases[index]
+    activeCases += 1
+    maxObservedCaseConcurrency = Math.max(maxObservedCaseConcurrency, activeCases)
+    try {
+      const caseStarted = performance.now()
+      const query = questionText(item)
+      const queryHash = hash(query)
+      for (const arm of selectedArms) {
+        const evidenceMetrics = { calls: 0, hitCount: 0, degraded: false }
+        const run = await compose(arm, item, queryHash, query, sessionRows, collaborationRows, memoryRows, evidenceMetrics, requestRows)
+        const result = run.result
+        const row = {
+          id: item.id,
+          arm,
+          caseHash: queryHash,
+          memoryNamespaceHash: result.memoryNamespaceHash,
+          sessionId: result.sessionId,
+          turnReason: result.turnReason,
+          choice: result.choice,
+          toolCalls: result.toolCalls,
+          rootStepCount: result.rootStepCount,
+          childRuns: result.childRuns,
+          failedChildRuns: result.failedChildRuns,
+          specialistRuns: result.specialistRuns,
+          specialistFindingsCompleted: result.specialistFindingsCompleted,
+          moderatorRuns: result.moderatorRuns,
+          complexity: result.complexity,
+          wallLatencyMs: result.wallLatencyMs,
+          dshTurnLatencyMs: result.dshTurnLatencyMs,
+          caseWallLatencyMs: Math.max(0, performance.now() - caseStarted),
+          memory: result.memory.map(record => ({
+            operation: record.operation, status: record.status, itemCount: record.itemCount ?? null,
+            errorClass: record.errorClass ?? null, latencyMs: record.latencyMs ?? null,
+          })),
+          evidence: result.evidence,
+        }
+        outputRows.push(row)
+        safeMetrics.push(row)
+        appendJsonl(outputPath, row)
+        process.stdout.write(`${item.id} ${arm}: ${row.turnReason}; choice=${row.choice ?? 'unparsed'}; childRuns=${row.childRuns}; latencyMs=${Math.round(row.wallLatencyMs)}\n`)
+      }
+    } catch (error) {
+      const row = {
+        id: item.id,
+        arm: options.arm,
+        caseHash: hash(questionText(item)),
+        turnReason: 'error',
+        choice: null,
+        toolCalls: [],
+        rootStepCount: 0,
+        childRuns: 0,
+        failedChildRuns: 1,
+        specialistRuns: 0,
+        specialistFindingsCompleted: 0,
+        moderatorRuns: 0,
+        complexity: 'unknown',
+        wallLatencyMs: null,
+        dshTurnLatencyMs: null,
+        caseWallLatencyMs: null,
+        memory: [],
+        evidence: { calls: 0, hitCount: 0, degraded: true },
+        errorClass: error instanceof Error ? error.name : 'UnknownError',
+      }
+      outputRows.push(row)
+      safeMetrics.push(row)
+      appendJsonl(outputPath, row)
+      process.stdout.write(`${item.id} ${options.arm}: error=${row.errorClass}\n`)
+    } finally {
+      activeCases -= 1
     }
-    outputRows.push(row)
-    safeMetrics.push(row)
-    appendJsonl(outputPath, row)
-    process.stdout.write(`${item.id} ${arm}: ${row.turnReason}; choice=${row.choice ?? 'unparsed'}; childRuns=${row.childRuns}; latencyMs=${Math.round(row.wallLatencyMs)}\n`)
+  }
+})
+await Promise.all(caseWorkers)
+const makespanMs = Math.max(0, performance.now() - runStarted)
+
+const caseOrder = new Map(cases.map((item, index) => [item.id, index]))
+outputRows.sort((a, b) => caseOrder.get(a.id) - caseOrder.get(b.id))
+safeMetrics.sort((a, b) => caseOrder.get(a.id) - caseOrder.get(b.id))
+writeJsonl(outputPath, outputRows)
+
+const childBySession = new Map(collaborationRows
+  .filter(record => record.event === 'child' && record.childRunId)
+  .map(record => [record.childRunId, record]))
+for (const record of requestRows) {
+  const child = childBySession.get(record.sessionId)
+  if (child) {
+    record.agentRole = child.roleLabel
+    record.phase = child.task
+    record.round = child.round ?? null
+    record.complexity = child.complexity
   }
 }
 
 writeJsonl(sessionTracePath, sessionRows)
 writeJsonl(collaborationTracePath, collaborationRows)
+writeJsonl(requestTracePath, requestRows)
 const predictionSha256 = hash(readFileSync(outputPath))
 const metadata = {
   task: 'HC-MA-002',
@@ -320,14 +481,26 @@ const metadata = {
   traces: {
     session: { path: sessionTracePath, rows: sessionRows.length, metadataOnly: true },
     collaboration: { path: collaborationTracePath, rows: collaborationRows.length, metadataOnly: true },
+    requests: { path: requestTracePath, rows: requestRows.length, metadataOnly: true, tokenUsagePresent: requestRows.some(row => row.promptTokens !== null && row.outputTokens !== null) },
   },
+  throughput: {
+    makespanMs,
+    maxConcurrentCases: maxObservedCaseConcurrency,
+    completedCases: safeMetrics.filter(row => row.turnReason === 'completed').length,
+    failedCases: safeMetrics.filter(row => row.turnReason !== 'completed').length,
+    requestCount: requestRows.length,
+    promptTokens: requestRows.reduce((sum, row) => sum + (row.promptTokens ?? 0), 0),
+    outputTokens: requestRows.reduce((sum, row) => sum + (row.outputTokens ?? 0), 0),
+  },
+  runProfile: { calibrationSet: options.calibrationSet, requestedConcurrency: maxConcurrency, maxObservedCaseConcurrency },
   node: process.version,
   pnpm: '11.7.0',
   gpuInference: true,
   testLabelsRead: false,
-  perCase: safeMetrics.map(({ id, arm, turnReason, choice, caseHash, childRuns, failedChildRuns, specialistRuns, specialistFindingsCompleted, moderatorRuns, complexity, evidence, memory }) => ({
+  perCase: safeMetrics.map(({ id, arm, turnReason, choice, caseHash, childRuns, failedChildRuns, specialistRuns, specialistFindingsCompleted, moderatorRuns, complexity, evidence, memory, caseWallLatencyMs, errorClass }) => ({
     id, arm, turnReason, choice, caseHash, childRuns, failedChildRuns, specialistRuns,
-    specialistFindingsCompleted, moderatorRuns, complexity, evidence,
+    specialistFindingsCompleted, moderatorRuns, complexity, evidence, caseWallLatencyMs,
+    ...(errorClass ? { errorClass } : {}),
     memory: memory.map(({ operation, status, itemCount, errorClass }) => ({ operation, status, itemCount, errorClass })),
   })),
 }

@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import contextlib
+import datetime as dt
+import hashlib
 import importlib
 import io
+import json
 import os
 import sqlite3
 import sys
 import threading
+import time
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
@@ -166,6 +171,7 @@ class AmaMemoryBackend:
         _instrument(
             instance,
             counters,
+            namespace=namespace,
             top_k=self.top_k,
             capture_usage=os.environ.get("HUIYI_MEMORY_CAPTURE_USAGE", "0").strip().lower() in {"1", "true", "yes"},
         )
@@ -228,31 +234,91 @@ def _optional_int_env(name: str, *, minimum: int, maximum: int) -> int | None:
     return parsed
 
 
-def _instrument(memory: Any, counters: _Counters, *, top_k: int | None = None, capture_usage: bool = False) -> None:
+_trace_lock = threading.Lock()
+_trace_context = threading.local()
+
+
+def _instrument(
+    memory: Any,
+    counters: _Counters,
+    *,
+    namespace: str = "unknown",
+    top_k: int | None = None,
+    capture_usage: bool = False,
+) -> None:
     original_inference = memory.memoryAgent.inference
+    namespace_hash = hashlib.sha256(namespace.encode("utf-8")).hexdigest()
 
     def counted_inference(*args: Any, **kwargs: Any) -> Any:
         counters.increment("llm_calls")
+        started_at = dt.datetime.now(dt.timezone.utc).isoformat()
+        started = time.perf_counter()
         before_prompt = int(getattr(memory.memoryAgent, "promptToken", 0))
         before_completion = int(getattr(memory.memoryAgent, "completionToken", 0))
         if capture_usage:
             kwargs["showUsage"] = True
-        response = original_inference(*args, **kwargs)
-        if capture_usage:
+        error_class: str | None = None
+        try:
+            response = original_inference(*args, **kwargs)
+            if not isinstance(response, str) or not response.strip():
+                error_class = "EmptyLocalModelResponse"
+                raise AmaBackendError(error_class)
+            return response
+        except Exception as exc:
+            error_class = type(exc).__name__
+            raise
+        finally:
             after_prompt = int(getattr(memory.memoryAgent, "promptToken", before_prompt))
             after_completion = int(getattr(memory.memoryAgent, "completionToken", before_completion))
-            prompt_delta = max(0, after_prompt - before_prompt)
-            completion_delta = max(0, after_completion - before_completion)
-            with counters.lock:
-                counters.prompt_tokens += prompt_delta
-                counters.completion_tokens += completion_delta
-                if prompt_delta or completion_delta:
+            prompt_delta = max(0, after_prompt - before_prompt) if capture_usage else None
+            completion_delta = max(0, after_completion - before_completion) if capture_usage else None
+            if capture_usage and (prompt_delta or completion_delta):
+                with counters.lock:
+                    counters.prompt_tokens += int(prompt_delta or 0)
+                    counters.completion_tokens += int(completion_delta or 0)
                     counters.usage_reports += 1
-        if not isinstance(response, str) or not response.strip():
-            raise AmaBackendError("EmptyLocalModelResponse")
-        return response
+            _write_memory_llm_trace({
+                "requestId": str(uuid.uuid4()),
+                "memoryNamespaceHash": namespace_hash,
+                "phase": getattr(_trace_context, "phase", "memory-agent"),
+                "startedAt": started_at,
+                "endedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
+                "durationMs": round((time.perf_counter() - started) * 1000, 3),
+                "requestedMaxTokens": None,
+                "promptTokens": prompt_delta,
+                "outputTokens": completion_delta,
+                "usageReported": bool(capture_usage and (prompt_delta or completion_delta)),
+                "status": "error" if error_class else "completed",
+                **({"errorClass": error_class} if error_class else {}),
+            })
 
     memory.memoryAgent.inference = counted_inference
+
+    for method_name, phase in (
+        ("inferenceRetrieve", "memory-retrieval-decision"),
+        ("inferenceJudge", "memory-relevance-judge"),
+        ("inferenceRefresh", "memory-refresh-decision"),
+        ("inferenceConstruct", "memory-fact-construction"),
+        ("inferenceJudgeEpisode", "memory-episode-judge"),
+        ("inferenceGenerateEpisode", "memory-episode-generation"),
+    ):
+        original_method = getattr(memory.memoryAgent, method_name, None)
+        if original_method is None:
+            continue
+
+        def phased(*args: Any, _original: Any = original_method, _phase: str = phase, **kwargs: Any) -> Any:
+            previous = getattr(_trace_context, "phase", None)
+            _trace_context.phase = _phase
+            try:
+                return _original(*args, **kwargs)
+            finally:
+                if previous is None:
+                    with contextlib.suppress(AttributeError):
+                        del _trace_context.phase
+                else:
+                    _trace_context.phase = previous
+
+        setattr(memory.memoryAgent, method_name, phased)
 
     if top_k is not None:
         original_inference_retrieve = memory.memoryAgent.inferenceRetrieve
@@ -277,6 +343,25 @@ def _instrument(memory: Any, counters: _Counters, *, top_k: int | None = None, c
             return _original(*args, **kwargs)
 
         setattr(memory, method_name, counted)
+
+
+def _write_memory_llm_trace(record: dict[str, Any]) -> None:
+    trace_path = os.environ.get("HUIYI_MEMORY_LLM_TRACE_FILE")
+    if not trace_path:
+        return
+    try:
+        path = Path(trace_path).expanduser()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = (json.dumps(record, separators=(",", ":"), ensure_ascii=True) + "\n").encode("utf-8")
+        with _trace_lock:
+            descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            try:
+                os.write(descriptor, payload)
+            finally:
+                os.close(descriptor)
+    except OSError:
+        # Optional observability must never change AMA request behavior.
+        return
 
 
 def _parse_retrievals(payload: str) -> list[MemoryItem]:

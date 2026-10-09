@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 from huiyi_health_engine.memory.ama_backend import AmaBackendError, AmaMemoryBackend, _Counters, _instrument, _parse_retrievals
@@ -141,7 +142,7 @@ class AmaBackendTests(unittest.TestCase):
 
         memory = FakeMemory()
         counters = _Counters()
-        _instrument(memory, counters, capture_usage=True)
+        _instrument(memory, counters, namespace="huiyi_test", capture_usage=True)
 
         memory.memoryAgent.inference([], showUsage=False)
 
@@ -149,6 +150,50 @@ class AmaBackendTests(unittest.TestCase):
         self.assertEqual(counters.snapshot()["prompt_tokens"], 47)
         self.assertEqual(counters.snapshot()["completion_tokens"], 11)
         self.assertEqual(counters.snapshot()["usage_reports"], 1)
+
+    def test_optional_memory_llm_trace_is_phase_labeled_and_metadata_only(self) -> None:
+        class FakeMemoryAgent:
+            promptToken = 0
+            completionToken = 0
+
+            def inference(self, messages: list[dict[str, str]], showUsage: bool = False) -> str:
+                if showUsage:
+                    self.promptToken += 31
+                    self.completionToken += 5
+                return "{\"operator\": -1}"
+
+            def inferenceRetrieve(self, messages: list[dict[str, str]], showUsage: bool = False) -> str:
+                return self.inference(messages, showUsage=showUsage)
+
+        class FakeMemory:
+            memoryAgent = FakeMemoryAgent()
+
+            def retrieve(self, *_args: object, **_kwargs: object) -> None:
+                return None
+
+            def refresh(self, *_args: object, **_kwargs: object) -> None:
+                return None
+
+            def constructEpisodicWrite(self, *_args: object, **_kwargs: object) -> None:
+                return None
+
+        with tempfile.TemporaryDirectory() as temp_dir, patch.dict("os.environ", {
+            "HUIYI_MEMORY_LLM_TRACE_FILE": str(Path(temp_dir) / "memory-calls.jsonl"),
+        }), patch.dict("os.environ", {"HUIYI_MEMORY_CAPTURE_USAGE": "1"}):
+            memory = FakeMemory()
+            counters = _Counters()
+            _instrument(memory, counters, namespace="huiyi_test", capture_usage=True)
+            memory.memoryAgent.inferenceRetrieve([{"content": "synthetic sensitive text"}], showUsage=False)
+            trace_line = (Path(temp_dir) / "memory-calls.jsonl").read_text(encoding="utf-8")
+
+        record = json.loads(trace_line)
+        self.assertEqual(record["phase"], "memory-retrieval-decision")
+        self.assertEqual(record["requestedMaxTokens"], None)
+        self.assertEqual(record["promptTokens"], 31)
+        self.assertEqual(record["outputTokens"], 5)
+        self.assertEqual(record["status"], "completed")
+        self.assertNotIn("synthetic sensitive text", trace_line)
+        self.assertNotIn("operator", trace_line)
 
     def test_session_end_for_empty_user_skips_without_model_calls(self) -> None:
         with tempfile.TemporaryDirectory() as data_dir:

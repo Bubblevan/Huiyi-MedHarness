@@ -1,0 +1,72 @@
+{
+  "comparesChoiceLabelsOnly": true,
+  "comparisons": [
+    {
+      "changedCaseIdSha256": "b3fdb9135441e3bc5a5cceb12166c21187e225672f601ebc38fab19cd8b3358b",
+      "changedChoiceCases": 5,
+      "left": "historical68",
+      "leftParsed": 66,
+      "pairedCases": 68,
+      "right": "eager_c4_full68",
+      "rightParsed": 67,
+      "sameChoiceCases": 63
+    },
+    {
+      "changedCaseIdSha256": "55f3c9e5a83eb07054bce2bdef6e00a7830af7543a634754b52d7dc8bf4d3359",
+      "changedChoiceCases": 5,
+      "left": "historical68",
+      "leftParsed": 23,
+      "pairedCases": 24,
+      "right": "eager_c4_24",
+      "rightParsed": 24,
+      "sameChoiceCases": 19
+    },
+    {
+      "changedCaseIdSha256": "f867f020362a793ef4923fa47a502d57ce5027b9fe6650d233294e056a2edce1",
+      "changedChoiceCases": 4,
+      "left": "eager_c1_24",
+      "leftParsed": 23,
+      "pairedCases": 24,
+      "right": "eager_c4_24",
+      "rightParsed": 24,
+      "sameChoiceCases": 20
+    },
+    {
+      "changedCaseIdSha256": "de4250b7bb2d1c70b7ef66b20407ba821a9ed843a6e663eda623a98a81dff082",
+      "changedChoiceCases": 2,
+      "left": "eager_c4_24",
+      "leftParsed": 24,
+      "pairedCases": 24,
+      "right": "eager_c8_24",
+      "rightParsed": 24,
+      "sameChoiceCases": 22
+    },
+    {
+      "changedCaseIdSha256": "295d1f2891a85d475c718e96f8b41f64a902ddfd67d7973986441dcf22fade30",
+      "changedChoiceCases": 3,
+      "left": "eager_c4_24",
+      "leftParsed": 24,
+      "pairedCases": 24,
+      "right": "eager_c16_24",
+      "rightParsed": 24,
+      "sameChoiceCases": 21
+    },
+    {
+      "changedCaseIdSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedChoiceCases": 0,
+      "left": "eager_c4_24",
+      "leftParsed": 24,
+      "pairedCases": 24,
+      "right": "graph_c4_24",
+      "rightParsed": 24,
+      "sameChoiceCases": 24
+    }
+  ],
+  "containsChoicesOrModelText": false,
+  "containsQuestionText": false,
+  "devLabelsRead": true,
+  "interpretation": "Choice changes are reported as generation/parsing differences. Dev accuracy counts are in e2e-comparison.json and are not quality-improvement evidence.",
+  "metadataOnly": true,
+  "task": "HC-PERF-001",
+  "testLabelsRead": false
+}

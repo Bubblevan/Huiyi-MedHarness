@@ -1,0 +1,81 @@
+{
+  "clinicalContent": false,
+  "date": "2026-10-09",
+  "dtype": "BF16",
+  "evidenceDirectory": "/root/gpufree-data/repro/hc-perf-001/phase-b-20261009/api-synthetic",
+  "interpretation": "Synthetic API throughput increases with client concurrency; this does not predict end-to-end question makespan. The benchmark-reported observed concurrency may exceed the requested value (including warm-up/internal scheduling), so compare requested setting and completed workload, not that field as an exact server concurrency cap.",
+  "kind": "synthetic vLLM API throughput benchmark",
+  "model": "Qwen/Qwen3-8B",
+  "ragOrMemory": false,
+  "requestShape": {
+    "count": 64,
+    "fixedPrefixTokens": 256,
+    "randomInputTokensRange": [
+      864,
+      1440
+    ],
+    "randomOutputTokensRange": [
+      84,
+      140
+    ],
+    "temperature": 0,
+    "thinking": false
+  },
+  "results": [
+    {
+      "completed": 64,
+      "durationSeconds": 171.62819916498847,
+      "failed": 0,
+      "inputTokens": 91242,
+      "medianTpotMs": 22.34191483791278,
+      "medianTtftMs": 188.6608439963311,
+      "observedMaxConcurrentRequests": 2,
+      "outputTokens": 7211,
+      "outputTokensPerSecond": 42.0152401241941,
+      "p99TpotMs": 22.4147550825155,
+      "p99TtftMs": 240.5044431472197,
+      "prompts": 64,
+      "requestedClientConcurrency": 1,
+      "requestsPerSecond": 0.37289909415454475,
+      "speedupVsConcurrency1": 1.0
+    },
+    {
+      "completed": 64,
+      "durationSeconds": 46.13736979290843,
+      "failed": 0,
+      "inputTokens": 91242,
+      "medianTpotMs": 24.77569897264337,
+      "medianTtftMs": 75.71371248923242,
+      "observedMaxConcurrentRequests": 8,
+      "outputTokens": 7211,
+      "outputTokensPerSecond": 156.29412843357125,
+      "p99TpotMs": 24.867598554290666,
+      "p99TtftMs": 104.86735930433497,
+      "prompts": 64,
+      "requestedClientConcurrency": 4,
+      "requestsPerSecond": 1.3871618665578365,
+      "speedupVsConcurrency1": 3.7199389548072737
+    },
+    {
+      "completed": 64,
+      "durationSeconds": 24.942888078978285,
+      "failed": 0,
+      "inputTokens": 91242,
+      "medianTpotMs": 25.96879639775464,
+      "medianTtftMs": 80.57101862505078,
+      "observedMaxConcurrentRequests": 13,
+      "outputTokens": 7211,
+      "outputTokensPerSecond": 289.10044326732907,
+      "p99TpotMs": 26.189797044465895,
+      "p99TtftMs": 101.23465414159,
+      "prompts": 64,
+      "requestedClientConcurrency": 8,
+      "requestsPerSecond": 2.5658616515197696,
+      "speedupVsConcurrency1": 6.8808471024506455
+    }
+  ],
+  "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "serverMode": "Eager; same 40,960 context / max-num-seqs=8 / max-num-batched-tokens=2048 / prefix cache / chunked prefill settings as E2E",
+  "task": "HC-PERF-001",
+  "testLabelsRead": false
+}

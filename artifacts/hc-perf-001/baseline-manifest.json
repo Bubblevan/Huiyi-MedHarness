@@ -1,0 +1,52 @@
+{
+  "baseCommit": "b6aea7bb4d836e35349739da5ece97a64b9ec17b",
+  "branch": "codex/hc-perf-001-l40",
+  "completedRuns": {
+    "full68": "Eager C4, 68/68 completed, output directory /root/gpufree-data/repro/hc-perf-001/phase-b-20261009/eager-c4-full68",
+    "pilot24": [
+      "Eager case concurrency 1,2,4,8,16",
+      "Eager C4 max_num_seqs=16",
+      "Eager C4 max_num_batched_tokens=4096",
+      "FULL_AND_PIECEWISE C4"
+    ],
+    "syntheticApi": "Eager vLLM bench serve with 64 requests at requested concurrency 1,4,8; see api-throughput-summary.json"
+  },
+  "historicalBaseline": {
+    "caseCount": 68,
+    "caseHashMatches": 68,
+    "caseIdSha256": "a58faff04e71b4afb744b8e26fd85b3ca940ba2719200ceb508e1e2e2e87b72b",
+    "fullMakespanAvailable": false,
+    "inferenceLabelsRead": false,
+    "notes": "Existing partial records remain immutable. They lack per-request token, prefill/decode, queue and GPU telemetry.",
+    "predictionsSha256": "77a260ad48c1335882125239f62f3c4fc17d10ef6a1549124985e416ac05b4ee",
+    "rootTurnSpanMs": 1091640,
+    "runLabel": "medqa-dev-e2e-final-harness-promptfix-v2-20261009",
+    "sourceQuestionsSha256": "4ad67d3ace408fb19b6d2e809634d71f202ebf919bb0bacde4e23edaa1efca51"
+  },
+  "model": {
+    "contextWindow": 40960,
+    "dtype": "bfloat16",
+    "id": "Qwen/Qwen3-8B",
+    "method": "adaptive collaboration + RAG + read-only Memory + DSH root AgentLoop",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "sampling": {
+      "seed": 0,
+      "temperature": 0,
+      "thinking": false
+    }
+  },
+  "plannedRuns": {
+    "fp8": "NOT_TESTED_SEMANTIC_ARM",
+    "offlinePrefillDecodeMicrobenchmark": "BLOCKED_NOT_RUN: GPU availability could not be verified after inference process shutdown",
+    "sftCanary": "BLOCKED_NOT_RUN: GPU availability could not be verified after inference process shutdown",
+    "speculativeDecoding": "NOT_TESTED_NO_VERIFIED_DRAFT"
+  },
+  "preparedInputs": {
+    "candidateOutputsWrittenOverBaseline": false,
+    "externalDirectory": "/root/gpufree-data/repro/hc-perf-001/phase-b-20261009/prepared",
+    "full68Sha256": "4def79b11369a18996d1d444460444fb8f9b7dbb5e15965efc20fe9921a9821e",
+    "pilot24Sha256": "8884cf1576ac52d7ce3b89beb784ac44ca75ccef20127a3a6ffc973a2fe562b5",
+    "pilotSelection": "length-stratified within historical complexity: 8 basic, 13 intermediate, all 3 advanced"
+  },
+  "task": "HC-PERF-001"
+}

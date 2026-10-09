@@ -1,0 +1,28 @@
+{
+  "bf16Lora": {
+    "adapterSaveReload": "NOT_TESTED",
+    "modelForwardBackward": "NOT_TESTED",
+    "optimizerStep": "NOT_TESTED",
+    "packageImports": "PASS",
+    "trainerSignatureCheck": "PASS"
+  },
+  "date": "2026-10-09",
+  "gpuCanaryStarted": false,
+  "gpuProcessStoppedByTask": true,
+  "medqaDataUsed": false,
+  "qlora4bit": {
+    "adapterSaveReload": "NOT_TESTED",
+    "packageImport": "PASS",
+    "training": "NOT_TESTED"
+  },
+  "reason": "Owned vLLM process stopped; GPU memory remained occupied without process attribution and subsequent driver queries intermittently failed. Shared-GPU boundary prohibited starting optimizer work.",
+  "requiredBeforeRetry": "Verify nvidia-smi memory is released and attribute every process; use an isolated output path and recheck cgroup/storage.",
+  "status": "BLOCKED_NOT_RUN",
+  "syntheticDataPlanned": {
+    "count": 32,
+    "domain": "non-sensitive synthetic arithmetic only"
+  },
+  "task": "HC-PERF-001",
+  "testLabelsRead": false,
+  "trainingOrCheckpointCreated": false
+}
