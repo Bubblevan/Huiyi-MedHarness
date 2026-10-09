@@ -99,6 +99,7 @@ export class CollaborationOrchestrator {
         ...(request.round === undefined ? {} : { round: request.round }),
         childRunCount: budget.snapshot().startedChildRuns, degraded,
         ...(result.status === 'failed' ? { failureClass: safeFailureClass(result.failureClass) } : {}),
+        ...(result.status === 'failed' && result.validationCode ? { validationCode: result.validationCode } : {}),
       })
       return result
     }

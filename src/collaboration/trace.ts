@@ -19,6 +19,8 @@ export interface CollaborationTraceRecord {
   readonly childRunCount: number
   readonly degraded: boolean
   readonly failureClass?: string
+  /** Allowlisted validation category; rejected structured output is never copied into traces. */
+  readonly validationCode?: string
 }
 
 export interface CollaborationTraceSink {

@@ -19,8 +19,12 @@ function caseContext(state: HealthCaseState): string {
   return sections.join('\n\n')
 }
 
+function specialistOutputContract(specialist: SpecialistSpec): string {
+  return `Output one JSON object with exactly these required fields: specialistId, role, summary. Set specialistId to ${JSON.stringify(specialist.id)} and role to ${JSON.stringify(specialist.role)}; copy both values exactly, including capitalization. summary must be a concise, non-empty string no longer than 1500 characters. You may include recommendation as a short string and confidence as a number from 0 to 1. Omit either optional field when unavailable; do not use null. Do not add fields, markdown, or hidden reasoning.`
+}
+
 export function buildComplexityClassificationPrompt(state: HealthCaseState): string {
-  return `Classify the execution complexity of this medical case as basic, intermediate, or advanced.\n\n${caseContext(state)}\n\nUse basic when the root single agent can answer. Use intermediate when distinct specialists should independently assess the case and a moderator should review their findings. Use advanced when multiple MDT groups with distinct goals should investigate and synthesize findings. Return a concise rationaleSummary; do not provide hidden reasoning.`
+  return `Classify the execution complexity of this medical case. Return one JSON object with exactly these fields: complexity and rationaleSummary. complexity must be exactly one lowercase value: "basic", "intermediate", or "advanced". rationaleSummary must be one plain sentence, non-empty, and no more than 160 characters. Do not use a list, add other fields, or provide hidden reasoning.\n\n${caseContext(state)}\n\nUse basic when the root single agent can answer. Use intermediate when distinct specialists should independently assess the case and a moderator should review their findings. Use advanced when multiple MDT groups with distinct goals should investigate and synthesize findings.`
 }
 
 export function buildSpecialistRecruitmentPrompt(state: HealthCaseState, target: number): string {
@@ -32,7 +36,7 @@ export function buildMdtPlanningPrompt(state: HealthCaseState, maxTeams: number,
 }
 
 export function buildSpecialistAnalysisPrompt(state: HealthCaseState, specialist: SpecialistSpec): string {
-  return `Perform an independent medical assessment for your assigned role. Return a concise summary, an optional recommendation, and optional confidence from 0 to 1. Do not include hidden reasoning.\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nAssigned Specialist ID\n${specialist.id}`
+  return `Perform an independent medical assessment for your assigned role.\n\n${specialistOutputContract(specialist)}\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nAssigned Specialist ID\n${specialist.id}`
 }
 
 export function buildPeerRefinementPrompt(
@@ -45,7 +49,7 @@ export function buildPeerRefinementPrompt(
     .filter(finding => finding.specialistId !== ownFinding.specialistId)
     .slice(0, 8)
     .map(finding => `- ${bounded(finding.role, 80)}: ${bounded(finding.summary, 800)}${finding.recommendation ? ` Recommendation: ${bounded(finding.recommendation, 500)}` : ''}`)
-  return `Refine your structured assessment using only these bounded peer summaries. Preserve your assigned role and ID. Return a concise summary and recommendation; do not include hidden reasoning.\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nRelevant Peer Summaries\n${peers.length ? peers.join('\n') : 'No peer summaries available'}\n\nYour Previous Finding\n${bounded(ownFinding.summary, 1_000)}${ownFinding.recommendation ? `\nRecommendation: ${bounded(ownFinding.recommendation, 500)}` : ''}`
+  return `Refine your structured assessment using only these bounded peer summaries.\n\n${specialistOutputContract(specialist)}\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nRelevant Peer Summaries\n${peers.length ? peers.join('\n') : 'No peer summaries available'}\n\nYour Previous Finding\n${bounded(ownFinding.summary, 1_000)}${ownFinding.recommendation ? `\nRecommendation: ${bounded(ownFinding.recommendation, 500)}` : ''}`
 }
 
 export function buildSpecialistFinalPrompt(
@@ -58,7 +62,7 @@ export function buildSpecialistFinalPrompt(
     .filter(finding => finding.specialistId !== ownFinding.specialistId)
     .slice(0, 8)
     .map(finding => `- ${bounded(finding.role, 80)}: ${bounded(finding.summary, 800)}${finding.recommendation ? ` Recommendation: ${bounded(finding.recommendation, 500)}` : ''}`)
-  return `Submit your final structured finding after the bounded collaboration rounds. Reconsider your previous assessment in light of the peer summaries. Do not include hidden reasoning.\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nRelevant Peer Summaries\n${peers.length ? peers.join('\n') : 'No peer summaries available'}\n\nYour Previous Finding\n${bounded(ownFinding.summary, 1_000)}${ownFinding.recommendation ? `\nRecommendation: ${bounded(ownFinding.recommendation, 500)}` : ''}`
+  return `Submit your final structured finding after the bounded collaboration rounds. Reconsider your previous assessment in light of the peer summaries.\n\n${specialistOutputContract(specialist)}\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nRelevant Peer Summaries\n${peers.length ? peers.join('\n') : 'No peer summaries available'}\n\nYour Previous Finding\n${bounded(ownFinding.summary, 1_000)}${ownFinding.recommendation ? `\nRecommendation: ${bounded(ownFinding.recommendation, 500)}` : ''}`
 }
 
 export function buildTeamSynthesisPrompt(
@@ -69,7 +73,7 @@ export function buildTeamSynthesisPrompt(
   const projected = findings.slice(0, 8).map(finding =>
     `- ${bounded(finding.role, 80)}: ${bounded(finding.summary, 800)}${finding.recommendation ? ` Recommendation: ${bounded(finding.recommendation, 500)}` : ''}`,
   )
-  return `Synthesize the structured findings for this MDT goal. Return only teamId and a concise summary. Do not add member findings or hidden reasoning.\n\n${caseContext(state)}\n\nTeam Goal\n${bounded(team.goal, 300)}\n\nTeam Members\n${team.members.map(member => `- ${bounded(member.role, 80)} (${member.id})`).join('\n')}\n\nMember Findings\n${projected.join('\n')}`
+  return `Synthesize the structured findings for this MDT goal. Return one JSON object with exactly these fields: teamId and summary. Set teamId to the exact value "${team.id}"; copy it exactly. summary must be concise, non-empty, and at most 2000 characters. Do not add member findings or hidden reasoning.\n\n${caseContext(state)}\n\nTeam Goal\n${bounded(team.goal, 300)}\n\nTeam Members\n${team.members.map(member => `- ${bounded(member.role, 80)} (${member.id})`).join('\n')}\n\nMember Findings\n${projected.join('\n')}`
 }
 
 export function buildModeratorPrompt(

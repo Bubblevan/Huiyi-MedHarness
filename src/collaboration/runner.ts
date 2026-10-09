@@ -38,6 +38,8 @@ export type ClinicalChildResult =
   | {
       readonly status: 'failed'
       readonly failureClass: string
+      /** Allowlisted domain-validation category only; never contains rejected output text. */
+      readonly validationCode?: string
       readonly runId?: string
       readonly stopReason?: ClinicalStopReason
       readonly startedAt: number

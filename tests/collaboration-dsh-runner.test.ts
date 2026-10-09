@@ -120,4 +120,23 @@ describe('DSH clinical child runner', () => {
     expect(handle.dispose).toHaveBeenCalledTimes(1)
     expect(JSON.stringify(result)).not.toContain('private cleanup detail')
   })
+
+  it('records an allowlisted validation category without retaining rejected output or error text', async () => {
+    const { ctx, handle } = makeContext(Promise.resolve({ stopReason: 'completed', structured: { complexity: 'BASIC' } }))
+    const decode = () => { throw new TypeError('invalid case complexity') }
+    const result = await new DshClinicalChildRunner(ctx).run(parent, request({ decode }), new AbortController().signal)
+    expect(result).toMatchObject({ status: 'failed', failureClass: 'InvalidStructuredOutput', validationCode: 'invalid_case_complexity' })
+    expect(handle.dispose).toHaveBeenCalledTimes(1)
+    expect(JSON.stringify(result)).not.toContain('invalid case complexity')
+    expect(JSON.stringify(result)).not.toContain('BASIC')
+  })
+
+  it('does not expose an unknown validation error message as metadata', async () => {
+    const { ctx } = makeContext(Promise.resolve({ stopReason: 'completed', structured: {} }))
+    const decode = () => { throw new TypeError('private provider output') }
+    const result = await new DshClinicalChildRunner(ctx).run(parent, request({ decode }), new AbortController().signal)
+    expect(result).toMatchObject({ status: 'failed', failureClass: 'InvalidStructuredOutput' })
+    expect(JSON.stringify(result)).not.toContain('private provider output')
+    expect(JSON.stringify(result)).not.toContain('validationCode')
+  })
 })

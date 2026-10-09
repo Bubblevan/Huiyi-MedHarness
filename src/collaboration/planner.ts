@@ -29,11 +29,13 @@ export function decodeComplexityDecision(value: unknown): ComplexityDecision {
     throw new TypeError('invalid complexity decision object')
   }
   const complexity = value.complexity
-  const rationaleSummary = boundedText(value.rationaleSummary, 500)
   if (complexity !== 'basic' && complexity !== 'intermediate' && complexity !== 'advanced') {
     throw new TypeError('invalid case complexity')
   }
-  if (!rationaleSummary) throw new TypeError('invalid complexity rationale summary')
+  if (typeof value.rationaleSummary !== 'string') throw new TypeError('invalid complexity rationale summary type')
+  const rationaleSummary = value.rationaleSummary.normalize('NFKC').trim().replace(/\s+/g, ' ')
+  if (!rationaleSummary) throw new TypeError('empty complexity rationale summary')
+  if (rationaleSummary.length > 500) throw new TypeError('overlong complexity rationale summary')
   return { complexity, rationaleSummary }
 }
 

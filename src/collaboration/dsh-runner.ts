@@ -27,6 +27,18 @@ interface DshSubagentStartRequest {
   readonly persona: string
 }
 
+function safeValidationCode(error: unknown): string | undefined {
+  if (!(error instanceof TypeError)) return undefined
+  switch (error.message) {
+    case 'invalid complexity decision object': return 'invalid_complexity_decision_object'
+    case 'invalid case complexity': return 'invalid_case_complexity'
+    case 'invalid complexity rationale summary type': return 'invalid_complexity_rationale_summary_type'
+    case 'empty complexity rationale summary': return 'empty_complexity_rationale_summary'
+    case 'overlong complexity rationale summary': return 'overlong_complexity_rationale_summary'
+    default: return undefined
+  }
+}
+
 type PendingChildResult =
   | Omit<Extract<ClinicalChildResult, { status: 'completed' }>, 'endedAt'>
   | Omit<Extract<ClinicalChildResult, { status: 'failed' }>, 'endedAt'>
@@ -97,9 +109,11 @@ export class DshClinicalChildRunner implements ClinicalChildRunner {
             const value = request.decode(result.structured)
             outcome = { status: 'completed', value, runId: run.id, stopReason: 'completed', startedAt }
           } catch (error: unknown) {
+            const validationCode = safeValidationCode(error)
             outcome = {
               status: 'failed',
               failureClass: 'InvalidStructuredOutput',
+              ...(validationCode ? { validationCode } : {}),
               runId: run.id,
               stopReason: 'completed',
               startedAt,

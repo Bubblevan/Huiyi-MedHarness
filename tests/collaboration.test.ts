@@ -5,7 +5,8 @@ import { CollaborationBudget } from '../src/collaboration/budget.js'
 import type { ClinicalChildRequest, ClinicalChildResult, ClinicalChildRunner, ClinicalStopReason } from '../src/collaboration/runner.js'
 import { CollaborationOrchestrator } from '../src/collaboration/orchestrator.js'
 import { benchmarkPolicy, policyFor, productPolicy } from '../src/collaboration/policy.js'
-import { planFromMdt, planFromRecruitment } from '../src/collaboration/planner.js'
+import { decodeComplexityDecision, planFromMdt, planFromRecruitment } from '../src/collaboration/planner.js'
+import { buildComplexityClassificationPrompt, buildTeamSynthesisPrompt } from '../src/collaboration/prompts.js'
 import { MetadataCollaborationTrace } from '../src/collaboration/trace.js'
 
 const parent = {} as Agent
@@ -338,5 +339,39 @@ describe('collaboration cancellation and metadata trace', () => {
     expect(serializedTrace).not.toContain('PRIVATE_CASE_TEXT')
     expect(serializedTrace).not.toContain('Synthetic summary')
     expect(JSON.stringify(snapshot)).toContain('Synthetic summary')
+  })
+})
+
+describe('collaboration structured-output prompts', () => {
+  it('spells out the classifier enum and required output fields', () => {
+    const prompt = buildComplexityClassificationPrompt(caseState())
+    expect(prompt).toContain('exactly these fields: complexity and rationaleSummary')
+    expect(prompt).toContain('"basic", "intermediate", or "advanced"')
+    expect(prompt).toContain('one plain sentence, non-empty, and no more than 160 characters')
+  })
+
+  it('distinguishes empty, wrong-type, and overlong classifier rationale without inspecting values', () => {
+    expect(() => decodeComplexityDecision({ complexity: 'basic', rationaleSummary: '   ' }))
+      .toThrow('empty complexity rationale summary')
+    expect(() => decodeComplexityDecision({ complexity: 'basic', rationaleSummary: 1 }))
+      .toThrow('invalid complexity rationale summary type')
+    expect(() => decodeComplexityDecision({ complexity: 'basic', rationaleSummary: 'x'.repeat(501) }))
+      .toThrow('overlong complexity rationale summary')
+  })
+
+  it('gives the MDT synthesizer the exact team id required by validation', () => {
+    const team = {
+      id: 'team-2',
+      goal: 'Assess the case from a renal perspective.',
+      members: [{ id: 'team-2-specialist-1', role: 'Nephrology', expertise: 'Renal medicine' }],
+    }
+    const prompt = buildTeamSynthesisPrompt(caseState(), team, [{
+      specialistId: 'team-2-specialist-1',
+      role: 'Nephrology',
+      summary: 'Synthetic finding.',
+    }])
+    expect(prompt).toContain('exactly these fields: teamId and summary')
+    expect(prompt).toContain('Set teamId to the exact value "team-2"; copy it exactly')
+    expect(prompt).toContain('at most 2000 characters')
   })
 })
