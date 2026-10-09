@@ -1,0 +1,172 @@
+{
+  "task": "HC-MA-002",
+  "branch": "codex/hc-ma-002-live-validation",
+  "baseCommit": "affeb4ad6054d0ff232f4bf3ef095cc53b1700cf",
+  "dsh": {
+    "repository": "deepseek-ai/deepseek-harness",
+    "commit": "5badb15009ae1756c3afe0ae0cef1faafc290ccc",
+    "version": "0.2.1-alpha.1"
+  },
+  "environment": {
+    "node": "v22.23.3",
+    "pnpm": "11.7.0",
+    "gpu": "NVIDIA L40",
+    "localModel": {
+      "id": "Qwen/Qwen3-8B",
+      "path": "/root/gpufree-share/data/Qwen3-8B",
+      "contextWindow": 40960,
+      "provider": "hc-ma-002-local-qwen"
+    },
+    "dshPiAiAdapter": "@deepseek-ai/dsh-llm-pi-ai@0.2.1-alpha.1",
+    "vllm": "0.30.1rc1.dev622+gf03026a54",
+    "contextWindow": 40960,
+    "toolCallParser": "hermes",
+    "enableAutoToolChoice": true
+  },
+  "diagnostic": {
+    "split": "dev",
+    "selection": [
+      {
+        "id": "medqa-dev-00000",
+        "rowIndex": 0,
+        "questionOptionsSha256": "b8676c1d70a639606980872e6d5e3ec8ade94939c5956e56a5462d73649c5537"
+      },
+      {
+        "id": "medqa-dev-00050",
+        "rowIndex": 50,
+        "questionOptionsSha256": "ff7ace7e7a55770092871092e013ac7d44b05255595ad8db3301e89fe19adbaf"
+      },
+      {
+        "id": "medqa-dev-00100",
+        "rowIndex": 100,
+        "questionOptionsSha256": "5482d6457ede6b116a803eb3c8f5f62a69cedf9259909c937873286dca045ce2"
+      },
+      {
+        "id": "medqa-dev-00150",
+        "rowIndex": 150,
+        "questionOptionsSha256": "8767f9b263ffa37a915d6a71ae2522aad2430eb018383743d54d0dde145d6008"
+      }
+    ],
+    "sourceSha256": "6bdc019180ebf82908c5690b6266898341fee5fd3b807ed0201c39c93f3424c6",
+    "projectionSha256": "d817befe15417df0f7fa468a842adda6268a7700f640f028215f5a60572b8b71",
+    "predictionSha256": "7cd4197c59d41d93946a161929e95e1e7e93d9c71a4c56834650b18da2716ba5",
+    "scoringKeySha256": "dc4e8e15d6ef054136f50cc263323bf3a67fa66a300c6ed9e5b0d134fd6ce016",
+    "predictionRows": 8,
+    "scores": {
+      "adaptive": {
+        "correct": 4,
+        "total": 4,
+        "accuracy": 1,
+        "parsedChoices": 4
+      },
+      "single": {
+        "correct": 4,
+        "total": 4,
+        "accuracy": 1,
+        "parsedChoices": 4
+      }
+    },
+    "scope": "four-case smoke diagnostic; no accuracy or paper-parity claim"
+  },
+  "runtime": {
+    "rootTurnsCompleted": 8,
+    "rootTurns": 8,
+    "rootCollaborationCalls": 4,
+    "childCollaborationCalls": 0,
+    "childStructuredOutputCalls": 14,
+    "failedToolResults": 0,
+    "collaborationTraceRows": 14,
+    "sessionMetadataRows": 164,
+    "sampleTraceRows": 6
+  },
+  "sharedContext": {
+    "evidence": "one pre-fetched EvidenceSet per case/arm; Adaptive children reuse the same EvidenceSet through HealthCaseState",
+    "evidenceDegradedCases": 0,
+    "evidenceHitsPerRun": [
+      {
+        "id": "medqa-dev-00000",
+        "arm": "single",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00000",
+        "arm": "adaptive",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00050",
+        "arm": "single",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00050",
+        "arm": "adaptive",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00100",
+        "arm": "single",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00100",
+        "arm": "adaptive",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00150",
+        "arm": "single",
+        "calls": 1,
+        "hitCount": 3
+      },
+      {
+        "id": "medqa-dev-00150",
+        "arm": "adaptive",
+        "calls": 1,
+        "hitCount": 3
+      }
+    ],
+    "memory": {
+      "recallsCompleted": 8,
+      "itemsPerRecall": 0,
+      "turnWritesEnabled": false
+    }
+  },
+  "historicalReview": {
+    "priorRuntimeIssue": "vLLM initially rejected tool_choice=auto before inference without auto-tool-choice and Hermes parser flags; the later pinned DSH smoke passed with those flags.",
+    "currentRuntime": "all final diagnostic root turns completed; zero failed tool results; no child collaboration-tool calls.",
+    "parser": "historical RAG parser handles known Qwen wrappers; one earlier precheck was unparseable, but its raw output was discarded. All final diagnostic choices parsed."
+  },
+  "protections": {
+    "testLabelsRead": false,
+    "rawQuestionTextCommitted": false,
+    "rawEvidenceCommitted": false,
+    "rawModelResponsesCommitted": false,
+    "hiddenReasoningCommitted": false,
+    "memoryReadOnly": true
+  },
+  "cpuAcceptance": {
+    "install": {
+      "command": "pnpm install --frozen-lockfile --ignore-scripts",
+      "result": "PASS"
+    },
+    "typecheck": "PASS",
+    "build": "PASS",
+    "tests": {
+      "result": "PASS",
+      "files": 9,
+      "passed": 67,
+      "failed": 0
+    },
+    "node": "v22.23.3",
+    "pnpm": "11.7.0",
+    "gpuInference": true,
+    "cgroupOomEventsAfterRun": 0
+  }
+}

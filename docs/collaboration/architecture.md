@@ -81,4 +81,6 @@ Trace records contain a SHA-256 case hash, profile, complexity, task/role labels
 
 ## Composition fixture
 
-See [`examples/hc-ma-001-collaboration-profile.patch.example.yml`](../../examples/hc-ma-001-collaboration-profile.patch.example.yml) and [`examples/hc-ma-001-collaboration-composition.ts`](../../examples/hc-ma-001-collaboration-composition.ts). The fixture composes the two DSH packages and returns Huiyi's typed capability; normal `apply()` does not invoke it.
+`installCollaboration(ctx)` is a low-level explicit API for hosts that need the `CollaborationOrchestrator` directly. The typed product tool is separate: `applyWithIdentity()` observes the native DSH `spawn` provider and mounts `consult_clinical_team` only while it is available. Its policy section is installed through each live root Agent's scoped context during `agent/created`; child Agents receive neither the root policy nor the global Huiyi tools under `toolFilter: { allow: [] }`.
+
+See [`examples/hc-ma-001-collaboration-profile.patch.example.yml`](../../examples/hc-ma-001-collaboration-profile.patch.example.yml) and [`examples/hc-ma-001-collaboration-composition.ts`](../../examples/hc-ma-001-collaboration-composition.ts) for the original HC-MA-001 low-level composition fixture. HC-MA-002 adds the validated root-scoped product mount through the normal Huiyi bundle path.

@@ -8,6 +8,8 @@ import type { MedicalEvidenceClientPort } from './rag/contracts.js'
 import { RagClient } from './rag/client.js'
 import { installRagTool } from './rag/tool.js'
 import { observeSessionEvents } from './trace.js'
+import { installCollaborationWhenSpawnAvailable } from './collaboration/dsh-tool.js'
+import type { CollaborationTraceSink } from './collaboration/trace.js'
 
 export * from './memory/index.js'
 export * from './rag/index.js'
@@ -16,6 +18,13 @@ export * from './collaboration/index.js'
 
 export const name = 'huiyi-medharness'
 export const inject = ['tools', 'systemPrompt']
+
+export interface ApplyWithIdentityOptions {
+  readonly memory?: MemoryLifecycleOptions
+  readonly memoryClient?: MemoryClientPort
+  readonly memoryTrace?: MemoryTraceSink
+  readonly collaborationTrace?: CollaborationTraceSink
+}
 
 export function apply(ctx: Context): void {
   applyWithIdentity(ctx, () => process.env.HUIYI_MEMORY_USER_ID?.trim() || undefined)
@@ -26,13 +35,18 @@ export function applyWithIdentity(
   ctx: Context,
   resolveUserId: MemoryUserIdResolver,
   evidenceClient: MedicalEvidenceClientPort = new RagClient(),
-): void {
-  const memoryClient = new MemoryClient()
-  const memoryTrace = new MetadataMemoryTrace()
-  const memoryLifecycle = installMemoryLifecycle(ctx, memoryClient, memoryTrace, resolveUserId)
+  options: ApplyWithIdentityOptions = {},
+): MemoryLifecycle {
+  const memoryClient = options.memoryClient ?? new MemoryClient()
+  const memoryTrace = options.memoryTrace ?? new MetadataMemoryTrace()
+  const memoryLifecycle = installMemoryLifecycle(ctx, memoryClient, memoryTrace, resolveUserId, options.memory)
   installMemoryTools(ctx, memoryClient, memoryLifecycle)
   installRagTool(ctx, evidenceClient)
+  installCollaborationWhenSpawnAvailable(ctx, memoryLifecycle, evidenceClient, {
+    ...(options.collaborationTrace ? { trace: options.collaborationTrace } : {}),
+  })
   observeSessionEvents(ctx)
+  return memoryLifecycle
 }
 
 /** Mount only the memory capability for read-only benchmark profiles. */

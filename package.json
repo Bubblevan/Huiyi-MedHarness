@@ -18,12 +18,15 @@
     "build": "tsc -p tsconfig.json",
     "build:core": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
-    "test": "vitest run tests/collaboration-dsh-runner.test.ts tests/collaboration.test.ts tests/evidence.test.ts tests/locomo-dsh-lifecycle.test.ts tests/locomo-prompt.test.ts tests/memory.test.ts tests/rag.test.ts",
+    "test": "vitest run tests/collaboration-dsh-runner.test.ts tests/collaboration-dsh-composition.test.ts tests/collaboration-dsh-tool.test.ts tests/collaboration.test.ts tests/evidence.test.ts tests/locomo-dsh-lifecycle.test.ts tests/locomo-prompt.test.ts tests/memory.test.ts tests/rag.test.ts",
     "prepare": "pnpm build:core",
     "demo:dev": "pnpm --parallel --filter @huiyi/demo-gateway --filter @huiyi/demo-web dev",
     "demo:build": "pnpm --filter @huiyi/demo-gateway build && pnpm --filter @huiyi/demo-web build",
     "demo:test": "pnpm --filter @huiyi/demo-gateway test && pnpm --filter @huiyi/demo-web test",
-    "demo:trace": "node scripts/demo/write-fixture-trace.mjs"
+    "demo:trace": "node scripts/demo/write-fixture-trace.mjs",
+    "hc-ma-002:prepare": "python scripts/hc-ma-002/prepare_medqa_dev.py",
+    "hc-ma-002:live": "node scripts/hc-ma-002/run_local_qwen.mjs",
+    "hc-ma-002:score": "python scripts/hc-ma-002/score_medqa_dev.py"
   },
   "dsh": {
     "bundle": {
@@ -34,9 +37,9 @@
     "@deepseek-ai/cordis": "4.0.5-alpha.1",
     "@deepseek-ai/dsh-agent": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-session": "0.2.1-alpha.1",
+    "@deepseek-ai/dsh-subagent": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-system-prompt": "0.2.1-alpha.1",
-    "@deepseek-ai/dsh-tools": "0.2.1-alpha.1",
-    "@deepseek-ai/dsh-subagent": "0.2.1-alpha.1"
+    "@deepseek-ai/dsh-tools": "0.2.1-alpha.1"
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/dsh-subagent": {
@@ -48,8 +51,10 @@
     "@deepseek-ai/dsh-agent": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-agent-loop": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-llm": "0.2.1-alpha.1",
+    "@deepseek-ai/dsh-llm-pi-ai": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-session": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-session-projection": "0.2.1-alpha.1",
+    "@deepseek-ai/dsh-subagent-spawn-in-process": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-system-prompt": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-tools": "0.2.1-alpha.1",
     "@deepseek-ai/dsh-typert-registry": "0.2.1-alpha.1",

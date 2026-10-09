@@ -62,7 +62,11 @@ MDAgents models expert-to-expert discussion. DSH's `sendMessage` is authorized f
 
 ## Ownership and activation
 
-There is one Huiyi-owned outer control path. DSH may internally run child Agents through its native subagent service. Huiyi introduces no second custom AgentLoop. The normal product `apply()` path does not install or invoke live collaboration. An explicit `installCollaboration(...)` composition API is exposed for a later validated host integration.
+There is one Huiyi-owned outer control path. DSH may internally run child Agents through its native subagent service. Huiyi introduces no second custom AgentLoop. At HC-MA-001, the normal product `apply()` path did not install live collaboration; the low-level `installCollaboration(...)` API was exposed for a later validated host integration.
+
+### HC-MA-002 activation amendment (2026-10-09)
+
+After the pinned DSH/local Qwen smoke and fixed four-case dev diagnostic passed, HC-MA-002 wires the typed `consult_clinical_team` capability into `applyWithIdentity()`. It mounts only when the host provides DSH's native `spawn` service, scopes the instruction to runtime root Agents through `agent.ctx`, and hides inherited global tools from children with `toolFilter: { allow: [] }` and `maxDepth: 1`. The root DSH AgentLoop remains the sole owner of the user-facing answer. A four-case dev diagnostic is integration evidence only; it does not establish a general accuracy gain or MDAgents paper parity.
 
 Product-mode moderator output is decision support for the root Agent; it does not replace the root DSH AgentLoop's user-facing answer. A future benchmark adapter may separately interpret a moderator choice as an evaluation answer. The two outcomes are not conflated.
 
@@ -73,7 +77,7 @@ Product-mode moderator output is decision support for the root Agent; it does no
 - Advanced work requires at least one successful specialist finding in every planned team before team synthesis or moderator review. If any team has no successful finding, all team synthesis and moderator work are skipped; successful findings from other teams remain available, and the snapshot is degraded for root fallback. If every team passes that threshold but a synthesis child fails, the moderator can review the available specialist and team summaries. No consensus is fabricated.
 - Intermediate benchmark budgeting covers one classifier, one recruiter, five independent findings, 125 bounded discussion refinements, five final specialist findings, and one moderator (138 total child runs).
 - Traces contain identifiers, role labels, counts, timing, stop reasons, and status only. They omit case text, memory content, evidence passages, prompts, findings, and hidden reasoning.
-- CPU acceptance uses deterministic fakes. HC-MA-001 performs no model inference and does not alter normal product answer behavior.
+- HC-MA-001 CPU acceptance used deterministic fakes and performed no model inference. HC-MA-002 added a pinned local-Qwen smoke and four-case dev diagnostic before activating the typed capability in the normal bundle path.
 
 ## Pinned source map
 

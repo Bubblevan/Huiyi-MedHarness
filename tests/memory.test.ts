@@ -182,6 +182,63 @@ describe('DSH turn-scoped memory lifecycle', () => {
     expect(JSON.stringify(records)).not.toContain('synthetic reply')
   })
 
+  it('does not recall or commit Memory for a DSH subagent session', async () => {
+    const client: MemoryClientPort = {
+      recall: vi.fn(async (): Promise<MemorySnapshot> => ({ snapshotId: 'should-not-exist', userId: 'patient-1', sessionId: 'child-1', turn: 1, items: [] })),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const records: MemoryTraceRecord[] = []
+    const lifecycle = new MemoryLifecycle(client, { record: record => records.push(record) }, () => 'patient-1')
+    const session = {
+      id: 'child-1',
+      header: { id: 'child-1', version: 4, createdAt: 1, isSeeded: false, origin: 'subagent', parentSession: 'root-1' },
+    } as unknown as Session
+    const agent = { id: 'child-1' } as Agent
+
+    lifecycle.observeSessionEvent(session, event('turn/start', { turn: 1 }, 1))
+    lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: 'synthetic child task' }] }, 1)
+    lifecycle.observeSessionEvent(session, event('user/message', {
+      id: 'child-user', role: 'user', content: [{ type: 'text', text: 'synthetic child task' }], source: { kind: 'user' },
+    }, 2))
+    lifecycle.observeSessionEvent(session, event('assistant/message', {
+      turn: 1, step: 1, interrupted: false, message: { content: [{ type: 'text', text: 'synthetic child result' }] }, stream: [],
+    }, 3))
+    lifecycle.observeSessionEvent(session, event('turn/end', { turn: 1, reason: { kind: 'completed' } }, 4))
+
+    await expect(lifecycle.recallOnce(agent)).resolves.toBeUndefined()
+    await lifecycle.flush()
+    expect(client.recall).not.toHaveBeenCalled()
+    expect(client.commitTurn).not.toHaveBeenCalled()
+    expect(records).toEqual([])
+  })
+
+  it('keeps Memory enabled for a normal root session with fork ancestry', async () => {
+    const snapshot: MemorySnapshot = { snapshotId: 'fork-snapshot', userId: 'patient-1', sessionId: 'fork-root', turn: 1, items: [] }
+    const client: MemoryClientPort = {
+      recall: vi.fn(async () => snapshot),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const lifecycle = new MemoryLifecycle(client, { record: () => undefined }, () => 'patient-1')
+    const session = {
+      id: 'fork-root',
+      header: { id: 'fork-root', version: 4, createdAt: 1, isSeeded: true, parentSession: 'prior-session' },
+    } as unknown as Session
+    const agent = { id: 'fork-root' } as Agent
+
+    lifecycle.observeSessionEvent(session, event('turn/start', { turn: 1 }, 1))
+    lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: 'synthetic forked query' }] }, 1)
+    await expect(lifecycle.recallOnce(agent)).resolves.toMatchObject(snapshot)
+    expect(client.recall).toHaveBeenCalledTimes(1)
+  })
+
   it('supports read-only LoCoMo recall with strong retrieval and no post-turn commit', async () => {
     const snapshot: MemorySnapshot = {
       snapshotId: 'locomo-snapshot', userId: 'locomo-user', sessionId: 'locomo-session', turn: 1,

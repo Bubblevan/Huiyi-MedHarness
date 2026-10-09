@@ -1,0 +1,171 @@
+{
+  "task": "HC-MA-002",
+  "split": "dev",
+  "scope": "four-case fixed diagnostic; not a generalization or paper-parity result",
+  "sourceDevSha256": "6bdc019180ebf82908c5690b6266898341fee5fd3b807ed0201c39c93f3424c6",
+  "predictionSha256": "7cd4197c59d41d93946a161929e95e1e7e93d9c71a4c56834650b18da2716ba5",
+  "predictionRows": 8,
+  "scores": {
+    "adaptive": {
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "parsedChoices": 4
+    },
+    "single": {
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0,
+      "parsedChoices": 4
+    }
+  },
+  "perCase": [
+    {
+      "id": "medqa-dev-00000",
+      "arm": "adaptive",
+      "choice": "D",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "basic",
+      "childRuns": 1,
+      "failedChildRuns": 1,
+      "specialistRuns": 0,
+      "moderatorRuns": 0,
+      "wallLatencyMs": 7741.493696,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00000",
+      "arm": "single",
+      "choice": "D",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "basic",
+      "childRuns": 0,
+      "failedChildRuns": 0,
+      "specialistRuns": 0,
+      "moderatorRuns": 0,
+      "wallLatencyMs": 4369.362224,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00050",
+      "arm": "adaptive",
+      "choice": "A",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "intermediate",
+      "childRuns": 6,
+      "failedChildRuns": 0,
+      "specialistRuns": 3,
+      "moderatorRuns": 1,
+      "wallLatencyMs": 25174.571714,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00050",
+      "arm": "single",
+      "choice": "A",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "basic",
+      "childRuns": 0,
+      "failedChildRuns": 0,
+      "specialistRuns": 0,
+      "moderatorRuns": 0,
+      "wallLatencyMs": 5917.8064269999995,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00100",
+      "arm": "adaptive",
+      "choice": "A",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "basic",
+      "childRuns": 1,
+      "failedChildRuns": 0,
+      "specialistRuns": 0,
+      "moderatorRuns": 0,
+      "wallLatencyMs": 8281.946951999998,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00100",
+      "arm": "single",
+      "choice": "A",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "basic",
+      "childRuns": 0,
+      "failedChildRuns": 0,
+      "specialistRuns": 0,
+      "moderatorRuns": 0,
+      "wallLatencyMs": 5626.101801999997,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00150",
+      "arm": "adaptive",
+      "choice": "D",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "intermediate",
+      "childRuns": 6,
+      "failedChildRuns": 0,
+      "specialistRuns": 3,
+      "moderatorRuns": 1,
+      "wallLatencyMs": 20584.718542000002,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    },
+    {
+      "id": "medqa-dev-00150",
+      "arm": "single",
+      "choice": "D",
+      "correct": true,
+      "turnReason": "completed",
+      "complexity": "basic",
+      "childRuns": 0,
+      "failedChildRuns": 0,
+      "specialistRuns": 0,
+      "moderatorRuns": 0,
+      "wallLatencyMs": 5015.262437999998,
+      "evidence": {
+        "calls": 1,
+        "hitCount": 3,
+        "degraded": false
+      }
+    }
+  ],
+  "testLabelsRead": false,
+  "rawQuestionTextStored": false,
+  "rawModelResponsesStored": false
+}

@@ -1,0 +1,47 @@
+{
+  "task": "HC-MA-002",
+  "split": "dev",
+  "source": {
+    "path": "/root/gpufree-data/clinical-r1-repro/upstream/Clinical-R1-3B/data/raw/medqa_dev.jsonl",
+    "rowCount": 1272,
+    "sha256": "6bdc019180ebf82908c5690b6266898341fee5fd3b807ed0201c39c93f3424c6"
+  },
+  "selection": [
+    {
+      "id": "medqa-dev-00000",
+      "rowIndex": 0,
+      "questionOptionsSha256": "b8676c1d70a639606980872e6d5e3ec8ade94939c5956e56a5462d73649c5537"
+    },
+    {
+      "id": "medqa-dev-00050",
+      "rowIndex": 50,
+      "questionOptionsSha256": "ff7ace7e7a55770092871092e013ac7d44b05255595ad8db3301e89fe19adbaf"
+    },
+    {
+      "id": "medqa-dev-00100",
+      "rowIndex": 100,
+      "questionOptionsSha256": "5482d6457ede6b116a803eb3c8f5f62a69cedf9259909c937873286dca045ce2"
+    },
+    {
+      "id": "medqa-dev-00150",
+      "rowIndex": 150,
+      "questionOptionsSha256": "8767f9b263ffa37a915d6a71ae2522aad2430eb018383743d54d0dde145d6008"
+    }
+  ],
+  "inferenceProjection": {
+    "path": "/root/gpufree-data/repro/hc-ma-002/medqa-dev-diagnostic/questions.jsonl",
+    "fields": [
+      "id",
+      "question",
+      "options"
+    ],
+    "rowCount": 4,
+    "sha256": "d817befe15417df0f7fa468a842adda6268a7700f640f028215f5a60572b8b71",
+    "answerKeyIncluded": false
+  },
+  "separateScoringKey": {
+    "path": "/root/gpufree-data/repro/hc-ma-002/medqa-dev-diagnostic/answer-key.json",
+    "sha256": "dc4e8e15d6ef054136f50cc263323bf3a67fa66a300c6ed9e5b0d134fd6ce016"
+  },
+  "testLabelsRead": false
+}

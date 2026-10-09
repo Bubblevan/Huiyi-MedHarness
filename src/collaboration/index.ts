@@ -6,6 +6,7 @@ import { CollaborationOrchestrator } from './orchestrator.js'
 export * from './budget.js'
 export * from './contracts.js'
 export * from './dsh-runner.js'
+export * from './dsh-tool.js'
 export * from './moderator.js'
 export * from './orchestrator.js'
 export * from './planner.js'
@@ -20,8 +21,9 @@ export interface InstallCollaborationOptions extends DshClinicalChildRunnerOptio
 }
 
 /**
- * Explicit host composition for HC-MA-001. This does not run during the normal
- * Huiyi bundle apply() path and does not register a model-facing delegation tool.
+ * Low-level explicit orchestrator composition for hosts that need direct access
+ * to the domain API. The normal Huiyi bundle mounts the root-scoped capability
+ * through `applyWithIdentity()` when native DSH spawn is available.
  */
 export function installCollaboration(
   ctx: DshCollaborationContext,

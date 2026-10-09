@@ -45,6 +45,7 @@ export interface MemoryLifecycleOptions {
 export class MemoryLifecycle {
   private readonly turns = new Map<string, ActiveTurn>()
   private readonly pendingCommits = new Set<Promise<void>>()
+  private readonly subagentSessions = new Set<string>()
 
   constructor(
     private readonly client: MemoryClientPort,
@@ -54,6 +55,7 @@ export class MemoryLifecycle {
   ) {}
 
   noteClaimed(agent: Agent, message: { source: { kind: string }; content: readonly unknown[] }, turn: number): void {
+    if (this.subagentSessions.has(agent.id)) return
     this.sessionUsers.set(agent.id, this.resolveUserId(agent))
     if (message.source.kind !== 'user') return
     const active = this.turns.get(agent.id)
@@ -62,6 +64,7 @@ export class MemoryLifecycle {
   }
 
   async recallOnce(agent: Agent, signal?: AbortSignal): Promise<MemorySnapshot | undefined> {
+    if (this.subagentSessions.has(agent.id)) return undefined
     const active = this.turns.get(agent.id)
     if (!active || !active.query) return undefined
     if (active.recallPromise) return active.recallPromise
@@ -125,6 +128,15 @@ export class MemoryLifecycle {
   }
 
   observeSessionEvent(session: Session, event: SessionEvent): void {
+    // `parentSession` also records ordinary fork ancestry. Only DSH's explicit
+    // origin tag identifies a child that must not receive patient Memory.
+    if (session.header?.origin === 'subagent') {
+      this.subagentSessions.add(session.id)
+      this.turns.delete(session.id)
+      this.sessionUsers.delete(session.id)
+      return
+    }
+
     if (event.type === 'turn/start') {
       this.turns.set(session.id, {
         sessionId: session.id,
@@ -205,6 +217,7 @@ export class MemoryLifecycle {
   clearAgent(agentId: string): void {
     this.turns.delete(agentId)
     this.sessionUsers.delete(agentId)
+    this.subagentSessions.delete(agentId)
   }
 
   async flush(): Promise<void> {
