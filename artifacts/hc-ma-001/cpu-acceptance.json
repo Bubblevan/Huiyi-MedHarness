@@ -3,15 +3,15 @@
   "status": "PASS",
   "huiyi": {
     "repository": "Bubblevan/Huiyi-MedHarness",
-    "baseCommit": "c349337e39e97d6ee7e971821af82ee22dde1290",
-    "testedHeadCommit": "21a863342c6b57d3c17668c5498eb962800766e6",
+    "baseCommit": "bfe5e6d0fd4d68180541330fe61fa39406b22468",
+    "testedHeadCommit": "bf3f0d3d65a1ebb83a92be9a62e3e7eacdd0d997",
     "branch": "codex/hc-ma-001-dsh-native-mdagents"
   },
   "environment": {
     "node": "v22.23.3",
-    "pnpmCli": "12.9.1",
+    "pnpmCli": "11.7.0",
     "packageManagerDeclaredByRepository": "pnpm@11.7.0",
-    "packageManagerVersionMismatch": true,
+    "packageManagerVersionMismatch": false,
     "gpuInference": false,
     "modelInference": false,
     "medqaTestLabelsRead": false
@@ -19,35 +19,57 @@
   "commands": {
     "install": {
       "status": "PASS",
-      "command": "npm_config_manage_package_manager_versions=false pnpm install --offline --trust-lockfile --ignore-scripts",
-      "note": "Used the local package store because network access was unavailable; lifecycle scripts were skipped."
+      "command": "pnpm install --trust-lockfile --ignore-scripts",
+      "note": "Completed with pnpm 11.7.0; package build, typecheck, and test gates were run separately."
     },
     "typecheck": {
       "status": "PASS",
-      "command": "npm_config_manage_package_manager_versions=false pnpm typecheck"
+      "command": "pnpm typecheck"
     },
     "build": {
       "status": "PASS",
-      "command": "npm_config_manage_package_manager_versions=false pnpm build"
+      "command": "pnpm build"
     },
     "test": {
       "status": "PASS",
-      "command": "npm_config_manage_package_manager_versions=false pnpm test",
+      "command": "pnpm test",
       "testFilesPassed": 7,
       "testFilesFailed": 0,
-      "testsPassed": 60,
-      "testsFailed": 0
-    }
+      "testsPassed": 62,
+      "testsFailed": 0,
+      "includesCollaborationTests": true
+    },
+    "demoTest": {
+      "status": "PASS",
+      "command": "pnpm demo:test",
+      "gatewayTestsPassed": 7,
+      "webTestsPassed": 4,
+      "testsPassed": 11,
+      "testsFailed": 0,
+      "note": "The first sandboxed attempt could not bind 127.0.0.1 (EPERM); rerun outside the sandbox passed."
+    },
+    "demoBuild": {
+      "status": "PASS",
+      "command": "pnpm demo:build"
+    },
+    "demoWebTypecheck": {
+      "status": "PASS",
+      "command": "pnpm --filter @huiyi/demo-web typecheck"
+    },
+    "totalTestsPassed": 73,
+    "totalTestsFailed": 0
   },
   "acceptanceCoverage": {
     "basicRoute": "PASS",
     "intermediateBenchmarkAndProductRecruitmentCaps": "PASS",
+    "fullIntermediateBenchmarkBudget138": "PASS",
     "intermediateBoundedParallelExecutionAndModerator": "PASS",
     "specialistFailureDegradesAndContinues": "PASS",
     "maxTokensPartialOutputRejected": "PASS",
     "moderatorFailureDoesNotFabricateDecision": "PASS",
-    "adversarialRecruitmentNormalizedAndCapped": "PASS",
     "advancedThreeByThreeBenchmarkPlan": "PASS",
+    "advancedTeamWithNoSuccessfulSpecialistsSkipsAllTeamSynthesisAndModerator": "PASS",
+    "adversarialRecruitmentNormalizedAndCapped": "PASS",
     "budgetEnforcedBeforeStart": "PASS",
     "noNestedDelegationAndRestrictedTools": "PASS",
     "boundedConcurrencyObserved": "PASS",
@@ -57,8 +79,8 @@
     "publishedRunDisposalAfterCompletedErrorMaxTokensMissingStructureValidationFailureCancellationAndDownstreamFailure": "PASS",
     "metadataOnlyTrace": "PASS"
   },
-  "gitStateAtSourceValidation": {
-    "workingTreeClean": true,
+  "gitState": {
+    "workingTreeCleanAfterCommit": true,
     "existingMemoryBehaviorModified": false,
     "existingRagBehaviorModified": false,
     "existingBenchmarkArtifactsModified": false

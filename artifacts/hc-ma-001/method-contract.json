@@ -57,7 +57,17 @@
       "maxTurnsPerRound": 5,
       "teamCount": 3,
       "specialistsPerTeam": 3,
-      "maxChildRuns": 128,
+      "maxChildRuns": 138,
+      "intermediateRunBudget": {
+        "classifier": 1,
+        "recruiter": 1,
+        "initialSpecialistFindings": 5,
+        "discussionRefinements": 125,
+        "finalSpecialistFindings": 5,
+        "moderator": 1,
+        "total": 138,
+        "claim": "bounded reference to the encoded MDAgents structure; not a guarantee of exact paper execution"
+      },
       "liveExecutionInHCMA001": false
     },
     "product": {

@@ -10,8 +10,8 @@
   },
   "huiyi": {
     "repository": "Bubblevan/Huiyi-MedHarness",
-    "baseCommit": "c349337e39e97d6ee7e971821af82ee22dde1290",
-    "testedHeadCommit": "21a863342c6b57d3c17668c5498eb962800766e6",
+    "baseCommit": "bfe5e6d0fd4d68180541330fe61fa39406b22468",
+    "testedHeadCommit": "bf3f0d3d65a1ebb83a92be9a62e3e7eacdd0d997",
     "branch": "codex/hc-ma-001-dsh-native-mdagents"
   }
 }
