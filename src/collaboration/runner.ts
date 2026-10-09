@@ -7,6 +7,7 @@ export type ClinicalChildKind =
   | 'mdt-planner'
   | 'specialist-analysis'
   | 'peer-refinement'
+  | 'specialist-final'
   | 'team-synthesis'
   | 'moderator'
 

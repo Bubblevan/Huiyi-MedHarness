@@ -10,6 +10,7 @@ export interface CollaborationBudgetSnapshot {
   readonly failedChildRuns: number
   readonly retainedSpecialists: number
   readonly retainedTeams: number
+  /** Completed independent baseline plus completed discussion rounds. */
   readonly completedRounds: number
 }
 
@@ -52,7 +53,8 @@ export class CollaborationBudget {
   }
 
   completeRound(): boolean {
-    if (this.rounds >= this.policy.maxRounds) return false
+    // The independent baseline precedes the policy's bounded discussion rounds.
+    if (this.rounds >= this.policy.maxRounds + 1) return false
     this.rounds += 1
     return true
   }

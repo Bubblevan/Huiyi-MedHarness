@@ -55,7 +55,7 @@ The adapter checks the provider, awaits `run.result`, accepts only `stopReason =
 
 ## Profiles and work bounds
 
-The `benchmark` policy records the MDAgents structure: five recruited intermediate specialists, up to five rounds and five turns per round, and three advanced teams with three clinicians each. Its child-run ceiling and concurrency cap are explicit. It is encoded for future parity tests and is not run live in HC-MA-001.
+The `benchmark` policy records the MDAgents structure: five recruited intermediate specialists, up to five discussion rounds after the independent baseline, five turns per round, and three advanced teams with three clinicians each. Its intermediate upper bound is 138 child runs: classifier (1), recruiter (1), initial specialist findings (5), discussion refinements (5 × 5 × 5 = 125), final specialist findings (5), and moderator (1). The ceiling and concurrency cap are explicit. It is a bounded structural reference for future parity tests, is not an exact paper reproduction, and is not run live in HC-MA-001.
 
 The `product` policy defaults to at most three specialists, two teams, one round, no peer-refinement children, three concurrent child runs, and sixteen total child runs. Product values are intentionally separate from benchmark values and do not claim paper reproduction.
 
@@ -65,7 +65,7 @@ Recruitment output is normalized before execution. Invalid and overlong roles ar
 
 Intermediate specialists first produce independent findings in bounded parallel execution. Optional peer refinement projects only structured peer summaries into another one-shot child request; the product profile disables refinement by default. Huiyi does not call DSH sibling `sendMessage()` because DSH messaging is limited to adjacent Agents in its continuable-child lifecycle.
 
-Advanced teams are domain topology, not DSH nesting. The root remains parent of every specialist, and the orchestrator groups their findings by `TeamSpec`, invokes bounded team synthesis children, then invokes the moderator. A required team needs at least one completed specialist before synthesis and moderator review can continue.
+Advanced teams are domain topology, not DSH nesting. The root remains parent of every specialist, and the orchestrator groups their findings by `TeamSpec`, invokes bounded team synthesis children, then invokes the moderator. Every planned team must have at least one completed specialist finding before any team synthesis or moderator review can continue. If a team has no successful specialist, Huiyi preserves findings from other teams, marks the snapshot degraded, skips all team synthesis and the moderator, and lets the root use its Single Agent fallback.
 
 ## Moderator and root ownership
 
@@ -73,7 +73,7 @@ The moderator receives the query, bounded patient-memory and external-evidence p
 
 ## Failure, cancellation, and trace
 
-Failed specialists degrade the snapshot. Intermediate work can continue with at least one successful specialist. Advanced work requires one successful specialist in every planned active team. No successful specialists means no moderator and no fabricated consensus. A missing or failed moderator leaves specialist/team findings available and `moderator` absent.
+Failed specialists degrade the snapshot. Intermediate work can continue with at least one successful specialist. Advanced work requires one successful specialist in every planned team before any team synthesis or moderator call; a single team with no successful specialist blocks both stages. A failed team-synthesis child does not discard valid specialist findings; if every team met the specialist threshold, the moderator may review the available team and specialist summaries. No consensus is fabricated. A missing or failed moderator leaves specialist/team findings available and `moderator` absent.
 
 Cancellation is passed to every child start. The orchestrator checks cancellation before each start and settles all already-started child calls before returning; the DSH runner disposes every published run. The child-run budget, team caps, round caps, and concurrency cap apply even when recruiter output is adversarial.
 

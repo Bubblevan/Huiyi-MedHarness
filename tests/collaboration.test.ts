@@ -82,6 +82,10 @@ function defaultReply(request: ClinicalChildRequest): FakeReply {
       const match = /clinical-peer-refinement-(.+)-r\d+-t\d+/.exec(request.label)
       return { structured: { specialistId: match?.[1] ?? '', role: request.roleLabel, summary: 'Refined synthetic summary.' } }
     }
+    case 'specialist-final': {
+      const id = request.label.replace('clinical-specialist-final-', '')
+      return { structured: { specialistId: id, role: request.roleLabel, summary: `Final synthetic summary for ${id}.` } }
+    }
     case 'team-synthesis':
       return { structured: { teamId: request.teamId, summary: 'Synthetic team summary.' } }
     case 'moderator':
@@ -111,8 +115,26 @@ describe('collaboration planner and policy', () => {
     const product = planFromRecruitment('intermediate', candidate, productPolicy)
     expect(benchmark.specialists).toHaveLength(5)
     expect(product.specialists).toHaveLength(productPolicy.maxSpecialists)
-    expect(policyFor('benchmark')).toMatchObject({ maxRounds: 5, maxTurnsPerRound: 5, recruitmentTarget: 5 })
+    expect(policyFor('benchmark')).toMatchObject({ maxRounds: 5, maxTurnsPerRound: 5, recruitmentTarget: 5, maxChildRuns: 138 })
     expect(policyFor('product')).toMatchObject({ maxSpecialists: 3, maxTeams: 2, maxRounds: 1, maxChildRuns: 16 })
+  })
+
+  it('covers the full encoded benchmark intermediate call ceiling', async () => {
+    const runner = new FakeClinicalChildRunner(request => request.kind === 'specialist-recruiter'
+      ? { structured: { specialists: specialists(5) } }
+      : defaultReply(request))
+    const snapshot = await new CollaborationOrchestrator(runner).collaborate({
+      parentAgent: parent,
+      caseState: caseState(),
+      profile: 'benchmark',
+      signal: new AbortController().signal,
+    })
+    expect(runner.requests.filter(request => request.kind === 'specialist-analysis')).toHaveLength(5)
+    expect(runner.requests.filter(request => request.kind === 'peer-refinement')).toHaveLength(125)
+    expect(runner.requests.filter(request => request.kind === 'specialist-final')).toHaveLength(5)
+    expect(runner.requests.filter(request => request.kind === 'moderator')).toHaveLength(1)
+    expect(snapshot.execution).toMatchObject({ childRuns: 138, failedChildRuns: 0, completedRounds: 6, degraded: false })
+    expect(runner.maxActiveRuns).toBeLessThanOrEqual(benchmarkPolicy.maxConcurrency)
   })
 
   it('runs independent product specialists in bounded parallel work and moderates all findings', async () => {
@@ -201,6 +223,43 @@ describe('collaboration planner and policy', () => {
     expect(plan.teams.map(team => team.members)).toHaveLength(3)
     expect(plan.teams.every(team => team.members.length === 3 && team.leadSpecialistId)).toBe(true)
     expect(plan.specialists).toHaveLength(9)
+  })
+
+  it('skips team synthesis and moderator when every specialist in one advanced team fails', async () => {
+    const runner = new FakeClinicalChildRunner(request => {
+      if (request.kind === 'complexity-classifier') {
+        return { structured: { complexity: 'advanced', rationaleSummary: 'Synthetic MDT route.' } }
+      }
+      if (request.kind === 'mdt-planner') {
+        return {
+          structured: {
+            teams: [
+              { goal: 'First synthetic team', members: [
+                { role: 'Cardiology', expertise: 'Heart assessment', lead: true },
+                { role: 'Emergency medicine', expertise: 'Acute assessment' },
+                { role: 'Neurology', expertise: 'Neurologic assessment' },
+              ] },
+              { goal: 'Second synthetic team', members: [
+                { role: 'Endocrinology', expertise: 'Endocrine assessment', lead: true },
+                { role: 'Nephrology', expertise: 'Renal assessment' },
+                { role: 'Internal medicine', expertise: 'Broad medical assessment' },
+              ] },
+            ],
+          },
+        }
+      }
+      if (request.kind === 'specialist-analysis' && request.label.includes('team-2-specialist')) {
+        return { stopReason: 'error', structured: { partial: 'discarded' } }
+      }
+      return defaultReply(request)
+    })
+    const snapshot = await runProduct(runner)
+    expect(snapshot.plan.teams).toHaveLength(2)
+    expect(snapshot.specialistFindings).toHaveLength(2)
+    expect(runner.requests.filter(request => request.kind === 'team-synthesis')).toHaveLength(0)
+    expect(runner.requests.some(request => request.kind === 'moderator')).toBe(false)
+    expect(snapshot.moderator).toBeUndefined()
+    expect(snapshot.execution).toMatchObject({ failedChildRuns: 1, degraded: true })
   })
 
   it('enforces a child-run budget before admitting another start', () => {

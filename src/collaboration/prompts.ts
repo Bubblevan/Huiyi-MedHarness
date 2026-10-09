@@ -48,6 +48,19 @@ export function buildPeerRefinementPrompt(
   return `Refine your structured assessment using only these bounded peer summaries. Preserve your assigned role and ID. Return a concise summary and recommendation; do not include hidden reasoning.\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nRelevant Peer Summaries\n${peers.length ? peers.join('\n') : 'No peer summaries available'}\n\nYour Previous Finding\n${bounded(ownFinding.summary, 1_000)}${ownFinding.recommendation ? `\nRecommendation: ${bounded(ownFinding.recommendation, 500)}` : ''}`
 }
 
+export function buildSpecialistFinalPrompt(
+  state: HealthCaseState,
+  specialist: SpecialistSpec,
+  ownFinding: SpecialistFinding,
+  peerFindings: readonly SpecialistFinding[],
+): string {
+  const peers = peerFindings
+    .filter(finding => finding.specialistId !== ownFinding.specialistId)
+    .slice(0, 8)
+    .map(finding => `- ${bounded(finding.role, 80)}: ${bounded(finding.summary, 800)}${finding.recommendation ? ` Recommendation: ${bounded(finding.recommendation, 500)}` : ''}`)
+  return `Submit your final structured finding after the bounded collaboration rounds. Reconsider your previous assessment in light of the peer summaries. Do not include hidden reasoning.\n\n${caseContext(state)}\n\nAssigned Role\n${bounded(specialist.role, 80)}\n\nAssigned Expertise\n${bounded(specialist.expertise, 500)}\n\nRelevant Peer Summaries\n${peers.length ? peers.join('\n') : 'No peer summaries available'}\n\nYour Previous Finding\n${bounded(ownFinding.summary, 1_000)}${ownFinding.recommendation ? `\nRecommendation: ${bounded(ownFinding.recommendation, 500)}` : ''}`
+}
+
 export function buildTeamSynthesisPrompt(
   state: HealthCaseState,
   team: TeamSpec,

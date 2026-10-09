@@ -54,7 +54,7 @@ typed collaboration plan
 
 DSH's `spawn` provider is the default. The adapter passes the exact root Agent, a request AbortSignal, an object-rooted `outputSchema`, `maxDepth: 1`, a specialist persona, and `toolFilter: { allow: [] }`. The child receives only the explicitly built case prompt; it receives no root transcript and no inherited tools. All child results require `stopReason === 'completed'`, a structured value, and successful Huiyi validation. Every published run is disposed in `finally`.
 
-Huiyi product policy bounds specialists, teams, rounds, concurrency, and total child runs. Benchmark policy separately encodes the pinned upstream structure and is not run live by HC-MA-001. Advanced team membership is represented in Huiyi metadata; all children remain direct children of the root so `maxDepth` stays one.
+Huiyi product policy bounds specialists, teams, rounds, concurrency, and total child runs. Benchmark policy separately encodes the pinned upstream structure and its 138-run intermediate ceiling covers one classifier, one recruiter, five independent findings, up to 125 bounded peer refinements, five final specialist findings, and one moderator. It is a bounded structural reference, not a claim of exact MDAgents paper reproduction, and is not run live by HC-MA-001. Advanced team membership is represented in Huiyi metadata; all children remain direct children of the root so `maxDepth` stays one.
 
 ## Peer communication seam
 
@@ -70,7 +70,8 @@ Product-mode moderator output is decision support for the root Agent; it does no
 
 - `HealthCaseState.patientMemory` and `HealthCaseState.externalEvidence` remain separate optional contracts; HC-MA-001 does not rewrite either runtime.
 - A failed or incomplete child is recorded as failure metadata. Partial output is never promoted to a medical finding.
-- A partial team may continue when at least one specialist succeeds; a moderator is absent unless its own structured run completes. If no specialist succeeds, the snapshot degrades and the root may fall back to its ordinary Single Agent path.
+- Advanced work requires at least one successful specialist finding in every planned team before team synthesis or moderator review. If any team has no successful finding, all team synthesis and moderator work are skipped; successful findings from other teams remain available, and the snapshot is degraded for root fallback. If every team passes that threshold but a synthesis child fails, the moderator can review the available specialist and team summaries. No consensus is fabricated.
+- Intermediate benchmark budgeting covers one classifier, one recruiter, five independent findings, 125 bounded discussion refinements, five final specialist findings, and one moderator (138 total child runs).
 - Traces contain identifiers, role labels, counts, timing, stop reasons, and status only. They omit case text, memory content, evidence passages, prompts, findings, and hidden reasoning.
 - CPU acceptance uses deterministic fakes. HC-MA-001 performs no model inference and does not alter normal product answer behavior.
 

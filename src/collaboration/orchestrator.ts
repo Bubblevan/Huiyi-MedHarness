@@ -17,6 +17,7 @@ import {
   buildMdtPlanningPrompt,
   buildPeerRefinementPrompt,
   buildSpecialistAnalysisPrompt,
+  buildSpecialistFinalPrompt,
   buildSpecialistRecruitmentPrompt,
   buildTeamSynthesisPrompt,
 } from './prompts.js'
@@ -49,6 +50,7 @@ export class CollaborationOrchestrator {
     let plan: CollaborationPlan = emptyCollaborationPlan(complexity)
     let specialistFindings: SpecialistFinding[] = []
     let teamFindings: TeamFinding[] = []
+    let advancedTeamsViable = false
     let moderator: CollaborationSnapshot['moderator']
 
     const recordSkipped = (request: ClinicalChildRequest, reason: 'Aborted' | 'BudgetExhausted'): void => {
@@ -149,20 +151,20 @@ export class CollaborationOrchestrator {
       const findingsById = new Map<string, SpecialistFinding>()
       const roundOneStarted = budget.snapshot().startedChildRuns
       const firstPass = await mapBounded(plan.specialists, policy.maxConcurrency, signal, async specialist => {
-        const request = specialistRequest(caseState, specialist, 1)
+        const request = specialistRequest(caseState, specialist, 0)
         return { specialist, result: await runChild(request) }
       })
       for (const item of firstPass) {
         if (item?.result?.status === 'completed') findingsById.set(item.specialist.id, item.result.value as SpecialistFinding)
       }
       const firstPassStarted = budget.snapshot().startedChildRuns - roundOneStarted
-      if (!signal.aborted && firstPassStarted === plan.specialists.length) budget.completeRound()
+      if (!signal.aborted && firstPassStarted === plan.specialists.length && findingsById.size === plan.specialists.length) budget.completeRound()
       else degraded = true
 
       if (findingsById.size === 0) degraded = true
       const totalRounds = policy.maxRounds
-      if (policy.peerRefinementEnabled && totalRounds > 1 && findingsById.size > 0) {
-        for (let round = 2; round <= totalRounds && !signal.aborted; round += 1) {
+      if (policy.peerRefinementEnabled && totalRounds > 0 && findingsById.size > 0) {
+        for (let round = 1; round <= totalRounds && !signal.aborted; round += 1) {
           let wholeRoundSettled = true
           for (let turn = 1; turn <= policy.maxTurnsPerRound && !signal.aborted; turn += 1) {
             const currentFindings = [...findingsById.values()]
@@ -187,11 +189,36 @@ export class CollaborationOrchestrator {
               if (item?.result?.status === 'completed') findingsById.set(item.specialist.id, item.result.value as SpecialistFinding)
             }
             const turnStartedCount = budget.snapshot().startedChildRuns - turnStarted
-            if (turnStartedCount !== participants.length) wholeRoundSettled = false
+            if (turnStartedCount !== participants.length || refined.some(item => item?.result?.status !== 'completed')) {
+              wholeRoundSettled = false
+            }
             if (turnStartedCount < participants.length) break
           }
           if (wholeRoundSettled && !signal.aborted) budget.completeRound()
           else degraded = true
+        }
+
+        const finalParticipants = plan.specialists.filter(specialist => findingsById.has(specialist.id))
+        if (finalParticipants.length > 0 && !signal.aborted) {
+          const finalResults = await mapBounded(finalParticipants, policy.maxConcurrency, signal, async specialist => {
+            const ownFinding = findingsById.get(specialist.id)
+            if (!ownFinding) return undefined
+            const request: ClinicalChildRequest = {
+              kind: 'specialist-final',
+              label: `clinical-specialist-final-${specialist.id}`,
+              roleLabel: specialist.role,
+              prompt: buildSpecialistFinalPrompt(caseState, specialist, ownFinding, [...findingsById.values()]),
+              persona: `You submit the final structured assessment for your assigned role after bounded peer collaboration. Do not include hidden reasoning.`,
+              outputSchema: specialistFindingSchema,
+              decode: value => decodeSpecialistFinding(value, specialist),
+              round: totalRounds + 1,
+            }
+            return { specialist, result: await runChild(request) }
+          })
+          for (const item of finalResults) {
+            if (item?.result?.status === 'completed') findingsById.set(item.specialist.id, item.result.value as SpecialistFinding)
+          }
+          if (finalResults.some(item => item?.result?.status !== 'completed')) degraded = true
         }
       }
       specialistFindings = [...findingsById.values()]
@@ -206,12 +233,12 @@ export class CollaborationOrchestrator {
       }
       specialistFindings = [...findingsById.values()]
       const started = budget.snapshot().startedChildRuns - specialistStarted
-      if (!signal.aborted && started === plan.specialists.length) budget.completeRound()
+      if (!signal.aborted && started === plan.specialists.length && findingsById.size === plan.specialists.length) budget.completeRound()
       else degraded = true
 
-      const eachTeamHasFinding = plan.teams.every(team => team.members.some(member => findingsById.has(member.id)))
-      if (!eachTeamHasFinding) degraded = true
-      if (eachTeamHasFinding && !signal.aborted) {
+      advancedTeamsViable = plan.teams.length > 0 && plan.teams.every(team => team.members.some(member => findingsById.has(member.id)))
+      if (!advancedTeamsViable) degraded = true
+      if (advancedTeamsViable && !signal.aborted) {
         const synthesisResults = await mapBounded(plan.teams, policy.maxConcurrency, signal, async team => {
           const memberFindings = team.members.flatMap(member => {
             const finding = findingsById.get(member.id)
@@ -233,7 +260,10 @@ export class CollaborationOrchestrator {
       }
     }
 
-    if (complexity !== 'basic' && specialistFindings.length > 0 && !signal.aborted) {
+    const moderatorEligible = complexity === 'intermediate'
+      ? specialistFindings.length > 0
+      : complexity === 'advanced' && advancedTeamsViable && specialistFindings.length > 0
+    if (moderatorEligible && !signal.aborted) {
       const moderatorRequest = buildModeratorRequest(caseState, specialistFindings, teamFindings)
       const decision = await runChild(moderatorRequest)
       if (decision?.status === 'completed') moderator = decision.value as CollaborationSnapshot['moderator']

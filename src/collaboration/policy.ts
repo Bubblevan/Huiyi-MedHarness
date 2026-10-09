@@ -16,13 +16,13 @@ export interface CollaborationPolicy {
   readonly maxConcurrency: number
 }
 
-/** Pinned MDAgents structural defaults for parity-oriented future evaluation. */
+/** Pinned MDAgents structure with enough child budget for its full bounded intermediate path. */
 export const benchmarkPolicy: CollaborationPolicy = Object.freeze({
   profile: 'benchmark',
   provider: 'spawn',
   inheritsParentContext: false,
   maxDepth: 1,
-  maxChildRuns: 128,
+  maxChildRuns: 138,
   maxSpecialists: 9,
   maxTeams: 3,
   specialistsPerTeam: 3,
