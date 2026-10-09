@@ -13,6 +13,7 @@ const data: { [K in DemoEventName]: EventDataMap[K] } = {
   "specialist.completed": { specialist: "心内科", durationMs: 10, simulated: true },
   "tool.started": { tool: "search_demo_evidence" },
   "tool.completed": { tool: "search_demo_evidence", durationMs: 10, status: "completed" },
+  "collaboration.completed": { complexity: "intermediate", specialistRoles: ["cardiology"], teamCount: 0, completedChildRuns: 2, failedChildRuns: 0, degraded: false },
   "assistant.delta": { text: "chunk" },
   "run.completed": { durationMs: 100 },
   "run.cancelled": { reason: "client_cancelled" },

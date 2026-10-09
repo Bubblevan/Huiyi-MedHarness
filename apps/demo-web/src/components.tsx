@@ -11,7 +11,8 @@ export function EvidenceActionProvider({ onOpen, children }: { onOpen: (id: stri
 export function useEvidenceAction() { return useContext(EvidenceActionContext); }
 
 export function BackendBadge({ backend }: { backend: string }) {
-  return <span className="backend-badge"><span className="status-dot" />{backend === "fixture" ? "Local · fixture" : "Local · DSH boundary"}</span>;
+  const label = backend === "fixture" ? "Local · fixture" : backend === "dsh" ? "Local · DSH" : "Local · DSH unavailable";
+  return <span className="backend-badge"><span className="status-dot" />{label}</span>;
 }
 
 export function PatientContext({ patient, loading = false }: { patient: PatientRecord | null; loading?: boolean }) {
@@ -43,11 +44,12 @@ const EVENT_LABELS: Record<string, string> = {
   "context.patient": "患者上下文已载入",
   "context.memory": "长期记忆快照已读取",
   "evidence.started": "医学证据检索开始",
-  "evidence.item": "找到一条合成证据",
+  "evidence.item": "找到一条医学证据",
   "evidence.completed": "证据检索完成",
   "agent.classified": "复杂度已分类",
   "specialist.started": "专科协作开始",
   "specialist.completed": "专科协作完成",
+  "collaboration.completed": "临床协作完成",
   "tool.started": "工具调用开始",
   "tool.completed": "工具调用完成",
   "assistant.delta": "回答正在生成",
@@ -59,9 +61,14 @@ const EVENT_LABELS: Record<string, string> = {
 export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; errorCode?: string }) {
   const summary = (event: WireDemoEvent): string => {
     if (event.event === "context.memory") return `${String(event.data.itemCount ?? 0)} 条摘要项`;
-    if (event.event === "evidence.completed") return `${String(event.data.count ?? 0)} 条 · Demo evidence fixture`;
-    if (event.event === "agent.classified") return `${event.data.complexity === "intermediate" ? "中等复杂度" : "简单"}${event.data.simulated ? " · simulated execution" : ""}`;
-    if (event.event === "specialist.started" || event.event === "specialist.completed") return `${String(event.data.specialist ?? "专科")} · simulated execution`;
+    if (event.event === "evidence.completed") return `${String(event.data.count ?? 0)} 条 · 本地医学语料`;
+    if (event.event === "agent.classified") return `${String(event.data.complexity ?? "unknown")}${event.data.simulated ? " · simulated execution" : ""}`;
+    if (event.event === "specialist.started" || event.event === "specialist.completed") return `${String(event.data.specialist ?? "专科")}${event.data.simulated ? " · simulated execution" : " · DSH child"}`;
+    if (event.event === "collaboration.completed") {
+      const roles = Array.isArray(event.data.specialistRoles) ? event.data.specialistRoles.join(" / ") : "";
+      const failures = Number(event.data.failedChildRuns ?? 0);
+      return `${String(event.data.complexity)} · ${roles || "无专家"} · ${String(event.data.completedChildRuns ?? 0)} 完成${failures ? ` / ${failures} 失败` : ""}${event.data.degraded ? " · 降级" : ""}`;
+    }
     if (event.event === "tool.started" || event.event === "tool.completed") return String(event.data.tool ?? "医学检索工具");
     if (event.event === "run.failed") return String(event.data.code ?? "BACKEND_UNAVAILABLE");
     return "";

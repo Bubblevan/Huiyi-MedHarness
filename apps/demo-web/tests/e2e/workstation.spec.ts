@@ -3,8 +3,10 @@ import { resolve } from "node:path";
 import { test, expect } from "@playwright/test";
 
 const screenshotDir = resolve(process.cwd(), "../../artifacts/demo-edge-local/screenshots");
+const liveDsh = process.env.HUIYI_DEMO_BACKEND === "dsh";
 
 test("desktop scenario streams, shows activity, and opens synthetic evidence", async ({ page }) => {
+  test.skip(liveDsh, "fixture presentation acceptance");
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/");
   await expect(page.getByText("Synthetic demo patient")).toBeVisible();
@@ -26,6 +28,7 @@ test("desktop scenario streams, shows activity, and opens synthetic evidence", a
 });
 
 test("complex case marks specialists as simulated and Stop cancels the stream", async ({ page }) => {
+  test.skip(liveDsh, "fixture presentation acceptance");
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/");
   await page.getByRole("button", { name: /复杂病例/ }).last().click();
@@ -37,4 +40,19 @@ test("complex case marks specialists as simulated and Stop cancels the stream", 
   await expect(page.getByText("已停止本轮")).toBeVisible({ timeout: 5_000 });
   await mkdir(screenshotDir, { recursive: true });
   await page.screenshot({ path: resolve(screenshotDir, "complex-case.png"), fullPage: true });
+});
+
+test("native DSH backend answers a synthetic front-end turn", async ({ page }) => {
+  test.skip(!liveDsh, "requires HUIYI_DEMO_BACKEND=dsh and a ready local Qwen service");
+  test.setTimeout(180_000);
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/");
+  await expect(page.getByText("Local · DSH")).toBeVisible();
+  await expect(page.getByText("Synthetic demo patient")).toBeVisible();
+  await page.getByRole("textbox", { name: "描述本次复诊问题" }).fill("这是合成演示病例。请告诉我记录早晚血压时应包含哪些信息，并提醒我需要向医生确认什么。");
+  await page.getByRole("button", { name: /发送/ }).click();
+  await expect(page.locator(".activity-list")).toContainText(/本轮完成|本轮未能完成/, { timeout: 150_000 });
+  await expect(page.getByText("本轮完成")).toBeVisible();
+  const answer = page.locator(".assistant-message-body").last();
+  await expect(answer).not.toBeEmpty();
 });

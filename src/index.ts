@@ -5,6 +5,7 @@ import { installMemoryLifecycle, type MemoryLifecycle, type MemoryLifecycleOptio
 import { installMemoryTools } from './memory/tools.js'
 import { MetadataMemoryTrace, type MemoryTraceSink } from './memory/trace.js'
 import type { MedicalEvidenceClientPort } from './rag/contracts.js'
+import type { HealthCaseState } from './case/contracts.js'
 import { RagClient } from './rag/client.js'
 import { installRagTool } from './rag/tool.js'
 import { observeSessionEvents } from './trace.js'
@@ -24,6 +25,8 @@ export interface ApplyWithIdentityOptions {
   readonly memoryClient?: MemoryClientPort
   readonly memoryTrace?: MemoryTraceSink
   readonly collaborationTrace?: CollaborationTraceSink
+  /** Optional host-owned patient snapshot, kept separate from retrieved external evidence. */
+  readonly collaborationCaseContext?: (input: { readonly agentId: string; readonly turn: number; readonly query: string }) => Pick<HealthCaseState, 'patientMemory'> | undefined
 }
 
 export function apply(ctx: Context): void {
@@ -44,6 +47,7 @@ export function applyWithIdentity(
   installRagTool(ctx, evidenceClient)
   installCollaborationWhenSpawnAvailable(ctx, memoryLifecycle, evidenceClient, {
     ...(options.collaborationTrace ? { trace: options.collaborationTrace } : {}),
+    ...(options.collaborationCaseContext ? { caseContext: options.collaborationCaseContext } : {}),
   })
   observeSessionEvents(ctx)
   return memoryLifecycle

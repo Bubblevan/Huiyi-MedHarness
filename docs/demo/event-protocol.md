@@ -3,7 +3,7 @@
 The wire format is Server-Sent Events. Each SSE `event:` value matches the JSON envelope `event`; each `data:` line contains one JSON value:
 
 ```json
-{"version":1,"event":"assistant.delta","runId":"…","sessionId":"…","timestamp":"2026-10-09T00:00:00.000Z","data":{"text":"cumulative chunk"}}
+{"version":1,"event":"assistant.delta","runId":"…","sessionId":"…","timestamp":"2026-10-10T00:00:00.000Z","data":{"text":"one visible text delta"}}
 ```
 
 The envelope is a TypeScript discriminated union in `services/demo-gateway/src/contracts.ts`. `parseDemoEvent` validates both the envelope and event-specific fields at the API boundary; the server validates events immediately before serialization. `validateChatInput` bounds IDs and message size and checks the scenario enum. Unknown versions, unknown event names, and malformed payloads fail closed.
@@ -14,21 +14,22 @@ The envelope is a TypeScript discriminated union in `services/demo-gateway/src/c
 |---|---|---|
 | `run.started` | `backend`, `scenario` | Run accepted by selected adapter. |
 | `context.patient` | `patientId` | Synthetic patient context identified. |
-| `context.memory` | `itemCount` | Memory summary item count only; no memory text in trace. |
-| `evidence.started` | `queryLabel` | Fixture retrieval phase began; no user query included. |
-| `evidence.item` | `evidenceId`, `rank`, `source`, `title`, `snippet` | Synthetic source record for citation rendering; never written to logs. |
-| `evidence.completed` | `count` | Number of synthetic evidence records. |
-| `agent.classified` | `complexity`, `simulated` | Fixture flow classification; no reasoning content. |
-| `specialist.started` | `specialist`, `simulated` | UI-only specialist step. |
-| `specialist.completed` | `specialist`, `durationMs`, `simulated` | UI-only step completion. |
-| `tool.started` | `tool` | Fixture tool indicator. |
-| `tool.completed` | `tool`, `durationMs`, `status` | Fixture tool completion. |
-| `assistant.delta` | `text` | One small text chunk. The adapter appends chunks and yields a cumulative snapshot to assistant-ui. |
+| `context.memory` | `itemCount` | Synthetic patient-history fixture count only; the DSH demo does not access a real AMA identity. |
+| `evidence.started` | `queryLabel` | Huiyi's local medical-evidence tool began; no user query is included. |
+| `evidence.item` | `evidenceId`, `rank`, `source`, `title`, `snippet` | Bounded source passage returned by local RAG; never written to logs. Fixture mode marks its sources as synthetic. |
+| `evidence.completed` | `count` | Number of valid evidence records exposed to the drawer. |
+| `agent.classified` | `complexity`, `simulated` | Classification from structured Huiyi collaboration output (`simulated: false`) or fixture flow. |
+| `specialist.started` | `specialist`, `simulated` | Fixture-only UI simulation. Live DSH specialist detail is summarized by `collaboration.completed`; child text is never emitted. |
+| `specialist.completed` | `specialist`, `durationMs`, `simulated` | Fixture-only UI simulation. |
+| `tool.started` | `tool` | Actual DSH root tool call or fixture indicator; tool arguments are never exposed. |
+| `tool.completed` | `tool`, `durationMs`, `status` | DSH tool result or fixture completion. |
+| `collaboration.completed` | `complexity`, bounded `specialistRoles`, `teamCount`, child run counts, `degraded` | Metadata-only summary reduced from the structured collaboration tool result; no findings or reasoning. |
+| `assistant.delta` | `text` | One DSH visible-text delta. Reasoning and other block types are filtered. The web adapter appends deltas and yields cumulative snapshots to assistant-ui. |
 | `run.completed` | `durationMs` | Terminal success. |
-| `run.cancelled` | `reason` | Cooperative fixture run cancellation. |
-| `run.failed` | safe `code` | Terminal error without stack or prompt data. |
+| `run.cancelled` | `reason` | Cooperative DSH `Agent.cancel()` or fixture cancellation. |
+| `run.failed` | safe `code` | Terminal error without stack or prompt data. DSH uses stable codes such as `MODEL_FAILURE`, `TURN_INCOMPLETE`, `SESSION_BUSY`, and `SESSION_CAPACITY`. |
 
-Events keep a single run ID and session ID. They carry no DSH internal event schema. Event order is deterministic per fixture scenario. Client disconnect aborts the active controller; `POST /api/runs/:runId/cancel` aborts the same run mapping. After cancellation the backend emits no additional text chunks.
+Events keep one Gateway run ID and browser session ID. They carry no raw DSH event schema. Fixture order is deterministic; DSH order follows the native Session and assistant-stream lifecycle. Client disconnect aborts the active controller; `POST /api/runs/:runId/cancel` aborts the same run mapping and calls the native Agent cancellation seam. After cancellation the backend emits no additional text chunks.
 
 ## API
 

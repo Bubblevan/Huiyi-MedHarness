@@ -6,30 +6,40 @@
 flowchart LR
   B[Browser] --> W[Static React + Vite Demo Web]
   W -->|Huiyi SSE contract| G[Loopback Demo Gateway]
-  G --> F[FixtureDemoBackend · active]
-  G -. future adapter boundary .-> D[DshDemoBackend · unavailable]
-  D -. future, existing native Session/AgentLoop only .-> R[DSH runtime]
+  G --> F[FixtureDemoBackend · default]
+  G --> D[DshDemoBackend · opt-in]
+  D -->|ctx.agents.create / followup / cancel| A[DSH AgentRegistry + AgentLoop]
+  A -->|native tools and child runs| H[Huiyi Memory / RAG / collaboration]
+  A -->|native LlmRuntime adapter| V[Loopback vLLM]
 ```
 
-- The web app owns browser UI state: assistant-ui messages, selected synthetic case, visible drawers, and rendering.
-- The Gateway owns the HTTP/SSE boundary, ephemeral run-to-session mapping, cancellation transport, backend selection, and metadata-only logs.
-- DSH remains the sole owner of an actual Agent, Session, AgentLoop, tool dispatch, admission, native cancellation, and durable session events. The DSH adapter in this phase is an explicit unavailable stub.
-- The fixture backend simulates UI activity and deterministic synthetic evidence. It is not an agent runtime and does not claim to execute real RAG, memory, or specialist collaboration.
+- The web app owns browser chat state, selected synthetic case, visible drawers, and rendering.
+- The Gateway owns HTTP/SSE transport, a bounded mapping from browser session keys to DSH `AgentHandle` capabilities, cancellation transport, backend selection, and metadata-only logs. The mapping holds handles only; DSH `Session` owns the transcript.
+- DSH owns each actual Agent, Session, AgentLoop, tool dispatch, result admission, cooperative cancellation, and Session events. The web adapter creates a root with `ctx.agents.create()`, submits turns with `agent.followup()`, observes `agent/assistant-stream` and `session/event`, and disposes the returned handle. It creates no second AgentLoop.
+- `DshWebRuntime` composes pinned DSH `0.2.1-alpha.1` in process: Cordis, AgentRegistry, SessionStore, AgentLoop, native ToolRuntime, SubagentRuntime, `spawn` provider, and pi-ai local-model adapter.
+- Huiyi's existing `applyWithIdentity()` installs the read-only Memory lifecycle, local RAG tool, and typed clinical collaboration tool. The demo uses only a synthetic patient snapshot and configures no persistent AMA identity, so it does not read or write real patient Memory. Collaboration receives the synthetic patient snapshot and retrieved external evidence as separate typed fields.
+- The fixture backend remains deterministic and is still the default. It simulates UI activity and synthetic evidence; it is not an agent runtime.
 
-## assistant-ui choice
+## Session and cancellation lifecycle
 
-Use the current documented `useLocalRuntime + ChatModelAdapter` API. `LocalRuntime` owns only chat message state and its run lifecycle; the adapter POSTs the latest user message to `/api/chat`, parses Huiyi SSE events, and yields cumulative text snapshots. It passes the runtime `AbortSignal` to `fetch` and requests the Gateway cancellation endpoint once the response run ID is known. The web client does not contact model, DSH, or Health Engine ports.
+The Gateway maps `(browser session ID, synthetic patient ID)` to one native DSH root handle. A new browser Session or selected patient gets a fresh root. Later turns reuse that Agent's DSH Session. At most 16 root handles are retained by default; idle least-recently-used handles are disposed when capacity is needed. This is process-local demo state: Gateway restart clears it.
 
-The Gateway protocol is Huiyi-owned and deliberately independent of DSH event names or internal payloads. The future DSH backend seam must map to an existing DSH host Session/AgentLoop and native cancellation lifecycle. It must not add a session store, AgentLoop, tool runtime, hidden reasoning output, or a second state machine. When the browser aborts the SSE response, it separately awaits the cancellation endpoint's terminal acknowledgement so the activity pane can still show the cancellation event.
+The caller's `AbortSignal` reaches the native DSH `agent.cancel({ kind: 'user' })` seam. Cancelling a run waits for the Agent to become idle; shutdown disposes every handle and then the Cordis fiber. Specialist children are created by Huiyi's existing `ctx.subagents` runner with fresh `spawn` context, bounded product policy, and `maxDepth: 1`.
+
+## Assistant UI and SSE
+
+Use `useLocalRuntime + ChatModelAdapter` to own browser chat state and run lifecycle. The adapter POSTs the latest user message to `/api/chat`, parses the Huiyi v1 SSE contract, and yields cumulative text snapshots. It passes the runtime `AbortSignal` to `fetch` and requests Gateway cancellation once the response run ID is known. The web client never contacts model, DSH, or Health Engine ports.
+
+The Gateway maps only DSH text-delta frames to `assistant.delta`; reasoning, tool arguments, prompts, child outputs, and raw DSH events stay server-side. RAG evidence and collaboration events are reduced to validated, bounded display metadata. A turn is successful only when DSH records `turn/end` with reason `completed` and at least one visible text delta.
+
+The browser API is unauthenticated and this adapter binds to loopback only. It is a local synthetic demo, not a hospital deployment endpoint.
 
 ## Evidence and memory
 
-Patient context is fetched from synthetic fixtures. Its longitudinal memory summary remains in a distinct UI card. Evidence items travel as typed fixture events and open in a separate source drawer. Gateway log records contain IDs, event names, backend, duration, status, and safe error codes only. Neither prompts, answers, memory content, evidence snippets, nor credentials are written to logs or artifacts.
+Patient context is fetched from synthetic fixtures and marked fictional. Its memory snapshot remains distinct from `externalEvidence`. The live backend can invoke Huiyi's `search_medical_evidence` and `consult_clinical_team` DSH tools. Only retrieved source passages are shown in the Evidence drawer. The Gateway never writes prompts, assistant output, memory text, evidence snippets, tool arguments, credentials, or provider payloads to logs.
 
-## Local processes
+## Local processes and backend selection
 
-The Vite dev server binds only to `127.0.0.1:5173` and proxies `/api/*` to the Gateway on `127.0.0.1:8320`. The Gateway binds only to loopback. `pnpm demo:build` emits a static frontend bundle and a separately compiled Node Gateway. The production frontend needs no SSR server.
+The Vite dev server binds to `127.0.0.1:5173` and proxies `/api/*` to the Gateway at `127.0.0.1:8320`. The Gateway binds to loopback. `HUIYI_DEMO_BACKEND` defaults to `fixture`; set it to `dsh` to use the native DSH composition and the configured loopback local model endpoint. The DSH route defaults to `http://127.0.0.1:8000/v1`, model `Qwen/Qwen3-8B`, and context window 40,960. Model and corpus files remain outside Git.
 
-## Backend selection
-
-`HUIYI_DEMO_BACKEND` defaults to `fixture`. Selecting `dsh` returns the safe `BACKEND_UNAVAILABLE` event because a real Web host integration has not been accepted or implemented. The documented local path and all acceptance tests use fixture mode and CPU only.
+`pnpm demo:build` emits a static frontend and a compiled Node Gateway containing the Huiyi integration code. The demo package pins its DSH runtime dependencies instead of relying on a host-global `dsh` CLI or writable home profile.

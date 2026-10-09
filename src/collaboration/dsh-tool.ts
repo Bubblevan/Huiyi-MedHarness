@@ -153,7 +153,10 @@ export function installDshCollaborationTool(
   ctx: CollaborationCapabilityContext,
   memory: MemoryLifecycle,
   evidence: MedicalEvidenceClientPort,
-  options: { readonly trace?: CollaborationTraceSink } = {},
+  options: {
+    readonly trace?: CollaborationTraceSink
+    readonly caseContext?: (input: { readonly agentId: string; readonly turn: number; readonly query: string }) => Pick<HealthCaseState, 'patientMemory'> | undefined
+  } = {},
 ): () => void {
   const orchestrator = new CollaborationOrchestrator(new DshClinicalChildRunner(ctx as unknown as DshCollaborationContext), options.trace)
   const perAgentTurn = new WeakMap<Agent, { readonly turn: number; readonly result: Promise<CollaborationToolResult> }>()
@@ -238,9 +241,14 @@ export function installDshCollaborationTool(
 
     if (input.signal.aborted) return unavailableResult('degraded', externalEvidenceStatus)
 
+    const hostPatientMemory = options.caseContext?.({
+      agentId: input.agent.id,
+      turn: input.turn,
+      query: input.query,
+    })?.patientMemory
     const caseState: HealthCaseState = {
       query: input.query,
-      ...(patientMemory ? { patientMemory } : {}),
+      ...(hostPatientMemory ? { patientMemory: hostPatientMemory } : patientMemory ? { patientMemory } : {}),
       ...(externalEvidence ? { externalEvidence } : {}),
     }
 
@@ -290,7 +298,10 @@ export function installCollaborationWhenSpawnAvailable(
   ctx: Context,
   memory: MemoryLifecycle,
   evidence: MedicalEvidenceClientPort,
-  options: { readonly trace?: CollaborationTraceSink } = {},
+  options: {
+    readonly trace?: CollaborationTraceSink
+    readonly caseContext?: (input: { readonly agentId: string; readonly turn: number; readonly query: string }) => Pick<HealthCaseState, 'patientMemory'> | undefined
+  } = {},
 ){
   const mount = (injectedCtx: Context): void => {
     const service = injectedCtx as CollaborationCapabilityContext

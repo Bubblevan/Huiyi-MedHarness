@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { DemoEvent } from "./contracts.js";
@@ -45,11 +45,11 @@ function sendEvent(response: ServerResponse, event: DemoEvent): boolean {
 
 export function createDemoServer(options: DemoServerOptions = {}): Server {
   const backendName = options.backendName ?? (process.env.HUIYI_DEMO_BACKEND === "dsh" ? "dsh" : "fixture");
-  const backend = options.backend ?? (backendName === "dsh" ? new DshDemoBackend() : new FixtureDemoBackend());
+  const backend: DemoBackend = options.backend ?? (backendName === "dsh" ? new DshDemoBackend() : new FixtureDemoBackend());
   const activeRuns = new Map<string, { controller: AbortController; sessionId: string; startedAt: number; settled: Promise<void>; settle: () => void }>();
   const log = options.log ?? ((metadata: Record<string, string | number>) => process.stdout.write(`${JSON.stringify(metadata)}\n`));
 
-  return createServer(async (request, response) => {
+  const server = createServer(async (request, response) => {
     const requestId = randomUUID();
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const method = request.method ?? "GET";
@@ -122,22 +122,25 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
         }
       } catch (error) {
         status = "failed";
-        errorCode = error instanceof Error && error.message.startsWith("BACKEND_UNAVAILABLE") ? "BACKEND_UNAVAILABLE" : "FIXTURE_FAILURE";
+        errorCode = error instanceof Error && error.message.startsWith("BACKEND_UNAVAILABLE") ? "BACKEND_UNAVAILABLE" : "BACKEND_FAILURE";
         if (!response.destroyed) sendEvent(response, {
           version: 1, event: "run.failed", runId, sessionId: input.sessionId,
-          timestamp: new Date().toISOString(), data: { code: errorCode as "BACKEND_UNAVAILABLE" | "FIXTURE_FAILURE" },
+          timestamp: new Date().toISOString(), data: { code: errorCode as "BACKEND_UNAVAILABLE" | "BACKEND_FAILURE" },
         });
       } finally {
         if (controller.signal.aborted && status === "completed") status = "cancelled";
         activeRuns.delete(runId);
         if (!response.destroyed) response.end();
-        log({ requestId, sessionId: input.sessionId, runId, event: "run.terminal", duration: Date.now() - startedAt, backend: backendName, status, ...(errorCode ? { errorCode } : {}) });
+        const sessionHash = createHash("sha256").update(input.sessionId, "utf8").digest("hex").slice(0, 16);
+        log({ requestId, sessionHash, runId, event: "run.terminal", duration: Date.now() - startedAt, backend: backendName, status, ...(errorCode ? { errorCode } : {}) });
         runState.settle();
       }
       return;
     }
     json(response, 404, { error: "NOT_FOUND" });
   });
+  server.on("close", () => { void backend.dispose?.(); });
+  return server;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

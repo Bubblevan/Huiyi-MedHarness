@@ -10,6 +10,7 @@ export const DEMO_EVENTS = [
   "specialist.completed",
   "tool.started",
   "tool.completed",
+  "collaboration.completed",
   "assistant.delta",
   "run.completed",
   "run.cancelled",
@@ -52,15 +53,23 @@ export interface EventDataMap {
     snippet: string;
   };
   "evidence.completed": { count: number };
-  "agent.classified": { complexity: "simple" | "intermediate"; simulated: boolean };
+  "agent.classified": { complexity: "simple" | "basic" | "intermediate" | "advanced"; simulated: boolean };
   "specialist.started": { specialist: string; simulated: boolean };
   "specialist.completed": { specialist: string; durationMs: number; simulated: boolean };
   "tool.started": { tool: string };
-  "tool.completed": { tool: string; durationMs: number; status: "completed" };
+  "tool.completed": { tool: string; durationMs: number; status: "completed" | "failed" };
+  "collaboration.completed": {
+    complexity: "basic" | "intermediate" | "advanced";
+    specialistRoles: string[];
+    teamCount: number;
+    completedChildRuns: number;
+    failedChildRuns: number;
+    degraded: boolean;
+  };
   "assistant.delta": { text: string };
   "run.completed": { durationMs: number };
   "run.cancelled": { reason: "client_cancelled" };
-  "run.failed": { code: "FIXTURE_FAILURE" | "BACKEND_UNAVAILABLE" | "RUN_TIMEOUT" };
+  "run.failed": { code: "FIXTURE_FAILURE" | "BACKEND_UNAVAILABLE" | "BACKEND_FAILURE" | "MODEL_UNAVAILABLE" | "MODEL_FAILURE" | "MODEL_ROUTE_UNAVAILABLE" | "MODEL_UNKNOWN" | "MODEL_CREDENTIAL_MISSING" | "MODEL_CREDENTIAL_INVALID" | "MODEL_CONFIG_INVALID" | "MODEL_AUTH_FAILED" | "MODEL_TIMEOUT" | "MODEL_RATE_LIMIT" | "TURN_INCOMPLETE" | "SESSION_BUSY" | "SESSION_CAPACITY" | "RUN_TIMEOUT" };
 }
 
 export type DemoEvent = {
@@ -99,15 +108,18 @@ function isEventData(event: DemoEventName, data: unknown): boolean {
     case "evidence.started": return isText(data.queryLabel);
     case "evidence.item": return isText(data.evidenceId) && isNumber(data.rank) && isText(data.source) && isText(data.title) && isText(data.snippet);
     case "evidence.completed": return isNumber(data.count);
-    case "agent.classified": return (data.complexity === "simple" || data.complexity === "intermediate") && isBoolean(data.simulated);
+    case "agent.classified": return (["basic", "simple", "intermediate", "advanced"].includes(String(data.complexity))) && isBoolean(data.simulated);
     case "specialist.started": return isText(data.specialist) && isBoolean(data.simulated);
     case "specialist.completed": return isText(data.specialist) && isNumber(data.durationMs) && isBoolean(data.simulated);
     case "tool.started": return isText(data.tool);
-    case "tool.completed": return isText(data.tool) && isNumber(data.durationMs) && data.status === "completed";
+    case "tool.completed": return isText(data.tool) && isNumber(data.durationMs) && (data.status === "completed" || data.status === "failed");
+    case "collaboration.completed": return ["basic", "intermediate", "advanced"].includes(String(data.complexity))
+      && Array.isArray(data.specialistRoles) && data.specialistRoles.every(isText)
+      && isNumber(data.teamCount) && isNumber(data.completedChildRuns) && isNumber(data.failedChildRuns) && isBoolean(data.degraded);
     case "assistant.delta": return isText(data.text);
     case "run.completed": return isNumber(data.durationMs);
     case "run.cancelled": return data.reason === "client_cancelled";
-    case "run.failed": return ["FIXTURE_FAILURE", "BACKEND_UNAVAILABLE", "RUN_TIMEOUT"].includes(String(data.code));
+    case "run.failed": return ["FIXTURE_FAILURE", "BACKEND_UNAVAILABLE", "BACKEND_FAILURE", "MODEL_UNAVAILABLE", "MODEL_FAILURE", "MODEL_ROUTE_UNAVAILABLE", "MODEL_UNKNOWN", "MODEL_CREDENTIAL_MISSING", "MODEL_CREDENTIAL_INVALID", "MODEL_CONFIG_INVALID", "MODEL_AUTH_FAILED", "MODEL_TIMEOUT", "MODEL_RATE_LIMIT", "TURN_INCOMPLETE", "SESSION_BUSY", "SESSION_CAPACITY", "RUN_TIMEOUT"].includes(String(data.code));
     default: return assertNever(event);
   }
 }

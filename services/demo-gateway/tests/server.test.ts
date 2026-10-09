@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createDemoServer } from "../src/server.js";
 import { FixtureDemoBackend } from "../src/backends/fixture.js";
+import { createEvent } from "../src/contracts.js";
+import type { DemoBackend } from "../src/backends/backend.js";
 
 const servers: Array<{ close: () => Promise<void>; baseUrl: string }> = [];
 
@@ -82,18 +84,22 @@ describe("Demo Gateway HTTP/SSE boundary", () => {
     expect(await fetch(`${app.baseUrl}/api/runs/${runId}/cancel`, { method: "POST" }).then((item) => item.status)).toBe(404);
   });
 
-  it("rejects invalid requests and maps an unavailable DSH adapter safely", async () => {
+  it("rejects invalid requests and returns a safe native DSH failure code", async () => {
     const app = await start();
     expect(await fetch(`${app.baseUrl}/api/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }).then((response) => response.status)).toBe(400);
     expect(await fetch(`${app.baseUrl}/api/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sessionId: "s", patientId: "unknown", message: "hello" }) }).then((response) => response.status)).toBe(422);
 
-    const dsh = createDemoServer({ backendName: "dsh", log: () => undefined });
+    const unavailableModel: DemoBackend = {
+      async *run(input, { runId }) { yield createEvent("run.failed", runId, input.sessionId, { code: "MODEL_UNAVAILABLE" }); },
+      cancel() {},
+    };
+    const dsh = createDemoServer({ backendName: "dsh", backend: unavailableModel, log: () => undefined });
     await new Promise<void>((resolve) => dsh.listen(0, "127.0.0.1", resolve));
     const address = dsh.address();
     if (!address || typeof address === "string") throw new Error("Expected ephemeral address");
     const dshUrl = `http://127.0.0.1:${address.port}`;
     const answer = await fetch(`${dshUrl}/api/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sessionId: "s", patientId: "patient-htn", message: "hello" }) }).then((response) => response.text());
-    expect(answer).toContain("BACKEND_UNAVAILABLE");
+    expect(answer).toContain("MODEL_UNAVAILABLE");
     await new Promise<void>((resolve, reject) => dsh.close((error) => error ? reject(error) : resolve()));
   });
 });

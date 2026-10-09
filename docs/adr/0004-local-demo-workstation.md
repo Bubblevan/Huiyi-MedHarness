@@ -24,6 +24,14 @@ The complete UI can run without CUDA, local model weights, Health Engine, or ext
 
 Before creating the adapter seam, the pinned DSH checkout `5badb15009ae1756c3afe0ae0cef1faafc290ccc` was inspected at `packages/core/agent-loop/README.md`, `packages/core/agent-loop/src/agent.ts`, and `docs/subsystems/session.md`. DSH owns Session, AgentLoop, cooperative `Agent.cancel()`, and durable session/event lifecycle. This task neither imports a new DSH runtime into the Gateway nor modifies the DSH checkout. The future TODO maps cancellation to native cooperative cancellation; it does not kill a process.
 
+## Status update — native local adapter
+
+On 2026-10-10 the previously unavailable Web adapter was implemented as an opt-in in-process composition of the pinned DSH packages. The integration was checked against the installed pinned declarations and implementation for `AgentRegistry.create`, `AgentHandle.dispose`, `Agent.followup`, `Agent.cancel`, `Agent.whenIdle`, `session/event`, and `agent/assistant-stream`. The Gateway uses those native seams and creates no custom AgentLoop. It subscribes only to text-delta frames and filters all reasoning frames.
+
+Each browser session/patient fixture pair maps to a native `AgentHandle`; DSH's Session is the only transcript. The map is bounded and exists only to hold handle capabilities. Cancellation reaches the DSH Agent, and Gateway shutdown disposes handles and the Cordis fiber. Huiyi's existing RAG and collaboration tools are mounted through `applyWithIdentity()`. Patient details and memory are synthetic fixture state passed as a typed MemorySnapshot; no real AMA identity is configured or mutated. The default backend remains fixture, and DSH selection is local opt-in only.
+
+CPU acceptance creates/disposes a real DSH AgentHandle without model inference. Full end-to-end acceptance additionally requires the local Qwen vLLM service and is recorded separately from the fixture tests.
+
 ## Considered
 
 - **Hono:** a valid light server option, but Node's HTTP primitives cover four local endpoints and SSE without adding a production framework dependency here.

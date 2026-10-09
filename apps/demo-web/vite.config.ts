@@ -8,13 +8,14 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, repoRoot, "");
   const gatewayPort = process.env.HUIYI_DEMO_GATEWAY_PORT ?? env.HUIYI_DEMO_GATEWAY_PORT ?? "8320";
+  const webPort = process.env.HUIYI_DEMO_WEB_PORT ?? "5173";
   return {
   plugins: [react()],
   envDir: repoRoot,
   envPrefix: ["VITE_", "HUIYI_DEMO_"],
   server: {
     host: "127.0.0.1",
-    port: 5173,
+    port: Number(webPort),
     strictPort: true,
     proxy: { "/api": { target: `http://127.0.0.1:${gatewayPort}`, changeOrigin: false } },
   },
