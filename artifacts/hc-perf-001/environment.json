@@ -23,7 +23,7 @@
     "INF-05": "BLOCKED: FP8 is a semantic arm and was not run or quality-validated",
     "INF-06": "BLOCKED: no verified Qwen3-compatible draft model; speculative decoding not tested",
     "RL-01": "BLOCKED: pinned veRL/Ray/tensordict/OmegaConf stack is absent; one-L40 RL feasibility not proven",
-    "SFT-01": "PASS for package imports/signatures only; full model/trainer compatibility canary not run",
+    "SFT-01": "BLOCKED: package imports/signatures pass, but model/trainer compatibility was not verified by a training canary",
     "SFT-02": "BLOCKED: BF16 LoRA canary not run because the L40 allocation could not be verified as released after inference",
     "SFT-03": "BLOCKED: QLoRA canary not run for same GPU availability reason",
     "SFT-04": "BLOCKED: no canary checkpoint created or reload attempted",
