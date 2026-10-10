@@ -50,7 +50,11 @@ def build_manifest(args: argparse.Namespace) -> dict[str, object]:
             asset_digests.append(f"{file_info['path']}\t{file_info['sha256']}")
         sources.append({
             "name": name,
-            "revision": args.textbooks_revision if name == "textbooks" else args.statpearls_revision if name == "statpearls" else None,
+            "revision": {
+                "textbooks": args.textbooks_revision,
+                "statpearls": args.statpearls_revision,
+                "pubmed": args.pubmed_revision,
+            }.get(name),
             "documentCount": len(chunk_paths),
             "chunkCount": chunk_count,
             "chunkFiles": chunk_records,
@@ -78,7 +82,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, object]:
     return {
         "schemaVersion": 1,
         "corpusVersion": f"medtext-local-{version_hash}",
-        "sourceRepository": "MedRAG/MedText sample prepared by repro/imedrag-small-20261007",
+        "sourceRepository": args.source_repository,
         "sources": sources,
         "retriever": {
             "name": "MedCPT",
@@ -99,6 +103,8 @@ def main() -> int:
     parser.add_argument("--corpora", nargs="+", default=["textbooks", "statpearls"])
     parser.add_argument("--textbooks-revision")
     parser.add_argument("--statpearls-revision")
+    parser.add_argument("--pubmed-revision")
+    parser.add_argument("--source-repository", default="MedRAG/MedText sample prepared by repro/imedrag-small-20261007")
     parser.add_argument("--query-encoder-model", required=True)
     parser.add_argument("--query-encoder-revision", required=True)
     parser.add_argument("--article-encoder-model", required=True)

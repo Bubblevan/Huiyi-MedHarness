@@ -38,6 +38,7 @@ def main() -> int:
     with torch.no_grad():
         for chunk_path in sorted(args.chunk_root.glob("*.jsonl")):
             rows = [json.loads(line) for line in chunk_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            print(f"encoding {chunk_path.name}: {len(rows)} chunks", flush=True)
             file_vectors: list[np.ndarray] = []
             for start in range(0, len(rows), args.batch_size):
                 batch = rows[start : start + args.batch_size]
@@ -58,6 +59,7 @@ def main() -> int:
             for row_number in range(len(rows)):
                 metadata.append({"index": row_number, "source": chunk_path.stem})
             row_base += len(rows)
+            print(f"encoded {chunk_path.name}: {len(rows)} chunks", flush=True)
 
     if not vectors:
         raise SystemExit("no prepared chunk JSONL files found")

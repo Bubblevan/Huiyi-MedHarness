@@ -15,6 +15,25 @@ from .retriever import MedCptRetriever
 from .schemas import EvidenceHit, EvidenceSet, MedicalEvidenceRequest, RagStatus, RetrievalMetrics
 
 
+def _query_encoder_matches_revision(path: Path, revision: str) -> bool:
+    if revision in str(path):
+        return True
+    # Hugging Face local snapshots carry the resolved repository revision next
+    # to each downloaded file. This also lets operators keep a clean, readable
+    # model directory name instead of embedding a commit SHA in the path.
+    metadata_dir = path / ".cache" / "huggingface" / "download"
+    try:
+        resolved_revisions = set()
+        for item in metadata_dir.glob("*.metadata"):
+            if item.is_file():
+                lines = item.read_text(encoding="utf-8").splitlines()
+                if lines and lines[0].strip():
+                    resolved_revisions.add(lines[0].strip())
+    except (OSError, UnicodeError):
+        return False
+    return bool(resolved_revisions) and resolved_revisions == {revision}
+
+
 class EvidenceTokenizer:
     def __init__(self, tokenizer_path: Path | None):
         self.tokenizer: Any = None
@@ -57,7 +76,7 @@ class RagService:
     @classmethod
     def from_settings(cls, settings: RagSettings) -> "RagService":
         corpus = CorpusRepository(settings.corpus_root, settings.manifest_path).load()
-        if corpus.query_encoder_revision not in str(settings.query_encoder_path):
+        if not _query_encoder_matches_revision(settings.query_encoder_path, corpus.query_encoder_revision):
             raise RuntimeError("configured MedCPT query encoder path does not match the corpus manifest revision")
         retriever = MedCptRetriever(
             corpus,

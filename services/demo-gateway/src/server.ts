@@ -56,6 +56,9 @@ function sendEvent(response: ServerResponse, event: DemoEvent): boolean {
 
 export function createDemoServer(options: DemoServerOptions = {}): Server {
   const production = process.env.HUIYI_APP_ENV?.trim().toLowerCase() === "production" || process.env.NODE_ENV === "production";
+  if (production && process.env.HUIYI_DEMO_SYNTHETIC_AMA_MEMORY?.trim() === "1") {
+    throw new Error("Synthetic patient AMA memory is disabled in production");
+  }
   const backendName = options.backendName ?? (production || process.env.HUIYI_DEMO_BACKEND === "dsh" ? "dsh" : "fixture");
   if (production && backendName === "fixture") {
     throw new Error("Fixture backend is disabled in production");

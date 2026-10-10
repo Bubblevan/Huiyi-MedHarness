@@ -13,8 +13,10 @@ import * as Spawn from "@deepseek-ai/dsh-subagent-spawn-in-process";
 import { applyWithIdentity } from "../../../../src/index.js";
 import { MemoryClient } from "../../../../src/memory/client.js";
 import type { MemorySnapshot } from "../../../../src/memory/contracts.js";
+import { MetadataMemoryTrace } from "../../../../src/memory/trace.js";
 import { RagClient } from "../../../../src/rag/client.js";
 import type { PatientContext } from "../contracts.js";
+import { createHash } from "node:crypto";
 
 export interface DshDemoAgent {
   readonly id: string;
@@ -153,6 +155,12 @@ export class DshWebRuntime implements DshDemoRuntimePort {
   }
 
   private async startContext(): Promise<void> {
+    const syntheticAmaMemory = process.env.HUIYI_DEMO_SYNTHETIC_AMA_MEMORY?.trim() === "1";
+    const production = process.env.HUIYI_APP_ENV?.trim().toLowerCase() === "production" || process.env.NODE_ENV === "production";
+    if (syntheticAmaMemory && production) {
+      throw new Error("Synthetic AMA memory is disabled in production");
+    }
+
     const ctx = new Context();
     new TypertRegistry(ctx);
     new SessionStore(ctx);
@@ -182,21 +190,32 @@ export class DshWebRuntime implements DshDemoRuntimePort {
 
     applyWithIdentity(
       ctx,
-      () => undefined,
+      (agent) => {
+        if (!syntheticAmaMemory) return undefined;
+        const patient = this.patientsByAgentId.get(agent.id);
+        return patient ? syntheticPatientMemoryId(patient.patientId) : undefined;
+      },
       new RagClient(),
       {
-        memory: { readOnly: true },
+        memory: { readOnly: !syntheticAmaMemory },
         memoryClient: new MemoryClient(),
-        memoryTrace: { record: () => undefined },
+        memoryTrace: syntheticAmaMemory ? new MetadataMemoryTrace() : { record: () => undefined },
         collaborationTrace: { record: () => undefined },
-        collaborationCaseContext: ({ agentId, turn }) => {
-          const patient = this.patientsByAgentId.get(agentId);
-          return patient ? { patientMemory: toSyntheticMemorySnapshot(patient, agentId, turn) } : undefined;
-        },
+        ...(!syntheticAmaMemory ? {
+          collaborationCaseContext: ({ agentId, turn }: { readonly agentId: string; readonly turn: number }) => {
+            const patient = this.patientsByAgentId.get(agentId);
+            return patient ? { patientMemory: toSyntheticMemorySnapshot(patient, agentId, turn) } : undefined;
+          },
+        } : {}),
       },
     );
     this.ctx = ctx;
   }
+}
+
+function syntheticPatientMemoryId(patientId: string): string {
+  const digest = createHash("sha256").update(`huiyi-demo-synthetic\0${patientId}`).digest("hex");
+  return `synthetic-demo:${digest}`;
 }
 
 export function readModelConfiguration(env: NodeJS.ProcessEnv = process.env): ModelConfiguration {

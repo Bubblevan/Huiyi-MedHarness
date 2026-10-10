@@ -30,16 +30,27 @@
 
 在当前仓库和上述数据根目录中没有找到慧宜医院患者数据库、院内 corpus manifest 或已建 RAG 索引。需要用户确认“医院数据库”文件/服务位置和类型后才能接入。
 
-当前 Windows Python 为 3.12.4，含 CUDA Torch 与 Transformers 4.44.2；缺少 FastAPI、Uvicorn、FAISS、sentence-transformers 和 tiktoken。当前本机还没有 MedCPT Query/Article Encoder，也没有可供 Health Engine 读取的已建 MedCPT 索引。Health Engine 的 `127.0.0.1:8322` 当前拒绝连接。Docker CLI 存在，但 Docker Desktop Linux Engine 当前未启动；当前 FAISS 方案无需 Docker。
+MedCPT Query/Article Encoder 已下载并整理到 `E:\Health-Copilot-Models\models\MedCPT-Query-Encoder` 与 `E:\Health-Copilot-Models\models\MedCPT-Article-Encoder`，主权重 SHA-256 已校验。模型不放在仓库工作树中；MedCorp 原始语料留在 `E:\Health-Copilot-Models\MedCorp`，本机派生的 JSONL、FAISS 索引和 manifest 留在被 Git 忽略的 `services/health-engine/data/local-rag`。
 
-前端 `127.0.0.1:5173` 和 Gateway `127.0.0.1:8320` 当前健康，Gateway 使用 DSH + DeepSeek API。RAG 的本机闭环尚未完成：缺少匹配的 MedCPT 编码器、准备好的 chunk/index/manifest，以及 Health Engine Python 运行依赖。不要把“Gateway/模型正常”误认为“知识库已接好”。
+Health Engine Python 依赖现已安装在 `services/health-engine/.venv` 隔离环境中，该环境复用本机 CUDA Torch，不改全局 Anaconda。RAG 单测 11 项通过。完整 Textbooks 分块（125,847 chunks）及 PubMed 首个分片（15,377 chunks）已生成 MedCPT 768 维 FAISS 索引；manifest 版本为 `medtext-local-d7ac7e27faf8f0c3`，合计 141,224 chunks。Health Engine `/health` 与 `/v1/rag/status` 返回就绪；一条本地 iterative 检索实测完成 2 轮、4 次检索调用、2 次 Qwen 规划调用，并返回 3 条 Textbooks 证据。FAISS 方案不要求 Docker Desktop 或 Milvus。
+
+Gateway 已切换到本机 Qwen3-8B GGUF，前端与 Gateway 健康；合成病例的 DSH E2E 调用了 `search_medical_evidence` 和 `consult_clinical_team`，返回 3 条证据并完成 6 个 MDAgents-derived 子运行。仅本地测试开启的 synthetic-only AMA 记忆完成写入，并在同一合成患者第二轮召回了 2 条记忆；另一位合成患者首次召回为空。该验证证明本机链路可工作，不代表 300 档案全量评估或临床准确性验证。
+
+Windows 本机模型路径固定为：
+
+```powershell
+$env:HUIYI_RAG_QUERY_ENCODER_PATH = 'E:\Health-Copilot-Models\models\MedCPT-Query-Encoder'
+$articleEncoderPath = 'E:\Health-Copilot-Models\models\MedCPT-Article-Encoder'
+```
+
+查询编码器路径由 Health Engine 使用；建库时把 `$articleEncoderPath` 传给 `scripts/rag/build_index.py --article-encoder-path`。查询和建库必须使用这对相互匹配的 MedCPT 模型。
 
 ## 本机闭环顺序
 
-1. 明确慧宜医院数据属于院内知识文档还是患者 EMR，并确认本机源路径、格式、授权和是否脱敏。
-2. 选定检索 encoder。若保持当前 MedCPT 契约，取得与产品版本匹配的 Query/Article Encoder；若改用本地 Qwen3-Embedding，则先实现新 adapter 和一致的文档/查询编码，再重建向量索引。
-3. 将一小组 Textbooks/StatPearls chunk 和院内知识文档整理为项目规定的 JSONL、FAISS 索引、metadata 和 manifest；患者 EMR 仍不进入此步骤。
-4. 在隔离的本机 Python 环境启动 Health Engine，确认 `/health` 与 `/v1/rag/status`，再让当前 Gateway 的 `search_medical_evidence` 完成一次本地检索；页面证据抽屉显示来源、版本和引用。
-5. 逐步扩大到已下载的 corpus 分片，记录索引空间、内存、召回质量和出处覆盖；不在 live request 中构建或更新索引。
+1. 页面证据抽屉的浏览器验收仍待进行；目前已通过本机 Gateway SSE/API 完成实际证据检索与工具调用。
+2. StatPearls NXML 尚需离线解析与清洗，之后再单独建 corpus；Wikipedia 保持低优先级并明确其部分下载状态。
+3. 慧宜医院数据仍待确认数据类型、授权范围和源路径。若为临床制度或指南，作为单独的 `huiyi_hospital` corpus；若包含患者 EMR，必须走认证授权的患者上下文接口，不进入共享 FAISS。
+4. 300 个合成患者的生成审核、Simulation Lab、长跑评测及完整 MDAgents/AMA/i-MedRAG 覆盖报告仍是待实现工作；当前只做了少量本机合成患者链路验证。
+5. 逐步扩大 corpus 分片并记录索引空间、内存、召回质量和出处覆盖；不在 live request 中构建或更新索引。
 
-运行配置示例见 [`examples/local-rag.env.example`](../../examples/local-rag.env.example)。其中的 Linux 路径针对原来的训练机；Windows 本机要改成实际本机语料、manifest 和 MedCPT 模型路径后才能运行。
+Linux 部署示例见 [`examples/local-rag.env.example`](../../examples/local-rag.env.example)，其中 Linux 路径仅适用于训练机。本机 Windows 的 MedCPT 模型使用上面的 E 盘路径；corpus/index 路径仍使用项目 `services/health-engine/data/local-rag` 下的忽略目录。

@@ -27,7 +27,7 @@ Send the suggested question or type a new synthetic-only prompt. Stop during a c
 
 ## Native DSH + local vLLM mode
 
-This mode uses the in-process DSH `0.2.1-alpha.1` composition and the same local Qwen3-8B BF16 route recorded by HC-PERF-001. It uses synthetic patient fixtures only. The demo does not configure a real AMA patient identity; RAG and clinical collaboration remain Huiyi DSH tools and fail open if the local Health Engine is unavailable.
+This mode uses the in-process DSH `0.2.1-alpha.1` composition and a local Qwen3-8B route. It uses synthetic patient fixtures only. By default, fixture memory is read-only. For an isolated local end-to-end run through AMA, explicitly enable synthetic-only persistent memory; each fixture patient receives a stable pseudonymous memory ID, and production startup rejects this flag.
 
 Start the previously validated local serving environment with its Eager baseline profile:
 
@@ -49,6 +49,34 @@ HUIYI_DEMO_BACKEND=dsh pnpm demo:dev
 ```
 
 The browser and Gateway still bind to loopback. The adapter streams only DSH visible-text chunks; reasoning, prompts, tool arguments, and child outputs are filtered. Browser Sessions map to native DSH AgentHandles and are process-local. A process restart clears those Sessions. `HUIYI_DEMO_MODEL_BASE_URL` may change the endpoint only to another loopback HTTP URL; the model name, context window and per-request output cap are configurable with `HUIYI_DEMO_MODEL`, `HUIYI_DEMO_CONTEXT_WINDOW` and `HUIYI_DEMO_MAX_TOKENS`.
+
+### Windows laptop with the existing Qwen3-8B GGUF
+
+The local Windows setup can use the already-installed `llama-server.exe`; it does not require WSL or a new model download. Start it in a terminal with the existing E: model file:
+
+```powershell
+llama-server.exe `
+  -m 'E:\Health-Copilot-Models\models\qwen3-8b\Qwen3-8B-Q4_K_M.gguf' `
+  --host 127.0.0.1 --port 8000 `
+  --alias 'Qwen/Qwen3-8B' `
+  --ctx-size 16384 --n-gpu-layers 99 --jinja
+```
+
+In a second terminal, select DSH and point its OpenAI-compatible route at that loopback endpoint:
+
+```powershell
+$env:HUIYI_DEMO_BACKEND = 'dsh'
+$env:HUIYI_DEMO_MODEL_BACKEND = 'vllm' # local OpenAI-compatible adapter name
+$env:HUIYI_DEMO_MODEL = 'Qwen/Qwen3-8B'
+$env:HUIYI_DEMO_MODEL_BASE_URL = 'http://127.0.0.1:8000/v1'
+$env:HUIYI_DEMO_CONTEXT_WINDOW = '16384'
+$env:HUIYI_HEALTH_ENGINE_URL = 'http://127.0.0.1:8322'
+$env:HUIYI_DEMO_SYNTHETIC_AMA_MEMORY = '1'
+$env:HUIYI_MEMORY_TRACE_FILE = "$PWD\services\health-engine\data\local-run\memory-trace.jsonl"
+pnpm demo:dev
+```
+
+The `vllm` setting is the Gateway's local OpenAI-compatible provider route name; it does not require that the server process itself be vLLM. Keep the API bound to `127.0.0.1`. Use only synthetic patient fixtures in this local demo.
 
 ## Native DSH + DeepSeek API mode
 
