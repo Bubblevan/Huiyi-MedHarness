@@ -12,8 +12,10 @@ import {
 } from "@assistant-ui/react";
 import { MarkdownTextPrimitive } from "@assistant-ui/react-markdown";
 import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
-import { AgentActivity, BackendBadge, ErrorNotice, EvidenceActionProvider, EvidenceDrawer, PatientContext, useEvidenceAction, type EvidenceRecord } from "./components.js";
+import { AgentActivity, BackendBadge, ErrorNotice, EvidenceActionProvider, EvidenceDrawer, PatientContext, toSafeActivityEvent, useEvidenceAction, type EvidenceRecord } from "./components.js";
 import { createDemoAdapter, type Scenario, type WireDemoEvent } from "./runtime/adapter.js";
+import { applicationVersion, environmentLabel, isProductionBuild, runtimeConfig } from "./config/env.js";
+import { clinicalCopy } from "./copy/clinicalWorkstation.js";
 
 const API_BASE = import.meta.env.HUIYI_DEMO_API_BASE || "/api";
 
@@ -28,13 +30,13 @@ const CitationAnchor = ({ href, children, ...props }: ComponentProps<"a">) => {
 
 function CitationMarkdown() { return <MarkdownTextPrimitive components={{ a: CitationAnchor }} />; }
 
-function QuickPrompts() {
+function QuickPrompts({ enabled }: { enabled: boolean }) {
   const aui = useAui();
-  return <div className="quick-prompts"><button onClick={() => void aui.composer.setText("请根据本次复诊情况，帮我整理需要记录和向医生确认的问题。")}>整理复诊问题 <span>↗</span></button><button onClick={() => void aui.composer.setText("请根据已有上下文，给我一个简洁的下一步沟通清单。")}>生成沟通清单 <span>↗</span></button></div>;
+  return <div className="quick-prompts"><button disabled={!enabled} onClick={() => void aui.composer.setText(clinicalCopy.quickPromptVisit)}>整理复诊问题 <span>↗</span></button><button disabled={!enabled} onClick={() => void aui.composer.setText(clinicalCopy.quickPromptNextSteps)}>生成沟通清单 <span>↗</span></button></div>;
 }
 
-function Consultation({ patientId, sessionId, scenario, onEvent, onError, onRetry, onChooseScenario, errorCode }: {
-  patientId: string; sessionId: string; scenario: Scenario;
+function Consultation({ patientId, sessionId, scenario, canSubmit, onEvent, onError, onRetry, onChooseScenario, errorCode }: {
+  patientId: string; sessionId: string; scenario: Scenario; canSubmit: boolean;
   onEvent: (event: WireDemoEvent) => void; onError: (code: string) => void; onRetry: () => void; onChooseScenario: (scenario: Scenario) => void; errorCode?: string;
 }) {
   const adapter = useMemo<ChatModelAdapter>(() => createDemoAdapter({ patientId, sessionId, scenario, onEvent, onError, apiBase: API_BASE }), [patientId, sessionId, scenario, onEvent, onError]);
@@ -45,15 +47,15 @@ function Consultation({ patientId, sessionId, scenario, onEvent, onError, onRetr
         <div><p className="eyebrow">CONSULTATION</p><h1>复诊工作台</h1></div>
         <div className="session-meta"><span><i /> Encounter</span><span>Session <code>{sessionId.slice(0, 8)}</code></span></div>
       </header>
-      <div className="scenario-strip" aria-label="演示案例">
-        <div><span className="scenario-label">DEMO SCENARIOS</span><span>选择案例开始对话</span></div>
-        <div className="scenario-actions"><button className={scenario === "simple" ? "scenario-button selected" : "scenario-button"} onClick={() => onChooseScenario("simple")} title="开始高血压复诊场景">高血压复诊</button><span className="scenario-separator">/</span><span className="scenario-current">{scenario === "complex" ? "复杂病例" : scenario === "failure" ? "故障演示" : "当前案例"}</span></div>
-      </div>
+      {!isProductionBuild && <div className="scenario-strip" aria-label={clinicalCopy.scenarioAriaLabel}>
+        <div><span className="scenario-label">{clinicalCopy.scenarioLabel}</span><span>{clinicalCopy.scenarioInstruction}</span></div>
+        <div className="scenario-actions"><button className={scenario === "simple" ? "scenario-button selected" : "scenario-button"} onClick={() => onChooseScenario("simple")} title={`开始${clinicalCopy.simpleScenario}场景`}>{clinicalCopy.simpleScenario}</button><span className="scenario-separator">/</span><span className="scenario-current">{scenario === "complex" ? clinicalCopy.complexScenario : scenario === "failure" ? clinicalCopy.failureScenario : clinicalCopy.currentScenario}</span></div>
+      </div>}
       {errorCode && <div className="consultation-error"><ErrorNotice message={`执行状态：${errorCode}`} onRetry={onRetry} /></div>}
       <ThreadPrimitive.Root className="thread-root">
         <ThreadPrimitive.Viewport className="thread-viewport" autoScroll turnAnchor="bottom">
-          <div className="welcome-card"><span className="welcome-kicker">SYNTHETIC CASE</span><h2>从患者上下文开始</h2><p>合成患者记忆与外部医学证据分别展示。回答只用于演示界面流程。</p>
-            <QuickPrompts />
+          <div className="welcome-card"><span className="welcome-kicker">{clinicalCopy.welcomeKicker}</span><h2>{clinicalCopy.welcomeTitle}</h2><p>{clinicalCopy.welcomeDescription}</p>
+            <QuickPrompts enabled={canSubmit} />
           </div>
           <ThreadPrimitive.Messages>
             {({ message }: { message: { id: string; role: string } }) => message.role === "user" ? (
@@ -63,7 +65,7 @@ function Consultation({ patientId, sessionId, scenario, onEvent, onError, onRetr
             ) : (
               <MessagePrimitive.Root key={message.id} className="message-row assistant-message">
                 <div className="assistant-avatar" aria-hidden="true">H</div>
-                <div className="assistant-message-body"><div className="message-label">Huiyi · 合成演示回答</div>
+                <div className="assistant-message-body"><div className="message-label">{clinicalCopy.assistantLabel}</div>
                   <MessagePrimitive.Parts>{({ part }: { part: { type: string } }) => part.type === "text" ? <div className="assistant-markdown"><CitationMarkdown /><MessagePartPrimitive.InProgress><span className="stream-cursor" aria-label="正在生成">▍</span></MessagePartPrimitive.InProgress></div> : null}</MessagePrimitive.Parts>
                   <ActionBarPrimitive.Root className="message-actions"><ActionBarPrimitive.Reload className="text-action">重新生成</ActionBarPrimitive.Reload></ActionBarPrimitive.Root>
                 </div>
@@ -72,13 +74,13 @@ function Consultation({ patientId, sessionId, scenario, onEvent, onError, onRetr
           </ThreadPrimitive.Messages>
           <ThreadPrimitive.ViewportFooter className="composer-footer">
             <ComposerPrimitive.Root className="composer-shell">
-              <ComposerPrimitive.Input className="composer-input" placeholder="描述本次复诊问题…" aria-label="描述本次复诊问题" rows={2} />
-              <div className="composer-toolbar"><span className="composer-hint">合成演示 · 请勿输入真实患者信息</span><div className="composer-controls">
+              <ComposerPrimitive.Input className="composer-input" placeholder={clinicalCopy.composerPlaceholder} aria-label={clinicalCopy.composerPlaceholder} disabled={!canSubmit} rows={2} />
+              <div className="composer-toolbar"><span className="composer-hint">{clinicalCopy.composerPrivacyHint}</span><div className="composer-controls">
                 <ComposerPrimitive.Cancel className="stop-button">停止</ComposerPrimitive.Cancel>
-                <ComposerPrimitive.Send className="send-button">发送 <span aria-hidden="true">↑</span></ComposerPrimitive.Send>
+                <ComposerPrimitive.Send className="send-button" disabled={!canSubmit}>发送 <span aria-hidden="true">↑</span></ComposerPrimitive.Send>
               </div></div>
             </ComposerPrimitive.Root>
-            <p className="composer-disclaimer">演示输出不构成诊断或治疗建议，请由医疗专业人员结合完整病史判断。</p>
+            <p className="composer-disclaimer">{clinicalCopy.disclaimer}{clinicalCopy.productionDecisionDisclaimer && <> {clinicalCopy.productionDecisionDisclaimer}</>}</p>
           </ThreadPrimitive.ViewportFooter>
         </ThreadPrimitive.Viewport>
       </ThreadPrimitive.Root>
@@ -88,11 +90,13 @@ function Consultation({ patientId, sessionId, scenario, onEvent, onError, onRetr
 
 export function DemoWorkspace() {
   const [scenario, setScenario] = useState<Scenario>("simple");
-  const [patientId, setPatientId] = useState("patient-htn");
+  const [patientId, setPatientId] = useState<string | null>(isProductionBuild ? null : "patient-htn");
   const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
   const [patient, setPatient] = useState<PatientRecord | null>(null);
   const [patientLoading, setPatientLoading] = useState(true);
-  const [backend, setBackend] = useState("fixture");
+  const [backend, setBackend] = useState(isProductionBuild ? "unavailable" : "fixture");
+  const [providerName, setProviderName] = useState(runtimeConfig.providerName ?? "");
+  const [modelName, setModelName] = useState(runtimeConfig.modelName ?? "");
   const [events, setEvents] = useState<WireDemoEvent[]>([]);
   const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
@@ -107,18 +111,38 @@ export function DemoWorkspace() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setPatientLoading(true);
-    fetch(`${API_BASE}/demo/patients/${encodeURIComponent(patientId)}`, { signal: controller.signal })
-      .then(async (response) => { if (!response.ok) throw new Error("INVALID_FIXTURE_PATIENT"); return response.json() as Promise<PatientRecord>; })
-      .then((value) => { setPatient(value); setGatewayDown(false); })
-      .catch(() => { if (!controller.signal.aborted) { setPatient(null); setGatewayDown(true); } })
-      .finally(() => { if (!controller.signal.aborted) setPatientLoading(false); });
-    fetch(`${API_BASE}/health`, { signal: controller.signal }).then((response) => response.json()).then((value: { backend?: string }) => setBackend(value.backend ?? "fixture")).catch(() => undefined);
+    const patientUrl = isProductionBuild
+      ? runtimeConfig.patientContextUrl?.trim()
+      : patientId ? `${API_BASE}/demo/patients/${encodeURIComponent(patientId)}` : undefined;
+    if (!patientUrl || (isProductionBuild && patientUrl.includes("/demo/"))) {
+      setPatient(null);
+      setPatientLoading(false);
+      setGatewayDown(false);
+    } else {
+      setPatientLoading(true);
+      fetch(patientUrl, { signal: controller.signal })
+        .then(async (response) => { if (!response.ok) throw new Error("PATIENT_CONTEXT_UNAVAILABLE"); return response.json() as Promise<PatientRecord>; })
+        .then((value) => { setPatient(value); setGatewayDown(false); })
+        .catch(() => { if (!controller.signal.aborted) { setPatient(null); setGatewayDown(true); } })
+        .finally(() => { if (!controller.signal.aborted) setPatientLoading(false); });
+    }
+    fetch(`${API_BASE}/health`, { signal: controller.signal }).then((response) => {
+      if (!response.ok) throw new Error("GATEWAY_UNAVAILABLE");
+      return response.json();
+    }).then((value: { backend?: string; providerName?: string; modelName?: string }) => {
+      const reportedBackend = value.backend ?? (isProductionBuild ? "unavailable" : "fixture");
+      const safeBackend = isProductionBuild && reportedBackend === "fixture" ? "unavailable" : reportedBackend;
+      setBackend(safeBackend);
+      setProviderName(runtimeConfig.providerName ?? value.providerName ?? "");
+      setModelName(runtimeConfig.modelName ?? value.modelName ?? "");
+      if (isProductionBuild && safeBackend === "unavailable") setGatewayDown(true);
+    }).catch(() => undefined);
     return () => controller.abort();
   }, [patientId]);
 
   eventHandlerRef.current = (event) => {
-    setEvents((previous) => [...previous, event]);
+    const activityEvent = isProductionBuild ? toSafeActivityEvent(event) : event;
+    if (activityEvent) setEvents((previous) => [...previous, activityEvent]);
     if (event.event === "run.started") setErrorCode(undefined);
     if (event.event === "evidence.item" && typeof event.data.evidenceId === "string") {
       setEvidence((previous) => previous.some((item) => item.evidenceId === event.data.evidenceId) ? previous : [...previous, event.data as unknown as EvidenceRecord]);
@@ -127,6 +151,7 @@ export function DemoWorkspace() {
   errorHandlerRef.current = (code) => setErrorCode(code);
 
   const chooseScenario = (next: Scenario) => {
+    if (isProductionBuild) return;
     setScenario(next);
     if (next === "complex") setPatientId("patient-complex");
     if (next === "simple") setPatientId("patient-htn");
@@ -147,17 +172,26 @@ export function DemoWorkspace() {
     <EvidenceActionProvider onOpen={openEvidence}>
       <div className="workstation-shell">
         <header className="topbar">
-          <a className="brand" href="#home" aria-label="Huiyi MedHarness home"><span className="brand-mark">H</span><span><strong>Huiyi</strong><small>MEDHARNESS</small></span></a>
-          <div className="topbar-context"><span className="product-name">Clinical Demo Workstation</span><span className="environment-badge">DEMO / LOCAL</span></div>
-          <div className="topbar-actions"><BackendBadge backend={backend} /><button className="mobile-panel-button" onClick={() => setMobilePanel("patient")}>患者上下文</button><button className="mobile-panel-button" onClick={() => setMobilePanel("activity")}>Agent Activity</button><button className="new-session-button" onClick={startFreshTurn}>新建 Session <span>＋</span></button></div>
+          <a className="brand" href="#home" aria-label="恩施慧宜眼科医院"><img className="brand-logo" src="/huiyi-logo.png" alt="恩施慧宜眼科医院" /></a>
+          <div className="topbar-context"><span className="product-name">{clinicalCopy.productName}</span><span className="environment-badge">{environmentLabel}</span></div>
+          <div className="topbar-actions"><BackendBadge backend={backend} providerName={providerName} modelName={modelName} /><button className="mobile-panel-button" onClick={() => setMobilePanel("patient")}>患者上下文</button><button className="mobile-panel-button" onClick={() => setMobilePanel("activity")}>Agent Activity</button><button className="new-session-button" onClick={startFreshTurn}>新建 Session <span>＋</span></button></div>
         </header>
-        {gatewayDown && <div className="gateway-banner" role="alert"><span>Demo Gateway 暂不可用。</span><span>确认 Gateway 已在本机启动后刷新此页面。</span></div>}
+        {gatewayDown && <div className="gateway-banner" role="alert"><span>{clinicalCopy.gatewayUnavailable}</span></div>}
         <main className="workstation-grid">
           <aside className={`side-column patient-column ${mobilePanel === "patient" ? "mobile-open" : ""}`}><button className="mobile-close" onClick={() => setMobilePanel(null)} aria-label="关闭患者上下文">×</button><PatientContext patient={patient} loading={patientLoading} /></aside>
-          <Consultation key={sessionId} patientId={patientId} sessionId={sessionId} scenario={scenario} onEvent={onEvent} onError={onError} onRetry={startFreshTurn} onChooseScenario={chooseScenario} errorCode={errorCode} />
-          <aside className={`side-column activity-column ${mobilePanel === "activity" ? "mobile-open" : ""}`}><button className="mobile-close" onClick={() => setMobilePanel(null)} aria-label="关闭 Agent Activity">×</button><AgentActivity events={events} errorCode={errorCode} /><section className="scenario-panel"><p className="eyebrow">PRESENTATION CASES</p><h2>演示案例</h2><button className="case-link" onClick={() => chooseScenario("simple")}><span className="case-index">01</span><span><strong>高血压复诊</strong><small>单轮上下文与证据</small></span><span className="case-arrow">↗</span></button><button className="case-link" onClick={() => chooseScenario("complex")}><span className="case-index">02</span><span><strong>复杂病例</strong><small>{backend === "dsh" ? "本地 DSH 临床协作" : "simulated multi-specialist flow"}</small></span><span className="case-arrow">↗</span></button>{backend === "fixture" && <button className="case-link failure-case" onClick={() => { setScenario("failure"); setSessionId(crypto.randomUUID()); setEvents([]); setEvidence([]); setErrorCode(undefined); }}><span className="case-index">03</span><span><strong>故障与恢复</strong><small>fixture 错误状态测试</small></span><span className="case-arrow">↗</span></button>}</section></aside>
+          <Consultation key={sessionId} patientId={patient?.patientId ?? ""} sessionId={sessionId} scenario={scenario} canSubmit={isProductionBuild ? patient !== null && backend !== "unavailable" : backend !== "unavailable"} onEvent={onEvent} onError={onError} onRetry={startFreshTurn} onChooseScenario={chooseScenario} errorCode={errorCode} />
+          <aside className={`side-column activity-column ${mobilePanel === "activity" ? "mobile-open" : ""}`}><button className="mobile-close" onClick={() => setMobilePanel(null)} aria-label="关闭 Agent Activity">×</button><AgentActivity events={events} errorCode={errorCode} />{!isProductionBuild && <section className="scenario-panel"><p className="eyebrow">{clinicalCopy.presentationLabel}</p><h2>{clinicalCopy.presentationTitle}</h2><button className="case-link" onClick={() => chooseScenario("simple")}><span className="case-index">01</span><span><strong>{clinicalCopy.simpleScenario}</strong><small>{clinicalCopy.singleTurnScenario}</small></span><span className="case-arrow">↗</span></button><button className="case-link" onClick={() => chooseScenario("complex")}><span className="case-index">02</span><span><strong>{clinicalCopy.complexScenario}</strong><small>{backend === "dsh" ? clinicalCopy.specialistScenario : clinicalCopy.simulatedSpecialistScenario}</small></span><span className="case-arrow">↗</span></button>{backend === "fixture" && <button className="case-link failure-case" onClick={() => { setScenario("failure"); setSessionId(crypto.randomUUID()); setEvents([]); setEvidence([]); setErrorCode(undefined); }}><span className="case-index">03</span><span><strong>{clinicalCopy.recoveryScenario}</strong><small>{clinicalCopy.recoveryDescription}</small></span><span className="case-arrow">↗</span></button>}</section>}</aside>
         </main>
-        <footer className="global-footer"><span>Huiyi MedHarness</span><span>{backend === "dsh" ? "本地 DSH / Qwen · 合成病例" : "CPU-only fixture · 合成数据 · 本地运行"}</span><button onClick={() => setEvidenceOpen(true)}>查看本轮证据 <span>{evidence.length}</span></button></footer>
+        <footer className="global-footer">
+          <div className="footer-runtime"><strong>Huiyi MedHarness · v{applicationVersion}</strong><span>{environmentLabel}</span><span>{backend === "fixture" && !isProductionBuild ? clinicalCopy.fixtureFooter : providerName && modelName ? `${providerName} · ${modelName}${clinicalCopy.footerRuntimeSuffix ? ` · ${clinicalCopy.footerRuntimeSuffix}` : ""}` : clinicalCopy.modelUnavailable}</span></div>
+          <address className="organization-details">
+            <span>主办单位 · <a href="http://www.huiyi9e.com/" title="湖北慧宜医疗管理集团有限公司" target="_blank" rel="noreferrer"><strong>湖北慧宜医疗管理集团有限公司</strong></a></span>
+            <span>承办单位 · <a href="http://yk.huiyi9e.com/" title="恩施慧宜眼科医院有限责任公司" target="_blank" rel="noreferrer"><strong>恩施慧宜眼科医院有限责任公司</strong></a></span>
+            <span>通信地址 · 湖北省恩施市金龙大道青树林区一号路</span>
+            <span>办公电话 · <a href="tel:0718-8259000"><strong>0718-8259000</strong></a></span>
+          </address>
+          <div className="footer-actions"><button onClick={() => setEvidenceOpen(true)}>查看本轮证据 <span>{evidence.length}</span></button>{runtimeConfig.auditUrl && <a href={runtimeConfig.auditUrl}>审计记录</a>}</div>
+        </footer>
         <EvidenceDrawer open={evidenceOpen} items={evidence} onClose={() => setEvidenceOpen(false)} backend={backend === "dsh" ? "dsh" : "fixture"} />
         {selectedEvidence && evidenceOpen && <span className="sr-only" aria-live="polite">已打开证据 {selectedEvidence}</span>}
         {mobilePanel && <button className="mobile-backdrop" onClick={() => setMobilePanel(null)} aria-label="关闭侧边栏" />}

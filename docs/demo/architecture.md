@@ -40,6 +40,6 @@ Patient context is fetched from synthetic fixtures and marked fictional. Its mem
 
 ## Local processes and backend selection
 
-The Vite dev server binds to `127.0.0.1:5173` and proxies `/api/*` to the Gateway at `127.0.0.1:8320`. The Gateway binds to loopback. `HUIYI_DEMO_BACKEND` defaults to `fixture`; set it to `dsh` to use the native DSH composition and the configured loopback local model endpoint. The DSH route defaults to `http://127.0.0.1:8000/v1`, model `Qwen/Qwen3-8B`, and context window 40,960. Model and corpus files remain outside Git.
+The Vite dev server binds to `127.0.0.1:5173` and proxies `/api/*` to the Gateway at `127.0.0.1:8320`. The Gateway binds to loopback. `HUIYI_DEMO_BACKEND` defaults to `fixture`; set it to `dsh` to use the native DSH composition. `HUIYI_DEMO_MODEL_BACKEND` defaults to `vllm`, using `http://127.0.0.1:8000/v1` and model `Qwen/Qwen3-8B`; `deepseek-api` selects DeepSeek's hosted API and defaults to `deepseek-flash`, with optional model override `HUIYI_DEMO_DEEPSEEK_MODEL`. The DeepSeek endpoint is fixed to `https://api.deepseek.com`, and its key is read from `DEEPSEEK_API_KEY`. Both modes use the configured context window (default 40,960). Model and corpus files remain outside Git.
 
 `pnpm demo:build` emits a static frontend and a compiled Node Gateway containing the Huiyi integration code. The demo package pins its DSH runtime dependencies instead of relying on a host-global `dsh` CLI or writable home profile.

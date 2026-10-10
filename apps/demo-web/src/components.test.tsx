@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { screen } from "@testing-library/dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AgentActivity, BackendBadge, ErrorNotice, EvidenceDrawer, PatientContext, type EvidenceRecord } from "./components.js";
+import { AgentActivity, BackendBadge, ErrorNotice, EvidenceDrawer, PatientContext, toSafeActivityEvent, type EvidenceRecord } from "./components.js";
 import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
 import type { WireDemoEvent } from "./runtime/adapter.js";
+import { clinicalCopy } from "./copy/clinicalWorkstation.js";
 
 const patient: PatientRecord = {
   patientId: "patient-htn", displayName: "张某", age: 52, sex: "男", encounter: "高血压复诊 · 示例",
@@ -22,6 +23,13 @@ describe("clinical demo panels", () => {
     expect(screen.queryByText("Demo evidence fixture")).not.toBeInTheDocument();
   });
 
+  it("keeps the development safety copy available and renders a genuine empty state", () => {
+    expect(clinicalCopy.composerPrivacyHint).toContain("请勿输入真实患者信息");
+    expect(clinicalCopy.disclaimer).toBe("本系统输出不构成诊断或治疗建议，需由医疗专业人员结合完整病史判断。");
+    render(<PatientContext patient={null} />);
+    expect(screen.getByText(clinicalCopy.patientEmptyTitle)).toBeInTheDocument();
+  });
+
   it("shows structured activity without any prompt or answer text", () => {
     const events: WireDemoEvent[] = [
       { version: 1, event: "context.memory", runId: "r-1", sessionId: "s-1", timestamp: "2026-10-09T10:00:00.000Z", data: { itemCount: 6 } },
@@ -32,6 +40,18 @@ describe("clinical demo panels", () => {
     expect(screen.getByText("6 条摘要项")).toBeInTheDocument();
     expect(screen.getByText(/simulated execution/)).toBeInTheDocument();
     expect(screen.queryByText("private answer omitted")).not.toBeInTheDocument();
+  });
+
+  it("reduces production activity events to allowlisted metadata", () => {
+    const privateEvent: WireDemoEvent = {
+      version: 1, event: "evidence.item", runId: "private-run", sessionId: "private-session",
+      timestamp: "2026-10-09T10:00:00.000Z",
+      data: { evidenceId: "E1", snippet: "private evidence text", title: "patient name", patientPrompt: "private prompt" },
+    };
+    const safe = toSafeActivityEvent(privateEvent);
+    expect(safe).toMatchObject({ runId: "redacted", sessionId: "redacted", data: {} });
+    expect(JSON.stringify(safe)).not.toContain("private");
+    expect(toSafeActivityEvent({ ...privateEvent, event: "assistant.delta" })).toBeNull();
   });
 
   it("shows evidence source fixture cards and closes its drawer", () => {

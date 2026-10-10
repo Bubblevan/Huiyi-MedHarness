@@ -25,7 +25,7 @@ To use a different local Gateway port, set `HUIYI_DEMO_GATEWAY_PORT` in the shel
 
 Send the suggested question or type a new synthetic-only prompt. Stop during a complex run to verify the stream halts. Select a citation link such as `[1]` to open the evidence source drawer. Memory and evidence appear in different panels. All screen data is fabricated.
 
-## Native DSH + local Qwen mode
+## Native DSH + local vLLM mode
 
 This mode uses the in-process DSH `0.2.1-alpha.1` composition and the same local Qwen3-8B BF16 route recorded by HC-PERF-001. It uses synthetic patient fixtures only. The demo does not configure a real AMA patient identity; RAG and clinical collaboration remain Huiyi DSH tools and fail open if the local Health Engine is unavailable.
 
@@ -50,7 +50,29 @@ HUIYI_DEMO_BACKEND=dsh pnpm demo:dev
 
 The browser and Gateway still bind to loopback. The adapter streams only DSH visible-text chunks; reasoning, prompts, tool arguments, and child outputs are filtered. Browser Sessions map to native DSH AgentHandles and are process-local. A process restart clears those Sessions. `HUIYI_DEMO_MODEL_BASE_URL` may change the endpoint only to another loopback HTTP URL; the model name, context window and per-request output cap are configurable with `HUIYI_DEMO_MODEL`, `HUIYI_DEMO_CONTEXT_WINDOW` and `HUIYI_DEMO_MAX_TOKENS`.
 
-This is a local synthetic demo, not an internet-facing or hospital deployment. The DSH request can call the actual local model; the fixture error/recovery case is available only in fixture mode.
+## Native DSH + DeepSeek API mode
+
+This mode keeps the same in-process DSH runtime and Huiyi tools, while routing model calls to DeepSeek's hosted OpenAI-compatible Chat Completions API. The default model is `deepseek-flash`; the endpoint is fixed to `https://api.deepseek.com`, and the API key is read from `DEEPSEEK_API_KEY` at request time. The endpoint cannot be overridden in this mode, which prevents sending the key to a different host. DeepSeek documents tool calls on this API; live DSH tool-call behavior still needs an API key and should be verified in the target environment.
+
+Set these values in the repository-root `.env` file (ignored by Git). The DeepSeek route uses its own optional model variable, so an existing local `HUIYI_DEMO_MODEL=Qwen/Qwen3-8B` setting will not carry over:
+
+```dotenv
+HUIYI_DEMO_BACKEND=dsh
+HUIYI_DEMO_MODEL_BACKEND=deepseek-api
+DEEPSEEK_API_KEY=your-key-here
+# Optional; defaults to deepseek-flash.
+# HUIYI_DEMO_DEEPSEEK_MODEL=deepseek-flash
+```
+
+Then start the demo with `pnpm demo:dev`. The browser and Gateway continue to bind to loopback. The browser badge identifies the selected DSH route. To return to vLLM, set `HUIYI_DEMO_MODEL_BACKEND=vllm` (or remove it) and start the local vLLM server above.
+
+DeepSeek API mode sends the user's prompt, the synthetic patient context, and any retrieved local evidence snippets to DeepSeek for generation. Use synthetic demonstration content only; do not enter real patient data, identifiers, or confidential records. The evidence search and clinical-collaboration tools remain local to the Huiyi process; their results may be included in the model request.
+
+This is a local synthetic demo, not an internet-facing or hospital deployment. DSH calls the selected model route (local vLLM or DeepSeek API); the fixture error/recovery case is available only in fixture mode.
+
+## Production boundary
+
+Set `HUIYI_APP_ENV=production` in the Gateway service environment. Production defaults to the DSH backend and refuses an explicitly selected fixture backend. The synthetic `/api/demo/patients/:id` route returns 404, and `/api/chat` returns `503 PATIENT_CONTEXT_ADAPTER_REQUIRED` until an authenticated patient-context adapter is implemented and configured. This keeps fixture patients out of the production HTTP path; it does not by itself make the service ready for clinical deployment.
 
 ## Verification commands
 

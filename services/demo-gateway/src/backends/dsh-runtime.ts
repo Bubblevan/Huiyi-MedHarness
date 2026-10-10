@@ -53,6 +53,8 @@ interface ModelConfiguration {
   readonly providerName: string;
   readonly modelId: string;
   readonly baseUrl: string;
+  readonly apiKeyEnv: string;
+  readonly displayName: string;
   readonly contextWindow: number;
   readonly maxTokens: number;
 }
@@ -168,10 +170,10 @@ export class DshWebRuntime implements DshDemoRuntimePort {
     await ctx.plugin(piAiPlugin, {
       providers: {
         [this.model.providerName]: {
-          displayName: "Huiyi Demo Local Qwen",
+          displayName: this.model.displayName,
           api: "openai-completions",
           baseURL: this.model.baseUrl,
-          apiKeyEnv: "HUIYI_LOCAL_QWEN_API_KEY",
+          apiKeyEnv: this.model.apiKeyEnv,
           models: [{ id: this.model.modelId, name: this.model.modelId, contextWindow: this.model.contextWindow }],
         },
       },
@@ -197,25 +199,49 @@ export class DshWebRuntime implements DshDemoRuntimePort {
   }
 }
 
-function readModelConfiguration(): ModelConfiguration {
-  const providerName = process.env.HUIYI_DEMO_PROVIDER?.trim() || "huiyi-demo-local-qwen";
-  const modelId = process.env.HUIYI_DEMO_MODEL?.trim() || "Qwen/Qwen3-8B";
-  const baseUrl = process.env.HUIYI_DEMO_MODEL_BASE_URL?.trim() || "http://127.0.0.1:8000/v1";
-  const parsedUrl = new URL(baseUrl);
-  if (parsedUrl.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsedUrl.hostname)
-    || parsedUrl.username || parsedUrl.password || parsedUrl.search || parsedUrl.hash) {
-    throw new TypeError("The local demo model endpoint must be a loopback HTTP URL");
+export function readModelConfiguration(env: NodeJS.ProcessEnv = process.env): ModelConfiguration {
+  const modelBackend = env.HUIYI_DEMO_MODEL_BACKEND?.trim() || "vllm";
+  if (modelBackend !== "vllm" && modelBackend !== "deepseek-api") {
+    throw new TypeError("HUIYI_DEMO_MODEL_BACKEND must be vllm or deepseek-api");
+  }
+  const isDeepSeek = modelBackend === "deepseek-api";
+  const providerName = env.HUIYI_DEMO_PROVIDER?.trim() || (isDeepSeek ? "huiyi-demo-deepseek-api" : "huiyi-demo-local-qwen");
+  const modelId = isDeepSeek
+    ? env.HUIYI_DEMO_DEEPSEEK_MODEL?.trim() || "deepseek-flash"
+    : env.HUIYI_DEMO_MODEL?.trim() || "Qwen/Qwen3-8B";
+  const apiKeyEnv = isDeepSeek ? "DEEPSEEK_API_KEY" : "HUIYI_LOCAL_QWEN_API_KEY";
+  const displayName = isDeepSeek ? "Huiyi Demo DeepSeek API" : "Huiyi Demo Local Qwen";
+
+  let baseUrl: string;
+  if (isDeepSeek) {
+    if (!env.DEEPSEEK_API_KEY?.trim()) {
+      throw new Error("DEEPSEEK_API_KEY is required when HUIYI_DEMO_MODEL_BACKEND=deepseek-api");
+    }
+    if (env.HUIYI_DEMO_MODEL_BASE_URL?.trim()) {
+      throw new TypeError("HUIYI_DEMO_MODEL_BASE_URL cannot be overridden in DeepSeek API mode");
+    }
+    baseUrl = "https://api.deepseek.com";
+  } else {
+    const configuredBaseUrl = env.HUIYI_DEMO_MODEL_BASE_URL?.trim() || "http://127.0.0.1:8000/v1";
+    const parsedUrl = new URL(configuredBaseUrl);
+    if (parsedUrl.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsedUrl.hostname)
+      || parsedUrl.username || parsedUrl.password || parsedUrl.search || parsedUrl.hash) {
+      throw new TypeError("The local demo model endpoint must be a loopback HTTP URL");
+    }
+    baseUrl = parsedUrl.toString().replace(/\/$/, "");
+    if (!env.HUIYI_LOCAL_QWEN_API_KEY) env.HUIYI_LOCAL_QWEN_API_KEY = "local-only";
   }
   if (!/^[A-Za-z0-9._-]{1,80}$/.test(providerName) || !modelId || modelId.length > 160) {
-    throw new TypeError("The local demo model route is invalid");
+    throw new TypeError("The demo model route is invalid");
   }
-  if (!process.env.HUIYI_LOCAL_QWEN_API_KEY) process.env.HUIYI_LOCAL_QWEN_API_KEY = "local-only";
   return {
     providerName,
     modelId,
-    baseUrl: parsedUrl.toString().replace(/\/$/, ""),
-    contextWindow: positiveInteger(process.env.HUIYI_DEMO_CONTEXT_WINDOW, 40960, 32768),
-    maxTokens: positiveInteger(process.env.HUIYI_DEMO_MAX_TOKENS, 768, 4096),
+    baseUrl,
+    apiKeyEnv,
+    displayName,
+    contextWindow: positiveInteger(env.HUIYI_DEMO_CONTEXT_WINDOW, 40960, 32768),
+    maxTokens: positiveInteger(env.HUIYI_DEMO_MAX_TOKENS, 768, 4096),
   };
 }
 

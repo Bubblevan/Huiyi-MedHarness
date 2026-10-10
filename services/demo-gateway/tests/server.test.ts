@@ -5,9 +5,9 @@ import { createEvent } from "../src/contracts.js";
 import type { DemoBackend } from "../src/backends/backend.js";
 
 const servers: Array<{ close: () => Promise<void>; baseUrl: string }> = [];
+let originalAppEnvironment: string | undefined;
 
-async function start(delayMs = 0) {
-  const server = createDemoServer({ backend: new FixtureDemoBackend({ delayMs }), log: () => undefined });
+async function track(server: ReturnType<typeof createDemoServer>) {
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Expected an ephemeral TCP address");
@@ -19,6 +19,10 @@ async function start(delayMs = 0) {
   return instance;
 }
 
+async function start(delayMs = 0) {
+  return track(createDemoServer({ backend: new FixtureDemoBackend({ delayMs }), log: () => undefined }));
+}
+
 function decodeSse(body: string): Array<{ event: string; data: Record<string, unknown> }> {
   return body.trim().split("\n\n").filter(Boolean).map((block) => {
     const dataLine = block.split("\n").find((line) => line.startsWith("data: "));
@@ -27,7 +31,12 @@ function decodeSse(body: string): Array<{ event: string; data: Record<string, un
   });
 }
 
-afterEach(async () => { await Promise.all(servers.splice(0).map((server) => server.close())); });
+afterEach(async () => {
+  await Promise.all(servers.splice(0).map((server) => server.close()));
+  if (originalAppEnvironment === undefined) delete process.env.HUIYI_APP_ENV;
+  else process.env.HUIYI_APP_ENV = originalAppEnvironment;
+  originalAppEnvironment = undefined;
+});
 
 describe("Demo Gateway HTTP/SSE boundary", () => {
   it("serves health and synthetic patient context", async () => {
@@ -37,6 +46,31 @@ describe("Demo Gateway HTTP/SSE boundary", () => {
     const patient = await fetch(`${app.baseUrl}/api/demo/patients/patient-htn`).then((response) => response.json());
     expect(patient).toMatchObject({ patientId: "patient-htn", displayName: "张某", memory: { items: 6 } });
     expect(await fetch(`${app.baseUrl}/api/demo/patients/missing`).then((response) => response.status)).toBe(404);
+  });
+
+  it("fails closed in production without exposing fixture patients or running fixture chats", async () => {
+    originalAppEnvironment = process.env.HUIYI_APP_ENV;
+    process.env.HUIYI_APP_ENV = "production";
+    expect(() => createDemoServer({ backendName: "fixture", log: () => undefined })).toThrow("Fixture backend is disabled in production");
+
+    let runCount = 0;
+    const backend: DemoBackend = {
+      async *run() { runCount += 1; },
+      cancel() {},
+    };
+    const app = await track(createDemoServer({ backendName: "dsh", backend, log: () => undefined }));
+    const patient = await fetch(`${app.baseUrl}/api/demo/patients/patient-htn`);
+    expect(patient.status).toBe(404);
+    expect(await patient.json()).toEqual({ error: "NOT_FOUND" });
+
+    const chat = await fetch(`${app.baseUrl}/api/chat`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId: "s-prod", patientId: "patient-htn", message: "hello" }),
+    });
+    expect(chat.status).toBe(503);
+    expect(await chat.json()).toEqual({ error: "PATIENT_CONTEXT_ADAPTER_REQUIRED" });
+    expect(runCount).toBe(0);
   });
 
   it("streams ordered deltas whose concatenation is the deterministic answer", async () => {

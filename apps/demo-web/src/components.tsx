@@ -1,6 +1,8 @@
 import { useContext, createContext, type ReactNode } from "react";
 import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
 import type { WireDemoEvent } from "./runtime/adapter.js";
+import { isProductionBuild } from "./config/env.js";
+import { clinicalCopy } from "./copy/clinicalWorkstation.js";
 
 const EvidenceActionContext = createContext<(evidenceId: string) => void>(() => undefined);
 
@@ -10,17 +12,22 @@ export function EvidenceActionProvider({ onOpen, children }: { onOpen: (id: stri
 
 export function useEvidenceAction() { return useContext(EvidenceActionContext); }
 
-export function BackendBadge({ backend }: { backend: string }) {
-  const label = backend === "fixture" ? "Local · fixture" : backend === "dsh" ? "Local · DSH" : "Local · DSH unavailable";
+export function BackendBadge({ backend, providerName, modelName }: { backend: string; providerName?: string; modelName?: string }) {
+  const configuredModel = [providerName, modelName].filter((value) => typeof value === "string" && value.trim()).join(" · ");
+  const label = backend === "fixture" && !isProductionBuild
+    ? clinicalCopy.fixtureBackendLabel
+    : backend === "dsh" && configuredModel
+      ? configuredModel
+      : clinicalCopy.modelUnavailable;
   return <span className="backend-badge"><span className="status-dot" />{label}</span>;
 }
 
 export function PatientContext({ patient, loading = false }: { patient: PatientRecord | null; loading?: boolean }) {
-  if (loading) return <section className="panel patient-panel" aria-label="Patient Context"><p className="muted">正在载入合成患者…</p></section>;
-  if (!patient) return <section className="panel patient-panel" aria-label="Patient Context"><p className="muted">合成患者资料暂不可用。</p></section>;
+  if (loading) return <section className="panel patient-panel" aria-label="Patient Context"><p className="muted">{clinicalCopy.patientLoading}</p></section>;
+  if (!patient) return <section className="panel patient-panel patient-empty" aria-label="Patient Context"><div><h2>{clinicalCopy.patientEmptyTitle}</h2><p>{clinicalCopy.patientEmptyHint}</p></div></section>;
   return (
     <section className="panel patient-panel" aria-label="Patient Context">
-      <div className="panel-heading"><div><p className="eyebrow">PATIENT CONTEXT</p><h2>患者上下文</h2></div><span className="synthetic-tag">Synthetic demo patient</span></div>
+      <div className="panel-heading"><div><p className="eyebrow">PATIENT CONTEXT</p><h2>患者上下文</h2></div>{!isProductionBuild && <span className="synthetic-tag">{clinicalCopy.patientTag}</span>}</div>
       <div className="patient-identity">
         <div className="patient-avatar">{patient.displayName.slice(0, 1)}</div>
         <div><h3>{patient.displayName}</h3><p>{patient.sex} · {patient.age} 岁</p></div>
@@ -34,7 +41,7 @@ export function PatientContext({ patient, loading = false }: { patient: PatientR
         <p>{patient.memory.summary}</p>
         <small>患者历史上下文 · 与医学证据分开</small>
       </section>
-      <p className="synthetic-note">所有姓名、病程与内容均为合成演示数据。</p>
+      {!isProductionBuild && <p className="synthetic-note">{clinicalCopy.patientDataNote}</p>}
     </section>
   );
 }
@@ -58,8 +65,51 @@ const EVENT_LABELS: Record<string, string> = {
   "run.failed": "本轮未能完成",
 };
 
+const SAFE_ACTIVITY_EVENTS = new Set([
+  "run.started", "context.patient", "context.memory", "evidence.started", "evidence.item",
+  "evidence.completed", "agent.classified", "specialist.started", "specialist.completed",
+  "collaboration.completed", "tool.started", "tool.completed", "assistant.delta",
+  "run.completed", "run.cancelled", "run.failed",
+]);
+
+const SAFE_COMPLEXITIES = new Set(["simple", "low", "intermediate", "complex", "high"]);
+
+/** Retain only bounded event metadata before storing a production activity trace. */
+export function toSafeActivityEvent(event: WireDemoEvent): WireDemoEvent | null {
+  if (!SAFE_ACTIVITY_EVENTS.has(event.event) || event.event === "assistant.delta") return null;
+  const source = event.data;
+  const data: Record<string, unknown> = {};
+  const count = (key: string) => {
+    const value = source[key];
+    if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) data[key] = value;
+  };
+  if (event.event === "context.memory") count("itemCount");
+  if (event.event === "evidence.completed") count("count");
+  if (event.event === "agent.classified" || event.event === "collaboration.completed") {
+    const complexity = source.complexity;
+    if (typeof complexity === "string" && SAFE_COMPLEXITIES.has(complexity)) data.complexity = complexity;
+  }
+  if (event.event === "collaboration.completed") {
+    count("completedChildRuns");
+    count("failedChildRuns");
+    if (typeof source.degraded === "boolean") data.degraded = source.degraded;
+  }
+  return { ...event, runId: "redacted", sessionId: "redacted", data };
+}
+
 export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; errorCode?: string }) {
   const summary = (event: WireDemoEvent): string => {
+    if (isProductionBuild) {
+      if (event.event === "context.memory" && typeof event.data.itemCount === "number") return `${event.data.itemCount} 条摘要项`;
+      if (event.event === "evidence.completed" && typeof event.data.count === "number") return `${event.data.count} 条 · 本地医学语料`;
+      if (event.event === "agent.classified" && typeof event.data.complexity === "string") return event.data.complexity;
+      if (event.event === "collaboration.completed") {
+        const completed = typeof event.data.completedChildRuns === "number" ? event.data.completedChildRuns : 0;
+        const failed = typeof event.data.failedChildRuns === "number" ? event.data.failedChildRuns : 0;
+        return `${completed} 项完成${failed ? ` / ${failed} 项未完成` : ""}${event.data.degraded ? " · 降级" : ""}`;
+      }
+      return "";
+    }
     if (event.event === "context.memory") return `${String(event.data.itemCount ?? 0)} 条摘要项`;
     if (event.event === "evidence.completed") return `${String(event.data.count ?? 0)} 条 · 本地医学语料`;
     if (event.event === "agent.classified") return `${String(event.data.complexity ?? "unknown")}${event.data.simulated ? " · simulated execution" : ""}`;
@@ -77,10 +127,10 @@ export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; 
   return (
     <section className="panel activity-panel" aria-label="Agent Activity">
       <div className="panel-heading"><div><p className="eyebrow">EXECUTION TRACE</p><h2>Agent Activity</h2></div><span className="trace-count">{visible.length.toString().padStart(2, "0")}</span></div>
-      <p className="activity-caption">仅显示结构化执行元数据</p>
-      {errorCode && <div className="error-inline" role="status"><span className="error-indicator" />服务暂时不可用，请稍后重试。<code>{errorCode}</code></div>}
+      <p className="activity-caption">{clinicalCopy.activityCaption}</p>
+      {errorCode && <div className="error-inline" role="status"><span className="error-indicator" />{clinicalCopy.serviceUnavailable}{!isProductionBuild && <code>{errorCode}</code>}</div>}
       <ol className="activity-list" aria-live="polite">
-        {visible.length === 0 && <li className="activity-empty">发送问题后，执行活动会显示在这里。</li>}
+        {visible.length === 0 && <li className="activity-empty">{clinicalCopy.activityEmpty}</li>}
         {visible.map((event, index) => <li key={`${event.runId}-${event.event}-${index}`} className={`activity-item event-${event.event.replaceAll(".", "-")}`}>
           <span className={`activity-marker ${event.event === "run.failed" ? "failure" : event.event === "run.completed" ? "success" : ""}`} aria-hidden="true">{event.event === "run.completed" ? "✓" : event.event === "run.failed" ? "!" : "·"}</span>
           <div><strong>{EVENT_LABELS[event.event] ?? "执行步骤"}</strong>{summary(event) && <span className="activity-detail">{summary(event)}</span>}<time>{new Date(event.timestamp).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</time></div>
@@ -106,17 +156,17 @@ export function EvidenceDrawer({ open, items, onClose, backend = "fixture" }: { 
       <aside className="evidence-drawer" role="dialog" aria-modal="true" aria-label="Evidence Sources">
         <div className="drawer-grabber" />
         <div className="drawer-heading"><div><p className="eyebrow">SOURCE REVIEW</p><h2>医学证据来源</h2></div><button className="icon-button" onClick={onClose} aria-label="关闭证据抽屉">×</button></div>
-        <span className="fixture-tag">{backend === "dsh" ? "本地医学检索结果" : "Demo evidence fixture"}</span>
-        {items.length === 0 ? <p className="muted">本轮尚无可展示的证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
+        <span className="fixture-tag">{backend === "dsh" || isProductionBuild ? "本地医学检索结果" : clinicalCopy.fixtureEvidenceLabel}</span>
+        {items.length === 0 || (isProductionBuild && backend === "fixture") ? <p className="muted">本轮尚无可展示的证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
           <div className="evidence-card-top"><span className="citation-index">[{item.rank}]</span><code>{item.evidenceId}</code></div>
           <p className="evidence-source">{item.source}</p><h3>{item.title}</h3><p className="evidence-snippet">{item.snippet}</p>
         </article>)}</div>}
-        <p className="evidence-disclaimer">{backend === "dsh" ? "检索片段来自本地医学语料，需结合原始出处和具体临床情境核验，不构成诊断或治疗建议。" : "这些条目是为界面验收编写的合成资料，不是已核实的医学证据或医疗建议。"}</p>
+        <p className="evidence-disclaimer">{backend === "dsh" || isProductionBuild ? clinicalCopy.evidenceDisclaimer : clinicalCopy.fixtureEvidenceDisclaimer}</p>
       </aside>
     </div>
   );
 }
 
 export function ErrorNotice({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return <div className="error-notice" role="alert"><span className="error-indicator" /><div><strong>服务暂时不可用，请稍后重试。</strong><p>{message}</p></div>{onRetry && <button onClick={onRetry}>重试</button>}</div>;
+  return <div className="error-notice" role="alert"><span className="error-indicator" /><div><strong>{clinicalCopy.serviceUnavailable}</strong><p>{message}</p></div>{onRetry && <button onClick={onRetry}>{clinicalCopy.retry}</button>}</div>;
 }

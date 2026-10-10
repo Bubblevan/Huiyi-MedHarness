@@ -6,6 +6,7 @@ import type { DemoEvent } from "./contracts.js";
 import { createEvent, parseDemoEvent, validateChatInput } from "./contracts.js";
 import { DshDemoBackend } from "./backends/dsh.js";
 import type { DemoBackend } from "./backends/backend.js";
+import { readModelConfiguration } from "./backends/dsh-runtime.js";
 import { FixtureDemoBackend } from "./backends/fixture.js";
 import { getPatient } from "./fixtures.js";
 
@@ -54,7 +55,11 @@ function sendEvent(response: ServerResponse, event: DemoEvent): boolean {
 }
 
 export function createDemoServer(options: DemoServerOptions = {}): Server {
-  const backendName = options.backendName ?? (process.env.HUIYI_DEMO_BACKEND === "dsh" ? "dsh" : "fixture");
+  const production = process.env.HUIYI_APP_ENV?.trim().toLowerCase() === "production" || process.env.NODE_ENV === "production";
+  const backendName = options.backendName ?? (production || process.env.HUIYI_DEMO_BACKEND === "dsh" ? "dsh" : "fixture");
+  if (production && backendName === "fixture") {
+    throw new Error("Fixture backend is disabled in production");
+  }
   const backend: DemoBackend = options.backend ?? (backendName === "dsh" ? new DshDemoBackend() : new FixtureDemoBackend());
   const activeRuns = new Map<string, { controller: AbortController; sessionId: string; startedAt: number; settled: Promise<void>; settle: () => void }>();
   const log = options.log ?? ((metadata: Record<string, string | number>) => process.stdout.write(`${JSON.stringify(metadata)}\n`));
@@ -66,11 +71,21 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
     const method = request.method ?? "GET";
 
     if (method === "GET" && url.pathname === "/api/health") {
-      json(response, 200, { status: "ok", backend: backendName });
+      const modelConfiguration = backendName === "dsh" ? readModelConfiguration() : undefined;
+      json(response, 200, {
+        status: "ok",
+        backend: backendName,
+        ...(modelConfiguration ? {
+          modelBackend: process.env.HUIYI_DEMO_MODEL_BACKEND?.trim() || "vllm",
+          providerName: modelConfiguration.providerName,
+          modelName: modelConfiguration.modelId,
+        } : {}),
+      });
       return;
     }
     const patientMatch = url.pathname.match(/^\/api\/demo\/patients\/([^/]+)$/);
     if (method === "GET" && patientMatch) {
+      if (production) { json(response, 404, { error: "NOT_FOUND" }); return; }
       const patientId = decodePathSegment(patientMatch[1] ?? "");
       if (patientId === undefined) { json(response, 400, { error: "INVALID_PATH" }); return; }
       const patient = getPatient(patientId);
@@ -95,6 +110,10 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
       return;
     }
     if (method === "POST" && url.pathname === "/api/chat") {
+      if (production) {
+        json(response, 503, { error: "PATIENT_CONTEXT_ADAPTER_REQUIRED" });
+        return;
+      }
       if (!isJsonContentType(request)) {
         json(response, 415, { error: "UNSUPPORTED_MEDIA_TYPE" });
         return;
