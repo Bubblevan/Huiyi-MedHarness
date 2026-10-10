@@ -55,6 +55,7 @@ The browser and Gateway still bind to loopback. The adapter streams only DSH vis
 The local Windows setup can use the already-installed `llama-server.exe`; it does not require WSL or a new model download. Start it in a terminal with the existing E: model file:
 
 ```powershell
+$env:LLAMA_ARG_CHAT_TEMPLATE_KWARGS = '{"enable_thinking":false}'
 llama-server.exe `
   -m 'E:\Health-Copilot-Models\models\qwen3-8b\Qwen3-8B-Q4_K_M.gguf' `
   --host 127.0.0.1 --port 8000 `
