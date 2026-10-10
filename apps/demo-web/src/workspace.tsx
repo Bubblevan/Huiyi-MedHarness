@@ -52,7 +52,7 @@ function Consultation({ patientId, sessionId, scenario, onEvent, onError, onRetr
       {errorCode && <div className="consultation-error"><ErrorNotice message={`执行状态：${errorCode}`} onRetry={onRetry} /></div>}
       <ThreadPrimitive.Root className="thread-root">
         <ThreadPrimitive.Viewport className="thread-viewport" autoScroll turnAnchor="bottom">
-          <div className="welcome-card"><span className="welcome-kicker">SYNTHETIC CASE</span><h2>从患者上下文开始</h2><p>患者长期记忆与合成证据分别展示。回答只用于演示界面流程。</p>
+          <div className="welcome-card"><span className="welcome-kicker">SYNTHETIC CASE</span><h2>从患者上下文开始</h2><p>合成患者记忆与外部医学证据分别展示。回答只用于演示界面流程。</p>
             <QuickPrompts />
           </div>
           <ThreadPrimitive.Messages>
@@ -158,7 +158,7 @@ export function DemoWorkspace() {
           <aside className={`side-column activity-column ${mobilePanel === "activity" ? "mobile-open" : ""}`}><button className="mobile-close" onClick={() => setMobilePanel(null)} aria-label="关闭 Agent Activity">×</button><AgentActivity events={events} errorCode={errorCode} /><section className="scenario-panel"><p className="eyebrow">PRESENTATION CASES</p><h2>演示案例</h2><button className="case-link" onClick={() => chooseScenario("simple")}><span className="case-index">01</span><span><strong>高血压复诊</strong><small>单轮上下文与证据</small></span><span className="case-arrow">↗</span></button><button className="case-link" onClick={() => chooseScenario("complex")}><span className="case-index">02</span><span><strong>复杂病例</strong><small>{backend === "dsh" ? "本地 DSH 临床协作" : "simulated multi-specialist flow"}</small></span><span className="case-arrow">↗</span></button>{backend === "fixture" && <button className="case-link failure-case" onClick={() => { setScenario("failure"); setSessionId(crypto.randomUUID()); setEvents([]); setEvidence([]); setErrorCode(undefined); }}><span className="case-index">03</span><span><strong>故障与恢复</strong><small>fixture 错误状态测试</small></span><span className="case-arrow">↗</span></button>}</section></aside>
         </main>
         <footer className="global-footer"><span>Huiyi MedHarness</span><span>{backend === "dsh" ? "本地 DSH / Qwen · 合成病例" : "CPU-only fixture · 合成数据 · 本地运行"}</span><button onClick={() => setEvidenceOpen(true)}>查看本轮证据 <span>{evidence.length}</span></button></footer>
-        <EvidenceDrawer open={evidenceOpen} items={evidence} onClose={() => setEvidenceOpen(false)} />
+        <EvidenceDrawer open={evidenceOpen} items={evidence} onClose={() => setEvidenceOpen(false)} backend={backend === "dsh" ? "dsh" : "fixture"} />
         {selectedEvidence && evidenceOpen && <span className="sr-only" aria-live="polite">已打开证据 {selectedEvidence}</span>}
         {mobilePanel && <button className="mobile-backdrop" onClick={() => setMobilePanel(null)} aria-label="关闭侧边栏" />}
       </div>

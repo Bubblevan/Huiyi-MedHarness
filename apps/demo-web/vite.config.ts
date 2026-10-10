@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
     host: "127.0.0.1",
     port: Number(webPort),
     strictPort: true,
+    cors: false,
     proxy: { "/api": { target: `http://127.0.0.1:${gatewayPort}`, changeOrigin: false } },
   },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true },

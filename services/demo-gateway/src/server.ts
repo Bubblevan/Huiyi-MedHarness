@@ -22,7 +22,7 @@ const json = (response: ServerResponse, status: number, value: unknown): void =>
   response.end(JSON.stringify(value));
 };
 
-async function readJson(request: IncomingMessage, maxBytes = 8_192): Promise<unknown> {
+async function readJson(request: IncomingMessage, maxBytes = 16_384): Promise<unknown> {
   const chunks: Buffer[] = [];
   let size = 0;
   for await (const chunk of request) {
@@ -32,6 +32,16 @@ async function readJson(request: IncomingMessage, maxBytes = 8_192): Promise<unk
     chunks.push(buffer);
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown;
+}
+
+function decodePathSegment(value: string): string | undefined {
+  try { return decodeURIComponent(value); }
+  catch { return undefined; }
+}
+
+function isJsonContentType(request: IncomingMessage): boolean {
+  const value = request.headers["content-type"];
+  return typeof value === "string" && /^application\/json(?:\s*;|$)/i.test(value.trim());
 }
 
 function sendEvent(response: ServerResponse, event: DemoEvent): boolean {
@@ -49,8 +59,9 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
   const activeRuns = new Map<string, { controller: AbortController; sessionId: string; startedAt: number; settled: Promise<void>; settle: () => void }>();
   const log = options.log ?? ((metadata: Record<string, string | number>) => process.stdout.write(`${JSON.stringify(metadata)}\n`));
 
-  const server = createServer(async (request, response) => {
+  const server = createServer((request, response) => {
     const requestId = randomUUID();
+    const handleRequest = async (): Promise<void> => {
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const method = request.method ?? "GET";
 
@@ -60,14 +71,17 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
     }
     const patientMatch = url.pathname.match(/^\/api\/demo\/patients\/([^/]+)$/);
     if (method === "GET" && patientMatch) {
-      const patient = getPatient(decodeURIComponent(patientMatch[1] ?? ""));
+      const patientId = decodePathSegment(patientMatch[1] ?? "");
+      if (patientId === undefined) { json(response, 400, { error: "INVALID_PATH" }); return; }
+      const patient = getPatient(patientId);
       if (!patient) { json(response, 404, { error: "INVALID_FIXTURE_PATIENT" }); return; }
       json(response, 200, patient);
       return;
     }
     const cancelMatch = url.pathname.match(/^\/api\/runs\/([^/]+)\/cancel$/);
     if (method === "POST" && cancelMatch) {
-      const runId = decodeURIComponent(cancelMatch[1] ?? "");
+      const runId = decodePathSegment(cancelMatch[1] ?? "");
+      if (runId === undefined) { json(response, 400, { error: "INVALID_PATH" }); return; }
       const run = activeRuns.get(runId);
       if (!run) { json(response, 404, { error: "RUN_NOT_FOUND" }); return; }
       run.controller.abort();
@@ -81,6 +95,10 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
       return;
     }
     if (method === "POST" && url.pathname === "/api/chat") {
+      if (!isJsonContentType(request)) {
+        json(response, 415, { error: "UNSUPPORTED_MEDIA_TYPE" });
+        return;
+      }
       let input;
       try { input = validateChatInput(await readJson(request)); }
       catch (error) {
@@ -132,14 +150,23 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
         activeRuns.delete(runId);
         if (!response.destroyed) response.end();
         const sessionHash = createHash("sha256").update(input.sessionId, "utf8").digest("hex").slice(0, 16);
-        log({ requestId, sessionHash, runId, event: "run.terminal", duration: Date.now() - startedAt, backend: backendName, status, ...(errorCode ? { errorCode } : {}) });
-        runState.settle();
+        try {
+          log({ requestId, sessionHash, runId, event: "run.terminal", duration: Date.now() - startedAt, backend: backendName, status, ...(errorCode ? { errorCode } : {}) });
+        } finally {
+          runState.settle();
+        }
       }
       return;
     }
     json(response, 404, { error: "NOT_FOUND" });
+    };
+    void handleRequest().catch(() => {
+      if (response.destroyed) return;
+      if (response.headersSent) response.end();
+      else json(response, 500, { error: "INTERNAL_ERROR" });
+    });
   });
-  server.on("close", () => { void backend.dispose?.(); });
+  server.on("close", () => { void Promise.resolve().then(() => backend.dispose?.()).catch(() => undefined); });
   return server;
 }
 

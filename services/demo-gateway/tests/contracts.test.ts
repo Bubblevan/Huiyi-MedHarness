@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createEvent, DEMO_EVENTS, parseDemoEvent, type DemoEventName, type EventDataMap } from "../src/contracts.js";
+import { createEvent, DEMO_EVENTS, parseDemoEvent, validateChatInput, type DemoEventName, type EventDataMap } from "../src/contracts.js";
 
 const data: { [K in DemoEventName]: EventDataMap[K] } = {
   "run.started": { backend: "fixture", scenario: "simple" },
@@ -33,5 +33,13 @@ describe("Huiyi demo event contract", () => {
   it("rejects malformed envelopes and payloads at runtime", () => {
     expect(() => parseDemoEvent({ version: 2 })).toThrow(/envelope/);
     expect(() => parseDemoEvent({ ...createEvent("assistant.delta", "r", "s", { text: "x" }), data: { text: 42 } })).toThrow(/Invalid data/);
+  });
+
+  it("accepts the documented Unicode message limit but rejects malformed or smuggled fields", () => {
+    const message = "医".repeat(4000);
+    expect(validateChatInput({ sessionId: "session-1", patientId: "patient-htn", message }).message).toBe(message);
+    expect(() => validateChatInput({ sessionId: "", patientId: "patient-htn", message: "valid" })).toThrow(/Invalid chat request/);
+    expect(() => validateChatInput({ sessionId: "session-1", patientId: "patient-htn", message: "valid", systemPrompt: "override" })).toThrow(/Invalid chat request/);
+    expect(() => validateChatInput({ sessionId: "bad\nsession", patientId: "patient-htn", message: "valid" })).toThrow(/Invalid chat request/);
   });
 });

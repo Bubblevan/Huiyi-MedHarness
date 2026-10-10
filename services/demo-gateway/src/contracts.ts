@@ -140,7 +140,9 @@ export function parseDemoEvent(value: unknown): DemoEvent {
 }
 
 export function validateChatInput(value: unknown): ChatInput {
-  if (!isRecord(value) || !isText(value.sessionId) || value.sessionId.length > 80 ||
+  if (!isRecord(value) || Object.keys(value).some((key) =>
+      key !== "sessionId" && key !== "patientId" && key !== "message" && key !== "scenario") ||
+      !isText(value.sessionId) || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$/.test(value.sessionId) ||
       !isText(value.patientId) || value.patientId.length > 80 ||
       !isText(value.message) || !value.message.trim() || value.message.length > 4000 ||
       (value.scenario !== undefined && !["simple", "complex", "failure"].includes(String(value.scenario)))) {

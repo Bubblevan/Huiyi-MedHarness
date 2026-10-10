@@ -169,6 +169,7 @@ export class DshDemoBackend implements DemoBackend {
     if (this.disposed) return;
     this.disposed = true;
     for (const entry of this.activeRuns.values()) entry.handle.agent.cancel({ kind: "user" });
+    await Promise.all([...this.pendingSessions.values()].map((pending) => pending.catch(() => undefined)));
     await Promise.all([...this.sessions.values()].map((entry) => entry.handle.dispose().catch(() => undefined)));
     this.sessions.clear();
     await this.runtime.dispose();
@@ -310,6 +311,10 @@ export class DshDemoBackend implements DemoBackend {
         await candidate[1].handle.dispose();
       }
       const handle = await this.runtime.createAgent(`huiyi-demo-${randomUUID()}`, patient);
+      if (this.disposed) {
+        await handle.dispose();
+        throw new Error("DshRuntimeDisposedError");
+      }
       const entry: SessionEntry = { handle, patient, lastUsedAt: Date.now() };
       this.sessions.set(key, entry);
       return entry;

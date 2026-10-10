@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-10",
+  "repository": "Bubblevan/Huiyi-MedHarness",
+  "base_sha": "6df3ba1e9ba2b79df4c7da75846939778e5ad4ca",
+  "branch": "main",
+  "validation_type": "local synthetic end-to-end and malformed-request validation",
+  "runtime": {
+    "model": "Qwen/Qwen3-8B",
+    "precision": "bfloat16",
+    "vllm_version": "0.30.1rc1.dev622+gf03026a54",
+    "vllm_host": "127.0.0.1",
+    "gateway_backend": "dsh",
+    "services": {
+      "vllm_http_200": true,
+      "gateway_http_200": true,
+      "health_engine_http_200": true,
+      "rag_status_http_200": true
+    },
+    "rag": {
+      "corpus_version": "medtext-2026-10-07-c840ea8370341f41",
+      "sources": 2,
+      "chunks": 509897,
+      "retriever": "MedCPT",
+      "index_verification": "passed"
+    }
+  },
+  "tests": {
+    "core": { "files_passed": 9, "passed": 72, "failed": 0 },
+    "demo_gateway": { "files_passed": 3, "passed": 19, "failed": 0 },
+    "demo_web_unit": { "files_passed": 1, "passed": 5, "failed": 0 },
+    "health_engine": { "passed": 36, "failed": 0, "python": "3.12.3" },
+    "live_browser_dsh": { "passed": 6, "skipped": 2, "failed": 0, "workers": 1, "duration_seconds": 44.5 },
+    "combined": { "passed": 138, "skipped": 2, "failed": 0 },
+    "typescript": { "core": "passed", "demo_gateway": "passed", "demo_web": "passed" },
+    "build": { "core": "passed", "demo_gateway": "passed", "demo_web": "passed_with_chunk_size_advisory" }
+  },
+  "request_resilience": {
+    "unsupported_content_type_status": 415,
+    "unexpected_field_status": 400,
+    "malformed_json_status": 400,
+    "invalid_json_shapes_status": 400,
+    "invalid_json_shapes": ["null", "array", "string", "number", "missing fields", "wrong field types", "invalid session ID", "unsupported scenario"],
+    "malformed_json_concurrent_count": 32,
+    "malformed_json_burst_all_rejected": true,
+    "oversized_body_status": 413,
+    "valid_4000_cjk_char_message_accepted": true,
+    "malformed_encoded_paths_status": 400,
+    "cross_origin_browser_request_blocked": true,
+    "health_remained_available_after_bad_requests": true,
+    "ui_recovered_after_validation_error": true,
+    "cancellation_recovery": true,
+    "two_independent_live_sessions_completed_concurrently": true,
+    "same_session_overlap_capacity_isolation_eviction_and_shutdown_race_unit_covered": true
+  },
+  "vllm_service_lifetime_counters": {
+    "prompt_tokens": 98835,
+    "generation_tokens": 9630,
+    "finished_stop": 79,
+    "finished_length": 0,
+    "finished_abort": 0,
+    "finished_error": 0,
+    "scope": "cumulative from local validation service startup; not only final browser suite"
+  },
+  "gpu_snapshot_after_run": {
+    "model": "NVIDIA L40",
+    "memory_used_mib": 36991,
+    "memory_total_mib": 46068,
+    "utilization_percent": 0,
+    "temperature_c": 46,
+    "power_w": 86.67,
+    "note": "post-run idle snapshot; active live workflow reached 100% utilization"
+  },
+  "data_safety": {
+    "synthetic_case_data_only": true,
+    "raw_prompts_or_answers_saved": false,
+    "ama_write_path_exercised": false,
+    "medqa_or_reserved_test_labels_used": false,
+    "training_started": false
+  },
+  "limits": [
+    "Loopback local validation only; no public ingress or production reverse proxy was tested.",
+    "No sustained load or denial-of-service test; the malformed-request burst used 32 requests.",
+    "Two independent live browser sessions were exercised concurrently.",
+    "This is functional robustness validation, not a medical accuracy evaluation."
+  ],
+  "package_manager": {
+    "node": "v22.23.3",
+    "pinned_pnpm": "11.7.0",
+    "install_run": false,
+    "note": "Installed local binaries were invoked directly because pnpm could not access its SQLite store in the sandbox."
+  }
+}

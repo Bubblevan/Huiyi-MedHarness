@@ -1,6 +1,6 @@
-import { fireEvent, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { screen } from "@testing-library/dom";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AgentActivity, BackendBadge, ErrorNotice, EvidenceDrawer, PatientContext, type EvidenceRecord } from "./components.js";
 import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
 import type { WireDemoEvent } from "./runtime/adapter.js";
@@ -10,6 +10,8 @@ const patient: PatientRecord = {
   conditions: ["高血压（合成示例）"], medications: ["示例药物"], allergies: ["合成过敏信息"],
   memory: { summary: "合成长期记忆摘要。", items: 6, updatedLabel: "上次复诊" }, suggestedQuestion: "演示问题",
 };
+
+afterEach(cleanup);
 
 describe("clinical demo panels", () => {
   it("shows synthetic patient, context, and a memory card separate from evidence", () => {
@@ -41,6 +43,17 @@ describe("clinical demo panels", () => {
     expect(screen.getByText("ev-001")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "关闭证据抽屉" }));
     expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("labels local DSH evidence correctly and renders untrusted snippets as text", () => {
+    const maliciousText = "<img src=x onerror=alert(1)>";
+    const item: EvidenceRecord = { evidenceId: "ev-live", rank: 1, source: "Textbooks", title: "Reference", snippet: maliciousText };
+    const { container } = render(<EvidenceDrawer open items={[item]} onClose={() => undefined} backend="dsh" />);
+    expect(screen.getByText("本地医学检索结果")).toBeInTheDocument();
+    expect(screen.queryByText("Demo evidence fixture")).not.toBeInTheDocument();
+    expect(screen.getByText(maliciousText)).toBeInTheDocument();
+    expect(container.querySelector("img")).toBeNull();
+    expect(screen.getByText(/检索片段来自本地医学语料/)).toBeInTheDocument();
   });
 
   it("identifies the backend mode and presents safe service errors", () => {

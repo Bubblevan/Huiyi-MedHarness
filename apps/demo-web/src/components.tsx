@@ -99,19 +99,19 @@ export interface EvidenceRecord {
   snippet: string;
 }
 
-export function EvidenceDrawer({ open, items, onClose }: { open: boolean; items: EvidenceRecord[]; onClose: () => void }) {
+export function EvidenceDrawer({ open, items, onClose, backend = "fixture" }: { open: boolean; items: EvidenceRecord[]; onClose: () => void; backend?: "fixture" | "dsh" }) {
   if (!open) return null;
   return (
     <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <aside className="evidence-drawer" role="dialog" aria-modal="true" aria-label="Evidence Sources">
         <div className="drawer-grabber" />
         <div className="drawer-heading"><div><p className="eyebrow">SOURCE REVIEW</p><h2>医学证据来源</h2></div><button className="icon-button" onClick={onClose} aria-label="关闭证据抽屉">×</button></div>
-        <span className="fixture-tag">Demo evidence fixture</span>
-        {items.length === 0 ? <p className="muted">本轮尚无可展示的合成证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
+        <span className="fixture-tag">{backend === "dsh" ? "本地医学检索结果" : "Demo evidence fixture"}</span>
+        {items.length === 0 ? <p className="muted">本轮尚无可展示的证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
           <div className="evidence-card-top"><span className="citation-index">[{item.rank}]</span><code>{item.evidenceId}</code></div>
           <p className="evidence-source">{item.source}</p><h3>{item.title}</h3><p className="evidence-snippet">{item.snippet}</p>
         </article>)}</div>}
-        <p className="evidence-disclaimer">这些条目是为界面验收编写的合成资料，不是已核实的医学证据或医疗建议。</p>
+        <p className="evidence-disclaimer">{backend === "dsh" ? "检索片段来自本地医学语料，需结合原始出处和具体临床情境核验，不构成诊断或治疗建议。" : "这些条目是为界面验收编写的合成资料，不是已核实的医学证据或医疗建议。"}</p>
       </aside>
     </div>
   );
