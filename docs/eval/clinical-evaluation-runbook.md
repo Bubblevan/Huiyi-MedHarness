@@ -526,3 +526,11 @@ v5 smoke [`smoke-20261011051024-7120d23b.json`](../../artifacts/clinical-eval/sm
 仅执行低负载、离线验证：既往 Encounter 截断测试、DSH snapshot 格式测试、草稿来源 ID 持久化测试及患者面板渲染测试各通过；demo-web typecheck 与 Gateway TypeScript build 通过。组合运行 Gateway 两个完整测试文件时，沙箱拒绝临时 loopback 请求（`EACCES`），且默认 AppData 临时目录的原子 rename 返回 `EPERM`；之后将相关无网络测试逐项隔离，并将草稿测试临时目录指向仓库，相关四项均通过。没有启动 Gateway、浏览器或模型服务。
 
 这只是把既有摘要连入 DSH 和草稿的工程数据流，不代表已验证模型能正确召回或整合纵向病史。当前生成器的既往摘要仍较模板化；药物变化、检查结果时间线等临床差异场景和 300 例端到端评测仍未完成，不能报告历史召回率或临床任务完成率。
+
+## 28. 复诊草稿事实可见性与 Encounter 时间边界
+
+复核 M1 FHIR 草稿时发现，旧生成器直接把整个合成病例的 history/current/risk facts 与完整 FHIR Bundle 写进当前 Encounter 的 Composition。这会把未披露事实、隔离 canary 和未来 Encounter 数据放入可审阅交付物，并把 gold facts 伪装成模型已知信息。
+
+现改为只纳入本轮显式披露 ID、当前 Encounter 会话内累计披露 ID及患者原话中可精确匹配的事实；不以跨 Encounter 的累计披露清单作为当前 Agent 已知事实。Composition 的结构化事实与来源按各自 Encounter 绑定；基础 FHIR Bundle 仅保留截至当前 Encounter 的 Encounter 资源、已披露 Observation 和已披露条件。若患者/助手文本或披露 ID 中出现隔离 canary，草稿导出 fail closed。
+
+临床评测纯离线测试 24/24 通过，包含隐藏事实、跨 Encounter 已披露但当前未召回的历史、canary 和未来 Encounter 检查；根测试 TypeScript 检查、Gateway build 与 git diff --check 通过。未启动模型、服务或浏览器。该 allowlist 让草稿不会把 gold truth 误标为当前输出，但 AMA 的历史召回仍需独立结构化追踪与真实 Agent E2E 验证。

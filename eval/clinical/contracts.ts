@@ -104,6 +104,10 @@ export interface ClinicalRunRecord {
     readonly patientFollowUps: number;
     readonly maxPatientFollowUps: number;
     readonly disclosedFactIds: readonly string[];
+    /** Facts disclosed within the current Encounter conversation only. */
+    readonly encounterDisclosedFactIds?: readonly string[];
+    /** All facts disclosed to this simulated patient-agent conversation through the end of this turn. */
+    readonly cumulativeDisclosedFactIds?: readonly string[];
     readonly triggeredIntents: readonly PatientQuestionIntent[];
     readonly transcript: readonly { readonly role: "patient" | "assistant"; readonly text: string }[];
   };

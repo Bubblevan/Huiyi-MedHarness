@@ -196,6 +196,8 @@ async function runCaseArm(input: {
   const draftBundles: { runId: string; caseId: string; turnId: string; arm: EvalArm; bundle: unknown }[] = [];
   const reviewEvidenceByRun = new Map<string, ReviewEvidence>();
   const patientSimulator = input.patientSimulationMode === "adaptive" ? new SyntheticPatientSimulator(task.case, { maxFollowUpMessages: input.patientFollowUpLimit }) : undefined;
+  const cumulativeDisclosedFactIds = new Set<string>();
+  const encounterDisclosedFactIds = new Set<string>();
   let sessionId = "";
   let sessionTurn = 0;
   let encounter = "";
@@ -216,6 +218,7 @@ async function runCaseArm(input: {
       if (turn.encounterId !== encounter) {
         await closeCurrentSession();
         encounter = turn.encounterId;
+        encounterDisclosedFactIds.clear();
         sessionId = await service.createEncounterSession(task.case, turn.encounterId);
         sessionTurn = 0;
       }
@@ -248,10 +251,17 @@ async function runCaseArm(input: {
         if (message) {
           patientMessages.push(message.message);
           transcript.push({ role: "patient", text: message.message });
-          message.disclosedFactIds.forEach((id) => disclosedFactIds.add(id));
+          message.disclosedFactIds.forEach((id) => {
+            disclosedFactIds.add(id); encounterDisclosedFactIds.add(id); cumulativeDisclosedFactIds.add(id);
+          });
         } else {
           patientMessages.push(turn.patientMessage);
           transcript.push({ role: "patient", text: turn.patientMessage });
+          for (const id of explicitlyMentionedFactIds(task.case, turn.patientMessage)) {
+            disclosedFactIds.add(id);
+            encounterDisclosedFactIds.add(id);
+            cumulativeDisclosedFactIds.add(id);
+          }
         }
         let nextPatientMessage = message?.message ?? turn.patientMessage;
         for (;;) {
@@ -303,7 +313,9 @@ async function runCaseArm(input: {
           if (!reply) break;
           patientMessages.push(reply.message);
           transcript.push({ role: "patient", text: reply.message });
-          reply.disclosedFactIds.forEach((id) => disclosedFactIds.add(id));
+          reply.disclosedFactIds.forEach((id) => {
+            disclosedFactIds.add(id); encounterDisclosedFactIds.add(id); cumulativeDisclosedFactIds.add(id);
+          });
           reply.matchedIntents.forEach((intent) => triggeredIntents.add(intent));
           patientFollowUps++;
           nextPatientMessage = reply.message;
@@ -343,7 +355,9 @@ async function runCaseArm(input: {
         patientSimulation: {
           mode: input.patientSimulationMode, assistantExchanges, patientFollowUps,
           maxPatientFollowUps: patientSimulator ? (input.patientFollowUpLimit ?? turn.patientPlan!.maxFollowUpMessages) : 0,
-          disclosedFactIds: [...disclosedFactIds], triggeredIntents: [...triggeredIntents], transcript,
+          disclosedFactIds: [...disclosedFactIds], cumulativeDisclosedFactIds: [...cumulativeDisclosedFactIds],
+          encounterDisclosedFactIds: [...encounterDisclosedFactIds],
+          triggeredIntents: [...triggeredIntents], transcript,
         },
         assistantText: answer.filter(Boolean).join("\n\n"), status,
         ...(failureCode ? { failureCode } : {}), ...(failureDiagnostic ? { failureDiagnostic } : {}), wallTimeMs: Math.max(0, performance.now() - startedMs),
@@ -376,6 +390,12 @@ async function runCaseArm(input: {
     if (closeError || forgetError) throw new Error(`synthetic run cleanup failed for ${task.case.caseId}: ${[closeError, forgetError].filter(Boolean).map((error) => error instanceof Error ? error.name : "unknown error").join(", ")}`);
   }
   return { records, draftBundles, reviewEvidenceByRun };
+}
+
+function explicitlyMentionedFactIds(item: SyntheticClinicalCase, message: string): string[] {
+  return item.facts
+    .filter((fact) => fact.value !== item.patient.privateIsolationCanary && fact.value.trim().length > 0 && message.includes(fact.value))
+    .map((fact) => fact.factId);
 }
 
 export function clinicalTaskKey(caseId: string, arm: EvalArm): string { return `${caseId}\0${arm}`; }

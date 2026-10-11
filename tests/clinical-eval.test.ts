@@ -322,7 +322,17 @@ describe("clinical synthetic evaluation foundation", () => {
     const item = generateCohort({ count: 1 })[0]!;
     const turn = item.turns.find((candidate) => candidate.turnId.endsWith("T04"))!;
     const run = sampleRun(item, turn, "single-agent");
-    const bundle = createReviewDraftBundle({ case: item, turn, run: { ...run, assistantText: "<section>synthetic & reviewed later</section>" } });
+    const bundle = createReviewDraftBundle({ case: item, turn, run: {
+      ...run,
+      assistantText: "<section>synthetic & reviewed later</section>",
+      patientSimulation: {
+        mode: "adaptive", assistantExchanges: 1, patientFollowUps: 0, maxPatientFollowUps: 3,
+        disclosedFactIds: [`${item.caseId}-H01`, `${item.caseId}-H02`],
+        encounterDisclosedFactIds: [`${item.caseId}-H01`, `${item.caseId}-H02`],
+        cumulativeDisclosedFactIds: [`${item.caseId}-H01`, `${item.caseId}-H02`],
+        triggeredIntents: [], transcript: [{ role: "patient", text: "已披露既往事实。" }],
+      },
+    } });
     const composition = bundle.entry.find((entry) => entry.resource.resourceType === "Composition")?.resource;
     expect(composition).toMatchObject({
       resourceType: "Composition", status: "preliminary",
@@ -338,6 +348,72 @@ describe("clinical synthetic evaluation foundation", () => {
     expect(sections.find((section) => section.title === "既往重要病史")?.text.div).toContain("fact:");
     expect(sections.every((section) => section.extension.length === 1)).toBe(true);
     expect(bundle.meta.tag.some((tag) => tag.code === "synthetic")).toBe(true);
+  });
+
+  it("exports only patient-disclosed facts and known Encounters, excluding hidden and isolation-canary data", () => {
+    const item = generateCohort({ count: 1 })[0]!;
+    const turn = item.turns.find((candidate) => candidate.turnId.endsWith("T08"))!;
+    const priorFact = item.facts.find((fact) => fact.factId === `${item.caseId}-H01`)!;
+    const visibleFactIds = [`${item.caseId}-H01`, `${item.caseId}-C02`];
+    const run = {
+      ...sampleRun(item, turn, "integrated"), patientMessage: `请核对既往记录：${priorFact.value}`,
+      patientSimulation: {
+        mode: "adaptive" as const, assistantExchanges: 2, patientFollowUps: 1, maxPatientFollowUps: 3,
+        disclosedFactIds: [`${item.caseId}-C02`], cumulativeDisclosedFactIds: visibleFactIds,
+        encounterDisclosedFactIds: [`${item.caseId}-C02`],
+        triggeredIntents: ["timeline" as const],
+        transcript: [{ role: "patient" as const, text: `请核对既往记录：${priorFact.value}` }],
+      },
+    };
+    const bundle = createReviewDraftBundle({ case: item, turn, run });
+    const serialized = JSON.stringify(bundle);
+    const hiddenCurrentFact = item.facts.find((fact) => fact.factId === `${item.caseId}-C01`)!;
+    expect(serialized).toContain(priorFact.value);
+    expect(serialized).not.toContain(hiddenCurrentFact.value);
+    expect(serialized).not.toContain(item.patient.privateIsolationCanary);
+    const observationValues = bundle.entry.filter((entry) => entry.resource.resourceType === "Observation").map((entry) => entry.resource.valueString);
+    expect(observationValues).toContain(priorFact.value);
+    expect(observationValues).not.toContain(hiddenCurrentFact.value);
+    expect(bundle.entry.some((entry) => entry.resource.resourceType === "Encounter" && entry.resource.id === turn.encounterId)).toBe(true);
+
+    const composition = bundle.entry.find((entry) => entry.resource.resourceType === "Composition")!.resource;
+    const sections = composition.section as Array<{ title: string; extension: Array<{ extension: Array<{ url: string; valueReference?: { reference: string } }> }> }>;
+    const historySourceEncounters = sections.find((section) => section.title === "既往重要病史")!.extension[0]!.extension
+      .filter((extension) => extension.url === "source-encounter").map((extension) => extension.valueReference?.reference);
+    expect(historySourceEncounters).toContain(`https://huiyi.invalid/fhir/Encounter/${priorFact.encounterId}`);
+
+    const priorInfoNotRecalled = createReviewDraftBundle({ case: item, turn, run: {
+      ...run,
+      patientMessage: "本次仅补充当前复诊情况。",
+      patientSimulation: {
+        ...run.patientSimulation,
+        disclosedFactIds: [`${item.caseId}-C02`],
+        encounterDisclosedFactIds: [`${item.caseId}-C02`],
+        transcript: [{ role: "patient" as const, text: "本次仅补充当前复诊情况。" }],
+      },
+    } });
+    expect(JSON.stringify(priorInfoNotRecalled)).not.toContain(priorFact.value);
+
+    const previousEncounterTurn = item.turns.find((candidate) => candidate.turnId.endsWith("T04"))!;
+    const priorEncounterDraft = createReviewDraftBundle({ case: item, turn: previousEncounterTurn, run: {
+      ...sampleRun(item, previousEncounterTurn, "single-agent"),
+      patientSimulation: {
+        mode: "adaptive", assistantExchanges: 1, patientFollowUps: 0, maxPatientFollowUps: 3,
+        disclosedFactIds: [`${item.caseId}-H01`], encounterDisclosedFactIds: [`${item.caseId}-H01`],
+        cumulativeDisclosedFactIds: [`${item.caseId}-H01`], triggeredIntents: [],
+        transcript: [{ role: "patient" as const, text: `既往情况：${priorFact.value}` }],
+      },
+    } });
+    expect(priorEncounterDraft.entry.some((entry) => entry.resource.resourceType === "Encounter" && entry.resource.id === turn.encounterId)).toBe(false);
+
+    const canaryFact = item.facts.find((fact) => fact.value === item.patient.privateIsolationCanary)!;
+    expect(() => createReviewDraftBundle({ case: item, turn, run: {
+      ...run,
+      patientSimulation: {
+        ...run.patientSimulation,
+        disclosedFactIds: [canaryFact.factId], encounterDisclosedFactIds: [canaryFact.factId],
+      },
+    } })).toThrow(/isolation canary/);
   });
 
   it("keeps clinical scores suppressed until cohort approval and human adjudication", () => {

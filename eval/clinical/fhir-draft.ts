@@ -13,18 +13,25 @@ export function createReviewDraftBundle(input: {
 }): FhirBundle {
   if (input.run.caseId !== input.case.caseId || input.run.turnId !== input.turn.turnId) throw new TypeError("run, case, and turn do not match");
   if (input.run.status !== "completed" || !input.run.assistantText.trim()) throw new TypeError("only completed non-empty answers can be exported for review");
+  if (!input.case.turns.some((turn) => turn.turnId === input.turn.turnId && turn.encounterId === input.turn.encounterId)) throw new TypeError("turn does not belong to the synthetic case");
 
   const { case: syntheticCase, turn, run } = input;
+  const canary = syntheticCase.patient.privateIsolationCanary;
+  if ([run.patientMessage, run.assistantText, ...(run.patientSimulation?.transcript.map((item) => item.text) ?? [])].some((text) => text.includes(canary))) {
+    throw new TypeError("isolation canary cannot be exported in a clinical draft");
+  }
+  const visibleFactIds = disclosedFactIds(syntheticCase, run);
+  const visibleFacts = syntheticCase.facts.filter((fact) => visibleFactIds.has(fact.factId));
   const compositionId = `draft-${run.runId.replace(/[^A-Za-z0-9.-]/g, "-").slice(0, 48)}`;
   const deviceId = `${syntheticCase.patient.patientId}-device`;
   const disclosedMessages = run.patientSimulation?.transcript.filter((item) => item.role === "patient").map((item) => item.text.trim()).filter(Boolean) ?? [];
   const chiefConcern = disclosedMessages.length ? disclosedMessages : [run.patientMessage.trim()].filter(Boolean);
-  const history = syntheticCase.facts.filter((fact) => fact.category === "history");
-  const currentFacts = syntheticCase.facts.filter((fact) => fact.category === "current" && fact.encounterId === turn.encounterId);
-  const medications = syntheticCase.facts.filter((fact) => /用药|药物|服药|剂量/.test(fact.label));
-  const allergies = syntheticCase.facts.filter((fact) => /过敏/.test(fact.label));
-  const verificationItems = syntheticCase.facts.filter((fact) => /待核实|未提供|不确定|待确认|需核实/.test(`${fact.label} ${fact.value}`));
-  const riskFacts = syntheticCase.facts.filter((fact) => fact.category === "risk");
+  const history = visibleFacts.filter((fact) => fact.category === "history");
+  const currentFacts = visibleFacts.filter((fact) => fact.category === "current" && fact.encounterId === turn.encounterId);
+  const medications = visibleFacts.filter((fact) => /用药|药物|服药|剂量/.test(fact.label));
+  const allergies = visibleFacts.filter((fact) => /过敏/.test(fact.label));
+  const verificationItems = visibleFacts.filter((fact) => /待核实|未提供|不确定|待确认|需核实/.test(`${fact.label} ${fact.value}`));
+  const riskFacts = visibleFacts.filter((fact) => fact.category === "risk");
 
   const sections = [
     section("chief-concern", "主诉与病情变化", chiefConcern.map((message, index) => ({ label: index === 0 ? "患者描述" : `补充描述 ${index}`, value: message })), "patient-message", syntheticCase, turn, run),
@@ -64,7 +71,49 @@ export function createReviewDraftBundle(input: {
     meta: { tag: [SYNTHETIC_TAG] },
   };
   const entry = { fullUrl: resourceUrl("Composition", compositionId), resource: composition };
-  return { ...syntheticCase.fhirBundle, entry: [...syntheticCase.fhirBundle.entry, entry] };
+  const encounterOrder = [...new Set(syntheticCase.turns.map((item) => item.encounterId))];
+  const encounterIndex = encounterOrder.indexOf(turn.encounterId);
+  const visibleEncounterIds = new Set(encounterOrder.slice(0, encounterIndex + 1));
+  const sourceEntries = syntheticCase.fhirBundle.entry.filter(({ resource }) => {
+    if (resource.resourceType === "Encounter") return visibleEncounterIds.has(String(resource.id));
+    if (resource.resourceType === "Observation") {
+      const fact = visibleFacts.find((candidate) => observationMatchesFact(resource, candidate));
+      return Boolean(fact);
+    }
+    if (resource.resourceType === "Condition") {
+      const code = isRecord(resource.code) ? resource.code.text : undefined;
+      const conditionFact = syntheticCase.facts.find((fact) => fact.category === "current" && fact.label === "本次主要情况" && fact.value === code);
+      return !conditionFact || visibleFactIds.has(conditionFact.factId);
+    }
+    return true;
+  });
+  return { ...syntheticCase.fhirBundle, entry: [...sourceEntries, entry] };
+}
+
+function disclosedFactIds(syntheticCase: SyntheticClinicalCase, run: ClinicalRunRecord): Set<string> {
+  const candidates = new Set([
+    ...(run.patientSimulation?.disclosedFactIds ?? []),
+    ...(run.patientSimulation?.encounterDisclosedFactIds ?? []),
+  ]);
+  const patientTexts = [
+    run.patientMessage,
+    ...(run.patientSimulation?.transcript.filter((item) => item.role === "patient").map((item) => item.text) ?? []),
+  ];
+  for (const fact of syntheticCase.facts) {
+    if (fact.value !== syntheticCase.patient.privateIsolationCanary && fact.value.trim() && patientTexts.some((text) => text.includes(fact.value))) {
+      candidates.add(fact.factId);
+    }
+  }
+  const canaryFact = syntheticCase.facts.find((fact) => fact.value === syntheticCase.patient.privateIsolationCanary);
+  if (canaryFact && candidates.has(canaryFact.factId)) throw new TypeError("isolation canary fact ID cannot be exported in a clinical draft");
+  return new Set(syntheticCase.facts.filter((fact) => candidates.has(fact.factId) && fact.value !== syntheticCase.patient.privateIsolationCanary).map((fact) => fact.factId));
+}
+
+function observationMatchesFact(resource: Record<string, unknown>, fact: SyntheticFact): boolean {
+  if (!isRecord(resource.code) || !isRecord(resource.encounter)) return false;
+  const reference = resource.encounter.reference;
+  return resource.code.text === fact.label && resource.valueString === fact.value
+    && typeof reference === "string" && reference.endsWith(`/Encounter/${fact.encounterId}`);
 }
 
 function section(
@@ -94,13 +143,16 @@ function section(
     if (item.sourceReference) return [{ display: item.sourceReference }];
     return [];
   });
+  const sourceEncounterIds = [...new Set(items.flatMap((item) => "factId" in item ? [item.encounterId] : []))];
   const provenance = {
     url: FIELD_SOURCE_EXTENSION,
     extension: [
       { url: "field", valueCode: code },
       { url: "source-kind", valueCode: sourceKind },
       { url: "source-patient", valueReference: { reference: resourceUrl("Patient", syntheticCase.patient.patientId) } },
-      { url: "source-encounter", valueReference: { reference: resourceUrl("Encounter", turn.encounterId) } },
+      ...(sourceEncounterIds.length ? sourceEncounterIds : [turn.encounterId]).map((encounterId) => ({
+        url: "source-encounter", valueReference: { reference: resourceUrl("Encounter", encounterId) },
+      })),
       { url: "run", valueString: run.runId },
       { url: "review-disposition", valueCode: "unreviewed" },
     ],
