@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "bullet": "B4",
+  "decision": "TRAINING_NOT_STARTED_AWAITING_WEIGHT_AND_DEPENDENCY_AUTHORIZATION",
+  "localCheckpoint": {
+    "path": "E:\\Health-Copilot-Models\\models\\qwen3-8b",
+    "file": "Qwen3-8B-Q4_K_M.gguf",
+    "sizeGiB": 4.68,
+    "format": "GGUF Q4_K_M inference quantization",
+    "transformersSafetensorsCheckpointPresent": false
+  },
+  "officialTrainableCheckpoint": {
+    "repo": "Qwen/Qwen3-8B",
+    "revisionPrefix": "b968826",
+    "reportedRepositorySizeGB": 16.4,
+    "safetensorsShardCount": 5,
+    "source": "https://huggingface.co/Qwen/Qwen3-8B/tree/main"
+  },
+  "currentMachineSnapshot": {
+    "python": "D:\\Anaconda\\python.exe",
+    "availablePackages": ["torch", "transformers"],
+    "missingPackages": ["peft", "trl", "bitsandbytes", "datasets", "unsloth"],
+    "gpu": "NVIDIA GeForce RTX 4090 Laptop GPU",
+    "gpuMemoryMiB": 16376,
+    "gpuMemoryUsedAtPreflightMiB": 79,
+    "gpuUtilizationAtPreflightPercent": 0,
+    "diskFreeGiB": { "C:": 11.5, "D:": 179.7, "E:": 158.2 }
+  },
+  "trainingStarted": false,
+  "weightsDownloaded": false,
+  "dependenciesInstalled": false,
+  "optimizerSteps": 0,
+  "medqaTestRead": false,
+  "limitations": [
+    "Q4 GGUF is not the Transformers checkpoint required for this QLoRA plan.",
+    "The listed GPU snapshot does not prove a specific training configuration will fit or remain stable.",
+    "A synthetic-data canary, if later authorized, will not establish medical task quality or accuracy improvement."
+  ]
+}
