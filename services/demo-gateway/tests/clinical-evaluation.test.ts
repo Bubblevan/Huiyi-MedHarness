@@ -33,6 +33,10 @@ class EvaluationTestBackend implements DemoBackend {
       yield createEvent("run.cancelled", runId, input.sessionId, { reason: "client_cancelled" });
       return;
     }
+    yield createEvent("evidence.item", runId, input.sessionId, {
+      evidenceId: "synthetic-evidence-1", rank: 1, source: "StatPearls",
+      title: "Synthetic evidence title", snippet: "Synthetic evidence excerpt",
+    });
     yield createEvent("assistant.delta", runId, input.sessionId, { text: "synthetic response" });
     yield createEvent("run.completed", runId, input.sessionId, { durationMs: 1 });
   }
@@ -190,7 +194,7 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     const draftPayload = await draftResponse.json() as { draft: {
       draftId: string; version: number; status: string; synthetic: boolean; clinicalApprovalStatus: string;
       sections: Record<string, Array<{ itemId: string; value: string; disposition: string }>>;
-      turns: Array<{ patientMessage: string; assistantResponse: string }>;
+      turns: Array<{ patientMessage: string; assistantResponse: string; evidenceIds: string[] }>;
       revisions: Array<{ before: unknown; after: { version: number } }>;
     } };
     const draft = draftPayload.draft;
@@ -198,7 +202,8 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     expect(draft.sections.chiefConcern?.[0]?.value).toBe("hello");
     expect(draft.sections.history?.[0]?.value).toBeTruthy();
     expect(draft.sections.informationToVerify?.length).toBeGreaterThan(0);
-    expect(draft.turns[0]).toMatchObject({ patientMessage: "hello", assistantResponse: "synthetic response" });
+    expect(draft.sections.medicalEvidence).toMatchObject([{ itemId: "synthetic-evidence-1", value: "Synthetic evidence excerpt" }]);
+    expect(draft.turns[0]).toMatchObject({ patientMessage: "hello", assistantResponse: "synthetic response", evidenceIds: ["synthetic-evidence-1"] });
     expect(draft.revisions).toHaveLength(1);
     expect((await request(app, draftPath.replace(ownPatient.patientId, otherGroupPatient.patientId).replace(ownEncounter.encounterId, otherGroupPatient.encounters[0]!.encounterId), cookieA)).status).toBe(404);
     expect((await request(app, draftPath, cookieB)).status).toBe(404);
