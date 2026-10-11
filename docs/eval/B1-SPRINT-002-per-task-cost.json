@@ -1,0 +1,1664 @@
+{
+  "schemaVersion": "huiyi-b1-per-task-token-cost/v1",
+  "studyRunId": "20261011184053-5bce7818",
+  "sourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+  "denominator": "One row per final run record; failures remain present. Token values are observed only, not currency cost. Null means telemetry unavailable; no values were imputed.",
+  "finalRunRecords": 64,
+  "pairedTaskCount": 31,
+  "records": [
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T01",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 6105,
+      "observedTokenUsage": {
+        "dshInputTokens": 17154,
+        "dshOutputTokens": 224,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17378
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T02",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 10575,
+      "observedTokenUsage": {
+        "dshInputTokens": 34742,
+        "dshOutputTokens": 271,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 35013
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T01",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 25777,
+      "observedTokenUsage": {
+        "dshInputTokens": 55091,
+        "dshOutputTokens": 281,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 55372
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T03",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 15453,
+      "observedTokenUsage": {
+        "dshInputTokens": 35462,
+        "dshOutputTokens": 396,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 35858
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T02",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 12238,
+      "observedTokenUsage": {
+        "dshInputTokens": 37844,
+        "dshOutputTokens": 271,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 38115
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T04",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 8075,
+      "observedTokenUsage": {
+        "dshInputTokens": 18066,
+        "dshOutputTokens": 274,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 18340
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T05",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 4418,
+      "observedTokenUsage": {
+        "dshInputTokens": 17179,
+        "dshOutputTokens": 67,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17246
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T06",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 12549,
+      "observedTokenUsage": {
+        "dshInputTokens": 34729,
+        "dshOutputTokens": 212,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 34941
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T07",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5590,
+      "observedTokenUsage": {
+        "dshInputTokens": 17557,
+        "dshOutputTokens": 89,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17646
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T08",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5739,
+      "observedTokenUsage": {
+        "dshInputTokens": 17678,
+        "dshOutputTokens": 224,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17902
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T03",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 34429,
+      "observedTokenUsage": {
+        "dshInputTokens": 48515,
+        "dshOutputTokens": 412,
+        "amaInputTokens": 89360,
+        "amaOutputTokens": 434,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 138721
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T01",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5269,
+      "observedTokenUsage": {
+        "dshInputTokens": 17155,
+        "dshOutputTokens": 114,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17269
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T04",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 6998,
+      "observedTokenUsage": {
+        "dshInputTokens": 19641,
+        "dshOutputTokens": 230,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 19871
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T02",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 9916,
+      "observedTokenUsage": {
+        "dshInputTokens": 34746,
+        "dshOutputTokens": 246,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 34992
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T03",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 13204,
+      "observedTokenUsage": {
+        "dshInputTokens": 35385,
+        "dshOutputTokens": 361,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 35746
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T04",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 8402,
+      "observedTokenUsage": {
+        "dshInputTokens": 18010,
+        "dshOutputTokens": 221,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 18231
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T05",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 6574,
+      "observedTokenUsage": {
+        "dshInputTokens": 17179,
+        "dshOutputTokens": 113,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17292
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T06",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 9127,
+      "observedTokenUsage": {
+        "dshInputTokens": 34748,
+        "dshOutputTokens": 173,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 34921
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T07",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5372,
+      "observedTokenUsage": {
+        "dshInputTokens": 17527,
+        "dshOutputTokens": 89,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17616
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T08",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 9923,
+      "observedTokenUsage": {
+        "dshInputTokens": 17648,
+        "dshOutputTokens": 329,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17977
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T01",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 20533,
+      "observedTokenUsage": {
+        "dshInputTokens": 55311,
+        "dshOutputTokens": 259,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 55570
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T02",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 32155,
+      "observedTokenUsage": {
+        "dshInputTokens": 37884,
+        "dshOutputTokens": 400,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 38284
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T05",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 115197,
+      "observedTokenUsage": {
+        "dshInputTokens": 172068,
+        "dshOutputTokens": 1573,
+        "amaInputTokens": 36478,
+        "amaOutputTokens": 134,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 210253
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T03",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 34180,
+      "observedTokenUsage": {
+        "dshInputTokens": 38797,
+        "dshOutputTokens": 417,
+        "amaInputTokens": 89360,
+        "amaOutputTokens": 546,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 129120
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T04",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 6781,
+      "observedTokenUsage": {
+        "dshInputTokens": 19759,
+        "dshOutputTokens": 237,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 19996
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T06",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 62213,
+      "observedTokenUsage": {
+        "dshInputTokens": 98347,
+        "dshOutputTokens": 599,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 98946
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T05",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 29474,
+      "observedTokenUsage": {
+        "dshInputTokens": 56123,
+        "dshOutputTokens": 432,
+        "amaInputTokens": 36494,
+        "amaOutputTokens": 128,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 93177
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T06",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 11372,
+      "observedTokenUsage": {
+        "dshInputTokens": 39046,
+        "dshOutputTokens": 379,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 39425
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T07",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 46499,
+      "observedTokenUsage": {
+        "dshInputTokens": 43514,
+        "dshOutputTokens": 400,
+        "amaInputTokens": 93339,
+        "amaOutputTokens": 382,
+        "ragPlannerInputTokens": 34662,
+        "ragPlannerOutputTokens": 112,
+        "totalObservedTokens": 172409
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T07",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 49902,
+      "observedTokenUsage": {
+        "dshInputTokens": 40826,
+        "dshOutputTokens": 509,
+        "amaInputTokens": 93170,
+        "amaOutputTokens": 515,
+        "ragPlannerInputTokens": 34600,
+        "ragPlannerOutputTokens": 101,
+        "totalObservedTokens": 169721
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T08",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 21022,
+      "observedTokenUsage": {
+        "dshInputTokens": 22620,
+        "dshOutputTokens": 440,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 23060
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T08",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 12163,
+      "observedTokenUsage": {
+        "dshInputTokens": 21301,
+        "dshOutputTokens": 425,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 21726
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T01",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5280,
+      "observedTokenUsage": {
+        "dshInputTokens": 18450,
+        "dshOutputTokens": 110,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 18560
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T01",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5925,
+      "observedTokenUsage": {
+        "dshInputTokens": 17152,
+        "dshOutputTokens": 147,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17299
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T02",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 10568,
+      "observedTokenUsage": {
+        "dshInputTokens": 37335,
+        "dshOutputTokens": 293,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 37628
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T02",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 12368,
+      "observedTokenUsage": {
+        "dshInputTokens": 34793,
+        "dshOutputTokens": 269,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 35062
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T03",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 12022,
+      "observedTokenUsage": {
+        "dshInputTokens": 35528,
+        "dshOutputTokens": 413,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 35941
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T04",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 6424,
+      "observedTokenUsage": {
+        "dshInputTokens": 18110,
+        "dshOutputTokens": 302,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 18412
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T05",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 4161,
+      "observedTokenUsage": {
+        "dshInputTokens": 17179,
+        "dshOutputTokens": 79,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17258
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T03",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 32007,
+      "observedTokenUsage": {
+        "dshInputTokens": 38105,
+        "dshOutputTokens": 488,
+        "amaInputTokens": 89350,
+        "amaOutputTokens": 487,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 128430
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T06",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 11300,
+      "observedTokenUsage": {
+        "dshInputTokens": 34669,
+        "dshOutputTokens": 180,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 34849
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T04",
+      "arm": "integrated",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 6523,
+      "observedTokenUsage": {
+        "dshInputTokens": 19470,
+        "dshOutputTokens": 342,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 19812
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T07",
+      "arm": "single-agent",
+      "status": "completed",
+      "failureCode": null,
+      "wallTimeMs": 5110,
+      "observedTokenUsage": {
+        "dshInputTokens": 17500,
+        "dshOutputTokens": 86,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 17586
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T08",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300017,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T05",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "AUTHENTICATED_GATEWAY_EXCEPTION",
+      "wallTimeMs": 306237,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T01",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300013,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T06",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300017,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T07",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300019,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T02",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 544034,
+      "observedTokenUsage": {
+        "dshInputTokens": 16332,
+        "dshOutputTokens": 100,
+        "amaInputTokens": 0,
+        "amaOutputTokens": 0,
+        "ragPlannerInputTokens": 0,
+        "ragPlannerOutputTokens": 0,
+        "totalObservedTokens": 16432
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T08",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300018,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T03",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300010,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T01",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300069,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T04",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300012,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T02",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300011,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T05",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300012,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T03",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300015,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T06",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300017,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T04",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300015,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T07",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300005,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T05",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300021,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T08",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300012,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T06",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300013,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0005",
+      "turnId": "HCE-0005-T01",
+      "arm": "single-agent",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300009,
+      "observedTokenUsage": null
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T07",
+      "arm": "integrated",
+      "status": "failed",
+      "failureCode": "MODEL_TIMEOUT",
+      "wallTimeMs": 300021,
+      "observedTokenUsage": null
+    }
+  ],
+  "pairs": [
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T01",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17154,
+          "dshOutputTokens": 224,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17378
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 55091,
+          "dshOutputTokens": 281,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 55372
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T02",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 34742,
+          "dshOutputTokens": 271,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 35013
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 37844,
+          "dshOutputTokens": 271,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 38115
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T03",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 35462,
+          "dshOutputTokens": 396,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 35858
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 48515,
+          "dshOutputTokens": 412,
+          "amaInputTokens": 89360,
+          "amaOutputTokens": 434,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 138721
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T04",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 18066,
+          "dshOutputTokens": 274,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 18340
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 19641,
+          "dshOutputTokens": 230,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 19871
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T05",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17179,
+          "dshOutputTokens": 67,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17246
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 172068,
+          "dshOutputTokens": 1573,
+          "amaInputTokens": 36478,
+          "amaOutputTokens": 134,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 210253
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T06",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 34729,
+          "dshOutputTokens": 212,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 34941
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 98347,
+          "dshOutputTokens": 599,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 98946
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T07",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17557,
+          "dshOutputTokens": 89,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17646
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 43514,
+          "dshOutputTokens": 400,
+          "amaInputTokens": 93339,
+          "amaOutputTokens": 382,
+          "ragPlannerInputTokens": 34662,
+          "ragPlannerOutputTokens": 112,
+          "totalObservedTokens": 172409
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0001",
+      "turnId": "HCE-0001-T08",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17678,
+          "dshOutputTokens": 224,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17902
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 22620,
+          "dshOutputTokens": 440,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 23060
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T01",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17155,
+          "dshOutputTokens": 114,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17269
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 55311,
+          "dshOutputTokens": 259,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 55570
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T02",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 34746,
+          "dshOutputTokens": 246,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 34992
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 37884,
+          "dshOutputTokens": 400,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 38284
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T03",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 35385,
+          "dshOutputTokens": 361,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 35746
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 38797,
+          "dshOutputTokens": 417,
+          "amaInputTokens": 89360,
+          "amaOutputTokens": 546,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 129120
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T04",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 18010,
+          "dshOutputTokens": 221,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 18231
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 19759,
+          "dshOutputTokens": 237,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 19996
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T05",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17179,
+          "dshOutputTokens": 113,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17292
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 56123,
+          "dshOutputTokens": 432,
+          "amaInputTokens": 36494,
+          "amaOutputTokens": 128,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 93177
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T06",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 34748,
+          "dshOutputTokens": 173,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 34921
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 39046,
+          "dshOutputTokens": 379,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 39425
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T07",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17527,
+          "dshOutputTokens": 89,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17616
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 40826,
+          "dshOutputTokens": 509,
+          "amaInputTokens": 93170,
+          "amaOutputTokens": 515,
+          "ragPlannerInputTokens": 34600,
+          "ragPlannerOutputTokens": 101,
+          "totalObservedTokens": 169721
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "turnId": "HCE-0002-T08",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17648,
+          "dshOutputTokens": 329,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17977
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 21301,
+          "dshOutputTokens": 425,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 21726
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T01",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17152,
+          "dshOutputTokens": 147,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17299
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 18450,
+          "dshOutputTokens": 110,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 18560
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T02",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 34793,
+          "dshOutputTokens": 269,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 35062
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 37335,
+          "dshOutputTokens": 293,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 37628
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T03",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 35528,
+          "dshOutputTokens": 413,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 35941
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 38105,
+          "dshOutputTokens": 488,
+          "amaInputTokens": 89350,
+          "amaOutputTokens": 487,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 128430
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T04",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 18110,
+          "dshOutputTokens": 302,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 18412
+        }
+      },
+      "integrated": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 19470,
+          "dshOutputTokens": 342,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 19812
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T05",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17179,
+          "dshOutputTokens": 79,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17258
+        }
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T06",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 34669,
+          "dshOutputTokens": 180,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 34849
+        }
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T07",
+      "single": {
+        "status": "completed",
+        "observedTokenUsage": {
+          "dshInputTokens": 17500,
+          "dshOutputTokens": 86,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 17586
+        }
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "turnId": "HCE-0003-T08",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T01",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T02",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": {
+          "dshInputTokens": 16332,
+          "dshOutputTokens": 100,
+          "amaInputTokens": 0,
+          "amaOutputTokens": 0,
+          "ragPlannerInputTokens": 0,
+          "ragPlannerOutputTokens": 0,
+          "totalObservedTokens": 16432
+        }
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T03",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T04",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T05",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T06",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "turnId": "HCE-0004-T07",
+      "single": {
+        "status": "failed",
+        "observedTokenUsage": null
+      },
+      "integrated": {
+        "status": "failed",
+        "observedTokenUsage": null
+      }
+    }
+  ]
+}

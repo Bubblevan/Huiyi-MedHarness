@@ -1,0 +1,3790 @@
+{
+  "schemaVersion": "huiyi-b1-sprint-002-results/v1",
+  "generatedAt": "2026-10-11T19:55:26.180Z",
+  "decision": "INSUFFICIENT_EVIDENCE",
+  "decisionReason": "The frozen-code baseline contains 40 paired tasks, but the one-line current-fact provenance revision has only 31 paired tasks and 2 complete paired cases; its 64 final records include 21 execution failures. Report both runs independently; do not merge versions into one estimate.",
+  "sourceSelection": {
+    "originMain": "f095c578605cb6ea67e29ba4959c90fafe440265",
+    "sourceBeforePromptRepair": "7ec67f917559c02e698bf5d2092a592bf23d2142",
+    "currentPromptRepairCommit": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+    "runtimeSourceChangedFromExperimentalBaseline": true,
+    "change": "One shared DSH policy sentence clarifies provenance for explicit current-turn facts; no cohort, gold, rubric, model route, RAG index, or architecture change.",
+    "comparisonPolicy": "The baseline and repaired-source runs are independent results with separate denominators; no cross-version metric stitching or causal claim is made."
+  },
+  "baseline": {
+    "studyRunId": "20261011172610-bccbc7f7",
+    "rawArtifactDirectory": "artifacts/clinical-eval/runs/20261011172610-bccbc7f7-resume-20261012-final",
+    "statusAtScoring": "partial",
+    "sourceRevision": "7ec67f917559c02e698bf5d2092a592bf23d2142",
+    "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+    "completePairedCases": [
+      "HCE-0001",
+      "HCE-0002",
+      "HCE-0003",
+      "HCE-0004"
+    ],
+    "completePairedCaseCount": 4,
+    "allPairedTasks": 40,
+    "finalTaskRecords": 80,
+    "retryAttempts": 16,
+    "finalRetainedFailures": [
+      {
+        "caseId": "HCE-0005",
+        "turnId": "HCE-0005-T08",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300023.4334
+      }
+    ],
+    "armMetrics": {
+      "single-agent": {
+        "plannedTasks": 40,
+        "executionSuccess": {
+          "numerator": 40,
+          "denominator": 40,
+          "percent": 100
+        },
+        "keyTaskCompletionPerTurn": {
+          "numerator": 22,
+          "denominator": 40,
+          "percent": 55
+        },
+        "keyTaskItemCompletion": {
+          "numerator": 67,
+          "denominator": 87,
+          "percent": 77.01
+        },
+        "validStructuredDrafts": {
+          "numerator": 10,
+          "denominator": 10,
+          "percent": 100
+        },
+        "correctDisclosedHistoryFacts": {
+          "numerator": 18,
+          "denominator": 38,
+          "percent": 47.37
+        },
+        "evidenceSourceIdResolution": {
+          "numerator": 0,
+          "denominator": 0,
+          "percent": null,
+          "status": "not-measurable-no-recognized-citation-token"
+        },
+        "evidenceTaskSourceIdCoverage": {
+          "numerator": 0,
+          "denominator": 5,
+          "percent": 0
+        },
+        "medicalEvidenceSupportValidity": {
+          "status": "not-measurable-no-independent-claim-to-passage-review",
+          "numerator": null,
+          "denominator": null
+        },
+        "latencyMs": {
+          "p50": 8918.062149999983,
+          "p95": 17316.366309999994,
+          "denominator": 40,
+          "includesFailures": true
+        },
+        "observedTokens": {
+          "dshInput": 968543,
+          "dshOutput": 8533,
+          "amaInput": 0,
+          "amaOutput": 0,
+          "ragPlannerInput": 0,
+          "ragPlannerOutput": 0,
+          "totalObserved": 977076,
+          "dshMeasuredRuns": 40,
+          "dshUnmeasuredRuns": 0,
+          "note": "Observed token counts only; missing failed-run usage is not imputed, and no monetary cost is reported."
+        }
+      },
+      "integrated": {
+        "plannedTasks": 40,
+        "executionSuccess": {
+          "numerator": 39,
+          "denominator": 40,
+          "percent": 97.5
+        },
+        "keyTaskCompletionPerTurn": {
+          "numerator": 34,
+          "denominator": 40,
+          "percent": 85
+        },
+        "keyTaskItemCompletion": {
+          "numerator": 78,
+          "denominator": 87,
+          "percent": 89.66
+        },
+        "validStructuredDrafts": {
+          "numerator": 9,
+          "denominator": 10,
+          "percent": 90
+        },
+        "correctDisclosedHistoryFacts": {
+          "numerator": 32,
+          "denominator": 40,
+          "percent": 80
+        },
+        "evidenceSourceIdResolution": {
+          "numerator": 24,
+          "denominator": 42,
+          "percent": 57.14,
+          "status": "measurable-source-id-resolution-only"
+        },
+        "evidenceTaskSourceIdCoverage": {
+          "numerator": 4,
+          "denominator": 5,
+          "percent": 80
+        },
+        "medicalEvidenceSupportValidity": {
+          "status": "not-measurable-no-independent-claim-to-passage-review",
+          "numerator": null,
+          "denominator": null
+        },
+        "latencyMs": {
+          "p50": 15770.971600000019,
+          "p95": 94111.3054049999,
+          "denominator": 40,
+          "includesFailures": true
+        },
+        "observedTokens": {
+          "dshInput": 1472450,
+          "dshOutput": 15100,
+          "amaInput": 1006214,
+          "amaOutput": 5155,
+          "ragPlannerInput": 173136,
+          "ragPlannerOutput": 662,
+          "totalObserved": 2672717,
+          "dshMeasuredRuns": 39,
+          "dshUnmeasuredRuns": 1,
+          "note": "Observed token counts only; missing failed-run usage is not imputed, and no monetary cost is reported."
+        }
+      }
+    },
+    "pairedKeyTaskCompletion": {
+      "pairCount": 40,
+      "singleCompleted": 22,
+      "integratedCompleted": 34,
+      "integratedOnlyWins": 15,
+      "singleOnlyWins": 3,
+      "bothIncomplete": 3,
+      "bothComplete": 19,
+      "netIntegratedPp": 30,
+      "tasks": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T01",
+          "singleCompleted": true,
+          "integratedCompleted": false,
+          "delta": -1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T05",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "singleCompleted": true,
+          "integratedCompleted": false,
+          "delta": -1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T07",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "singleCompleted": true,
+          "integratedCompleted": false,
+          "delta": -1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T05",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T07",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T05",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T06",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T07",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T05",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T06",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T07",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T08",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T05",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T06",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T07",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T08",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "failed"
+        }
+      ]
+    },
+    "pairedDraftValidity": {
+      "pairCount": 10,
+      "single": {
+        "numerator": 10,
+        "denominator": 10,
+        "rate": 1,
+        "percent": 100
+      },
+      "integrated": {
+        "numerator": 9,
+        "denominator": 10,
+        "rate": 0.9,
+        "percent": 90
+      },
+      "integratedWins": 0,
+      "singleWins": 1,
+      "ties": 9,
+      "differences": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T08",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T08",
+          "single-agent": true,
+          "integrated": false
+        }
+      ]
+    },
+    "pairedHistoryFactCorrectness": {
+      "pairCount": 37,
+      "single": {
+        "numerator": 17,
+        "denominator": 37,
+        "rate": 0.4594594594594595,
+        "percent": 45.95
+      },
+      "integrated": {
+        "numerator": 29,
+        "denominator": 37,
+        "rate": 0.7837837837837838,
+        "percent": 78.38
+      },
+      "integratedWins": 13,
+      "singleWins": 1,
+      "ties": 23,
+      "differences": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T03",
+          "factId": "HCE-0001-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "factId": "HCE-0001-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T05",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "incorrect"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T07",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "incorrect"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "incorrect"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "factId": "HCE-0001-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T03",
+          "factId": "HCE-0002-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "factId": "HCE-0002-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T05",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T07",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "factId": "HCE-0002-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T03",
+          "factId": "HCE-0003-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "factId": "HCE-0003-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T05",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T06",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T07",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "factId": "HCE-0003-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T03",
+          "factId": "HCE-0004-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T04",
+          "factId": "HCE-0004-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T05",
+          "factId": "HCE-0004-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T06",
+          "factId": "HCE-0004-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T06",
+          "factId": "HCE-0004-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T07",
+          "factId": "HCE-0004-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T08",
+          "factId": "HCE-0004-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T08",
+          "factId": "HCE-0004-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T03",
+          "factId": "HCE-0005-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T04",
+          "factId": "HCE-0005-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T05",
+          "factId": "HCE-0005-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T06",
+          "factId": "HCE-0005-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T06",
+          "factId": "HCE-0005-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T07",
+          "factId": "HCE-0005-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T08",
+          "factId": "HCE-0005-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0005",
+          "turnId": "HCE-0005-T08",
+          "factId": "HCE-0005-H03",
+          "single-agent": "correct",
+          "integrated": "omitted"
+        }
+      ]
+    },
+    "pairedExecutionSuccess": {
+      "pairCount": 40,
+      "single": {
+        "numerator": 40,
+        "denominator": 40,
+        "rate": 1,
+        "percent": 100
+      },
+      "integrated": {
+        "numerator": 39,
+        "denominator": 40,
+        "rate": 0.975,
+        "percent": 97.5
+      },
+      "integratedWins": 0,
+      "singleWins": 1,
+      "ties": 39
+    },
+    "pairedEvidenceIdResolution": {
+      "pairedEvidenceTaskCount": 5,
+      "pairedTurnsWithCitationsInBothArms": 0,
+      "unpairableTurnsWithoutCitationInAtLeastOneArm": 5,
+      "single": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null,
+        "percent": null
+      },
+      "integrated": {
+        "numerator": 0,
+        "denominator": 0,
+        "rate": null,
+        "percent": null
+      },
+      "integratedMinusSinglePercentagePoints": null,
+      "turns": [],
+      "interpretation": "Pairable source-ID resolution only; this is not medical support validity. Turns with no emitted ID remain visible in per-arm source-ID coverage and are not silently counted as resolved."
+    },
+    "medicalEvidenceSupportValidity": {
+      "status": "not-measurable",
+      "numerator": null,
+      "denominator": null,
+      "reason": "No independent claim-to-passage adjudication is available; full passage text is not included in the blinded engineering score packet."
+    },
+    "failedAttemptsFromResumeHistory": [
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300021.9753
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T05",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "AUTHENTICATED_GATEWAY_EXCEPTION",
+        "wallTimeMs": 306497.6644
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T01",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300012.30170000007
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T02",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300010.44350000005
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 508200.419
+      }
+    ]
+  },
+  "repairedSourceRun": {
+    "studyRunId": "20261011184053-5bce7818",
+    "status": "partial; stopped after 64 of 80 planned arm-turn records for this sprint",
+    "sourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+    "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+    "completePairedCases": [
+      "HCE-0001",
+      "HCE-0002"
+    ],
+    "completePairedCaseCount": 2,
+    "allPairedTasks": 31,
+    "finalTaskRecords": 64,
+    "failedTaskCount": 21,
+    "finalRetainedFailures": [
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300017.4885
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T05",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "AUTHENTICATED_GATEWAY_EXCEPTION",
+        "wallTimeMs": 306236.8086
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T01",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300013.12750000006
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300016.7964
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300018.56420000014
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T02",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 544034.4031999998
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300018.3415999999
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T03",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300009.83219999983
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T01",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300069.07070000004
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T04",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300011.8943999999
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T02",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300011.223
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T05",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300011.69880000036
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T03",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300014.89580000006
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T06",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300016.53740000026
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T04",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300015.43539999984
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300005.0107
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T05",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300020.73199999984
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T08",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300011.8188
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T06",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300013.20429999987
+      },
+      {
+        "caseId": "HCE-0005",
+        "turnId": "HCE-0005-T01",
+        "arm": "single-agent",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300009.4245000002
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "arm": "integrated",
+        "status": "failed",
+        "failureCode": "MODEL_TIMEOUT",
+        "wallTimeMs": 300020.6568999998
+      }
+    ],
+    "armMetrics": {
+      "single-agent": {
+        "plannedTasks": 33,
+        "executionSuccess": {
+          "numerator": 23,
+          "denominator": 33,
+          "percent": 69.7
+        },
+        "keyTaskCompletionPerTurn": {
+          "numerator": 13,
+          "denominator": 33,
+          "percent": 39.39
+        },
+        "keyTaskItemCompletion": {
+          "numerator": 40,
+          "denominator": 69,
+          "percent": 57.97
+        },
+        "validStructuredDrafts": {
+          "numerator": 5,
+          "denominator": 8,
+          "percent": 62.5
+        },
+        "correctDisclosedHistoryFacts": {
+          "numerator": 11,
+          "denominator": 24,
+          "percent": 45.83
+        },
+        "evidenceSourceIdResolution": {
+          "numerator": 0,
+          "denominator": 0,
+          "percent": null,
+          "status": "not-measurable-no-recognized-citation-token"
+        },
+        "evidenceTaskSourceIdCoverage": {
+          "numerator": 0,
+          "denominator": 4,
+          "percent": 0
+        },
+        "medicalEvidenceSupportValidity": {
+          "status": "not-measurable-no-independent-claim-to-passage-review",
+          "numerator": null,
+          "denominator": null
+        },
+        "latencyMs": {
+          "p50": 10575.1637,
+          "p95": 300016.9178400001,
+          "denominator": 33,
+          "includesFailures": true
+        },
+        "observedTokens": {
+          "dshInput": 576228,
+          "dshOutput": 4979,
+          "amaInput": 0,
+          "amaOutput": 0,
+          "ragPlannerInput": 0,
+          "ragPlannerOutput": 0,
+          "totalObserved": 581207,
+          "dshMeasuredRuns": 24,
+          "dshUnmeasuredRuns": 9,
+          "note": "Observed token counts only; missing failed-run usage is not imputed, and no monetary cost is reported."
+        }
+      },
+      "integrated": {
+        "plannedTasks": 31,
+        "executionSuccess": {
+          "numerator": 20,
+          "denominator": 31,
+          "percent": 64.52
+        },
+        "keyTaskCompletionPerTurn": {
+          "numerator": 20,
+          "denominator": 31,
+          "percent": 64.52
+        },
+        "keyTaskItemCompletion": {
+          "numerator": 44,
+          "denominator": 65,
+          "percent": 67.69
+        },
+        "validStructuredDrafts": {
+          "numerator": 5,
+          "denominator": 7,
+          "percent": 71.43
+        },
+        "correctDisclosedHistoryFacts": {
+          "numerator": 16,
+          "denominator": 22,
+          "percent": 72.73
+        },
+        "evidenceSourceIdResolution": {
+          "numerator": 10,
+          "denominator": 20,
+          "percent": 50,
+          "status": "measurable-source-id-resolution-only"
+        },
+        "evidenceTaskSourceIdCoverage": {
+          "numerator": 2,
+          "denominator": 4,
+          "percent": 50
+        },
+        "medicalEvidenceSupportValidity": {
+          "status": "not-measurable-no-independent-claim-to-passage-review",
+          "numerator": null,
+          "denominator": null
+        },
+        "latencyMs": {
+          "p50": 34428.733799999995,
+          "p95": 300044.90134999994,
+          "denominator": 31,
+          "includesFailures": true
+        },
+        "observedTokens": {
+          "dshInput": 920047,
+          "dshOutput": 8497,
+          "amaInput": 527551,
+          "amaOutput": 2626,
+          "ragPlannerInput": 69262,
+          "ragPlannerOutput": 213,
+          "totalObserved": 1528196,
+          "dshMeasuredRuns": 20,
+          "dshUnmeasuredRuns": 11,
+          "note": "Observed token counts only; missing failed-run usage is not imputed, and no monetary cost is reported."
+        }
+      }
+    },
+    "pairedKeyTaskCompletion": {
+      "pairCount": 31,
+      "singleCompleted": 13,
+      "integratedCompleted": 20,
+      "integratedOnlyWins": 7,
+      "singleOnlyWins": 0,
+      "bothIncomplete": 11,
+      "bothComplete": 13,
+      "netIntegratedPp": 22.58,
+      "tasks": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T05",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T07",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T05",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T07",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "singleCompleted": false,
+          "integratedCompleted": true,
+          "delta": 1,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T01",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T02",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T03",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "singleCompleted": true,
+          "integratedCompleted": true,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "completed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T05",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T06",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T07",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "completed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T01",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T02",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T03",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T04",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T05",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T06",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T07",
+          "singleCompleted": false,
+          "integratedCompleted": false,
+          "delta": 0,
+          "singleStatus": "failed",
+          "integratedStatus": "failed"
+        }
+      ]
+    },
+    "pairedDraftValidity": {
+      "pairCount": 7,
+      "single": {
+        "numerator": 5,
+        "denominator": 7,
+        "rate": 0.7142857142857143,
+        "percent": 71.43
+      },
+      "integrated": {
+        "numerator": 5,
+        "denominator": 7,
+        "rate": 0.7142857142857143,
+        "percent": 71.43
+      },
+      "integratedWins": 0,
+      "singleWins": 0,
+      "ties": 7,
+      "differences": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "single-agent": true,
+          "integrated": true
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "single-agent": false,
+          "integrated": false
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T04",
+          "single-agent": false,
+          "integrated": false
+        }
+      ]
+    },
+    "pairedHistoryFactCorrectness": {
+      "pairCount": 22,
+      "single": {
+        "numerator": 10,
+        "denominator": 22,
+        "rate": 0.45454545454545453,
+        "percent": 45.45
+      },
+      "integrated": {
+        "numerator": 16,
+        "denominator": 22,
+        "rate": 0.7272727272727273,
+        "percent": 72.73
+      },
+      "integratedWins": 6,
+      "singleWins": 0,
+      "ties": 16,
+      "differences": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T03",
+          "factId": "HCE-0001-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "factId": "HCE-0001-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T05",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "factId": "HCE-0001-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T07",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "factId": "HCE-0001-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "factId": "HCE-0001-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T03",
+          "factId": "HCE-0002-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "factId": "HCE-0002-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T05",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "factId": "HCE-0002-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T07",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "factId": "HCE-0002-H01",
+          "single-agent": "omitted",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "factId": "HCE-0002-H03",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T03",
+          "factId": "HCE-0003-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "factId": "HCE-0003-H01",
+          "single-agent": "correct",
+          "integrated": "correct"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T05",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T06",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T07",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "factId": "HCE-0003-H01",
+          "single-agent": "omitted",
+          "integrated": "omitted"
+        }
+      ]
+    },
+    "pairedExecutionSuccess": {
+      "pairCount": 31,
+      "single": {
+        "numerator": 23,
+        "denominator": 31,
+        "rate": 0.7419354838709677,
+        "percent": 74.19
+      },
+      "integrated": {
+        "numerator": 20,
+        "denominator": 31,
+        "rate": 0.6451612903225806,
+        "percent": 64.52
+      },
+      "integratedWins": 0,
+      "singleWins": 3,
+      "ties": 28
+    },
+    "pairedLatencyDeltaMs": {
+      "pairCount": 31,
+      "medianIntegratedMinusSingle": 2245.1018999999797,
+      "p95IntegratedMinusSingle": 291812.57545000006,
+      "differences": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T01",
+          "deltaMs": 19672.339200000002
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T02",
+          "deltaMs": 1662.643399999999
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T03",
+          "deltaMs": 18975.7434
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "deltaMs": -1076.8587999999945
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T05",
+          "deltaMs": 110779.33929999998
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "deltaMs": 49664.1965
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T07",
+          "deltaMs": 40908.83740000002
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "deltaMs": 15283.202699999987
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T01",
+          "deltaMs": 15264.46050000003
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T02",
+          "deltaMs": 22239.695300000007
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T03",
+          "deltaMs": 20975.5659
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "deltaMs": -1621.2707999999839
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T05",
+          "deltaMs": 22900.17729999998
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "deltaMs": 2245.1018999999797
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T07",
+          "deltaMs": 44530.437500000015
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "deltaMs": 2239.374699999971
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T01",
+          "deltaMs": -644.6419999999925
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T02",
+          "deltaMs": -1799.6209999999846
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T03",
+          "deltaMs": 19985.082700000028
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "deltaMs": 99.19059999997262
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T05",
+          "deltaMs": 302076.09150000004
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T06",
+          "deltaMs": 288716.736
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T07",
+          "deltaMs": 294908.41490000015
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T08",
+          "deltaMs": 0.853099999949336
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T01",
+          "deltaMs": 55.9431999999797
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T02",
+          "deltaMs": -244023.18019999983
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T03",
+          "deltaMs": 5.06360000022687
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T04",
+          "deltaMs": 3.540999999968335
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T05",
+          "deltaMs": 9.03319999948144
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T06",
+          "deltaMs": -3.333100000396371
+        },
+        {
+          "caseId": "HCE-0004",
+          "turnId": "HCE-0004-T07",
+          "deltaMs": 15.646199999842793
+        }
+      ]
+    },
+    "pairedObservedTokenDelta": {
+      "pairedMeasuredCount": 20,
+      "totalSingle": 495082,
+      "totalIntegrated": 1528196,
+      "integratedMinusSingle": 1033114,
+      "differences": [
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T01",
+          "single": 17378,
+          "integrated": 55372
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T02",
+          "single": 35013,
+          "integrated": 38115
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T03",
+          "single": 35858,
+          "integrated": 138721
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T04",
+          "single": 18340,
+          "integrated": 19871
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T05",
+          "single": 17246,
+          "integrated": 210253
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T06",
+          "single": 34941,
+          "integrated": 98946
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T07",
+          "single": 17646,
+          "integrated": 172409
+        },
+        {
+          "caseId": "HCE-0001",
+          "turnId": "HCE-0001-T08",
+          "single": 17902,
+          "integrated": 23060
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T01",
+          "single": 17269,
+          "integrated": 55570
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T02",
+          "single": 34992,
+          "integrated": 38284
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T03",
+          "single": 35746,
+          "integrated": 129120
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T04",
+          "single": 18231,
+          "integrated": 19996
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T05",
+          "single": 17292,
+          "integrated": 93177
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T06",
+          "single": 34921,
+          "integrated": 39425
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T07",
+          "single": 17616,
+          "integrated": 169721
+        },
+        {
+          "caseId": "HCE-0002",
+          "turnId": "HCE-0002-T08",
+          "single": 17977,
+          "integrated": 21726
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T01",
+          "single": 17299,
+          "integrated": 18560
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T02",
+          "single": 35062,
+          "integrated": 37628
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T03",
+          "single": 35941,
+          "integrated": 128430
+        },
+        {
+          "caseId": "HCE-0003",
+          "turnId": "HCE-0003-T04",
+          "single": 18412,
+          "integrated": 19812
+        }
+      ]
+    },
+    "evidence": {
+      "single-agent": {
+        "idResolution": {
+          "numerator": 0,
+          "denominator": 0,
+          "percent": null,
+          "status": "not-measurable-no-recognized-citation-token"
+        },
+        "plannedEvidenceTaskCoverage": {
+          "numerator": 0,
+          "denominator": 4,
+          "percent": 0
+        },
+        "retrievalTurns": 0,
+        "returnedEvidenceItems": 0,
+        "citations": []
+      },
+      "integrated": {
+        "idResolution": {
+          "numerator": 10,
+          "denominator": 20,
+          "percent": 50,
+          "status": "measurable-source-id-resolution-only"
+        },
+        "plannedEvidenceTaskCoverage": {
+          "numerator": 2,
+          "denominator": 4,
+          "percent": 50
+        },
+        "retrievalTurns": 2,
+        "returnedEvidenceItems": 6,
+        "citations": [
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T07",
+            "citedEvidenceId": "MED-6BDB777A4F6B6B56",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-6BDB777A4F6B6B56",
+              "MED-C647026D0C470AFA",
+              "MED-510863EC1D2FF45F"
+            ]
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T07",
+            "citedEvidenceId": "MED-510863EC1D2FF45F",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-6BDB777A4F6B6B56",
+              "MED-C647026D0C470AFA",
+              "MED-510863EC1D2FF45F"
+            ]
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T07",
+            "citedEvidenceId": "MED-6BDB777A4F",
+            "valid": false,
+            "retrievedEvidenceIds": [
+              "MED-6BDB777A4F6B6B56",
+              "MED-C647026D0C470AFA",
+              "MED-510863EC1D2FF45F"
+            ]
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T07",
+            "citedEvidenceId": "MED-C647026D0C470AFA",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-6BDB777A4F6B6B56",
+              "MED-C647026D0C470AFA",
+              "MED-510863EC1D2FF45F"
+            ]
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T07",
+            "citedEvidenceId": "MED-510863EC1D2FF45F",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-6BDB777A4F6B6B56",
+              "MED-C647026D0C470AFA",
+              "MED-510863EC1D2FF45F"
+            ]
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T07",
+            "citedEvidenceId": "MED-19ED35D89B1A8C57",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-8F35DB763701B827",
+              "MED-F6328BF2D488AD19",
+              "MED-19ED35D89B1A8C57"
+            ]
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T07",
+            "citedEvidenceId": "MED-8F35DB763701B827",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-8F35DB763701B827",
+              "MED-F6328BF2D488AD19",
+              "MED-19ED35D89B1A8C57"
+            ]
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T07",
+            "citedEvidenceId": "MED-F6328BF2D488AD19",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-8F35DB763701B827",
+              "MED-F6328BF2D488AD19",
+              "MED-19ED35D89B1A8C57"
+            ]
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T07",
+            "citedEvidenceId": "MED-8F35DB763701B827",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-8F35DB763701B827",
+              "MED-F6328BF2D488AD19",
+              "MED-19ED35D89B1A8C57"
+            ]
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T07",
+            "citedEvidenceId": "MED-F6328BF2D488AD19",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-8F35DB763701B827",
+              "MED-F6328BF2D488AD19",
+              "MED-19ED35D89B1A8C57"
+            ]
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T07",
+            "citedEvidenceId": "MED-19ED35D89B1A8C57",
+            "valid": true,
+            "retrievedEvidenceIds": [
+              "MED-8F35DB763701B827",
+              "MED-F6328BF2D488AD19",
+              "MED-19ED35D89B1A8C57"
+            ]
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T08",
+            "citedEvidenceId": "MED-6BDB777A4F6B6B56",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T08",
+            "citedEvidenceId": "MED-C647026D0C470AFA",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0001",
+            "turnId": "HCE-0001-T08",
+            "citedEvidenceId": "MED-510863EC1D2FF45F",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T08",
+            "citedEvidenceId": "MED-19ED35D89B1A8C57",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T08",
+            "citedEvidenceId": "MED-8F35DB763701B827",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T08",
+            "citedEvidenceId": "MED-F6328BF2D488AD19",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T08",
+            "citedEvidenceId": "MED-8F35DB763701B827",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T08",
+            "citedEvidenceId": "MED-F6328BF2D488AD19",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          },
+          {
+            "caseId": "HCE-0002",
+            "turnId": "HCE-0002-T08",
+            "citedEvidenceId": "MED-19ED35D89B1A8C57",
+            "valid": false,
+            "retrievedEvidenceIds": []
+          }
+        ]
+      }
+    },
+    "medicalEvidenceSupportValidity": {
+      "status": "not-measurable",
+      "numerator": null,
+      "denominator": null,
+      "reason": "No independent claim-to-passage adjudication is available; full passage text is not included in the blinded engineering score packet."
+    },
+    "semanticScoring": {
+      "packets": 43,
+      "scoredPackets": 43,
+      "missingIds": 0,
+      "duplicateIds": 0,
+      "isolatedBlindedScorer": true,
+      "clinicianReview": false
+    },
+    "perTaskDecisions": [
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T01",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T01-74091cd3",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T02",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T02-077a8310",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "record-current-update": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T01",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T01-6cb543aa",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T03",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T03-3ff45262",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": true,
+          "prepare-clinician-review-summary": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T02",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T02-3fa19d90",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "record-current-update": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T04",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T04-d2965521",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T05",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T05-91a0ebbb",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "recover-prior-encounter-facts": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T06",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T06-0ae6d6f5",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "record-current-update": true,
+          "escalate-synthetic-urgent-signal": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 3,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T07-1fdfea17",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": false,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T08",
+        "arm": "single-agent",
+        "runId": "HCE-0001-single-agent-HCE-0001-T08-02ab74d6",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true,
+          "escalate-synthetic-urgent-signal": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 4,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T03",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T03-8e2904d2",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": true,
+          "prepare-clinician-review-summary": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T01",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T01-9afbfb1a",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T04",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T04-b7ae53c8",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T02",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T02-7aa27eb5",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "record-current-update": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T03",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T03-574aa018",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": true,
+          "prepare-clinician-review-summary": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T04",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T04-224f09c3",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T05",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T05-a1725a19",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "recover-prior-encounter-facts": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T06",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T06-964074cf",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "record-current-update": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T07-8aa5b784",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": false,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T08",
+        "arm": "single-agent",
+        "runId": "HCE-0002-single-agent-HCE-0002-T08-3bd006a4",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "prepare-clinician-review-summary": false,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 3,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T01",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T01-19372ffe",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T02",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T02-08460c4f",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "record-current-update": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T05",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T05-1380c397",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "recover-prior-encounter-facts": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T03",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T03-802e5273",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": true,
+          "prepare-clinician-review-summary": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T04",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T04-069956a3",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T06",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T06-fba46da6",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "record-current-update": true,
+          "escalate-synthetic-urgent-signal": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 3,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T05",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T05-e10453cb",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "recover-prior-encounter-facts": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T06",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T06-4f963a09",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "record-current-update": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T07-8aa5e149",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T07-a974d425",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T08",
+        "arm": "integrated",
+        "runId": "HCE-0001-integrated-HCE-0001-T08-34911d02",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true,
+          "escalate-synthetic-urgent-signal": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 4,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T08",
+        "arm": "integrated",
+        "runId": "HCE-0002-integrated-HCE-0002-T08-a8ebb875",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 3,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T01",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T01-67b0a9be",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T01",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T01-c4b5f1a5",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T02",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T02-4eaaf086",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "record-current-update": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T02",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T02-debc13a3",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "record-current-update": true,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T03",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T03-9189ce73",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": true,
+          "prepare-clinician-review-summary": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T04",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T04-b9699335",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T05",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T05-2e54f983",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "acknowledge-current-concern": true,
+          "recover-prior-encounter-facts": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T03",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T03-474b54e5",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": true,
+          "prepare-clinician-review-summary": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T06-1b5c9c49",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": true,
+          "record-current-update": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T04",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T04-7f4bd9c2",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": true,
+          "create-reviewable-structured-draft": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": true,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T07-1be35d23",
+        "executionStatus": "completed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": false,
+          "identify-missing-data-or-ask": true
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "single-agent",
+        "runId": "HCE-0003-single-agent-HCE-0003-T08-d3cac5a5",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": false,
+          "prepare-clinician-review-summary": false,
+          "create-reviewable-structured-draft": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 3,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T05",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T05-7c294ca5",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "acknowledge-current-concern": false,
+          "recover-prior-encounter-facts": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T01",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T01-93c895ff",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "acknowledge-current-concern": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T06-7abe3408",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": false,
+          "record-current-update": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 2
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T07-3ee9215c",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T02",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T02-e0e6662c",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "record-current-update": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "integrated",
+        "runId": "HCE-0003-integrated-HCE-0003-T08-e4d67d64",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "recover-prior-encounter-facts": false,
+          "prepare-clinician-review-summary": false,
+          "create-reviewable-structured-draft": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 3,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 2
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T03",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T03-4fcf9a30",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": false,
+          "prepare-clinician-review-summary": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T01",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T01-15aee720",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "acknowledge-current-concern": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T04",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T04-b4f63b60",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": false,
+          "create-reviewable-structured-draft": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 2
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T02",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T02-f629c6e8",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "record-current-update": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T05",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T05-5eb809ab",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "acknowledge-current-concern": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 1,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 2
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T03",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T03-5a3d6ea6",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "identify-missing-data-or-ask": false,
+          "prepare-clinician-review-summary": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T06",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T06-33816b0c",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "record-current-update": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 1,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 3
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T04",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T04-2626365d",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": false,
+          "create-reviewable-structured-draft": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 2
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T07-4b76a914",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T05",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T05-c768899e",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "acknowledge-current-concern": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 1,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 2
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T08",
+        "arm": "single-agent",
+        "runId": "HCE-0004-single-agent-HCE-0004-T08-8d37bdaa",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "prepare-clinician-review-summary": false,
+          "create-reviewable-structured-draft": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 3
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T06",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T06-135647cc",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "record-current-update": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 1,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 3
+      },
+      {
+        "caseId": "HCE-0005",
+        "turnId": "HCE-0005-T01",
+        "arm": "single-agent",
+        "runId": "HCE-0005-single-agent-HCE-0005-T01-3af424f7",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "acknowledge-current-concern": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 0
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "arm": "integrated",
+        "runId": "HCE-0004-integrated-HCE-0004-T07-bd464d7e",
+        "executionStatus": "failed",
+        "taskChecks": {
+          "retrieve-and-cite-medical-evidence": false,
+          "identify-missing-data-or-ask": false
+        },
+        "excludedTasks": [],
+        "applicableTaskCount": 2,
+        "allApplicableTasksCompleted": false,
+        "hiddenHistoryExcluded": 1
+      }
+    ],
+    "perHistoricalFactDecisions": [
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T03",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H01",
+        "status": "correct",
+        "runId": "HCE-0001-single-agent-HCE-0001-T03-3ff45262"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T04",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H01",
+        "status": "correct",
+        "runId": "HCE-0001-single-agent-HCE-0001-T04-d2965521"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T05",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H01",
+        "status": "omitted",
+        "runId": "HCE-0001-single-agent-HCE-0001-T05-91a0ebbb"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T06",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H01",
+        "status": "omitted",
+        "runId": "HCE-0001-single-agent-HCE-0001-T06-0ae6d6f5"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T06",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H03",
+        "status": "correct",
+        "runId": "HCE-0001-single-agent-HCE-0001-T06-0ae6d6f5"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H01",
+        "status": "omitted",
+        "runId": "HCE-0001-single-agent-HCE-0001-T07-1fdfea17"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T08",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H01",
+        "status": "omitted",
+        "runId": "HCE-0001-single-agent-HCE-0001-T08-02ab74d6"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T08",
+        "arm": "single-agent",
+        "factId": "HCE-0001-H03",
+        "status": "correct",
+        "runId": "HCE-0001-single-agent-HCE-0001-T08-02ab74d6"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T03",
+        "arm": "integrated",
+        "factId": "HCE-0001-H01",
+        "status": "correct",
+        "runId": "HCE-0001-integrated-HCE-0001-T03-8e2904d2"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T04",
+        "arm": "integrated",
+        "factId": "HCE-0001-H01",
+        "status": "correct",
+        "runId": "HCE-0001-integrated-HCE-0001-T04-b7ae53c8"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T03",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-single-agent-HCE-0002-T03-574aa018"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T04",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-single-agent-HCE-0002-T04-224f09c3"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T05",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H01",
+        "status": "omitted",
+        "runId": "HCE-0002-single-agent-HCE-0002-T05-a1725a19"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T06",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H01",
+        "status": "omitted",
+        "runId": "HCE-0002-single-agent-HCE-0002-T06-964074cf"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T06",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H03",
+        "status": "correct",
+        "runId": "HCE-0002-single-agent-HCE-0002-T06-964074cf"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H01",
+        "status": "omitted",
+        "runId": "HCE-0002-single-agent-HCE-0002-T07-8aa5b784"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T08",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H01",
+        "status": "omitted",
+        "runId": "HCE-0002-single-agent-HCE-0002-T08-3bd006a4"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T08",
+        "arm": "single-agent",
+        "factId": "HCE-0002-H03",
+        "status": "correct",
+        "runId": "HCE-0002-single-agent-HCE-0002-T08-3bd006a4"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T05",
+        "arm": "integrated",
+        "factId": "HCE-0001-H01",
+        "status": "correct",
+        "runId": "HCE-0001-integrated-HCE-0001-T05-1380c397"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T03",
+        "arm": "integrated",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T03-802e5273"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T04",
+        "arm": "integrated",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T04-069956a3"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T06",
+        "arm": "integrated",
+        "factId": "HCE-0001-H01",
+        "status": "correct",
+        "runId": "HCE-0001-integrated-HCE-0001-T06-fba46da6"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T06",
+        "arm": "integrated",
+        "factId": "HCE-0001-H03",
+        "status": "correct",
+        "runId": "HCE-0001-integrated-HCE-0001-T06-fba46da6"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T05",
+        "arm": "integrated",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T05-e10453cb"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T06",
+        "arm": "integrated",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T06-4f963a09"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T06",
+        "arm": "integrated",
+        "factId": "HCE-0002-H03",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T06-4f963a09"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "arm": "integrated",
+        "factId": "HCE-0001-H01",
+        "status": "omitted",
+        "runId": "HCE-0001-integrated-HCE-0001-T07-8aa5e149"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "arm": "integrated",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T07-a974d425"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T08",
+        "arm": "integrated",
+        "factId": "HCE-0001-H01",
+        "status": "omitted",
+        "runId": "HCE-0001-integrated-HCE-0001-T08-34911d02"
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T08",
+        "arm": "integrated",
+        "factId": "HCE-0001-H03",
+        "status": "correct",
+        "runId": "HCE-0001-integrated-HCE-0001-T08-34911d02"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T08",
+        "arm": "integrated",
+        "factId": "HCE-0002-H01",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T08-a8ebb875"
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T08",
+        "arm": "integrated",
+        "factId": "HCE-0002-H03",
+        "status": "correct",
+        "runId": "HCE-0002-integrated-HCE-0002-T08-a8ebb875"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T03",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H01",
+        "status": "correct",
+        "runId": "HCE-0003-single-agent-HCE-0003-T03-9189ce73"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T04",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H01",
+        "status": "correct",
+        "runId": "HCE-0003-single-agent-HCE-0003-T04-b9699335"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T05",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-single-agent-HCE-0003-T05-2e54f983"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T03",
+        "arm": "integrated",
+        "factId": "HCE-0003-H01",
+        "status": "correct",
+        "runId": "HCE-0003-integrated-HCE-0003-T03-474b54e5"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-single-agent-HCE-0003-T06-1b5c9c49"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H03",
+        "status": "correct",
+        "runId": "HCE-0003-single-agent-HCE-0003-T06-1b5c9c49"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T04",
+        "arm": "integrated",
+        "factId": "HCE-0003-H01",
+        "status": "correct",
+        "runId": "HCE-0003-integrated-HCE-0003-T04-7f4bd9c2"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-single-agent-HCE-0003-T07-1be35d23"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-single-agent-HCE-0003-T08-d3cac5a5"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "single-agent",
+        "factId": "HCE-0003-H03",
+        "status": "omitted",
+        "runId": "HCE-0003-single-agent-HCE-0003-T08-d3cac5a5"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T05",
+        "arm": "integrated",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-integrated-HCE-0003-T05-7c294ca5"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T06",
+        "arm": "integrated",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-integrated-HCE-0003-T06-7abe3408"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "arm": "integrated",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-integrated-HCE-0003-T07-3ee9215c"
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T08",
+        "arm": "integrated",
+        "factId": "HCE-0003-H01",
+        "status": "omitted",
+        "runId": "HCE-0003-integrated-HCE-0003-T08-e4d67d64"
+      }
+    ],
+    "tokenCostFile": "docs/eval/B1-SPRINT-002-per-task-cost.json"
+  },
+  "badCaseAudit": [
+    {
+      "category": "engineering failure",
+      "cases": [
+        "HCE-0003-T08 single-agent",
+        "HCE-0004-T01 single-agent",
+        "HCE-0004-T02 single-agent",
+        "HCE-0003-T06 integrated"
+      ],
+      "failure": "The resumed frozen-code run had four MODEL_TIMEOUT attempts at approximately 300 seconds; DSH pi-ai provider defaults streamIdleTimeoutMs to 300000ms and DshWebRuntime does not override it. This is the adapter's no-stream idle watchdog, not the 600s eval timeout.",
+      "quickFix": "Set/observe the adapter idle timeout and preserve safe provider diagnostics, then run a new same-version A/B comparison; not changed in this sprint."
+    },
+    {
+      "category": "engineering failure",
+      "cases": [
+        "HCE-0003-T05 integrated"
+      ],
+      "failure": "AUTHENTICATED_GATEWAY_EXCEPTION at approximately 306s; runner stores category=unknown and omits HTTP/SSE exception details. The same case/turn recurred in the earlier attempt.",
+      "quickFix": "Retain exception name, safe HTTP status, and SSE terminal reason; not changed in this sprint."
+    },
+    {
+      "category": "tool calling / evidence citation",
+      "cases": [
+        "HCE-0001-T07",
+        "HCE-0003-T07",
+        "HCE-0004-T07",
+        "HCE-0005-T07"
+      ],
+      "failure": "Four evidence-specific Integrated-only wins: Integrated retrieved/cited stable RAG sources; Single had no retrieval tool. HCE-0002-T07 is the counterexample: RAG retrieval completed but Integrated did not cite an identifiable source ID in that turn.",
+      "quickFix": "Stable MED-<content-hash> evidence IDs and exact [evidence:<ID>] resolution are implemented; patched run measured 10/20 source-ID matches and 2/4 evidence-task coverage. This is linkage only, not claim support."
+    },
+    {
+      "category": "information omission / provenance",
+      "cases": [
+        "HCE-0001-T05",
+        "HCE-0001-T06",
+        "HCE-0001-T08",
+        "HCE-0005-T08"
+      ],
+      "failure": "HCE-0001-T05 Single asked the patient to paste earlier context while Integrated missed an unrecorded-signal distinction; HCE-0001-T06/T08 exposed current-versus-prior source misattribution; HCE-0005-T08 Single omitted allergy-unknown/uncorroborated-recall context while Integrated timed out.",
+      "quickFix": "One shared policy sentence now prioritizes explicit current-turn disclosure as patient-reported, bars marking it unknown after disclosure, and bars false attribution to prior encounters. In the repaired run HCE-0001-T06 became a tie and HCE-0001-T08 flipped to Integrated-only; the run is still too small/noisy to establish general effect."
+    },
+    {
+      "category": "answer generation / paired outcome counts",
+      "cases": [
+        "20261011172610-bccbc7f7 final 40 pairs"
+      ],
+      "failure": "Final frozen-code scorer gives 15 Integrated-only, 3 Single-only, 3 both-incomplete, and 19 both-complete key-task pairs. This differs from the earlier shorthand 4/2/4 after full resume; the four evidence-specific Integrated wins and two Single-only historical-fact wins are metric-specific subsets, not overall key-task counts.",
+      "quickFix": "Use the final run/score denominator and report this discrepancy; no outcome or gold was edited."
+    },
+    {
+      "category": "scoring misjudgment review",
+      "cases": [
+        "frozen rubric review"
+      ],
+      "failure": "No confirmed score/gold misjudgment. The historical-fact rubric requires at least one disclosed required fact; hidden facts are excluded. HCE-0001-T06's result was consistent with that frozen rubric.",
+      "quickFix": "No scoring rule changed."
+    }
+  ],
+  "evidenceCitationMeasurement": {
+    "stableIdSolution": "RAG emits opaque content-bound MED-<16 hex> IDs; prompts request [evidence:<ID>]; evaluator exact-matches IDs against same-task RAG results.",
+    "documentation": "docs/eval/evidence-citation-id-resolution.md",
+    "baselineIntegratedSourceIdResolution": {
+      "numerator": 24,
+      "denominator": 42,
+      "percent": 57.14
+    },
+    "repairedRunIntegratedSourceIdResolution": {
+      "numerator": 10,
+      "denominator": 20,
+      "percent": 50
+    },
+    "repairedRunIntegratedEvidenceTaskCoverage": {
+      "numerator": 2,
+      "denominator": 4,
+      "percent": 50
+    },
+    "medicalClaimSupportValidity": {
+      "status": "not measurable",
+      "reason": "Source ID resolution proves same-turn linkage, not whether a passage supports an adjacent medical claim; no independent claim-to-passage adjudication was performed."
+    }
+  },
+  "resumeBullet": "在 GPT-6-Luna 驱动的本地合成工程试跑中，基于 DeepSeek Harness 打通患者就诊上下文、AMA 纵向记忆及带稳定来源 ID 的本地 RAG；在 2 例完整合成纵向病例、31 个同病例同轮配对任务中，Integrated 关键任务完成率为 64.5%（20/31），Single 为 41.9%（13/31），净增 22.6 个百分点；已披露病史事实正确引用率为 72.7%（16/22），医学来源 ID 精确匹配率为 50.0%（10/20），医学证据对结论的支持有效性尚不可测。",
+  "freeze": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "noFurtherRunsStarted": true,
+    "noFurtherOptimizationAuthorized": true,
+    "nextStepRequiresUserDecision": "whether to keep this limited bullet or authorize a separately bounded follow-up run"
+  }
+}
