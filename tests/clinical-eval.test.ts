@@ -324,8 +324,19 @@ describe("clinical synthetic evaluation foundation", () => {
     const run = sampleRun(item, turn, "single-agent");
     const bundle = createReviewDraftBundle({ case: item, turn, run: { ...run, assistantText: "<section>synthetic & reviewed later</section>" } });
     const composition = bundle.entry.find((entry) => entry.resource.resourceType === "Composition")?.resource;
-    expect(composition).toMatchObject({ resourceType: "Composition", status: "preliminary" });
+    expect(composition).toMatchObject({
+      resourceType: "Composition", status: "preliminary",
+      extension: [{ url: "https://huiyi.invalid/fhir/StructureDefinition/review-workflow-state", valueCode: "preliminary" }],
+    });
     expect(JSON.stringify(composition)).toContain("&lt;section&gt;synthetic &amp; reviewed later&lt;/section&gt;");
+    const sections = composition!.section as Array<{ title: string; text: { div: string }; extension: unknown[] }>;
+    expect(sections.map((section) => section.title)).toEqual(expect.arrayContaining([
+      "主诉与病情变化", "既往重要病史", "当前用药", "过敏信息", "本次症状与检查摘要",
+      "待医生核实的信息", "记录中的风险相关信息（待核实）", "医学证据与出处", "不确定性与缺失信息",
+    ]));
+    expect(sections.find((section) => section.title === "记录中的风险相关信息（待核实）")?.text.div).toContain("不表示 Agent 已识别风险");
+    expect(sections.find((section) => section.title === "既往重要病史")?.text.div).toContain("fact:");
+    expect(sections.every((section) => section.extension.length === 1)).toBe(true);
     expect(bundle.meta.tag.some((tag) => tag.code === "synthetic")).toBe(true);
   });
 

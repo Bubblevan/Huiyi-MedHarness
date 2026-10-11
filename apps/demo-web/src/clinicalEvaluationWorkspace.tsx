@@ -5,6 +5,8 @@ import { clinicalCopy } from "@clinical-workstation-copy";
 import type { WireDemoEvent } from "./runtime/adapter.js";
 import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
 import { Consultation } from "./consultation.js";
+import { ClinicalDraftReview } from "./ClinicalDraftReview.js";
+import type { ClinicalReviewDraft, DraftChange, DraftReviewAction } from "../../../services/demo-gateway/src/clinical-drafts/registry.js";
 
 const API_BASE = import.meta.env.HUIYI_DEMO_API_BASE || "/api";
 
@@ -37,6 +39,10 @@ export function ClinicalEvaluationWorkspace() {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [selectedEvidence, setSelectedEvidence] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string>();
+  const [draft, setDraft] = useState<Omit<ClinicalReviewDraft, "owner"> | null>(null);
+  const [draftError, setDraftError] = useState<string>();
+  const [draftBusy, setDraftBusy] = useState(false);
+  const [centerView, setCenterView] = useState<"consultation" | "draft">("consultation");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -51,6 +57,23 @@ export function ClinicalEvaluationWorkspace() {
       .then((value) => { if (value) void acceptAccount(value.user); })
       .catch(() => undefined);
     return () => controller.abort();
+  }, []);
+
+  const loadDraft = useCallback(async (selectedPatientId: string, selectedEncounterId: string, signal?: AbortSignal) => {
+    if (!selectedPatientId || !selectedEncounterId) { setDraft(null); return; }
+    try {
+      const value = await decodeJson<{ draft: Omit<ClinicalReviewDraft, "owner"> | null }>(await fetch(
+        `${API_BASE}/patients/${encodeURIComponent(selectedPatientId)}/encounters/${encodeURIComponent(selectedEncounterId)}/draft`,
+        { credentials: "same-origin", signal },
+      ));
+      if (signal?.aborted) return;
+      setDraft(value.draft);
+      setDraftError(undefined);
+    } catch (error) {
+      if (signal?.aborted) return;
+      setDraft(null);
+      setDraftError(error instanceof Error ? "复诊草稿读取失败，请重新加载患者上下文。" : undefined);
+    }
   }, []);
 
   const acceptAccount = useCallback(async (value: AccountView) => {
@@ -79,6 +102,9 @@ export function ClinicalEvaluationWorkspace() {
     setSessionId(null);
     setEvents([]);
     setEvidence([]);
+    setDraft(null);
+    setDraftError(undefined);
+    setCenterView("consultation");
     setErrorCode(undefined);
     try {
       const [contextResponse, sessionResponse] = await Promise.all([
@@ -96,13 +122,14 @@ export function ClinicalEvaluationWorkspace() {
       if (signal?.aborted) return;
       setPatient(context);
       setSessionId(session.sessionId);
+      await loadDraft(selectedPatientId, selectedEncounterId, signal);
     } catch (error) {
       if (signal?.aborted) return;
       setPatient(null);
       setSessionId(null);
       setErrorCode(error instanceof Error ? error.message : "PATIENT_CONTEXT_UNAVAILABLE");
     }
-  }, [account]);
+  }, [account, loadDraft]);
 
   useEffect(() => {
     if (!account || !patientId || !encounterId) return;
@@ -120,7 +147,30 @@ export function ClinicalEvaluationWorkspace() {
         ? previous
         : [...previous, event.data as unknown as EvidenceRecord]);
     }
-  }, []);
+    if (event.event === "draft.updated") {
+      setCenterView("draft");
+      void loadDraft(patientId, encounterId);
+    }
+    if (event.event === "draft.save_failed") setDraftError("本轮回答已完成，但复诊草稿保存失败。请稍后重试。");
+  }, [encounterId, loadDraft, patientId]);
+
+  const submitDraftReview = useCallback(async (input: { action: DraftReviewAction; changes: readonly DraftChange[]; expectedVersion: number }) => {
+    if (!draft) return;
+    setDraftBusy(true);
+    setDraftError(undefined);
+    try {
+      const value = await decodeJson<{ draft: Omit<ClinicalReviewDraft, "owner"> }>(await fetch(`${API_BASE}/clinical-drafts/${encodeURIComponent(draft.draftId)}`, {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      }));
+      setDraft(value.draft);
+    } catch {
+      await loadDraft(patientId, encounterId);
+      setDraftError("草稿保存失败或版本已更新。请重新载入后再提交。");
+    } finally { setDraftBusy(false); }
+  }, [draft, encounterId, loadDraft, patientId]);
 
   const onError = useCallback((code: string) => setErrorCode(code), []);
   const provider = useMemo(() => <EvidenceActionProvider onOpen={(id) => { setSelectedEvidence(id); setEvidenceOpen(true); }}>
@@ -155,7 +205,12 @@ export function ClinicalEvaluationWorkspace() {
         <main className="workstation-grid">
           <aside className="side-column patient-column"><PatientContext patient={patient} loading={Boolean(patientId && !patient && !errorCode)} syntheticLabel="模拟患者" /></aside>
           <section className="consultation-column">
-            <Consultation key={sessionId ?? "pending"} patientId={patient?.patientId ?? ""} encounterId={encounterId} sessionId={sessionId ?? ""} scenario="simple" includeScenario={false} canSubmit={Boolean(patient && sessionId && backend === "dsh")} onEvent={onEvent} onError={onError} onRetry={() => void refreshSelection(patientId, encounterId)} onChooseScenario={() => undefined} errorCode={errorCode} />
+            <nav className="workstation-center-tabs" aria-label="工作区">
+              <button type="button" aria-selected={centerView === "consultation"} className={centerView === "consultation" ? "selected" : ""} onClick={() => setCenterView("consultation")}>就诊交流</button>
+              <button type="button" aria-selected={centerView === "draft"} className={centerView === "draft" ? "selected" : ""} onClick={() => setCenterView("draft")}>复诊草稿{draft ? ` · v${draft.version}` : ""}</button>
+            </nav>
+            {centerView === "consultation" ? <Consultation key={sessionId ?? "pending"} patientId={patient?.patientId ?? ""} encounterId={encounterId} sessionId={sessionId ?? ""} scenario="simple" includeScenario={false} canSubmit={Boolean(patient && sessionId && backend === "dsh")} onEvent={onEvent} onError={onError} onRetry={() => void refreshSelection(patientId, encounterId)} onChooseScenario={() => undefined} errorCode={errorCode} />
+              : <ClinicalDraftReview draft={draft} busy={draftBusy} error={draftError} onSubmit={submitDraftReview} />}
           </section>
           <aside className="side-column activity-column"><AgentActivity events={events} errorCode={errorCode} /></aside>
         </main>
@@ -173,7 +228,7 @@ export function ClinicalEvaluationWorkspace() {
       <EvidenceDrawer open={evidenceOpen} items={evidence} onClose={() => setEvidenceOpen(false)} backend="dsh" />
       {selectedEvidence && evidenceOpen && <span className="sr-only" aria-live="polite">已打开证据 {selectedEvidence}</span>}
     </div>
-  </EvidenceActionProvider>, [account, backend, encounterId, encounterOptions, environmentLabel, errorCode, evidence, evidenceOpen, events, loginError, modelName, patient, patientId, patients, providerName, refreshSelection, selectedEvidence, sessionId, busy, username, password]);
+  </EvidenceActionProvider>, [account, backend, centerView, draft, draftBusy, draftError, encounterId, encounterOptions, environmentLabel, errorCode, evidence, evidenceOpen, events, loginError, modelName, patient, patientId, patients, providerName, refreshSelection, selectedEvidence, sessionId, submitDraftReview, busy, username, password]);
 
   async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -196,7 +251,7 @@ export function ClinicalEvaluationWorkspace() {
 
   async function logout() {
     await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" }).catch(() => undefined);
-    setAccount(null); setPatients([]); setPatientId(""); setEncounterId(""); setPatient(null); setSessionId(null); setEvents([]); setEvidence([]); setErrorCode(undefined);
+    setAccount(null); setPatients([]); setPatientId(""); setEncounterId(""); setPatient(null); setSessionId(null); setEvents([]); setEvidence([]); setDraft(null); setDraftError(undefined); setCenterView("consultation"); setErrorCode(undefined);
   }
 
   return provider;

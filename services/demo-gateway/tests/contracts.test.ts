@@ -21,6 +21,8 @@ const data: { [K in DemoEventName]: EventDataMap[K] } = {
   "tool.completed": { tool: "search_demo_evidence", durationMs: 10, status: "completed" },
   "collaboration.completed": { complexity: "intermediate", specialistRoles: ["cardiology"], teamCount: 0, completedChildRuns: 2, failedChildRuns: 0, degraded: false },
   "assistant.delta": { text: "chunk" },
+  "draft.updated": { draftId: "draft-1", version: 1, status: "preliminary" },
+  "draft.save_failed": { code: "DRAFT_SAVE_FAILED" },
   "run.completed": { durationMs: 100 },
   "run.cancelled": { reason: "client_cancelled" },
   "run.failed": { code: "FIXTURE_FAILURE" },

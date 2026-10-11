@@ -5,6 +5,7 @@ import { ClinicalEvaluationAuth, EVALUATION_SESSION_COOKIE, type EvaluationAccou
 import { generateSyntheticPatients, SyntheticEvaluationDataset } from "../src/clinical-evaluation/dataset.js";
 import { readAppMode } from "../src/app-mode.js";
 import { createDemoServer } from "../src/server.js";
+import { ClinicalDraftRegistry } from "../src/clinical-drafts/registry.js";
 
 const origin = "http://127.0.0.1:5173";
 const accounts: EvaluationAccountInput[] = [
@@ -45,6 +46,7 @@ async function start() {
     backend,
     evaluationAuth: new ClinicalEvaluationAuth(accounts),
     evaluationDataset: new SyntheticEvaluationDataset({ patientCount: 12, turnCount: 3, encounterCount: 2, seed: "auth-test-seed" }),
+    clinicalDraftRegistry: new ClinicalDraftRegistry(),
     evaluationAllowedOrigins: [origin],
     log: () => undefined,
   });
@@ -171,8 +173,54 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
 
     const validChat = await request(app, "/api/chat", cookieA, { method: "POST", body: JSON.stringify({ sessionId: session.sessionId, patientId: ownPatient.patientId, encounterId: ownEncounter.encounterId, message: "hello" }) });
     expect(validChat.status).toBe(200);
-    expect((await validChat.text()).includes("synthetic response")).toBe(true);
+    const validChatEvents = await validChat.text();
+    expect(validChatEvents).toContain("synthetic response");
+    expect(validChatEvents).toContain("event: draft.updated");
     expect(app.backend.received).toHaveLength(1);
+
+    const draftPath = `/api/patients/${ownPatient.patientId}/encounters/${ownEncounter.encounterId}/draft`;
+    const draftResponse = await request(app, draftPath, cookieA);
+    expect(draftResponse.status).toBe(200);
+    const draftPayload = await draftResponse.json() as { draft: {
+      draftId: string; version: number; status: string; synthetic: boolean; clinicalApprovalStatus: string;
+      sections: Record<string, Array<{ itemId: string; value: string; disposition: string }>>;
+      turns: Array<{ patientMessage: string; assistantResponse: string }>;
+      revisions: Array<{ before: unknown; after: { version: number } }>;
+    } };
+    const draft = draftPayload.draft;
+    expect(draft).toMatchObject({ version: 1, status: "preliminary", synthetic: true, clinicalApprovalStatus: "not-performed" });
+    expect(draft.sections.chiefConcern?.[0]?.value).toBe("hello");
+    expect(draft.sections.history?.[0]?.value).toBeTruthy();
+    expect(draft.sections.informationToVerify?.length).toBeGreaterThan(0);
+    expect(draft.turns[0]).toMatchObject({ patientMessage: "hello", assistantResponse: "synthetic response" });
+    expect(draft.revisions).toHaveLength(1);
+    expect((await request(app, draftPath.replace(ownPatient.patientId, otherGroupPatient.patientId).replace(ownEncounter.encounterId, otherGroupPatient.encounters[0]!.encounterId), cookieA)).status).toBe(404);
+    expect((await request(app, draftPath, cookieB)).status).toBe(404);
+
+    const concern = draft.sections.chiefConcern![0]!;
+    const savedDraftResponse = await request(app, `/api/clinical-drafts/${draft.draftId}`, cookieA, {
+      method: "PATCH",
+      body: JSON.stringify({ expectedVersion: 1, action: "save", changes: [{ section: "chiefConcern", itemId: concern.itemId, value: "审阅后的合成主诉", disposition: "confirmed-in-demo", reviewNote: "演示字段核对" }] }),
+    });
+    expect(savedDraftResponse.status).toBe(200);
+    const savedDraft = (await savedDraftResponse.json() as { draft: typeof draft }).draft;
+    expect(savedDraft.version).toBe(2);
+    expect(savedDraft.sections.chiefConcern[0]!.value).toBe("审阅后的合成主诉");
+    expect(savedDraft.revisions[1]!.before).toBeTruthy();
+    expect(savedDraft.revisions[1]!.after.version).toBe(2);
+    expect((await request(app, `/api/clinical-drafts/${draft.draftId}`, cookieB, {
+      method: "PATCH", body: JSON.stringify({ expectedVersion: 2, action: "approve-demo", changes: [] }),
+    })).status).toBe(404);
+
+    const demoApproval = await request(app, `/api/clinical-drafts/${draft.draftId}`, cookieA, {
+      method: "PATCH", body: JSON.stringify({ expectedVersion: 2, action: "approve-demo", changes: [] }),
+    });
+    expect(demoApproval.status).toBe(200);
+    const approvedDraft = (await demoApproval.json() as { draft: typeof draft }).draft;
+    expect(approvedDraft).toMatchObject({ version: 3, status: "approved-in-demo", clinicalApprovalStatus: "not-performed" });
+    expect((await request(app, `/api/clinical-drafts/${draft.draftId}`, cookieA, {
+      method: "PATCH", body: JSON.stringify({ expectedVersion: 2, action: "reject", changes: [] }),
+    })).status).toBe(409);
 
     const heldChat = await request(app, "/api/chat", cookieA, { method: "POST", body: JSON.stringify({ sessionId: session.sessionId, patientId: ownPatient.patientId, encounterId: ownEncounter.encounterId, message: "hold for cancellation" }) });
     expect(heldChat.status).toBe(200);
@@ -183,6 +231,9 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     const ownerCancel = await request(app, `/api/runs/${heldRunId}/cancel`, cookieA, { method: "POST", body: "{}" });
     expect(ownerCancel.status).toBe(202);
     await heldChat.text();
+    const afterCancel = (await request(app, draftPath, cookieA).then((response) => response.json()) as { draft: typeof draft }).draft;
+    expect(afterCancel.version).toBe(3);
+    expect(afterCancel.turns).toHaveLength(1);
 
     const foreignClose = await request(app, `/api/sessions/${session.sessionId}`, cookieB, { method: "DELETE" });
     expect(foreignClose.status).toBe(404);

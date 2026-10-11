@@ -61,6 +61,8 @@ const EVENT_LABELS: Record<string, string> = {
   "tool.completed": "工具调用完成",
   "assistant.delta": "回答正在生成",
   "run.completed": "本轮完成",
+  "draft.updated": "复诊草稿已更新",
+  "draft.save_failed": "复诊草稿暂未保存",
   "run.cancelled": "已停止本轮",
   "run.failed": "本轮未能完成",
 };
@@ -69,7 +71,7 @@ const SAFE_ACTIVITY_EVENTS = new Set([
   "run.started", "context.patient", "context.memory", "evidence.started", "evidence.item",
   "evidence.completed", "agent.classified", "specialist.started", "specialist.completed",
   "collaboration.completed", "tool.started", "tool.completed", "assistant.delta",
-  "run.completed", "run.cancelled", "run.failed",
+  "draft.updated", "draft.save_failed", "run.completed", "run.cancelled", "run.failed",
 ]);
 
 const SAFE_COMPLEXITIES = new Set(["simple", "low", "intermediate", "complex", "high"]);
@@ -94,6 +96,11 @@ export function toSafeActivityEvent(event: WireDemoEvent): WireDemoEvent | null 
     count("failedChildRuns");
     if (typeof source.degraded === "boolean") data.degraded = source.degraded;
   }
+  if (event.event === "draft.updated" && Number.isSafeInteger(source.version) && Number(source.version) > 0) {
+    data.version = Number(source.version);
+    data.status = "preliminary";
+  }
+  if (event.event === "draft.save_failed" && source.code === "DRAFT_SAVE_FAILED") data.code = "DRAFT_SAVE_FAILED";
   return { ...event, runId: "redacted", sessionId: "redacted", data };
 }
 
@@ -108,6 +115,8 @@ export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; 
         const failed = typeof event.data.failedChildRuns === "number" ? event.data.failedChildRuns : 0;
         return `${completed} 项完成${failed ? ` / ${failed} 项未完成` : ""}${event.data.degraded ? " · 降级" : ""}`;
       }
+      if (event.event === "draft.updated") return "结构化草稿已保存，状态：待审核";
+      if (event.event === "draft.save_failed") return "草稿保存失败，请重试";
       return "";
     }
     if (event.event === "context.memory") return `${String(event.data.itemCount ?? 0)} 条摘要项`;
@@ -121,6 +130,8 @@ export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; 
     }
     if (event.event === "tool.started" || event.event === "tool.completed") return String(event.data.tool ?? "医学检索工具");
     if (event.event === "run.failed") return String(event.data.code ?? "BACKEND_UNAVAILABLE");
+    if (event.event === "draft.updated") return `版本 ${String(event.data.version ?? "—")} · 待审核`;
+    if (event.event === "draft.save_failed") return "DRAFT_SAVE_FAILED";
     return "";
   };
   const visible = events.filter((event) => event.event !== "assistant.delta");

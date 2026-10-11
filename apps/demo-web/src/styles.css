@@ -41,6 +41,53 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
 
 .workstation-grid { flex: 1 1 auto; min-height: 0; padding: 19px 22px 14px; display: grid; grid-template-columns: minmax(240px, 275px) minmax(440px, 1fr) minmax(260px, 302px); gap: 16px; max-width: 1800px; width: 100%; margin: 0 auto; }
 .consultation-column { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.clinical-evaluation-shell .consultation-column { height: 100%; }
+.workstation-center-tabs { display: flex; flex: 0 0 auto; gap: 6px; padding: 0 0 10px; }
+.workstation-center-tabs button { border: 1px solid #e0e9e5; border-radius: 7px; padding: 8px 12px; background: #fff; color: #71817c; font-size: 10px; cursor: pointer; }
+.workstation-center-tabs button.selected { border-color: #b9d2c8; background: #edf5f1; color: #387967; font-weight: 700; }
+.clinical-evaluation-shell .consultation { min-height: 0; flex: 1 1 auto; }
+.clinical-draft-review { min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: #fff; box-shadow: var(--shadow); }
+.draft-empty { display: grid; place-items: center; padding: 28px; text-align: center; }
+.draft-empty h2 { margin: 0 0 8px; font: 700 16px "Segoe UI", "Microsoft YaHei", sans-serif; color: #455a53; }
+.draft-empty p:not(.eyebrow) { max-width: 380px; color: #778680; font-size: 10px; line-height: 1.7; }
+.draft-empty-badge { display: inline-block; margin-top: 8px; padding: 6px 8px; border-radius: 5px; background: #f1f5f3; color: #779087; font-size: 9px; }
+.draft-review-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 19px 12px; border-bottom: 1px solid #edf0ef; }
+.draft-review-header h2 { margin: 0; font: 700 15px "Segoe UI", "Microsoft YaHei", sans-serif; color: #455a53; }
+.draft-review-header p:not(.eyebrow) { margin: 5px 0 0; color: #8a9893; font: 9px ui-monospace, Consolas, monospace; }
+.draft-state { flex: 0 0 auto; padding: 6px 8px; border: 1px solid #e6dfbd; border-radius: 6px; background: #faf8ec; color: #8b7942; font-size: 9px; }
+.draft-state-approved-in-demo { border-color: #c9dfd4; background: #eef7f1; color: #42816d; }
+.draft-state-rejected-in-demo { border-color: #ebd5d0; background: #fcf2ef; color: #a86053; }
+.draft-review-notice { flex: 0 0 auto; margin: 10px 15px 0; padding: 9px 11px; border-left: 3px solid #d1b777; background: #faf8ef; color: #806f46; font-size: 9px; line-height: 1.6; }
+.draft-review-error { flex: 0 0 auto; margin: 8px 15px 0; color: #a25545; font-size: 9px; }
+.draft-sections { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px 15px 10px; }
+.draft-section { padding: 12px 0; border-bottom: 1px solid #edf0ef; }
+.draft-section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.draft-section-title h3 { margin: 0; color: #52645e; font-size: 10px; }
+.draft-section-title > span, .draft-no-items { color: #9aa6a2; font-size: 8px; }
+.draft-no-items { margin: 0; }
+.draft-item { padding: 9px; margin-top: 7px; border: 1px solid #e9efec; border-radius: 7px; background: #fbfcfb; }
+.draft-item-label { display: block; margin-bottom: 6px; color: #687a74; font-size: 9px; font-weight: 700; }
+.draft-item textarea { width: 100%; resize: vertical; border: 1px solid #e1e9e5; border-radius: 5px; padding: 8px; color: #3e514a; background: white; font: 10px/1.65 "Segoe UI", "Microsoft YaHei", sans-serif; }
+.draft-item textarea:focus { outline: 2px solid #c4ddd2; outline-offset: 1px; }
+.draft-item-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 5px; color: #96a29e; font-size: 8px; }
+.draft-item-actions { display: flex; gap: 6px; margin-top: 7px; }
+.draft-item-actions button, .draft-review-actions button { border: 1px solid #dfe8e3; border-radius: 5px; padding: 6px 8px; background: white; color: #688078; font-size: 8px; cursor: pointer; }
+.draft-item-actions button:hover, .draft-review-actions button:hover { border-color: #a9cbbd; color: #347764; }
+.draft-conversation-detail, .draft-audit-history { flex: 0 0 auto; margin: 0 15px; border-bottom: 1px solid #edf0ef; color: #667873; font-size: 9px; }
+.draft-conversation-detail summary, .draft-audit-history summary { padding: 9px 0; cursor: pointer; color: #60736c; }
+.draft-turn-record, .draft-revision { padding: 8px 9px; margin: 7px 0; border: 1px solid #e9efec; border-radius: 6px; background: #fbfcfb; }
+.draft-turn-record p { display: grid; gap: 4px; margin: 4px 0 8px; line-height: 1.6; }
+.draft-turn-record p strong, .draft-revision strong { color: #62756e; font-size: 8px; }
+.draft-turn-record p span { white-space: pre-wrap; overflow-wrap: anywhere; }
+.draft-turn-record small, .draft-revision > span { display: block; color: #97a29f; font-size: 8px; }
+.draft-revision ul { list-style: none; padding: 0; margin: 7px 0 0; display: grid; gap: 6px; }
+.draft-revision li { display: grid; gap: 3px; padding-top: 5px; border-top: 1px solid #edf0ef; white-space: pre-wrap; overflow-wrap: anywhere; }
+.draft-revision li b { color: #74867f; font-size: 8px; }
+.draft-revision li span { color: #87958f; font-size: 8px; line-height: 1.5; }
+.draft-review-actions { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 9px; padding: 10px 15px; border-top: 1px solid #e9efec; background: #fbfcfb; color: #87948f; font-size: 8px; }
+.draft-review-actions > div { display: flex; flex-wrap: wrap; gap: 5px; }
+.draft-review-actions .draft-demo-approve { border-color: #bad7c8; background: #edf6f0; color: #3f806b; font-weight: 700; }
+.draft-review-actions button:disabled, .draft-item-actions button:disabled { opacity: .55; cursor: wait; }
 .clinical-evaluation-shell .workstation-grid { max-width: 1500px; }
 .evaluation-toolbar { width: 100%; display: flex; align-items: end; flex-wrap: wrap; gap: 10px 16px; padding: 10px 24px; border-bottom: 1px solid var(--line); background: #fbfcfb; }
 .evaluation-toolbar label { display: grid; gap: 4px; color: #72827d; font-size: 9px; }
@@ -221,6 +268,8 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
   .topbar-context { display: flex; gap: 0; }.product-name, .backend-badge { display: none; }.topbar-actions { gap: 6px; }.new-session-button { padding: 7px; font-size: 0; }.new-session-button span { font-size: 16px; margin: 0; }.mobile-panel-button { display: block; border: 1px solid var(--line); border-radius: 5px; background: white; padding: 6px 7px; font-size: 8px; cursor: pointer; }
   .workstation-grid { flex: 1; display: block; padding: 10px 9px 7px; }
   .consultation { min-height: min(420px, calc(100dvh - 205px)); height: calc(100dvh - 205px); }
+  .clinical-evaluation-shell .consultation-column { height: auto; }
+  .clinical-evaluation-shell .clinical-draft-review { height: max(420px, calc(100dvh - 300px)); flex: 0 0 auto; }
   .patient-column, .activity-column { display: none; }.patient-column.mobile-open, .activity-column.mobile-open { display: flex; position: fixed; z-index: 25; inset: 0 48px 0 0; padding: 10px; background: #f3f6f5; box-shadow: 10px 0 35px #22373224; }.activity-column.mobile-open { inset: 0 0 0 40px; }.patient-panel, .activity-panel { overflow-y: auto; }.scenario-panel { flex: 0 0 auto; }.mobile-close { position: absolute; top: 10px; right: 10px; z-index: 1; display: block; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; background: white; font-size: 18px; color: #72837d; }
   .thread-viewport { padding-inline: 13px; }.consultation-header { padding: 13px 14px 11px; }.scenario-strip { padding-inline: 13px; }.scenario-strip > div:first-child > span:last-child { display: none; }.welcome-card { margin: 14px auto 19px; padding: 17px 15px; }.welcome-card h2 { font-size: 14px; }.quick-prompts { flex-wrap: wrap; }.user-message-card { max-width: 90%; }.composer-footer { padding-top: 11px; }.composer-disclaimer { font-size: 7px; }.global-footer { grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px 12px; padding: 10px 13px; }.footer-runtime { grid-column: 1 / -1; grid-template-columns: auto auto; justify-content: start; gap: 3px 12px; }.footer-runtime span:last-child { grid-column: 1 / -1; }.organization-details { grid-column: 1 / -1; display: grid; gap: 3px; font-size: 8px; }.footer-actions { grid-column: 1 / -1; justify-content: flex-start; }.drawer-backdrop { align-items: flex-end; }.evidence-drawer { max-height: 76vh; padding-inline: 16px; }.mobile-backdrop { position: fixed; inset: 0; z-index: 24; display: block; border: 0; background: #24393255; }
 }

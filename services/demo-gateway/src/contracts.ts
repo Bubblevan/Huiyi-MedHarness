@@ -12,6 +12,8 @@ export const DEMO_EVENTS = [
   "tool.completed",
   "collaboration.completed",
   "assistant.delta",
+  "draft.updated",
+  "draft.save_failed",
   "run.completed",
   "run.cancelled",
   "run.failed",
@@ -98,6 +100,8 @@ export interface EventDataMap {
     };
   };
   "assistant.delta": { text: string };
+  "draft.updated": { draftId: string; version: number; status: "preliminary" };
+  "draft.save_failed": { code: "DRAFT_SAVE_FAILED" };
   "run.completed": { durationMs: number };
   "run.cancelled": { reason: "client_cancelled" };
   "run.failed": {
@@ -189,6 +193,9 @@ function isEventData(event: DemoEventName, data: unknown): boolean {
       && isNumber(data.teamCount) && isNumber(data.completedChildRuns) && isNumber(data.failedChildRuns) && isBoolean(data.degraded)
       && (data.externalEvidence === undefined || isCollaborationEvidenceTelemetry(data.externalEvidence));
     case "assistant.delta": return isText(data.text);
+    case "draft.updated": return isText(data.draftId) && data.draftId.length <= 80
+      && Number.isSafeInteger(data.version) && Number(data.version) >= 1 && data.status === "preliminary";
+    case "draft.save_failed": return data.code === "DRAFT_SAVE_FAILED";
     case "run.completed": return isNumber(data.durationMs);
     case "run.cancelled": return data.reason === "client_cancelled";
     case "run.failed": return ["FIXTURE_FAILURE", "BACKEND_UNAVAILABLE", "BACKEND_FAILURE", "MODEL_UNAVAILABLE", "MODEL_FAILURE", "MODEL_ROUTE_UNAVAILABLE", "MODEL_UNKNOWN", "MODEL_CREDENTIAL_MISSING", "MODEL_CREDENTIAL_INVALID", "MODEL_CONFIG_INVALID", "MODEL_AUTH_FAILED", "MODEL_TIMEOUT", "MODEL_RATE_LIMIT", "TURN_INCOMPLETE", "SESSION_BUSY", "SESSION_CAPACITY", "RUN_TIMEOUT"].includes(String(data.code))

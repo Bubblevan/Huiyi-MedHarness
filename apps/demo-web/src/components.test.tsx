@@ -78,6 +78,15 @@ describe("clinical demo panels", () => {
       } },
     };
     expect(toSafeActivityEvent(retrievalEvent)?.data).toEqual({ count: 3 });
+
+    const draftEvent: WireDemoEvent = {
+      version: 1, event: "draft.updated", runId: "private-run", sessionId: "private-session",
+      timestamp: "2026-10-09T10:00:03.000Z",
+      data: { draftId: "private-draft-id", version: 2, status: "preliminary", patientMessage: "private patient text" },
+    };
+    const safeDraft = toSafeActivityEvent(draftEvent);
+    expect(safeDraft?.data).toEqual({ version: 2, status: "preliminary" });
+    expect(JSON.stringify(safeDraft)).not.toContain("private");
   });
 
   it("shows evidence source fixture cards and closes its drawer", () => {

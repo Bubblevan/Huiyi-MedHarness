@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { createHash, randomUUID } from "node:crypto";
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { isAbsolute, resolve, dirname } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { readAppMode } from "./app-mode.js";
 import type { DemoEvent } from "./contracts.js";
 import { createEvent, parseDemoEvent, validateChatInput } from "./contracts.js";
@@ -12,6 +12,7 @@ import { FixtureDemoBackend } from "./backends/fixture.js";
 import { ClinicalEvaluationAuth, type EvaluationPrincipal } from "./clinical-evaluation/auth.js";
 import { SyntheticEvaluationDataset, type SyntheticDatasetOptions } from "./clinical-evaluation/dataset.js";
 import { EvaluationSessionRegistry } from "./clinical-evaluation/sessions.js";
+import { ClinicalDraftRegistry, DraftVersionConflictError, publicClinicalDraft, type DraftChange, type DraftReviewAction, type ClinicalDraftSection } from "./clinical-drafts/registry.js";
 
 export interface DemoServerOptions {
   backend?: DemoBackend;
@@ -22,6 +23,8 @@ export interface DemoServerOptions {
   evaluationAuth?: ClinicalEvaluationAuth;
   evaluationDataset?: SyntheticEvaluationDataset;
   evaluationAllowedOrigins?: readonly string[];
+  clinicalDraftRegistry?: ClinicalDraftRegistry;
+  clinicalDraftStorePath?: string;
 }
 
 const json = (response: ServerResponse, status: number, value: unknown): void => {
@@ -53,6 +56,36 @@ function isJsonContentType(request: IncomingMessage): boolean {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseClinicalDraftReview(value: unknown): {
+  readonly expectedVersion: number;
+  readonly action: DraftReviewAction;
+  readonly changes: readonly DraftChange[];
+} | undefined {
+  if (!isRecord(value) || Object.keys(value).some((key) => !["expectedVersion", "action", "changes"].includes(key))
+    || !Number.isSafeInteger(value.expectedVersion) || Number(value.expectedVersion) < 0
+    || !["save", "needs-follow-up", "reject", "approve-demo"].includes(String(value.action))
+    || !Array.isArray(value.changes) || value.changes.length > 40) return undefined;
+  const sections: readonly ClinicalDraftSection[] = ["chiefConcern", "history", "medications", "allergies", "symptomsAndTests", "informationToVerify", "riskSignals", "medicalEvidence", "assistantResponses", "uncertainty"];
+  const changes: DraftChange[] = [];
+  for (const item of value.changes) {
+    if (!isRecord(item) || Object.keys(item).some((key) => !["section", "itemId", "value", "disposition", "reviewNote"].includes(key))
+      || typeof item.section !== "string" || !sections.includes(item.section as ClinicalDraftSection)
+      || typeof item.itemId !== "string" || item.itemId.length > 120
+      || (item.value !== undefined && (typeof item.value !== "string" || item.value.length > 8_000))
+      || (item.reviewNote !== undefined && (typeof item.reviewNote !== "string" || item.reviewNote.length > 2_000))
+      || (item.disposition !== undefined && !["unreviewed", "confirmed-in-demo", "rejected-in-demo"].includes(String(item.disposition)))) return undefined;
+    changes.push({
+      section: item.section as ClinicalDraftSection,
+      itemId: item.itemId,
+      ...(typeof item.value === "string" ? { value: item.value } : {}),
+      ...(typeof item.disposition === "string" ? { disposition: item.disposition as DraftChange["disposition"] } : {}),
+      ...(typeof item.reviewNote === "string" ? { reviewNote: item.reviewNote } : {}),
+    });
+  }
+  if (value.action === "save" && !changes.length) return undefined;
+  return { expectedVersion: Number(value.expectedVersion), action: value.action as DraftReviewAction, changes };
 }
 
 function boundedInteger(raw: string | undefined, fallback: number, minimum: number, maximum: number): number {
@@ -123,6 +156,15 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
   const allowedEvaluationOrigins = new Set(options.evaluationAllowedOrigins ?? (process.env.HUIYI_EVAL_ALLOWED_ORIGINS ?? "http://127.0.0.1:5173,http://localhost:5173")
     .split(",").map((origin) => origin.trim()).filter(Boolean));
   const evaluationSessions = clinicalEvaluation ? new EvaluationSessionRegistry() : undefined;
+  const configuredDraftPath = options.clinicalDraftStorePath ?? process.env.HUIYI_CLINICAL_DRAFT_STORE_PATH?.trim();
+  const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+  const clinicalDrafts = clinicalEvaluation
+    ? options.clinicalDraftRegistry ?? new ClinicalDraftRegistry({
+      path: configuredDraftPath
+        ? isAbsolute(configuredDraftPath) ? configuredDraftPath : resolve(repoRoot, configuredDraftPath)
+        : resolve(repoRoot, "services/demo-gateway/data/clinical-evaluation/review-drafts.json"),
+    })
+    : undefined;
   const backend: DemoBackend = options.backend ?? (backendName === "dsh"
     ? new DshDemoBackend({ resolvePatient: clinicalEvaluation ? (patientId, encounterId) => evaluationDataset?.getPatientForBackend(patientId, encounterId) : undefined })
     : new FixtureDemoBackend());
@@ -253,6 +295,54 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
         return;
       }
 
+      const encounterDraftMatch = url.pathname.match(/^\/api\/patients\/([^/]+)\/encounters\/([^/]+)\/draft$/);
+      if (method === "GET" && encounterDraftMatch) {
+        if (!principal) { json(response, 401, { error: "AUTH_REQUIRED" }); return; }
+        if (!clinicalDrafts) { json(response, 503, { error: "DRAFT_STORE_UNAVAILABLE" }); return; }
+        const patientId = decodePathSegment(encounterDraftMatch[1] ?? "");
+        const encounterId = decodePathSegment(encounterDraftMatch[2] ?? "");
+        if (!patientId || !encounterId) { json(response, 400, { error: "INVALID_PATH" }); return; }
+        const patient = evaluationDataset.getPatient(patientId, principal);
+        if (!patient || !patient.encounters.some((item) => item.encounterId === encounterId)) {
+          json(response, 404, { error: "PATIENT_OR_ENCOUNTER_NOT_FOUND" });
+          return;
+        }
+        const context = evaluationDataset.getPatientForBackend(patientId, encounterId);
+        if (!context) { json(response, 404, { error: "PATIENT_OR_ENCOUNTER_NOT_FOUND" }); return; }
+        const drafts = await clinicalDrafts.list(context, principal);
+        json(response, 200, { draft: drafts[0] ? publicClinicalDraft(drafts[0]) : null });
+        try { log({ requestId, event: "clinical-draft.read", outcome: "allowed", role: principal.role }); } catch { /* logging cannot break reads */ }
+        return;
+      }
+
+      const clinicalDraftMatch = url.pathname.match(/^\/api\/clinical-drafts\/([A-Za-z0-9-]{36})$/i);
+      if (method === "PATCH" && clinicalDraftMatch) {
+        if (!hasAllowedOrigin(request, allowedEvaluationOrigins)) { json(response, 403, { error: "ORIGIN_NOT_ALLOWED" }); return; }
+        if (!principal) { json(response, 401, { error: "AUTH_REQUIRED" }); return; }
+        if (!clinicalDrafts) { json(response, 503, { error: "DRAFT_STORE_UNAVAILABLE" }); return; }
+        if (principal.role !== "clinician") { json(response, 403, { error: "REVIEW_ROLE_REQUIRED" }); return; }
+        if (!isJsonContentType(request)) { json(response, 415, { error: "UNSUPPORTED_MEDIA_TYPE" }); return; }
+        let body: unknown;
+        try { body = await readJson(request, 16_384); }
+        catch (error) { json(response, error instanceof RangeError ? 413 : 400, { error: "INVALID_REQUEST" }); return; }
+        const review = parseClinicalDraftReview(body);
+        if (!review) { json(response, 400, { error: "INVALID_REQUEST" }); return; }
+        try {
+          const updated = await clinicalDrafts.review({
+            draftId: clinicalDraftMatch[1]!, actor: principal, expectedVersion: review.expectedVersion,
+            action: review.action, changes: review.changes,
+          });
+          if (!updated) { json(response, 404, { error: "DRAFT_NOT_FOUND" }); return; }
+          json(response, 200, { draft: publicClinicalDraft(updated) });
+          try { log({ requestId, event: "clinical-draft.reviewed", outcome: "allowed", role: principal.role, action: review.action, version: updated.version, status: updated.status }); } catch { /* audit output cannot break a saved review */ }
+        } catch (error) {
+          if (error instanceof DraftVersionConflictError) { json(response, 409, { error: "DRAFT_VERSION_CONFLICT" }); return; }
+          if (error instanceof TypeError) { json(response, 400, { error: "INVALID_DRAFT_CHANGE" }); return; }
+          throw error;
+        }
+        return;
+      }
+
       if (method === "POST" && url.pathname === "/api/sessions") {
         if (!hasAllowedOrigin(request, allowedEvaluationOrigins)) { json(response, 403, { error: "ORIGIN_NOT_ALLOWED" }); return; }
         if (!principal) { json(response, 401, { error: "AUTH_REQUIRED" }); return; }
@@ -374,9 +464,31 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
 
       let status = "completed";
       let errorCode = "";
+      let assistantText = "";
+      const capturedEvidence: Array<{ evidenceId: string; rank: number; source: string; title: string; snippet: string }> = [];
       try {
         for await (const event of backend.run(input, { runId, signal: controller.signal })) {
           if (response.destroyed) break;
+          if (event.event === "assistant.delta") assistantText = `${assistantText}${event.data.text}`.slice(0, 200_000);
+          if (event.event === "evidence.item") capturedEvidence.push({
+            evidenceId: event.data.evidenceId, rank: event.data.rank, source: event.data.source,
+            title: event.data.title, snippet: event.data.snippet,
+          });
+          if (event.event === "run.completed" && clinicalEvaluation && chatPrincipal && clinicalDrafts && evaluationDataset) {
+            const context = evaluationDataset.getPatientForBackend(input.patientId, input.encounterId);
+            if (context && assistantText.trim()) {
+              try {
+                const draft = await clinicalDrafts.appendCompletedTurn({
+                  patient: context, actor: chatPrincipal, runId, patientMessage: input.message,
+                  assistantResponse: assistantText, evidence: capturedEvidence,
+                });
+                sendEvent(response, createEvent("draft.updated", runId, input.sessionId, { draftId: draft.draftId, version: draft.version, status: "preliminary" }));
+              } catch {
+                try { log({ requestId, event: "clinical-draft.save", outcome: "failed", role: chatPrincipal.role, errorCode: "DRAFT_SAVE_FAILED" }); } catch { /* audit output cannot break response */ }
+                sendEvent(response, createEvent("draft.save_failed", runId, input.sessionId, { code: "DRAFT_SAVE_FAILED" }));
+              }
+            }
+          }
           if (!sendEvent(response, event)) {
             status = "failed";
             errorCode = "INVALID_EVENT";
