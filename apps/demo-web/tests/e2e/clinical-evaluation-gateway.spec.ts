@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { freemem } from "node:os";
 import { dirname } from "node:path";
 import { expect, test } from "@playwright/test";
 
@@ -33,6 +34,8 @@ test("browser authenticates against the real synthetic Gateway and switches serv
   if (chatEnabled) {
     const resultPath = process.env.HUIYI_EVAL_BROWSER_RESULT_PATH;
     if (!resultPath) throw new Error("The model browser E2E requires a sanitized result artifact path.");
+    const freeMemoryGiB = freemem() / 1024 ** 3;
+    if (freeMemoryGiB < 24) throw new Error(`Live browser E2E requires at least 24 GiB free RAM; current estimate is ${freeMemoryGiB.toFixed(1)} GiB. No model request was sent.`);
     const startedAt = Date.now();
     const chatResponsePromise = page.waitForResponse(
       (response) => response.url().endsWith("/api/chat") && response.request().method() === "POST",
@@ -62,6 +65,15 @@ test("browser authenticates against the real synthetic Gateway and switches serv
     expect(ragToolCompleted).toBe(true);
     expect(evidenceItems.length).toBeGreaterThan(0);
     await expect(page.locator(".assistant-message .assistant-markdown").last()).toContainText(/\S/);
+    await page.getByRole("button", { name: /复诊草稿/ }).click();
+    await expect(page.getByRole("heading", { name: "复诊材料草稿" })).toBeVisible();
+    const draftEvidence = page.locator('.draft-section[aria-label="医学证据与出处"] .draft-item');
+    await expect(draftEvidence.first()).toBeVisible();
+    await page.getByRole("button", { name: "需补充问诊", exact: true }).click();
+    await expect(page.locator(".draft-state")).toHaveText("需补充问诊");
+    await expect(page.getByText("临床批准：未执行")).toBeVisible();
+    await page.locator(".draft-audit-history summary").click();
+    await expect(page.locator(".draft-revision").last()).toContainText("标记需补充问诊");
     const result = {
       schemaVersion: "huiyi-clinical-browser-e2e/v1",
       createdAt: new Date().toISOString(),
@@ -77,8 +89,13 @@ test("browser authenticates against the real synthetic Gateway and switches serv
       ragToolCompleted,
       evidenceItemCount: evidenceItems.length,
       ...(evidenceSources.length ? { evidenceSources } : {}),
+      structuredDraftCreated: true,
+      draftEvidenceItemCount: await draftEvidence.count(),
+      demoReviewActionPersisted: true,
+      clinicalApprovalPerformed: false,
+      freeMemoryGiBAtRequestStart: Number(freeMemoryGiB.toFixed(1)),
       responseWallTimeMs: Date.now() - startedAt,
-      rawPromptsAnswersAndEvidenceStored: false,
+      rawConversationContentInResultArtifact: false,
     };
     await mkdir(dirname(resultPath), { recursive: true });
     await writeFile(resultPath, `${JSON.stringify(result, null, 2)}\n`, { encoding: "utf8", flag: "wx" });

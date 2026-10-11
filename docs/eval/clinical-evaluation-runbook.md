@@ -509,3 +509,11 @@ v5 smoke [`smoke-20261011051024-7120d23b.json`](../../artifacts/clinical-eval/sm
     ./scripts/eval/clinical-browser-gateway-smoke.ps1 -GatewayPort 8357 -WebPort 8358 -BridgePort 8355 -HealthEngineUrl http://127.0.0.1:8356 -RunModelChat
 
 脚本使用已缓存 Chromium，不下载浏览器。-RunModelChat 会发起模型生成；默认模式只测认证与 session，不调用模型。此次临时 8355–8358 listener 均已释放；run-scoped AMA 数据目录已删除 84,207 bytes；RAM 从服务停止前约 9.43 GiB 回到约 18.15 GiB，C/E 可用空间保持约 8.01/112.36 GiB。没有下载模型、数据、依赖，也没有重建索引。
+
+## 26. 2026-10-11 M1 live browser E2E 资源故障
+
+在 `4f12bc5` 的会话关闭修复后，尝试以 GPT-6-Luna 运行一轮真实浏览器到 Gateway/DSH/RAG 的合成 E2E，并扩展断言检查结构化复诊草稿、草稿中的医学证据以及“需补充问诊”的演示审核留痕。Playwright 启动了 2 个 worker；约 46.6 秒后其中一个 Node worker 报告 JavaScript heap out-of-memory，浏览器模型用例失败。基础 mock 浏览器用例通过，但不能据此宣称 live E2E 或草稿审核链路通过。测试没有生成新的脱敏成功结果，也没有进入/完成草稿审核断言；此次运行不纳入临床或工程成功率。
+
+脚本报告失败并尝试关闭自己创建的 Gateway/Web listener，诊断日志保留于本机临时目录。之后用户反馈电脑黑屏并重启；现有证据确认同一时段发生了 Playwright worker OOM，但不能据此断定它是整机黑屏的唯一原因。模型、语料和依赖均未下载；在本次执行中未验证是否产生了新的草稿记录。不要将这次运行写成通过结果。
+
+为避免相同的并发负载，live browser E2E 配置现在强制单 worker，并要求在启动 Gateway、浏览器和模型请求前至少有 24 GiB 空闲物理内存；Playwright 用例还会在提交模型请求前复核该下限。低于下限时应 fail closed，不自动重试或杀停其他进程。此防护尚未通过 live 模型运行验证；本轮故障后没有重新启动 live 测试栈。

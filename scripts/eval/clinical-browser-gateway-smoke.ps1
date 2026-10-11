@@ -36,6 +36,12 @@ $bridgeApiKey = if ([string]::IsNullOrWhiteSpace($env:HUIYI_CODEX_BRIDGE_API_KEY
 $route = $null
 $ragStatus = $null
 if ($RunModelChat) {
+  $minimumFreeRamGiB = 24
+  $freeMemorySnapshot = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+  $freeMemoryGiB = [math]::Floor($freeMemorySnapshot.FreePhysicalMemory / 1MB)
+  if ($freeMemoryGiB -lt $minimumFreeRamGiB) {
+    throw "Live browser E2E requires at least $minimumFreeRamGiB GiB free RAM; current free RAM is $freeMemoryGiB GiB. No Gateway, browser, or model request was started."
+  }
   $engineUri = $null
   if (-not [Uri]::TryCreate($HealthEngineUrl, [UriKind]::Absolute, [ref]$engineUri) -or
       $engineUri.Scheme -ne 'http' -or $engineUri.Host -notin @('127.0.0.1', 'localhost', '[::1]') -or

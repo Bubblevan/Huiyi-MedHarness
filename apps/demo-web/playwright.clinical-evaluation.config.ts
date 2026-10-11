@@ -9,6 +9,8 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 8_000 },
   fullyParallel: false,
+  // A live Luna run shares the local model bridge and Health Engine; keep its browser worker serial.
+  workers: process.env.HUIYI_EVAL_BROWSER_CHAT === "1" ? 1 : undefined,
   reporter: "list",
   use: {
     ...devices["Desktop Chrome"],
