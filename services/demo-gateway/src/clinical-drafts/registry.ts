@@ -273,14 +273,17 @@ export function publicClinicalDraft(draft: ClinicalReviewDraft): Omit<ClinicalRe
 
 function createInitialDraft(input: DraftTurnInput, occurredAt: string): ClinicalReviewDraft {
   const patient = input.patient;
-  const item = (section: string, index: number, label: string, value: string) => makeItem({
-    itemId: stableItemId(section, `${patient.patientId}:${patient.encounterId}:${index}`), label, value,
-    source: source("patient-context", "服务端合成患者上下文", patient, input.runId), disposition: "unreviewed",
+  const item = (section: string, index: number, label: string, value: string, sourceEncounterId = patient.encounterId ?? "") => makeItem({
+    itemId: stableItemId(section, `${patient.patientId}:${sourceEncounterId}:${index}`), label, value,
+    source: source("patient-context", "服务端合成患者上下文", patient, input.runId, sourceEncounterId), disposition: "unreviewed",
   });
   const sections: Record<ClinicalDraftSection, ClinicalDraftItem[]> = {
     chiefConcern: [],
     history: [
       ...patient.conditions.map((value, index) => item("history", index, "已知问题", value)),
+      ...(patient.encounterHistory ?? []).map((encounter, index) => item(
+        "prior-encounter", index, `既往就诊摘要 · ${encounter.label}`, encounter.summary, encounter.encounterId,
+      )),
       ...(patient.memory.summary.trim() ? [item("memory", 0, "纵向记忆摘要（合成）", patient.memory.summary)] : []),
     ],
     medications: patient.medications.map((value, index) => item("medication", index, "用药记录（需核对当前实际用药）", value)),
@@ -366,8 +369,8 @@ function makeItem(input: Omit<ClinicalDraftItem, "reviewNote"> & { readonly revi
   return { ...input, reviewNote: input.reviewNote ?? "" };
 }
 
-function source(kind: DraftItemSource["kind"], label: string, patient: PatientContext, runId?: string): DraftItemSource {
-  return { kind, label, patientId: patient.patientId, encounterId: patient.encounterId ?? "", ...(runId ? { runId } : {}) };
+function source(kind: DraftItemSource["kind"], label: string, patient: PatientContext, runId?: string, encounterId = patient.encounterId ?? ""): DraftItemSource {
+  return { kind, label, patientId: patient.patientId, encounterId, ...(runId ? { runId } : {}) };
 }
 
 function stableItemId(prefix: string, value: string): string {

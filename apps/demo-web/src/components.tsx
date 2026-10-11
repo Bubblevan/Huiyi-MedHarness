@@ -25,6 +25,7 @@ export function BackendBadge({ backend, providerName, modelName }: { backend: st
 export function PatientContext({ patient, loading = false, syntheticLabel }: { patient: PatientRecord | null; loading?: boolean; syntheticLabel?: string }) {
   if (loading) return <section className="panel patient-panel" aria-label="Patient Context"><p className="muted">{clinicalCopy.patientLoading}</p></section>;
   if (!patient) return <section className="panel patient-panel patient-empty" aria-label="Patient Context"><div><h2>{clinicalCopy.patientEmptyTitle}</h2><p>{clinicalCopy.patientEmptyHint}</p></div></section>;
+  const encounterHistory = patient.encounterHistory ?? [];
   return (
     <section className="panel patient-panel" aria-label="Patient Context">
       <div className="panel-heading"><div><p className="eyebrow">PATIENT CONTEXT</p><h2>患者上下文</h2></div>{syntheticLabel ? <span className="synthetic-tag">{syntheticLabel}</span> : !isNonDemoBuild && <span className="synthetic-tag">{clinicalCopy.patientTag}</span>}</div>
@@ -33,6 +34,12 @@ export function PatientContext({ patient, loading = false, syntheticLabel }: { p
         <div><h3>{patient.displayName}</h3><p>{patient.sex} · {patient.age} 岁</p></div>
       </div>
       <div className="encounter-chip"><span className="small-label">当前 Encounter</span><strong>{patient.encounter}</strong></div>
+      {encounterHistory.length > 0 && <section className="clinical-section encounter-history">
+        <h3>既往就诊 <span>{encounterHistory.length}</span></h3>
+        <ol>{encounterHistory.map((item) => <li key={item.encounterId}>
+          <strong>{item.label}</strong><small>{item.encounterId}</small><p>{item.summary}</p>
+        </li>)}</ol>
+      </section>}
       <section className="clinical-section"><h3>已知问题 <span>{patient.conditions.length}</span></h3><ul>{patient.conditions.map((condition) => <li key={condition}><span className="clinical-mark amber" />{condition}</li>)}</ul></section>
       <section className="clinical-section"><h3>用药记录 <span>{patient.medications.length}</span></h3><ul>{patient.medications.map((medication) => <li key={medication}><span className="clinical-mark blue" />{medication}</li>)}</ul></section>
       <section className="clinical-section"><h3>过敏信息</h3><ul>{patient.allergies.map((allergy) => <li key={allergy}><span className="clinical-mark green" />{allergy}</li>)}</ul></section>

@@ -9,6 +9,7 @@ import { clinicalCopy, resolveClinicalCopy } from "./copy/clinicalWorkstation.js
 const patient: PatientRecord = {
   patientId: "patient-htn", displayName: "张某", age: 52, sex: "男", encounter: "高血压复诊 · 示例",
   conditions: ["高血压（合成示例）"], medications: ["示例药物"], allergies: ["合成过敏信息"],
+  encounterHistory: [{ encounterId: "patient-htn-enc-01", label: "既往复诊 1", status: "finished", summary: "曾建议核对家庭血压记录。" }],
   memory: { summary: "合成长期记忆摘要。", items: 6, updatedLabel: "上次复诊" }, suggestedQuestion: "演示问题",
 };
 
@@ -20,6 +21,9 @@ describe("clinical demo panels", () => {
     expect(screen.getByText("Synthetic demo patient")).toBeInTheDocument();
     expect(screen.getByText("长期记忆摘要")).toBeInTheDocument();
     expect(screen.getByText("合成长期记忆摘要。")).toBeInTheDocument();
+    expect(screen.getByText("既往复诊 1")).toBeInTheDocument();
+    expect(screen.getByText("patient-htn-enc-01")).toBeInTheDocument();
+    expect(screen.getByText("曾建议核对家庭血压记录。")).toBeInTheDocument();
     expect(screen.queryByText("Demo evidence fixture")).not.toBeInTheDocument();
   });
 

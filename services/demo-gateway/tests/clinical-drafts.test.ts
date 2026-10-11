@@ -17,6 +17,9 @@ function context(patientId = "SYN-P-0001"): PatientContext {
     patientId, tenantId: "evaluation-tenant-1", encounterId: "SYN-P-0001-ENC-02", synthetic: true,
     displayName: "模拟患者 0001", age: 48, sex: "女", encounter: "当前模拟复诊",
     conditions: ["已知合成病史"], medications: ["合成用药记录"], allergies: ["合成过敏记录"],
+    encounterHistory: [
+      { encounterId: "SYN-P-0001-ENC-01", label: "既往模拟就诊 1", status: "finished", summary: "此前记录提示核对近期家庭测量结果。" },
+    ],
     memory: { summary: "合成纵向记忆", items: 2, updatedLabel: "模拟数据" }, suggestedQuestion: "请核对本次复诊信息。",
   };
 }
@@ -39,6 +42,10 @@ describe("synthetic clinical draft versions and review audit", () => {
     });
     expect(first).toMatchObject({ version: 1, status: "preliminary", synthetic: true, clinicalApprovalStatus: "not-performed" });
     expect(first.sections.history[0]?.source.kind).toBe("patient-context");
+    expect(first.sections.history.find((item) => item.label.includes("既往就诊摘要"))).toMatchObject({
+      value: "此前记录提示核对近期家庭测量结果。",
+      source: { patientId: "SYN-P-0001", encounterId: "SYN-P-0001-ENC-01" },
+    });
     expect(first.sections.medicalEvidence[0]?.source.evidenceId).toBe("EV-1");
     expect(first.sections.riskSignals).toHaveLength(0);
     expect(first.revisions[0]?.before).toBeNull();

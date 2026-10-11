@@ -519,3 +519,10 @@ v5 smoke [`smoke-20261011051024-7120d23b.json`](../../artifacts/clinical-eval/sm
 随后增加了一个不启动模型的 Gateway integration test：fake DSH backend 发出 `evidence.item` 后，Gateway 将引用写入结构化草稿及该轮 `evidenceIds`。网关测试 51/51 通过。它只证明 Gateway 事件到草稿注册表的映射，不证明 live DSH/RAG 在这次失败的浏览器运行中成功。
 
 为避免相同的并发负载，live browser E2E 配置现在只选择真实 Gateway 用例并强制单 worker；启动 Gateway、浏览器前要求至少有 24 GiB 空闲物理内存，Playwright 还会在发送模型请求前复核该下限。低于下限时应 fail closed，不自动重试或杀停其他进程。此防护尚未通过 live 模型运行验证；本轮故障后没有重新启动 live 测试栈。
+## 27. 既往 Encounter 上下文及草稿来源映射
+
+继续推进 M1 的离线数据流：鉴权患者选择某个 Encounter 后，Gateway `PatientContext` 现在只附带该患者在数据集顺序中位于当前 Encounter 之前的摘要，并保留每条摘要的 Encounter ID、标签和状态；不附带当前 Encounter 之后的记录，也不暴露用于模拟对话的 `turnPlan`。DSH 合成病例 snapshot 将这些 ID 与摘要传入上下文，患者面板显示既往就诊时间线；结构化草稿的病史条目也把 `source.encounterId` 绑定到摘要原 Encounter，而非当前就诊。
+
+仅执行低负载、离线验证：既往 Encounter 截断测试、DSH snapshot 格式测试、草稿来源 ID 持久化测试及患者面板渲染测试各通过；demo-web typecheck 与 Gateway TypeScript build 通过。组合运行 Gateway 两个完整测试文件时，沙箱拒绝临时 loopback 请求（`EACCES`），且默认 AppData 临时目录的原子 rename 返回 `EPERM`；之后将相关无网络测试逐项隔离，并将草稿测试临时目录指向仓库，相关四项均通过。没有启动 Gateway、浏览器或模型服务。
+
+这只是把既有摘要连入 DSH 和草稿的工程数据流，不代表已验证模型能正确召回或整合纵向病史。当前生成器的既往摘要仍较模板化；药物变化、检查结果时间线等临床差异场景和 300 例端到端评测仍未完成，不能报告历史召回率或临床任务完成率。

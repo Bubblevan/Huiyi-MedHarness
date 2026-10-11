@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@deepseek-ai/cordis";
 import { createUserMessage } from "@deepseek-ai/dsh-llm";
 import { DshDemoBackend, dshAgentSessionId, type DshDemoBackendOptions } from "../src/backends/dsh.js";
-import { DshWebRuntime, type DshDemoAgent, type DshDemoObserver, type DshDemoRuntimePort, type DshTurnObservation } from "../src/backends/dsh-runtime.js";
+import { DshWebRuntime, renderSyntheticPatientSnapshot, type DshDemoAgent, type DshDemoObserver, type DshDemoRuntimePort, type DshTurnObservation } from "../src/backends/dsh-runtime.js";
 import { getPatient } from "../src/demo-seed/patients.js";
 import type { DemoEvent } from "../src/contracts.js";
 
@@ -345,6 +345,16 @@ describe("native DSH demo backend", () => {
     expect(handle.agent.id).toContain("composition-");
     await handle.dispose();
     await runtime.dispose();
+  });
+
+  it("includes only explicitly supplied prior Encounter IDs and summaries in the DSH snapshot", () => {
+    const snapshot = renderSyntheticPatientSnapshot({
+      ...patient,
+      encounterHistory: [{
+        encounterId: "SYN-P-0001-ENC-01", label: "既往模拟就诊 1", status: "finished", summary: "曾记录家庭测量结果待核对。",
+      }],
+    });
+    expect(snapshot).toContain("Prior encounter 1 (SYN-P-0001-ENC-01; 既往模拟就诊 1; finished): 曾记录家庭测量结果待核对。");
   });
 
   it("attributes direct subagent usage to its root run without observing child prose", () => {

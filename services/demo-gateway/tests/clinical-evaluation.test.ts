@@ -120,6 +120,18 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     expect(first.every((patient) => patient.synthetic && patient.patientId.startsWith("SYN-P-"))).toBe(true);
   });
 
+  it("returns only prior encounter summaries for the selected encounter with stable source IDs", () => {
+    const dataset = new SyntheticEvaluationDataset({ patientCount: 2, turnCount: 1, encounterCount: 3, seed: "encounter-history" });
+    const patient = generateSyntheticPatients({ patientCount: 2, turnCount: 1, encounterCount: 3, seed: "encounter-history" })[0]!;
+    const current = dataset.getPatientForBackend(patient.patientId, patient.encounters[2]!.encounterId)!;
+    expect(current.encounterHistory).toEqual(patient.encounters.slice(0, 2).map(({ encounterId, label, status, summary }) => ({ encounterId, label, status, summary })));
+    expect(JSON.stringify(current.encounterHistory)).not.toContain("turnPlan");
+
+    const earlier = dataset.getPatientForBackend(patient.patientId, patient.encounters[1]!.encounterId)!;
+    expect(earlier.encounterHistory?.map((item) => item.encounterId)).toEqual([patient.encounters[0]!.encounterId]);
+    expect(earlier.encounterHistory?.some((item) => item.encounterId === patient.encounters[2]!.encounterId)).toBe(false);
+  });
+
   it("isolates authorization records from mutations to input and returned patient objects", () => {
     const records = generateSyntheticPatients({ patientCount: 2, turnCount: 1, encounterCount: 1, seed: "mutation-isolation" });
     const dataset = new SyntheticEvaluationDataset({}, records);
@@ -158,13 +170,16 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     expect(JSON.stringify(listA)).not.toContain("turnPlan");
     expect(JSON.stringify(listA)).not.toContain("patientMessage");
     const ownPatient = listA.patients[0]!;
-    const ownEncounter = ownPatient.encounters[0]!;
+    const ownEncounter = ownPatient.encounters.at(-1)!;
     const otherGroupPatient = listB.patients[0]!;
     const otherTenantPatient = listC.patients[0]!;
     expect(listA.patients.some((patient) => patient.patientId === otherGroupPatient.patientId)).toBe(false);
     expect(listA.patients.some((patient) => patient.patientId === otherTenantPatient.patientId)).toBe(false);
 
-    expect((await request(app, `/api/patients/${ownPatient.patientId}/context?encounterId=${ownEncounter.encounterId}`, cookieA)).status).toBe(200);
+    const ownContextResponse = await request(app, `/api/patients/${ownPatient.patientId}/context?encounterId=${ownEncounter.encounterId}`, cookieA);
+    expect(ownContextResponse.status).toBe(200);
+    const ownContext = await ownContextResponse.json() as { encounterHistory: Array<{ encounterId: string }> };
+    expect(ownContext.encounterHistory.map((item) => item.encounterId)).toEqual([ownPatient.encounters[0]!.encounterId]);
     expect((await request(app, `/api/patients/${otherGroupPatient.patientId}/context?encounterId=${otherGroupPatient.encounters[0]!.encounterId}`, cookieA)).status).toBe(404);
     expect((await request(app, `/api/patients/${otherTenantPatient.patientId}/encounters`, cookieA)).status).toBe(404);
     const deniedSession = await request(app, "/api/sessions", cookieA, { method: "POST", body: JSON.stringify({ patientId: otherGroupPatient.patientId, encounterId: otherGroupPatient.encounters[0]!.encounterId }) });
@@ -177,7 +192,7 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     expect(crossUserReplay.status).toBe(404);
     const crossPatientReplay = await request(app, "/api/chat", cookieA, { method: "POST", body: JSON.stringify({ sessionId: session.sessionId, patientId: otherGroupPatient.patientId, encounterId: otherGroupPatient.encounters[0]!.encounterId, message: "hello" }) });
     expect(crossPatientReplay.status).toBe(404);
-    const crossEncounterReplay = await request(app, "/api/chat", cookieA, { method: "POST", body: JSON.stringify({ sessionId: session.sessionId, patientId: ownPatient.patientId, encounterId: ownPatient.encounters[1]!.encounterId, message: "hello" }) });
+    const crossEncounterReplay = await request(app, "/api/chat", cookieA, { method: "POST", body: JSON.stringify({ sessionId: session.sessionId, patientId: ownPatient.patientId, encounterId: ownPatient.encounters[0]!.encounterId, message: "hello" }) });
     expect(crossEncounterReplay.status).toBe(404);
     expect(app.backend.received).toHaveLength(0);
 
@@ -193,7 +208,7 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     expect(draftResponse.status).toBe(200);
     const draftPayload = await draftResponse.json() as { draft: {
       draftId: string; version: number; status: string; synthetic: boolean; clinicalApprovalStatus: string;
-      sections: Record<string, Array<{ itemId: string; value: string; disposition: string }>>;
+      sections: Record<string, Array<{ itemId: string; value: string; disposition: string; source?: { encounterId: string } }>>;
       turns: Array<{ patientMessage: string; assistantResponse: string; evidenceIds: string[] }>;
       revisions: Array<{ before: unknown; after: { version: number } }>;
     } };
@@ -201,6 +216,7 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     expect(draft).toMatchObject({ version: 1, status: "preliminary", synthetic: true, clinicalApprovalStatus: "not-performed" });
     expect(draft.sections.chiefConcern?.[0]?.value).toBe("hello");
     expect(draft.sections.history?.[0]?.value).toBeTruthy();
+    expect(draft.sections.history?.some((item) => item.source?.encounterId === ownPatient.encounters[0]!.encounterId)).toBe(true);
     expect(draft.sections.informationToVerify?.length).toBeGreaterThan(0);
     expect(draft.sections.medicalEvidence).toMatchObject([{ itemId: "synthetic-evidence-1", value: "Synthetic evidence excerpt" }]);
     expect(draft.turns[0]).toMatchObject({ patientMessage: "hello", assistantResponse: "synthetic response", evidenceIds: ["synthetic-evidence-1"] });

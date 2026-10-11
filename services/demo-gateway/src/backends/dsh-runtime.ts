@@ -363,7 +363,7 @@ function positiveInteger(raw: string | undefined, fallback: number, maximum: num
   return Number.isSafeInteger(value) && value > 0 && value <= maximum ? value : fallback;
 }
 
-function renderSyntheticPatientSnapshot(patient: PatientContext): string {
+export function renderSyntheticPatientSnapshot(patient: PatientContext): string {
   const conditions = patient.conditions.length ? patient.conditions.join("、") : "未提供";
   const medications = patient.medications.length ? patient.medications.join("、") : "未提供";
   const allergies = patient.allergies.length ? patient.allergies.join("、") : "未提供";
@@ -373,6 +373,8 @@ function renderSyntheticPatientSnapshot(patient: PatientContext): string {
     `Conditions: ${conditions}.`,
     `Medications: ${medications}.`,
     `Allergies: ${allergies}.`,
+    ...(patient.encounterHistory ?? []).map((item, index) =>
+      `Prior encounter ${index + 1} (${item.encounterId}; ${item.label}; ${item.status}): ${item.summary}`),
     `Longitudinal note: ${patient.memory.summary}`,
   ].join("\n");
 }

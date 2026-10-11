@@ -22,6 +22,13 @@ export const DEMO_EVENTS = [
 export type DemoEventName = (typeof DEMO_EVENTS)[number];
 export type DemoScenario = "simple" | "complex" | "failure";
 
+export interface PatientEncounterHistoryEntry {
+  readonly encounterId: string;
+  readonly label: string;
+  readonly status: "finished" | "in-progress";
+  readonly summary: string;
+}
+
 export interface PatientContext {
   patientId: string;
   tenantId?: string;
@@ -34,6 +41,8 @@ export interface PatientContext {
   conditions: string[];
   medications: string[];
   allergies: string[];
+  /** Earlier encounters only; each summary retains its source encounter ID. */
+  encounterHistory?: PatientEncounterHistoryEntry[];
   memory: { summary: string; items: number; updatedLabel: string };
   suggestedQuestion: string;
 }

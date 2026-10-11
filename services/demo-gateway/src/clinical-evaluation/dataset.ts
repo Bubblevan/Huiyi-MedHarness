@@ -176,8 +176,9 @@ export class SyntheticEvaluationDataset {
   getPatientForBackend(patientId: string, encounterId: string | undefined): PatientContext | undefined {
     const patient = this.records.get(patientId);
     if (!patient) return undefined;
-    const encounter = patient.encounters.find((item) => item.encounterId === encounterId);
-    if (!encounter) return undefined;
+    const encounterIndex = patient.encounters.findIndex((item) => item.encounterId === encounterId);
+    if (encounterIndex < 0) return undefined;
+    const encounter = patient.encounters[encounterIndex]!;
     return {
       patientId: patient.patientId,
       tenantId: patient.tenantId,
@@ -190,6 +191,12 @@ export class SyntheticEvaluationDataset {
       conditions: [...patient.conditions],
       medications: [...patient.medications],
       allergies: [...patient.allergies],
+      encounterHistory: patient.encounters.slice(0, encounterIndex).map(({ encounterId: priorEncounterId, label, status, summary }) => ({
+        encounterId: priorEncounterId,
+        label,
+        status,
+        summary,
+      })),
       memory: { ...patient.memory },
       suggestedQuestion: patient.suggestedQuestion,
     };
