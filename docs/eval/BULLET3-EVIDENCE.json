@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "bullet": "B3",
+  "decision": "ENGINEERING_SIGNAL_OBSERVED_MEMORY_ATTRIBUTION_INSUFFICIENT_EVIDENCE",
+  "runId": "20261011184053-5bce7818",
+  "sourceCommit": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+  "model": "GPT-6-Luna",
+  "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+  "sample": {
+    "pairedTasks": 31,
+    "completePairedCases": ["HCE-0001", "HCE-0002"],
+    "completePairedCaseCount": 2,
+    "finalArmTurnRecords": 64,
+    "failedArmTurnRecords": 21,
+    "failureRecordsRetained": true
+  },
+  "disclosedHistoryFactCorrectCitation": {
+    "pairedFactCount": 22,
+    "single": { "correct": 10, "denominator": 22, "rate": 0.4545 },
+    "integrated": { "correct": 16, "denominator": 22, "rate": 0.7273 },
+    "integratedMinusSinglePercentagePoints": 27.27,
+    "integratedOnlyWins": 6,
+    "singleOnlyWins": 0,
+    "ties": 16,
+    "scoringType": "blinded synthetic engineering score",
+    "sourceAttributionToAmaMemory": false,
+    "humanClinicalReview": false
+  },
+  "amaTrace": {
+    "traceEventCount": 90,
+    "automaticRecall": { "completed": 7, "failed": 1, "skipped": 32 },
+    "memoryCommit": { "completed": 9, "failed": 1, "skipped": 34 },
+    "sessionEnd": { "completed": 4, "failed": 0, "skipped": 2 },
+    "traceContainsMemoryItemText": false,
+    "traceContainsStableMemorySourceIds": false
+  },
+  "toolCalls": {
+    "consultClinicalTeam": { "completed": 5 },
+    "searchMedicalEvidence": { "completed": 2 },
+    "complexCaseCoverageScore": null
+  },
+  "limitations": [
+    "Only two complete paired longitudinal synthetic cases.",
+    "21 of 64 final arm-turn records failed; failures remain in completion denominators.",
+    "Correct use of disclosed history does not prove the source was AMA cross-encounter recall.",
+    "AMA trace stores structured metadata and item counts, not fact-level memory source IDs or memory text.",
+    "Complex-case key-analysis-point coverage was not scored.",
+    "Not clinician review or clinical validation."
+  ],
+  "resumeCandidate": "在 GPT-6-Luna 驱动的纵向复诊配对工程评测中，2 个完整合成病例覆盖 22 条已披露历史事实；Integrated 正确引用 16/22（72.7%），Single 为 10/22（45.5%），配对差 +27.3 个百分点。AMA trace 记录自动召回 7/8 次完成、记忆提交 9/10 次完成；现有数据尚不能将正确引用归因于 AMA 跨就诊记忆，复杂病例关键点覆盖率未测。",
+  "memoryEffectClaimReady": false,
+  "complexCoverageClaimReady": false,
+  "documentation": [
+    "docs/eval/B1-SPRINT-002-RESULTS.md",
+    "docs/eval/B1-SPRINT-002-RESULTS.json",
+    "artifacts/clinical-eval/runs/20261011184053-5bce7818/memory-trace.jsonl",
+    "artifacts/clinical-eval/runs/20261011184053-5bce7818/manifest.json"
+  ]
+}
