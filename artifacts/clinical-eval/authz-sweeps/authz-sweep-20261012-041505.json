@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1.1.0",
+  "measuredAt": "2026-10-11T20:15:04.1817646Z",
+  "durationMs": 1679.59,
+  "status": "pass",
+  "scope": "local synthetic clinical-evaluation Gateway; not production identity or EMR authorization",
+  "syntheticOnly": true,
+  "sourceAttestation": {
+    "gitRevision": "4b488be988371795cb0a4d775dee0a8b34e3e797",
+    "relevantSourceDirty": false,
+    "fingerprintAlgorithm": "sha256(path + byte length + file sha256, sorted by path)",
+    "fingerprintSha256": "6d8f412573067d680a624629dd25d4ba5f4b364c07b05e507c30bdcc4f8e2c66",
+    "files": [
+      {
+        "path": "scripts/eval/authz-sweep.ps1",
+        "bytes": 10342,
+        "sha256": "f4387181a715bb298c59288cf4a1dd4156ad4fadfaf1a4ef00027c28242ed0e4"
+      },
+      {
+        "path": "services/demo-gateway/src/app-mode.ts",
+        "bytes": 986,
+        "sha256": "2121d9eeb36f7cbca231b26b75c094370067f653313a22a13b82a0297489598f"
+      },
+      {
+        "path": "services/demo-gateway/src/backends/dsh-runtime.ts",
+        "bytes": 21688,
+        "sha256": "2c55298bf16c19feaf71a04cd8b8024407b7a99e45c44b198ff6412773047679"
+      },
+      {
+        "path": "services/demo-gateway/src/clinical-evaluation/auth.ts",
+        "bytes": 6785,
+        "sha256": "8351dc35b1c0532de1d79f8dc587e4f5b202e67aaef1f714620b32a5940dd4fd"
+      },
+      {
+        "path": "services/demo-gateway/src/clinical-evaluation/dataset.ts",
+        "bytes": 10087,
+        "sha256": "db45f927dbdaa4e7adc6bb256e59b345fe655325ecfe70e7c5b78e9146987093"
+      },
+      {
+        "path": "services/demo-gateway/src/clinical-evaluation/sessions.ts",
+        "bytes": 2317,
+        "sha256": "47757fd7bd5b86ed61b073ae01043a52866ff0ef5ac5d47fff4df5b2942060bf"
+      },
+      {
+        "path": "services/demo-gateway/src/server.ts",
+        "bytes": 32717,
+        "sha256": "e05d6e4c48966203709a452d2097bb6fb587ec6a2c20c72fb4800782dfdac53b"
+      }
+    ]
+  },
+  "routeAttestation": {
+    "backend": "dsh",
+    "modelBackend": "codex-app-server",
+    "model": "gpt-6-luna"
+  },
+  "cohort": {
+    "patientCount": 300,
+    "encounterCount": 3,
+    "datasetSeed": "huiyi-clinical-evaluation-v1",
+    "accounts": 2,
+    "plannedContextChecks": 600
+  },
+  "observed": {
+    "loginSuccesses": 2,
+    "scopedPatientCounts": [
+      75,
+      75
+    ],
+    "allowedContextReads": 150,
+    "outOfScopeContextReadsDenied": 450,
+    "unauthorizedContextSuccesses": 0,
+    "unexpectedStatuses": 0,
+    "contextReadP95Ms": 0.99,
+    "sessionOwnership": {
+      "crossAccountDeleteStatus": 404,
+      "ownerDeleteStatus": 204
+    },
+    "logoutStatuses": [
+      204,
+      204
+    ],
+    "protectedPatientListAfterLogoutStatuses": [
+      401,
+      401
+    ],
+    "modelGenerationRequests": 0
+  },
+  "resources": {
+    "before": {
+      "ramFreeGiB": 44.0,
+      "ramTotalGiB": 63.7,
+      "diskFreeGiB": {
+        "D:": 179.7,
+        "C:": 11.5,
+        "E:": 158.2
+      }
+    },
+    "after": {
+      "ramFreeGiB": 43.9,
+      "ramTotalGiB": 63.7,
+      "diskFreeGiB": {
+        "D:": 179.7,
+        "C:": 11.5,
+        "E:": 158.2
+      }
+    }
+  },
+  "limitations": [
+    "synthetic in-memory evaluation accounts and records only",
+    "does not prove production SSO, database row-level security, cross-device revocation, or clinical safety"
+  ]
+}

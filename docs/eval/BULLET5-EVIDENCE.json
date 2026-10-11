@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0.0",
+  "bullet": "B5",
+  "decision": "LOCAL_SYNTHETIC_AUTHZ_VERIFIED_CLOUD_DEPLOYMENT_NOT_VERIFIED",
+  "runId": "authz-sweep-20261012-041505",
+  "sourceCommit": "4b488be988371795cb0a4d775dee0a8b34e3e797",
+  "sourceFingerprintSha256": "6d8f412573067d680a624629dd25d4ba5f4b364c07b05e507c30bdcc4f8e2c66",
+  "scope": "local loopback clinical-evaluation Gateway with synthetic in-memory accounts and patients",
+  "route": { "backend": "dsh", "modelBackend": "codex-app-server", "model": "gpt-6-luna" },
+  "cohort": {
+    "patientCount": 300,
+    "encounterCount": 3,
+    "accounts": 2,
+    "plannedContextChecks": 600,
+    "syntheticOnly": true
+  },
+  "observed": {
+    "loginSuccesses": 2,
+    "allowedContextReads": 150,
+    "outOfScopeContextReadsDenied": 450,
+    "unauthorizedContextSuccesses": 0,
+    "unexpectedStatuses": 0,
+    "contextReadP95Ms": 0.99,
+    "crossAccountDeleteStatus": 404,
+    "ownerDeleteStatus": 204,
+    "logoutStatuses": [204, 204],
+    "protectedPatientListAfterLogoutStatuses": [401, 401],
+    "modelGenerationRequests": 0
+  },
+  "resources": {
+    "ramFreeGiBBefore": 44.0,
+    "ramFreeGiBAfter": 43.9,
+    "diskFreeGiBBefore": { "C:": 11.5, "D:": 179.7, "E:": 158.2 },
+    "diskFreeGiBAfter": { "C:": 11.5, "D:": 179.7, "E:": 158.2 }
+  },
+  "resumeCandidate": "为临床评测 Gateway 实现租户/访问组患者范围和 Session 所有权控制；在当前源码的 300 例合成患者、600 次上下文读取中，150 次授权成功、450 次越范围请求被拒，未授权成功 0 次，loopback 读取 P95 0.99 ms，并验证跨账号删会话和登出后访问拦截。",
+  "productionDeploymentVerified": false,
+  "limitations": [
+    "Does not verify Alibaba Cloud portal deployment, HTTPS ingress, or WireGuard tunnel.",
+    "Does not verify production SSO, persistent database row-level authorization, real EMR, or cross-device revocation.",
+    "P95 is local in-memory context-read latency, not end-to-end question latency or public SLA.",
+    "No concurrent load test or real patient data was used."
+  ],
+  "evidence": [
+    "artifacts/clinical-eval/authz-sweeps/authz-sweep-20261012-041505.json",
+    "scripts/eval/authz-sweep.ps1",
+    "docs/product/evidence-backed-project-profile.md"
+  ]
+}
