@@ -6,7 +6,9 @@ When RAG is enabled, DSH is instructed to cite a retrieved source with `[evidenc
 
 The engineering scorer measures two separate things:
 
-- **Citation ID resolution:** emitted `[evidence:<ID>]` tokens that exactly match an ID returned by same-task RAG, divided by all emitted citation tokens.
-- **Citation coverage:** evidence-required tasks that completed and emitted at least one valid citation, divided by all planned evidence-required tasks. Failed runs and missing citations remain in the denominator.
+- **Same-task citation ID resolution:** emitted `[evidence:<ID>]` tokens that exactly match an ID returned by RAG in that task, divided by all emitted citation tokens.
+- **Citation coverage:** evidence-required tasks that completed and emitted at least one valid citation in that task, divided by the evidence-required tasks represented in the run. A citation appearing in a later turn does not satisfy the earlier task's coverage. Failed runs and missing citations remain in the denominator.
 
-These are source-linkage measures. They do not determine whether a cited passage supports the adjacent claim. That semantic evidence-support rate remains unmeasured without an independently reviewed claim-to-passage judgment. If no recognized citation token is emitted, ID resolution is reported as not measurable and coverage reports the missing-citation rate rather than assigning a fabricated 0/100 validity result.
+For longitudinal conversations, the run report may also show **same-patient, same-arm session ID resolution**: a token resolves when its exact ID was returned by RAG in the current task or an earlier turn of that same patient execution. It never uses a future retrieval, a different patient, or the other experiment arm. This explains whether a late citation refers to a source already retrieved in the conversation; it does not change the stricter task-level coverage result.
+
+These are source-linkage measures. They do not determine whether a cited passage supports the adjacent claim. That semantic evidence-support rate remains unmeasured without an independent claim-to-passage judgment. If no recognized citation token is emitted, ID resolution is reported as not measurable and coverage reports the missing-citation rate rather than assigning a fabricated validity rate.

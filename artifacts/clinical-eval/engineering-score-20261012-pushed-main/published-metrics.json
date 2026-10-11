@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "huiyi-clinical-engineering-published-metrics/v1",
+  "scope": "Synthetic engineering experiment only; not clinician review, clinical validation, or production safety evidence.",
+  "studyRunId": "20261011172610-bccbc7f7",
+  "runStatus": "interrupted",
+  "sourceCommit": "7ec67f917559c02e698bf5d2092a592bf23d2142",
+  "sourceWorkingTreeDirty": false,
+  "model": {
+    "id": "gpt-6-luna",
+    "backend": "codex-app-server",
+    "ragMode": "iterative"
+  },
+  "cohort": {
+    "artifact": "artifacts\\clinical-eval\\cohort-300-adaptive-v2.jsonl",
+    "sha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+    "plannedCases": 5,
+    "plannedTaskRecords": 80
+  },
+  "sample": {
+    "terminalRecords": 48,
+    "completed": 43,
+    "failed": 5,
+    "unrun": 32,
+    "failureCounts": {
+      "MODEL_TIMEOUT": 4,
+      "AUTHENTICATED_GATEWAY_EXCEPTION": 1
+    },
+    "completePairedCaseCount": 2,
+    "fullyCompletePairedTurnPairs": 16,
+    "observedPairedTurnPairs": 22,
+    "semanticScores": 43,
+    "semanticUnscored": 0,
+    "retryAttempts": 0
+  },
+  "pairedKeyTaskOutcome": {
+    "integratedWins": 4,
+    "singleWins": 2,
+    "ties": 16,
+    "netIntegratedCompletedTurns": 2
+  },
+  "byArm": {
+    "single-agent": {
+      "recordedTasks": 26,
+      "keyTaskCompletion": {
+        "numerator": 14,
+        "denominator": 26,
+        "rate": 0.5384615384615384,
+        "percent": 53.85
+      },
+      "structuredDraftValidity": {
+        "numerator": 5,
+        "denominator": 6,
+        "rate": 0.8333333333333334,
+        "percent": 83.33
+      },
+      "disclosedHistoryFactCorrectness": {
+        "numerator": 10,
+        "denominator": 25,
+        "rate": 0.4,
+        "percent": 40
+      },
+      "executionSuccess": {
+        "numerator": 23,
+        "denominator": 26,
+        "rate": 0.8846153846153846,
+        "percent": 88.46
+      },
+      "latencySeconds": {
+        "p50": 9.7,
+        "p95": 300.01,
+        "includesFailures": true,
+        "denominator": 26
+      },
+      "observedTokens": {
+        "total": 568456,
+        "dshInput": 562779,
+        "dshOutput": 5677,
+        "amaInput": 0,
+        "amaOutput": 0,
+        "ragPlannerInput": 0,
+        "ragPlannerOutput": 0,
+        "unmeasuredFailedRuns": 3,
+        "monetaryCost": null
+      },
+      "citationIdResolution": {
+        "sameTurn": {
+          "numerator": 0,
+          "denominator": 0,
+          "percent": null
+        },
+        "samePatientSameArmSession": {
+          "numerator": 0,
+          "denominator": 0,
+          "percent": null
+        },
+        "priorTurnOnlyResolved": 0,
+        "citationTokens": 0,
+        "retrievalTurns": 0,
+        "returnedEvidenceItems": 0,
+        "evidenceTaskSameTurnCoverage": {
+          "numerator": 0,
+          "denominator": 3,
+          "rate": 0,
+          "percent": 0
+        }
+      }
+    },
+    "integrated": {
+      "recordedTasks": 22,
+      "keyTaskCompletion": {
+        "numerator": 16,
+        "denominator": 22,
+        "rate": 0.7272727272727273,
+        "percent": 72.73
+      },
+      "structuredDraftValidity": {
+        "numerator": 5,
+        "denominator": 5,
+        "rate": 1,
+        "percent": 100
+      },
+      "disclosedHistoryFactCorrectness": {
+        "numerator": 12,
+        "denominator": 20,
+        "rate": 0.6,
+        "percent": 60
+      },
+      "executionSuccess": {
+        "numerator": 20,
+        "denominator": 22,
+        "rate": 0.9090909090909091,
+        "percent": 90.91
+      },
+      "latencySeconds": {
+        "p50": 22.47,
+        "p95": 295.8,
+        "includesFailures": true,
+        "denominator": 22
+      },
+      "observedTokens": {
+        "total": 1521078,
+        "dshInput": 908477,
+        "dshOutput": 8412,
+        "amaInput": 531987,
+        "amaOutput": 2883,
+        "ragPlannerInput": 69076,
+        "ragPlannerOutput": 243,
+        "unmeasuredFailedRuns": 1,
+        "monetaryCost": null
+      },
+      "citationIdResolution": {
+        "sameTurn": {
+          "numerator": 6,
+          "denominator": 12,
+          "percent": 50
+        },
+        "samePatientSameArmSession": {
+          "numerator": 12,
+          "denominator": 12,
+          "percent": 100
+        },
+        "priorTurnOnlyResolved": 6,
+        "citationTokens": 12,
+        "retrievalTurns": 2,
+        "returnedEvidenceItems": 6,
+        "evidenceTaskSameTurnCoverage": {
+          "numerator": 1,
+          "denominator": 2,
+          "rate": 0.5,
+          "percent": 50
+        }
+      }
+    }
+  },
+  "evidenceCitation": {
+    "stableIdScheme": "MED-<16 uppercase hex> = SHA-256(corpus, source document ID, chunk ID, exact chunk content); exact identifiers are available to the answering model.",
+    "sessionResolutionRule": "A citation resolves if its exact ID was returned by RAG in the current task or an earlier turn of the same synthetic patient and same execution arm. Future turns and other patients/arms are excluded.",
+    "supportValidity": {
+      "status": "not-measurable",
+      "numerator": null,
+      "denominator": null,
+      "reason": "No independent claim-to-passage support adjudication was performed."
+    }
+  },
+  "interruptionReason": "Stopped after 48/80 terminal task records: 43 completed, 4 MODEL_TIMEOUT failures, and 1 AUTHENTICATED_GATEWAY_EXCEPTION. The first two frozen cohort cases contain 16 complete paired turns; additional paired turns from partial cases are scored when both arms exist. Remaining turns were not run; all recorded failures are preserved."
+}
