@@ -176,10 +176,34 @@
     "stableIdScheme": "MED-<16 uppercase hex> = SHA-256(corpus, source document ID, chunk ID, exact chunk content); exact identifiers are available to the answering model.",
     "sessionResolutionRule": "A citation resolves if its exact ID was returned by RAG in the current task or an earlier turn of the same synthetic patient and same execution arm. Future turns and other patients/arms are excluded.",
     "supportValidity": {
-      "status": "not-measurable",
-      "numerator": null,
-      "denominator": null,
-      "reason": "No independent claim-to-passage support adjudication was performed."
+      "status": "measured-model-assisted-engineering-review",
+      "scope": "Six answer-body citation occurrences from two Integrated turns; no Single-agent citations were available for comparison.",
+      "directlySupported": {
+        "numerator": 3,
+        "denominator": 6,
+        "percent": 50
+      },
+      "partiallySupported": {
+        "numerator": 3,
+        "denominator": 6,
+        "percent": 50
+      },
+      "supportedOrPartiallySupported": {
+        "numerator": 6,
+        "denominator": 6,
+        "percent": 100
+      },
+      "unsupportedContradictedOrCannotAssess": {
+        "numerator": 0,
+        "denominator": 6,
+        "percent": 0
+      },
+      "sourcePassagesResolved": {
+        "numerator": 6,
+        "denominator": 6
+      },
+      "method": "One isolated blinded model-assisted engineering scorer applied a fixed claim-to-passage rubric to packets containing the synthetic question, answer body, cited ID, and exact recovered passage; experiment-arm identity was withheld.",
+      "limitation": "Small engineering sample only; not clinician review, clinical validation, or evidence of system-wide medical correctness."
     }
   },
   "interruptionReason": "Stopped after 48/80 terminal task records: 43 completed, 4 MODEL_TIMEOUT failures, and 1 AUTHENTICATED_GATEWAY_EXCEPTION. The first two frozen cohort cases contain 16 complete paired turns; additional paired turns from partial cases are scored when both arms exist. Remaining turns were not run; all recorded failures are preserved."
