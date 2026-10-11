@@ -150,7 +150,7 @@ async function main(): Promise<void> {
           : requestedRagMode === "iterative" && turn.expectedTaskIds.includes(TASKS.evidence)
           ? "请检索公开医学资料，针对成人高血压复诊中的居家血压测量与用药依从性，调用 search_medical_evidence 并在工具参数中明确设置 mode=\"iterative\"、topK=3，执行有界多轮检索。只总结实际返回来源支持的内容，并说明这不是针对任何个体患者的诊疗建议。"
           : turn.patientMessage,
-        signal: AbortSignal.timeout(300_000),
+        signal: AbortSignal.timeout(600_000),
       });
       turnRuns.push({ turnId: turn.turnId, runId: execution.runId, events: execution.events });
       const terminal = execution.events.find((event) => ["run.completed", "run.failed", "run.cancelled"].includes(event.event));

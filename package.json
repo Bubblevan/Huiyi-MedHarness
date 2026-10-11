@@ -28,6 +28,7 @@
     "clinical-evaluation:dataset": "pnpm --filter @huiyi/demo-gateway clinical-evaluation:dataset",
     "demo:trace": "node scripts/demo/write-fixture-trace.mjs",
     "clinical:eval": "pnpm --filter @huiyi/demo-gateway clinical-eval",
+    "clinical:eval:engineering-score": "node scripts/clinical-eval/score-bullet1.mjs",
     "clinical:eval:smoke": "pnpm --filter @huiyi/demo-gateway clinical-eval:smoke",
     "hc-ma-002:prepare": "python scripts/hc-ma-002/prepare_medqa_dev.py",
     "hc-ma-002:live": "node scripts/hc-ma-002/run_local_qwen.mjs",

@@ -292,9 +292,9 @@ export function ClinicalEvaluationWorkspace() {
   }
 
   async function logout() {
-    await closeCurrentSession().catch(() => undefined);
-    await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" }).catch(() => undefined);
+    const logoutRequest = fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" }).catch(() => undefined);
     setAccount(null); setPatients([]); setPatientId(""); setEncounterId(""); setPatient(null); setSessionId(null); setEvents([]); setEvidence([]); setDraft(null); setDraftError(undefined); setCenterView("consultation"); setErrorCode(undefined);
+    await logoutRequest;
   }
 
   return provider;

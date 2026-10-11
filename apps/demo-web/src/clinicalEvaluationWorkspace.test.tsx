@@ -45,6 +45,7 @@ describe("clinical evaluation workspace flow", () => {
     const sessionRequests: { patientId: string; encounterId: string }[] = [];
     const sessionOperations: string[] = [];
     const closedSessions: string[] = [];
+    let logoutRequests = 0;
     let chatBody: Record<string, unknown> | undefined;
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input), window.location.origin);
@@ -80,7 +81,7 @@ describe("clinical evaluation workspace flow", () => {
           { headers: { "content-type": "text/event-stream; charset=utf-8", "x-run-id": "synthetic-run" } },
         );
       }
-      if (url.pathname === "/api/auth/logout" && method === "POST") return new Response(null, { status: 204 });
+      if (url.pathname === "/api/auth/logout" && method === "POST") { logoutRequests += 1; return new Response(null, { status: 204 }); }
       return json({ error: `UNEXPECTED_MOCK_ROUTE:${method}:${url.pathname}` }, 404);
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -120,6 +121,7 @@ describe("clinical evaluation workspace flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "退出登录" }));
     await screen.findByRole("heading", { name: "登录临床工作台" });
     expect(screen.queryByText("合成患者 B")).not.toBeInTheDocument();
-    expect(closedSessions).toContain("B0000002-session");
+    expect(closedSessions).toEqual(["A0000001-session"]);
+    expect(logoutRequests).toBe(1);
   });
 });

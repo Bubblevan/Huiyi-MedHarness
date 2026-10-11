@@ -9,8 +9,8 @@ import { BoundedTurnGate } from "./bounded-turn-gate.js";
 
 const MODEL = "gpt-6-luna";
 const MAX_BODY_BYTES = 1_000_000;
-const TURN_TIMEOUT_MS = 300_000;
-const RPC_TIMEOUT_MS = 240_000;
+const TURN_TIMEOUT_MS = 600_000;
+const RPC_TIMEOUT_MS = 540_000;
 const APP_SERVER_INSTRUCTIONS = [
   "You are the language-model component inside an external DSH agent loop for a synthetic clinical workflow evaluation.",
   "Follow the supplied system and developer instructions as the clinical behavior policy.",

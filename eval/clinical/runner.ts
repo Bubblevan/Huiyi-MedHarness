@@ -292,21 +292,13 @@ async function runCaseArm(input: {
               collaboration = collaboration
                 ? { complexity: event.data.complexity, childRuns: collaboration.childRuns + childRuns, failedChildRuns: collaboration.failedChildRuns + event.data.failedChildRuns, degraded: collaboration.degraded || event.data.degraded }
                 : { complexity: event.data.complexity, childRuns, failedChildRuns: event.data.failedChildRuns, degraded: event.data.degraded };
-            } else if (event.event === "run.completed") { status = "completed"; dshDurationMs = (dshDurationMs ?? 0) + event.data.durationMs; }
-            else if (event.event === "run.cancelled") status = "cancelled";
-            else if (event.event === "run.failed") {
-              status = "failed";
-              failureCode = event.data.code;
-              failureDiagnostic = event.data.diagnostic;
-            }
+            } else if (event.event === "run.completed") dshDurationMs = (dshDurationMs ?? 0) + event.data.durationMs;
           }
           ragRetrievals.push(...extractRagRetrievalTelemetry(execution.events));
-          if (execution.incomplete && status !== "completed" && status !== "cancelled") {
-            status = "failed";
-            failureCode = execution.incomplete === "timeout" ? "TURN_TIMEOUT"
-              : execution.incomplete === "aborted" ? "TURN_ABORTED" : "GATEWAY_STREAM_INCOMPLETE";
-            if (execution.incomplete === "timeout") failureDiagnostic = { category: "timeout" };
-          }
+          const outcome = classifyClinicalExchangeOutcome(execution.events, execution.incomplete);
+          status = outcome.status;
+          failureCode = outcome.failureCode;
+          failureDiagnostic = outcome.failureDiagnostic;
           const exchangeText = exchangeAnswer.join("");
           answer.push(exchangeText);
           if (exchangeText) transcript.push({ role: "assistant", text: exchangeText });
@@ -410,6 +402,24 @@ function explicitlyMentionedFactIds(item: SyntheticClinicalCase, message: string
 }
 
 export function clinicalTaskKey(caseId: string, arm: EvalArm): string { return `${caseId}\0${arm}`; }
+
+export function classifyClinicalExchangeOutcome(
+  events: readonly DemoEvent[],
+  incomplete?: "timeout" | "aborted" | "stream-error",
+): { status: ClinicalRunRecord["status"]; failureCode?: string; failureDiagnostic?: ClinicalRunRecord["failureDiagnostic"] } {
+  if (incomplete === "timeout") return { status: "failed", failureCode: "TURN_TIMEOUT", failureDiagnostic: { category: "timeout" } };
+  if (incomplete === "aborted") return { status: "cancelled", failureCode: "TURN_ABORTED" };
+  if (incomplete === "stream-error") return { status: "failed", failureCode: "GATEWAY_STREAM_INCOMPLETE" };
+
+  let terminal: DemoEvent | undefined;
+  for (const event of events) {
+    if (event.event === "run.completed" || event.event === "run.cancelled" || event.event === "run.failed") terminal = event;
+  }
+  if (terminal?.event === "run.completed") return { status: "completed" };
+  if (terminal?.event === "run.cancelled") return { status: "cancelled", failureCode: "TURN_ABORTED" };
+  if (terminal?.event === "run.failed") return { status: "failed", failureCode: terminal.data.code, failureDiagnostic: terminal.data.diagnostic };
+  return { status: "failed", failureCode: "TURN_INCOMPLETE" };
+}
 
 export function extractRagRetrievalTelemetry(events: readonly DemoEvent[]): RagRetrievalTelemetry[] {
   return events.flatMap((event) => event.event === "evidence.completed" && event.data.retrieval ? [event.data.retrieval] : []);

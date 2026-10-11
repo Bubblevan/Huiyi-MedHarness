@@ -16,7 +16,7 @@ from huiyi_health_engine.rag.iterative import IterativeEvidenceAcquirer, Operati
 from huiyi_health_engine.rag.planner import PlannerError, QueryPlan, QueryPlanner, parse_query_plan
 from huiyi_health_engine.rag.retriever import MedCptRetriever, RetrievalCandidate
 from huiyi_health_engine.rag.schemas import EvidenceSet, MedicalEvidenceRequest
-from huiyi_health_engine.rag.service import EvidenceTokenizer, RagService
+from huiyi_health_engine.rag.service import EvidenceTokenizer, RagService, _stable_evidence_id
 
 
 def settings(tmp_path: Path, *, max_rounds: int = 2) -> RagSettings:
@@ -40,6 +40,14 @@ def settings(tmp_path: Path, *, max_rounds: int = 2) -> RagSettings:
         max_evidence_tokens=2048,
         request_timeout_ms=1000,
     )
+
+
+def test_stable_evidence_id_binds_source_identity_and_exact_content():
+    evidence_id = _stable_evidence_id("textbooks", "Anatomy_Gray", "0", "source passage")
+    assert evidence_id == _stable_evidence_id("textbooks", "Anatomy_Gray", "0", "source passage")
+    assert evidence_id.startswith("MED-")
+    assert evidence_id != _stable_evidence_id("textbooks", "Anatomy_Gray", "1", "source passage")
+    assert evidence_id != _stable_evidence_id("textbooks", "Anatomy_Gray", "0", "changed passage")
 
 
 class FakeIndex:
@@ -243,7 +251,8 @@ def test_service_preserves_provenance_and_returns_empty_result_without_answer(tm
     planner = FakePlanner([["focused search"]])
     service = RagService(settings(tmp_path), corpus, retriever, planner, EvidenceTokenizer(None))
     result = service.search(MedicalEvidenceRequest(query="source query", mode="single"))
-    assert result.hits[0].evidenceId == "E1"
+    assert result.hits[0].evidenceId.startswith("MED-")
+    assert len(result.hits[0].evidenceId) == 20
     assert result.hits[0].corpus == "textbooks"
     assert result.hits[0].sourceDocumentId == "Anatomy_Gray"
     assert result.hits[0].chunkId == "0"

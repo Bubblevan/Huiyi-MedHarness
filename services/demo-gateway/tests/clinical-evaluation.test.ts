@@ -50,6 +50,30 @@ class BusyCloseTestBackend extends EvaluationTestBackend {
   }
 }
 
+class DelayedCloseTestBackend extends EvaluationTestBackend {
+  readonly closeStarted: Promise<void>;
+  readonly closeFinished: Promise<void>;
+  private closeGate: Promise<void>;
+  private signalCloseStarted!: () => void;
+  private signalCloseFinished!: () => void;
+  private releaseClose!: () => void;
+
+  constructor() {
+    super();
+    this.closeStarted = new Promise((resolve) => { this.signalCloseStarted = resolve; });
+    this.closeFinished = new Promise((resolve) => { this.signalCloseFinished = resolve; });
+    this.closeGate = new Promise((resolve) => { this.releaseClose = resolve; });
+  }
+
+  async closeSession(_sessionId: string, _patientId: string, _encounterId?: string): Promise<void> {
+    this.signalCloseStarted();
+    await this.closeGate;
+    this.signalCloseFinished();
+  }
+
+  releaseCleanup(): void { this.releaseClose(); }
+}
+
 async function start(backend: EvaluationTestBackend = new EvaluationTestBackend()) {
   const server = createDemoServer({
     backendName: "dsh",
@@ -293,6 +317,39 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     }) });
     expect(chat.status).toBe(200);
     await chat.text();
+  });
+
+  it("revokes logout identity and patient bindings before slow backend cleanup finishes", async () => {
+    originalAppEnvironment = process.env.HUIYI_APP_ENV;
+    process.env.HUIYI_APP_ENV = "clinical-evaluation";
+    const backend = new DelayedCloseTestBackend();
+    const app = await start(backend);
+    const cookie = await login(app, accounts[0]!);
+    const patient = (await request(app, "/api/patients", cookie).then((response) => response.json()) as { patients: Array<{ patientId: string; encounters: Array<{ encounterId: string }> }> }).patients[0]!;
+    const created = await request(app, "/api/sessions", cookie, {
+      method: "POST", body: JSON.stringify({ patientId: patient.patientId, encounterId: patient.encounters[0]!.encounterId }),
+    });
+    expect(created.status).toBe(201);
+
+    const logoutPromise = request(app, "/api/auth/logout", cookie, { method: "POST", body: "{}" });
+    try {
+      await backend.closeStarted;
+      const result = await Promise.race([
+        logoutPromise.then((response) => ({ response })),
+        new Promise<{ timedOut: true }>((resolve) => setTimeout(() => resolve({ timedOut: true }), 1_000)),
+      ]);
+      expect("response" in result).toBe(true);
+      if ("response" in result) expect(result.response.status).toBe(204);
+      expect((await request(app, "/api/auth/session", cookie)).status).toBe(401);
+      expect((await request(app, "/api/patients", cookie)).status).toBe(401);
+      expect((await request(app, "/api/sessions", cookie, {
+        method: "POST", body: JSON.stringify({ patientId: patient.patientId, encounterId: patient.encounters[0]!.encounterId }),
+      })).status).toBe(401);
+    } finally {
+      backend.releaseCleanup();
+      await logoutPromise;
+      await backend.closeFinished;
+    }
   });
 
   it("does not enable synthetic evaluation implicitly in production", async () => {

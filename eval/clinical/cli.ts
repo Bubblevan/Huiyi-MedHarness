@@ -7,6 +7,7 @@ import { summarizeSyntheticCohort } from "./cohort-audit.js";
 import { assertCodexLunaRoute, createClinicalRunPlan } from "./run-plan.js";
 import { attestCodexBridgeHealth } from "./bridge-attestation.js";
 import { createClinicalApprovalFromReview, createSyntheticCohortReviewPacket } from "./review-packet.js";
+import { renderReviewWorkbenchHtml } from "./review-workbench-html.js";
 import { makeBlindReviewPacket, mergeBlindedReviews, type ClinicalBlindReviewPacket, type ClinicalReviewKeyEntry } from "./blind-review.js";
 import { generateCohort, validateSyntheticCase } from "./cohort.js";
 import { runCrossPatientMemoryIsolationProbe } from "./isolation.js";
@@ -29,6 +30,7 @@ async function main(): Promise<void> {
     case "validate": return validateCommand(args.flags);
     case "plan": return planCommand(args.flags);
     case "review-packet": return reviewPacketCommand(args.flags);
+    case "review-workbench": return reviewWorkbenchCommand(args.flags);
     case "approve-packet": return approvePacketCommand(args.flags);
     case "approval-template": return approvalTemplateCommand(args.flags);
     case "run": return runCommand(args.flags);
@@ -228,6 +230,26 @@ async function approvePacketCommand(flags: Map<string, string>): Promise<void> {
   process.stdout.write(`${JSON.stringify({ output: relative(ROOT, outputPath), status: result.approval.status, reviewedCases: result.reviewedCaseCount, approvedCases: result.approval.approvedCaseIds.length, cohortSha256: result.approval.cohortSha256 })}\n`);
 }
 
+async function reviewWorkbenchCommand(flags: Map<string, string>): Promise<void> {
+  assertFlags(flags, ["packet", "output", "overwrite"]);
+  if (flags.has("overwrite") && flags.get("overwrite") !== "true") throw new TypeError("--overwrite must be true when provided");
+  const packetPath = resolveRepoPath(flags.get("packet") ?? "artifacts/clinical-eval/reviews/development-v2-review-packet.json");
+  const packet = JSON.parse(await readFile(packetPath, "utf8")) as unknown;
+  const html = renderReviewWorkbenchHtml(packet);
+  const outputPath = artifactPath(flags.get("output") ?? "artifacts/clinical-eval/reviews/development-v2-review-workbench.html");
+  if (!outputPath.toLowerCase().endsWith(".html")) throw new TypeError("review workbench output must use the .html extension");
+  try {
+    await stat(outputPath);
+    if (flags.get("overwrite") !== "true") throw new Error(`review workbench already exists: ${relative(ROOT, outputPath)}; choose another path or pass --overwrite=true`);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
+  await mkdir(dirname(outputPath), { recursive: true });
+  await writeFile(outputPath, html, "utf8");
+  const value = packet as { cohortSha256: string; cases: unknown[] };
+  process.stdout.write(`${JSON.stringify({ output: relative(ROOT, outputPath), cases: value.cases.length, cohortSha256: value.cohortSha256, networkAccess: "none" })}\n`);
+}
+
 async function readRoutePreflight(modelBaseUrl: string, modelId: string, modelBackend: string, healthEngineUrl: string): Promise<Record<string, unknown>> {
   if (modelBackend !== "codex-app-server" || modelId !== "gpt-6-luna") return { status: "not-checked" };
   let bridge: URL;
@@ -310,6 +332,10 @@ async function runCommand(flags: Map<string, string>): Promise<void> {
   if (flags.has("resume") && !resume) throw new Error("--resume must be true when specified");
   if (resume && !flags.has("study-run-id")) throw new Error("--resume=true requires --study-run-id=<existing-run>");
   if (!resume && flags.has("study-run-id") && ["split", "limit", "case-ids", "arms"].some((name) => flags.has(name))) throw new Error("a named new run cannot also specify selection flags");
+  const ragForceMode = process.env.HUIYI_RAG_FORCE_MODE?.trim() || null;
+  if (ragForceMode !== null && ragForceMode !== "single" && ragForceMode !== "iterative") {
+    throw new Error("HUIYI_RAG_FORCE_MODE must be single or iterative");
+  }
 
   const cohortPath = resolveRepoPath(flags.get("cohort") ?? DEFAULT_COHORT);
   const cohortBytes = await readFile(cohortPath);
@@ -337,6 +363,7 @@ async function runCommand(flags: Map<string, string>): Promise<void> {
     runDir = artifactPath(join(DEFAULT_RUNS_ROOT, studyRunId));
     manifest = JSON.parse(await readFile(join(runDir, "manifest.json"), "utf8")) as Record<string, unknown>;
     if (manifest.schemaVersion !== "huiyi-clinical-run-manifest/v1" || manifest.studyRunId !== studyRunId) throw new TypeError("run manifest identity or schema does not match --study-run-id");
+    if ((manifest.ragForceMode ?? null) !== ragForceMode) throw new Error("resume HUIYI_RAG_FORCE_MODE must match the original run manifest");
     if (manifest.status === "completed") throw new Error("study is already complete; use clinical-eval finalize to rebuild its report");
     if (manifest.status === "running" && typeof manifest.processId === "number" && manifest.processId !== process.pid && isProcessAlive(manifest.processId)) throw new Error("another local process appears to be running this study; do not resume it concurrently");
     if (manifest.cohortSha256 !== cohortHash) throw new TypeError("resume cohort SHA-256 does not match the original run manifest");
@@ -445,6 +472,7 @@ async function runCommand(flags: Map<string, string>): Promise<void> {
       plannedTurns: selected.reduce((total, item) => total + item.turns.length, 0) * arms.length,
       plannedAssistantExchangesUpperBound: upperBoundAssistantExchanges(selected, arms.length, patientSimulationMode, patientFollowUpLimit),
       arms, concurrency, turnTimeoutMs, modelBackend,
+      ragForceMode,
       memoryCommitBatchTurns,
       providerName: model.providerName, modelId: model.modelId, maxTokens: model.maxTokens, contextWindow: model.contextWindow,
       modelEndpoint: model.baseUrl, healthEngineUrl: process.env.HUIYI_HEALTH_ENGINE_URL?.trim() || "http://127.0.0.1:8322",
@@ -853,6 +881,7 @@ function printHelp(): void {
     "  validate [--cohort=artifacts/clinical-eval/cohort-300.jsonl] [--output=artifacts/clinical-eval/cohort-audit.json]",
     "  plan [--cohort=...] [--split=development|validation|held-out|all] [--limit=1] [--arms=both|single-agent|integrated] [--patient-simulation=scripted|adaptive] [--patient-followups=0..3] [--output=artifacts/clinical-eval/plans/plan.json]",
     "  review-packet [--cohort=...] [--split=development|validation|held-out|all] [--limit=30] [--output=artifacts/clinical-eval/reviews/review-packet.json] [--crosswalk-output=artifacts/clinical-eval/private/cohort-reviews/crosswalk.json]",
+    "  review-workbench [--packet=artifacts/clinical-eval/reviews/development-v2-review-packet.json] [--output=artifacts/clinical-eval/reviews/development-v2-review-workbench.html] [--overwrite=true]",
     "  approve-packet --cohort=... --packet=... --crosswalk=... --output=<new-approval.json>",
     "  approval-template [--cohort=...] [--output=...approval.json]",
     "  run [--cohort=...] [--split=development|validation|held-out|all] [--case-ids=HCE-0001,...] [--limit=1] [--arms=both|single-agent|integrated] [--concurrency=1] [--max-tokens=1536] [--approval=...]",

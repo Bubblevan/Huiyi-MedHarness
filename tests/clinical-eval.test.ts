@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { Script } from "node:vm";
 import { createClinicalApprovalTemplate, applyClinicalApproval } from "../eval/clinical/approval.js";
 import { readDemoEventStream } from "../eval/clinical/authenticated-gateway.js";
 import { makeBlindReviewPacket, mergeBlindedReviews, type ClinicalReviewKeyEntry } from "../eval/clinical/blind-review.js";
@@ -6,6 +7,7 @@ import { generateCohort, toPatientContext, validateSyntheticCase } from "../eval
 import { summarizeSyntheticCohort } from "../eval/clinical/cohort-audit.js";
 import { assertCodexLunaRoute, createClinicalRunPlan } from "../eval/clinical/run-plan.js";
 import { createClinicalApprovalFromReview, createSyntheticCohortReviewPacket } from "../eval/clinical/review-packet.js";
+import { renderReviewWorkbenchHtml } from "../eval/clinical/review-workbench-html.js";
 import { detectPatientQuestionIntents, SyntheticPatientSimulator } from "../eval/clinical/patient-simulator.js";
 import { createReviewDraftBundle } from "../eval/clinical/fhir-draft.js";
 import { matchSyntheticRecallFactIds } from "../eval/clinical/ama-recall.js";
@@ -13,7 +15,7 @@ import { assessIsolationProbe } from "../eval/clinical/isolation.js";
 import { captureEvaluationSourceFingerprint, captureHealthEngineSourceFingerprint } from "../eval/clinical/source-fingerprint.js";
 import { summarizeCollaborationTrace } from "../eval/clinical/collaboration-trace-summary.js";
 import { attestCodexBridgeHealth } from "../eval/clinical/bridge-attestation.js";
-import { extractRagRetrievalTelemetry } from "../eval/clinical/runner.js";
+import { classifyClinicalExchangeOutcome, extractRagRetrievalTelemetry } from "../eval/clinical/runner.js";
 import { uniqueRagRetrievalTelemetry } from "../eval/clinical/rag-telemetry.js";
 import { createReviewTemplate, scoreClinicalRuns } from "../eval/clinical/scoring.js";
 import type { ClinicalReviewRecord, ClinicalRunRecord, SyntheticClinicalCase } from "../eval/clinical/contracts.js";
@@ -29,6 +31,20 @@ describe("clinical synthetic evaluation foundation", () => {
     };
     const distinct = { ...retrieval, retrievalLatencyMs: 700, latencyMs: 701 };
     expect(uniqueRagRetrievalTelemetry([retrieval, { ...retrieval }, distinct])).toEqual([retrieval, distinct]);
+  });
+
+  it("does not count an aborted adaptive follow-up as completed after an earlier exchange succeeded", () => {
+    const completed = classifyClinicalExchangeOutcome([
+      createEvent("run.completed", "run-1", "session-1", { durationMs: 10 }),
+    ]);
+    const followUp = classifyClinicalExchangeOutcome([
+      createEvent("run.cancelled", "run-1", "session-1", { reason: "client_cancelled" }),
+    ], "aborted");
+    const timedOut = classifyClinicalExchangeOutcome([], "timeout");
+
+    expect(completed.status).toBe("completed");
+    expect(followUp).toMatchObject({ status: "cancelled", failureCode: "TURN_ABORTED" });
+    expect(timedOut).toMatchObject({ status: "failed", failureCode: "TURN_TIMEOUT", failureDiagnostic: { category: "timeout" } });
   });
 
   it("requires a current Codex bridge to attest its bounded concurrency cap", () => {
@@ -141,6 +157,26 @@ describe("clinical synthetic evaluation foundation", () => {
     expect(output).not.toContain(cases[0]!.caseId);
     expect(output).not.toContain("fhirBundle");
     expect(crosswalk.items[0]).toEqual({ reviewCaseId: "REV-001", cohortCaseId: cases[0]!.caseId });
+  });
+
+  it("renders a fully offline clinician review workbench with integrity-checked progress import", () => {
+    const cases = generateCohort({ count: 2, seed: 20261011, developmentCount: 2, validationCount: 0 });
+    const packet = createSyntheticCohortReviewPacket({ cases, cohortSha256: "b".repeat(64) }).packet;
+    const hostile = JSON.parse(JSON.stringify(packet)) as typeof packet;
+    hostile.cases[0]!.turns[0]!.patientMessage = "</script><img src=x onerror=alert(1)>";
+    const html = renderReviewWorkbenchHtml(hostile);
+    const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
+    const appScript = scripts.at(-1)?.[1] ?? "";
+    expect(() => new Script(appScript)).not.toThrow();
+    expect(html).toContain("connect-src 'none'");
+    expect(html).toContain("textContent");
+    expect(html).not.toContain("innerHTML");
+    expect(html).toContain("\\u003c/script\\u003e\\u003cimg");
+    expect(html).not.toContain("</script><img src=x onerror=alert(1)>");
+    expect(html).not.toContain(cases[0]!.patient.patientId);
+    expect(html).not.toContain(cases[0]!.patient.privateIsolationCanary);
+    expect(html).not.toContain("cohortCaseId");
+    expect(html).toContain("病例内容、顺序或 cohort hash 与本工作台不一致");
   });
 
   it("imports only completed clinician reviews bound to the exact cohort and unchanged packet", () => {

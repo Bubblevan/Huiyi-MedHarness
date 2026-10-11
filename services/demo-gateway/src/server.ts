@@ -169,6 +169,7 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
     ? new DshDemoBackend({ resolvePatient: clinicalEvaluation ? (patientId, encounterId) => evaluationDataset?.getPatientForBackend(patientId, encounterId) : undefined })
     : new FixtureDemoBackend());
   const activeRuns = new Map<string, { controller: AbortController; sessionId: string; startedAt: number; settled: Promise<void>; settle: () => void; ownerAuthSessionId?: string }>();
+  const pendingLogoutCleanups = new Set<Promise<void>>();
   const failedLogins = new Map<string, { count: number; blockedUntil: number }>();
   const log = options.log ?? ((metadata: Record<string, string | number>) => process.stdout.write(`${JSON.stringify(metadata)}\n`));
 
@@ -242,17 +243,37 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
           return;
         }
         const revoked = evaluationSessions.revokeAuthSession(principal.authSessionId);
+        const runsToSettle: Promise<void>[] = [];
         for (const [runId, run] of activeRuns) {
           if (run.ownerAuthSessionId !== principal.authSessionId) continue;
           run.controller.abort();
-          backend.cancel(runId);
-          await run.settled;
+          try { backend.cancel(runId); } catch { /* revocation must not depend on provider cancellation */ }
+          runsToSettle.push(run.settled.catch(() => undefined));
         }
-        for (const session of revoked) await backend.closeSession?.(session.sessionId, session.patientId, session.encounterId).catch(() => undefined);
+        // Revoke both the identity and its patient/Encounter bindings before any
+        // potentially slow DSH/AMA cleanup. Cleanup continues after the cookie is
+        // cleared so a slow memory flush cannot keep the browser authenticated.
         evaluationAuth.revoke(request.headers.cookie);
         response.writeHead(204, { "cache-control": "no-store", "set-cookie": evaluationAuth.clearCookie(secure) });
         response.end();
         try { log({ requestId, event: "auth.logout", outcome: "allowed", role: principal.role }); } catch { /* logging cannot break logout */ }
+        const cleanup = new Promise<void>((resolveCleanup) => setImmediate(resolveCleanup)).then(async () => {
+          await Promise.all(runsToSettle);
+          for (const session of revoked) {
+            try { await backend.closeSession?.(session.sessionId, session.patientId, session.encounterId); } catch { /* revoked sessions remain inaccessible */ }
+          }
+        });
+        pendingLogoutCleanups.add(cleanup);
+        void cleanup.then(
+          () => {
+            pendingLogoutCleanups.delete(cleanup);
+            try { log({ requestId, event: "auth.logout_cleanup", outcome: "completed", sessionCount: revoked.length }); } catch { /* cleanup logging cannot affect logout */ }
+          },
+          () => {
+            pendingLogoutCleanups.delete(cleanup);
+            try { log({ requestId, event: "auth.logout_cleanup", outcome: "failed", sessionCount: revoked.length }); } catch { /* cleanup logging cannot affect logout */ }
+          },
+        );
         return;
       }
 
@@ -530,7 +551,12 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
       else json(response, 500, { error: "INTERNAL_ERROR" });
     });
   });
-  server.on("close", () => { void Promise.resolve().then(() => backend.dispose?.()).catch(() => undefined); });
+  server.on("close", () => {
+    void Promise.resolve().then(async () => {
+      await Promise.allSettled([...pendingLogoutCleanups]);
+      await backend.dispose?.();
+    }).catch(() => undefined);
+  });
   return server;
 }
 

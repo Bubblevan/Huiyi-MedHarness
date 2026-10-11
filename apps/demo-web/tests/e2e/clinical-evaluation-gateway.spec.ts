@@ -64,9 +64,15 @@ test("browser authenticates against the real synthetic Gateway and switches serv
     expect(assistantDeltaCount).toBeGreaterThan(0);
     expect(ragToolCompleted).toBe(true);
     expect(evidenceItems.length).toBeGreaterThan(0);
-    await expect(page.locator(".assistant-message .assistant-markdown").last()).toContainText(/\S/);
+    // draft.updated switches the workspace to the draft tab, so inspect the streamed
+    // response from its persisted turn record rather than the now-unmounted chat pane.
     await page.getByRole("button", { name: /复诊草稿/ }).click();
     await expect(page.getByRole("heading", { name: "复诊材料草稿" })).toBeVisible();
+    const conversation = page.locator(".draft-conversation-detail");
+    await expect(conversation).toBeVisible();
+    await conversation.locator("summary").click();
+    const assistantResponse = page.locator(".draft-turn-record").last().locator("p").filter({ hasText: "模型回复" }).locator("span");
+    await expect(assistantResponse).toContainText(/\S/);
     const draftEvidence = page.locator('.draft-section[aria-label="医学证据与出处"] .draft-item');
     await expect(draftEvidence.first()).toBeVisible();
     await page.getByRole("button", { name: "需补充问诊", exact: true }).click();

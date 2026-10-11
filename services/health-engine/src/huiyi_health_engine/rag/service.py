@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import threading
@@ -166,7 +167,8 @@ class RagService:
         used_tokens = 0
         for candidate in acquisition.candidates[: max(limit * 4, limit)]:
             chunk = candidate.best.chunk
-            prefix = f"E{len(output) + 1} {chunk.title} {chunk.corpus} {chunk.source_document_id} medical_reference"
+            evidence_id = _stable_evidence_id(chunk.corpus, chunk.source_document_id, chunk.chunk_id, chunk.content)
+            prefix = f"{evidence_id} {chunk.title} {chunk.corpus} {chunk.source_document_id} medical_reference"
             prefix_tokens = self.tokenizer.count(prefix)
             snippet_tokens = self.tokenizer.count(chunk.content)
             available = remaining - prefix_tokens
@@ -180,7 +182,7 @@ class RagService:
                 continue
             rank = len(output) + 1
             output.append(EvidenceHit(
-                evidenceId=f"E{rank}",
+                evidenceId=evidence_id,
                 rank=rank,
                 title=chunk.title,
                 snippet=snippet,
@@ -201,3 +203,9 @@ class RagService:
             if len(output) >= limit or remaining <= 0:
                 break
         return output, used_tokens
+
+
+def _stable_evidence_id(corpus: str, source_document_id: str, chunk_id: str, content: str) -> str:
+    """Create an opaque citation key bound to source identity and exact chunk content."""
+    key = "\0".join((corpus, source_document_id, chunk_id, content)).encode("utf-8")
+    return f"MED-{hashlib.sha256(key).hexdigest()[:16].upper()}"

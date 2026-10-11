@@ -37,6 +37,14 @@ pnpm --filter @huiyi/demo-gateway clinical-eval -- review-packet --cohort=artifa
 
 packet 包含 30 例的合成 profile、事实目录、8 轮任务和逐轮披露规则，以及待填写的内容一致性、用药/过敏、风险信号和 disclosure checklist；病例、Encounter、事实和轮次 ID 都映射成 `REV-*` 审核别名，刻意不含内部 patient ID、cohort case ID、隔离 canary 或原始 FHIR bundle。仅把 `reviews/` 下的 packet 交给审核者；对应的真实 case ID crosswalk 写入 Git 忽略的 `artifacts/clinical-eval/private/cohort-reviews/`，不得分享。只有持证临床审核者真实完成审查后，才把其审核身份/时间和批准病例写入同 cohort hash 的 approval 文件；工程人员不得代填或自我批准。
 
+JSON packet 可转换为单文件、完全离线的审核工作台，降低医生直接编辑 JSON 的负担：
+
+```powershell
+pnpm --filter @huiyi/demo-gateway clinical-eval -- review-workbench --packet=artifacts/clinical-eval/reviews/development-v2-review-packet.json --output=artifacts/clinical-eval/reviews/development-v2-review-workbench.html
+```
+
+将 HTML 交给审核者本机打开即可；它无外部脚本、图片、网络请求或服务端存储。页面展示每例事实来源、Encounter、逐轮开场和允许披露规则；四项审核、病例结论、持证角色确认和 reviewer ID 都需显式填写。可导出进度 JSON 并在同一 HTML 中恢复；最终导出会拒绝未完成检查、带 fail 项的批准结论或无修订说明的退回病例。导入审批前仍使用原 `approve-packet`，重新验证 frozen cohort 内容、hash 和 private crosswalk。审核者自行确认身份；工作台不验证执照，最终评测负责人应按机构流程留存签署依据。重新生成 HTML 默认拒绝覆盖已有文件，只有明确传 `--overwrite=true` 才覆盖。
+
 审核者返回已填写 packet 后，用本机私有 crosswalk 导入 approval。导入器会校验 cohort hash、packet 内容未被改写、所有 case checklist 均已填写；只有四项检查全为 pass 且 decision 为 `approve-for-engineering` 的档案才进入批准列表，`revise` 档案必须填写修正说明。输出需指定一个新的 ignored 文件，避免覆盖待审模板：
 
 ```powershell
