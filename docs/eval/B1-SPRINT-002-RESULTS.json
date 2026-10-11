@@ -3781,6 +3781,41 @@
     }
   },
   "resumeBullet": "在 GPT-6-Luna 驱动的本地合成工程试跑中，基于 DeepSeek Harness 打通患者就诊上下文、AMA 纵向记忆及带稳定来源 ID 的本地 RAG；在 2 例完整合成纵向病例、31 个同病例同轮配对任务中，Integrated 关键任务完成率为 64.5%（20/31），Single 为 41.9%（13/31），净增 22.6 个百分点；已披露病史事实正确引用率为 72.7%（16/22），医学来源 ID 精确匹配率为 50.0%（10/20），医学证据对结论的支持有效性尚不可测。",
+  "resumeFeasibility": {
+    "sourceRunId": "20261011184053-5bce7818",
+    "existingPairedTasks": 31,
+    "unpairedTurnKeys": [
+      "HCE-0004|HCE-0004-T08",
+      "HCE-0005|HCE-0005-T01"
+    ],
+    "recoveryUnit": "case-arm; all eight turns must have status completed",
+    "incompleteCaseArmTasks": [
+      "HCE-0003|single-agent",
+      "HCE-0003|integrated",
+      "HCE-0004|single-agent",
+      "HCE-0004|integrated",
+      "HCE-0005|single-agent",
+      "HCE-0005|integrated"
+    ],
+    "existingRowsMovedToAttemptHistory": 32,
+    "fullTurnCallsOnResume": 48,
+    "observedExistingArmWallMinutes": {
+      "HCE-0003|single-agent": 6,
+      "HCE-0003|integrated": 21,
+      "HCE-0004|single-agent": 44.1,
+      "HCE-0004|integrated": 35,
+      "HCE-0005|single-agent": 5,
+      "HCE-0005|integrated": null
+    },
+    "estimatedResumeWallMinutesIfHCE0005Repeats300SecondTimeouts": 105,
+    "estimateIsNotGuarantee": true,
+    "runSourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+    "analysisHead": "463efa415c6a98324016002c0bba8da3ec003158",
+    "evaluationSourceContentHashMatches": true,
+    "resumeAtAnalysisHeadAllowed": false,
+    "resumeBlocker": "Resume compares the complete source fingerprint, including gitRevision; the current HEAD differs from the frozen run revision.",
+    "additionalModelCallsStarted": 0
+  },
   "freeze": {
     "status": "INSUFFICIENT_EVIDENCE",
     "noFurtherRunsStarted": true,
