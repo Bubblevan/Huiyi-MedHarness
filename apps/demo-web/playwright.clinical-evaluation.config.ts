@@ -5,7 +5,9 @@ const includeGatewayFlow = process.env.HUIYI_EVAL_BROWSER_GATEWAY === "1";
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  testMatch: includeGatewayFlow ? "clinical-evaluation*.spec.ts" : "clinical-evaluation.spec.ts",
+  testMatch: includeGatewayFlow
+    ? process.env.HUIYI_EVAL_BROWSER_CHAT === "1" ? "clinical-evaluation-gateway.spec.ts" : "clinical-evaluation*.spec.ts"
+    : "clinical-evaluation.spec.ts",
   timeout: 30_000,
   expect: { timeout: 8_000 },
   fullyParallel: false,

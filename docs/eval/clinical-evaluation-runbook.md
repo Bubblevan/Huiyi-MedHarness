@@ -518,4 +518,4 @@ v5 smoke [`smoke-20261011051024-7120d23b.json`](../../artifacts/clinical-eval/sm
 
 随后增加了一个不启动模型的 Gateway integration test：fake DSH backend 发出 `evidence.item` 后，Gateway 将引用写入结构化草稿及该轮 `evidenceIds`。网关测试 51/51 通过。它只证明 Gateway 事件到草稿注册表的映射，不证明 live DSH/RAG 在这次失败的浏览器运行中成功。
 
-为避免相同的并发负载，live browser E2E 配置现在强制单 worker，并要求在启动 Gateway、浏览器和模型请求前至少有 24 GiB 空闲物理内存；Playwright 用例还会在提交模型请求前复核该下限。低于下限时应 fail closed，不自动重试或杀停其他进程。此防护尚未通过 live 模型运行验证；本轮故障后没有重新启动 live 测试栈。
+为避免相同的并发负载，live browser E2E 配置现在只选择真实 Gateway 用例并强制单 worker；启动 Gateway、浏览器前要求至少有 24 GiB 空闲物理内存，Playwright 还会在发送模型请求前复核该下限。低于下限时应 fail closed，不自动重试或杀停其他进程。此防护尚未通过 live 模型运行验证；本轮故障后没有重新启动 live 测试栈。
