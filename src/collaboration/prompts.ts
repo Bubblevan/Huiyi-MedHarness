@@ -32,7 +32,7 @@ export function buildSpecialistRecruitmentPrompt(state: HealthCaseState, target:
 }
 
 export function buildMdtPlanningPrompt(state: HealthCaseState, maxTeams: number, maxSpecialists: number): string {
-  return `Plan up to ${maxTeams} multidisciplinary teams using no more than ${maxSpecialists} specialists in total. Give every team a goal and members with role and expertise. Mark at most one lead member per team. Return a bounded plan without hidden reasoning.\n\n${caseContext(state)}`
+  return `Create at least one and at most ${maxTeams} multidisciplinary teams using no more than ${maxSpecialists} specialists in total. Every returned team must have a concise, distinct goal and at least one member with a role and expertise. Do not return an empty team list or empty members. Add another team only when the case supports a distinct goal. Mark at most one lead member per team. Return a bounded plan without hidden reasoning.\n\n${caseContext(state)}`
 }
 
 export function buildSpecialistAnalysisPrompt(state: HealthCaseState, specialist: SpecialistSpec): string {

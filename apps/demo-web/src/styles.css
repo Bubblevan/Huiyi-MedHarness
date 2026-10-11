@@ -40,6 +40,23 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
 .mobile-panel-button, .mobile-close { display: none; }
 
 .workstation-grid { flex: 1 1 auto; min-height: 0; padding: 19px 22px 14px; display: grid; grid-template-columns: minmax(240px, 275px) minmax(440px, 1fr) minmax(260px, 302px); gap: 16px; max-width: 1800px; width: 100%; margin: 0 auto; }
+.consultation-column { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.clinical-evaluation-shell .workstation-grid { max-width: 1500px; }
+.evaluation-toolbar { width: 100%; display: flex; align-items: end; flex-wrap: wrap; gap: 10px 16px; padding: 10px 24px; border-bottom: 1px solid var(--line); background: #fbfcfb; }
+.evaluation-toolbar label { display: grid; gap: 4px; color: #72827d; font-size: 9px; }
+.evaluation-toolbar select { min-width: 230px; max-width: min(42vw, 430px); border: 1px solid #dce5e1; border-radius: 5px; background: white; color: #4d625b; padding: 7px 9px; font: 10px "Segoe UI", "Microsoft YaHei", sans-serif; }
+.account-label { color: #6f817a; font-size: 9px; }
+.evaluation-login-area { flex: 1; display: grid; place-items: center; padding: 28px 16px; background: #f7f9f8; }
+.evaluation-login-card { width: min(390px, 100%); display: grid; gap: 14px; padding: 27px; border: 1px solid var(--line); border-radius: 12px; background: white; box-shadow: var(--shadow); }
+.evaluation-login-card h1 { margin: -7px 0 0; color: #455a53; font: 700 19px "Segoe UI", "Microsoft YaHei", sans-serif; }
+.evaluation-note, .evaluation-synthetic-label { margin: 0; color: #87958f; font-size: 10px; line-height: 1.7; }
+.evaluation-login-card label { display: grid; gap: 6px; color: #62746d; font-size: 10px; }
+.evaluation-login-card input { width: 100%; border: 1px solid #dce5e1; border-radius: 6px; padding: 10px; color: #3d514b; font: 12px "Segoe UI", sans-serif; }
+.evaluation-login-card input:focus, .evaluation-toolbar select:focus { outline: 2px solid #b5d7cb; outline-offset: 1px; }
+.evaluation-login-button { border: 0; border-radius: 6px; padding: 10px; font-size: 11px; cursor: pointer; }
+.evaluation-login-button:disabled { opacity: .65; cursor: wait; }
+.evaluation-synthetic-label { text-align: center; }
+.login-error { margin: 0; color: #a55543; font-size: 10px; }
 .side-column { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
 .panel, .scenario-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 11px; box-shadow: var(--shadow); }
 .patient-panel { padding: 18px 17px; overflow-y: auto; height: 100%; }
@@ -201,7 +218,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
   body { min-width: 350px; }
   .topbar { height: 60px; padding: 0 13px; gap: 10px; }
   .brand { min-width: auto; gap: 8px; }.brand-logo { width: 144px; max-height: 38px; }
-  .topbar-context { display: none; }.topbar-actions { gap: 6px; }.backend-badge { padding: 5px 7px; font-size: 8px; }.new-session-button { padding: 7px; font-size: 0; }.new-session-button span { font-size: 16px; margin: 0; }.mobile-panel-button { display: block; border: 1px solid var(--line); border-radius: 5px; background: white; padding: 6px 7px; font-size: 8px; cursor: pointer; }
+  .topbar-context { display: flex; gap: 0; }.product-name, .backend-badge { display: none; }.topbar-actions { gap: 6px; }.new-session-button { padding: 7px; font-size: 0; }.new-session-button span { font-size: 16px; margin: 0; }.mobile-panel-button { display: block; border: 1px solid var(--line); border-radius: 5px; background: white; padding: 6px 7px; font-size: 8px; cursor: pointer; }
   .workstation-grid { flex: 1; display: block; padding: 10px 9px 7px; }
   .consultation { min-height: min(420px, calc(100dvh - 205px)); height: calc(100dvh - 205px); }
   .patient-column, .activity-column { display: none; }.patient-column.mobile-open, .activity-column.mobile-open { display: flex; position: fixed; z-index: 25; inset: 0 48px 0 0; padding: 10px; background: #f3f6f5; box-shadow: 10px 0 35px #22373224; }.activity-column.mobile-open { inset: 0 0 0 40px; }.patient-panel, .activity-panel { overflow-y: auto; }.scenario-panel { flex: 0 0 auto; }.mobile-close { position: absolute; top: 10px; right: 10px; z-index: 1; display: block; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; background: white; font-size: 18px; color: #72837d; }

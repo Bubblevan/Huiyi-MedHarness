@@ -1,6 +1,6 @@
-import { isProductionBuild } from "../config/env.js";
+import { isNonDemoBuild } from "../config/env.js";
 
-const developmentCopy = {
+export const developmentCopy = {
   productName: "Clinical Demo Workstation",
   gatewayUnavailable: "Demo Gateway 暂不可用。确认 Gateway 已在本机启动后刷新此页面。",
   scenarioLabel: "DEMO SCENARIOS",
@@ -30,6 +30,8 @@ const developmentCopy = {
   singleTurnScenario: "单轮上下文与证据",
   specialistScenario: "DSH 临床协作",
   simulatedSpecialistScenario: "simulated multi-specialist flow",
+  simulatedExecution: "simulated execution",
+  dshChild: "DSH child",
   recoveryScenario: "故障与恢复",
   recoveryDescription: "fixture 错误状态测试",
   footerRuntimeSuffix: "合成病例",
@@ -45,7 +47,7 @@ const developmentCopy = {
   quickPromptNextSteps: "请根据已有上下文，给我一个简洁的下一步沟通清单。",
 } as const;
 
-const productionCopy = {
+export const productionCopy = {
   productName: "临床工作台",
   gatewayUnavailable: "服务连接暂不可用，请稍后重试或联系管理员。",
   scenarioLabel: "快捷工作流",
@@ -75,6 +77,8 @@ const productionCopy = {
   singleTurnScenario: "复诊沟通",
   specialistScenario: "多学科协作",
   simulatedSpecialistScenario: "多学科协作",
+  simulatedExecution: "",
+  dshChild: "",
   recoveryScenario: "",
   recoveryDescription: "",
   footerRuntimeSuffix: "",
@@ -90,4 +94,10 @@ const productionCopy = {
   quickPromptNextSteps: "请根据当前患者上下文整理下一步沟通清单。",
 } as const;
 
-export const clinicalCopy = isProductionBuild ? productionCopy : developmentCopy;
+export type ClinicalWorkstationCopy = { [Key in keyof typeof developmentCopy]: string };
+
+export function resolveClinicalCopy(production: boolean): ClinicalWorkstationCopy {
+  return production ? productionCopy : developmentCopy;
+}
+
+export const clinicalCopy = resolveClinicalCopy(isNonDemoBuild);

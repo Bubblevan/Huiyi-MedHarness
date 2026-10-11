@@ -5,7 +5,7 @@ import type { SystemPrompt as DshSystemPrompt } from '@deepseek-ai/dsh-system-pr
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import type { HealthCaseState } from '../case/contracts.js'
 import type { MemoryLifecycle } from '../memory/lifecycle.js'
-import type { MedicalEvidenceClientPort } from '../rag/contracts.js'
+import type { EvidenceRetrievalSummary, EvidenceSet, MedicalEvidenceClientPort } from '../rag/contracts.js'
 import type { CaseComplexity, CollaborationSnapshot } from './contracts.js'
 import { DshClinicalChildRunner } from './dsh-runner.js'
 import type { DshCollaborationContext } from './dsh-runner.js'
@@ -54,6 +54,7 @@ interface CollaborationToolResult {
     readonly patientMemoryItemCount: number
     readonly externalEvidenceHitCount: number
     readonly externalEvidenceStatus: 'retrieved' | 'empty' | 'degraded' | 'unavailable'
+    readonly externalEvidenceRetrieval?: EvidenceRetrievalSummary
   }
   readonly execution: CollaborationSnapshot['execution']
 }
@@ -134,6 +135,30 @@ const collaborationResultSchema = {
         patientMemoryItemCount: { type: 'integer', required: true },
         externalEvidenceHitCount: { type: 'integer', required: true },
         externalEvidenceStatus: { type: 'string', enum: ['retrieved', 'empty', 'degraded', 'unavailable'], required: true },
+        externalEvidenceRetrieval: {
+          type: 'object', additionalProperties: false,
+          properties: {
+            mode: { type: 'string', enum: ['single', 'iterative'], required: true },
+            corpusVersion: { type: 'string', required: true },
+            rounds: { type: 'integer', required: true },
+            generatedQueries: { type: 'integer', required: true },
+            uniqueDocuments: { type: 'integer', required: true },
+            candidateCount: { type: 'integer', required: true },
+            returnedEvidenceCount: { type: 'integer', required: true },
+            retrievalCalls: { type: 'integer', required: true },
+            plannerCalls: { type: 'integer', required: true },
+            retrievalLatencyMs: { type: 'number', required: true },
+            plannerLatencyMs: { type: 'number', required: true },
+            latencyMs: { type: 'number', required: true },
+            estimatedContextTokens: { type: 'integer', required: true },
+            plannerModel: { type: 'string', required: true },
+            plannerPromptVersion: { type: 'string', required: true },
+            plannerInputTokens: { type: 'integer' },
+            plannerOutputTokens: { type: 'integer' },
+            degraded: { type: 'boolean', required: true },
+            degradedErrorClass: { type: 'string' },
+          },
+        },
       },
     },
     execution: {
@@ -238,8 +263,9 @@ export function installDshCollaborationTool(
     } catch {
       externalEvidenceStatus = 'unavailable'
     }
+    const externalEvidenceRetrieval = externalEvidence ? summarizeEvidenceRetrieval(externalEvidence) : undefined
 
-    if (input.signal.aborted) return unavailableResult('degraded', externalEvidenceStatus)
+    if (input.signal.aborted) return unavailableResult('degraded', externalEvidenceStatus, externalEvidenceRetrieval)
 
     const hostPatientMemory = options.caseContext?.({
       agentId: input.agent.id,
@@ -281,11 +307,12 @@ export function installDshCollaborationTool(
           patientMemoryItemCount: patientMemory?.items.length ?? 0,
           externalEvidenceHitCount: externalEvidence?.hits.length ?? 0,
           externalEvidenceStatus,
+          ...(externalEvidenceRetrieval ? { externalEvidenceRetrieval } : {}),
         },
         execution: { ...snapshot.execution },
       }
     } catch {
-      return unavailableResult('degraded', externalEvidenceStatus)
+      return unavailableResult('degraded', externalEvidenceStatus, externalEvidenceRetrieval)
     }
   }
 }
@@ -341,6 +368,7 @@ export function installCollaborationWhenSpawnAvailable(
 function unavailableResult(
   status: 'unavailable' | 'degraded',
   externalEvidenceStatus: CollaborationToolResult['context']['externalEvidenceStatus'] = 'unavailable',
+  externalEvidenceRetrieval?: EvidenceRetrievalSummary,
 ): CollaborationToolResult {
   return {
     status,
@@ -348,7 +376,37 @@ function unavailableResult(
     plan: { specialists: [], teams: [] },
     specialistFindings: [],
     teamFindings: [],
-    context: { patientMemoryItemCount: 0, externalEvidenceHitCount: 0, externalEvidenceStatus },
+    context: {
+      patientMemoryItemCount: 0,
+      externalEvidenceHitCount: 0,
+      externalEvidenceStatus,
+      ...(externalEvidenceRetrieval ? { externalEvidenceRetrieval } : {}),
+    },
     execution: { childRuns: 0, failedChildRuns: 0, completedRounds: 0, degraded: true },
+  }
+}
+
+function summarizeEvidenceRetrieval(evidence: EvidenceSet): EvidenceRetrievalSummary {
+  const retrieval = evidence.retrieval
+  return {
+    mode: evidence.mode,
+    corpusVersion: evidence.corpusVersion,
+    rounds: retrieval.rounds,
+    generatedQueries: retrieval.generatedQueries,
+    uniqueDocuments: retrieval.uniqueDocuments,
+    candidateCount: retrieval.candidateCount,
+    returnedEvidenceCount: retrieval.returnedEvidenceCount,
+    retrievalCalls: retrieval.retrievalCalls,
+    plannerCalls: retrieval.plannerCalls,
+    retrievalLatencyMs: retrieval.retrievalLatencyMs,
+    plannerLatencyMs: retrieval.plannerLatencyMs,
+    latencyMs: retrieval.latencyMs,
+    estimatedContextTokens: retrieval.estimatedContextTokens,
+    plannerModel: retrieval.plannerModel,
+    plannerPromptVersion: retrieval.plannerPromptVersion,
+    ...(retrieval.plannerInputTokens === undefined ? {} : { plannerInputTokens: retrieval.plannerInputTokens }),
+    ...(retrieval.plannerOutputTokens === undefined ? {} : { plannerOutputTokens: retrieval.plannerOutputTokens }),
+    degraded: retrieval.degraded,
+    ...(retrieval.degradedErrorClass === undefined ? {} : { degradedErrorClass: retrieval.degradedErrorClass }),
   }
 }

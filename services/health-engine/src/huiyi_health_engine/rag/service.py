@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 import threading
 import time
@@ -11,13 +12,20 @@ from .config import RagSettings
 from .corpus import CorpusRepository, PreparedCorpus
 from .iterative import AcquisitionResult, IterativeEvidenceAcquirer, OperationCancelled
 from .planner import QueryPlanner
-from .retriever import MedCptRetriever
+from .retriever import MedCptRetriever, Qwen3EmbeddingRetriever
 from .schemas import EvidenceHit, EvidenceSet, MedicalEvidenceRequest, RagStatus, RetrievalMetrics
 
 
 def _query_encoder_matches_revision(path: Path, revision: str) -> bool:
     if revision in str(path):
         return True
+    repository_metadata = path / ".hfd" / "repo_metadata.json"
+    try:
+        metadata = json.loads(repository_metadata.read_text(encoding="utf-8"))
+        if metadata.get("sha") == revision:
+            return True
+    except (OSError, UnicodeError, json.JSONDecodeError, AttributeError):
+        pass
     # Hugging Face local snapshots carry the resolved repository revision next
     # to each downloaded file. This also lets operators keep a clean, readable
     # model directory name instead of embedding a commit SHA in the path.
@@ -60,12 +68,12 @@ class RagService:
         self,
         settings: RagSettings,
         corpus: PreparedCorpus,
-        retriever: MedCptRetriever,
+        retriever: MedCptRetriever | Qwen3EmbeddingRetriever,
         planner: QueryPlanner,
         tokenizer: EvidenceTokenizer,
     ):
-        if corpus.retriever_name != "MedCPT":
-            raise RuntimeError("prepared corpus manifest must name the MedCPT retriever")
+        if corpus.retriever_name not in {"MedCPT", "Qwen3-Embedding-0.6B"}:
+            raise RuntimeError(f"unsupported prepared corpus retriever: {corpus.retriever_name}")
         self.settings = settings
         self.corpus = corpus
         self.retriever = retriever
@@ -77,8 +85,14 @@ class RagService:
     def from_settings(cls, settings: RagSettings) -> "RagService":
         corpus = CorpusRepository(settings.corpus_root, settings.manifest_path).load()
         if not _query_encoder_matches_revision(settings.query_encoder_path, corpus.query_encoder_revision):
-            raise RuntimeError("configured MedCPT query encoder path does not match the corpus manifest revision")
-        retriever = MedCptRetriever(
+            raise RuntimeError("configured query encoder path does not match the corpus manifest revision")
+        retriever_class = {
+            "MedCPT": MedCptRetriever,
+            "Qwen3-Embedding-0.6B": Qwen3EmbeddingRetriever,
+        }.get(corpus.retriever_name)
+        if retriever_class is None:
+            raise RuntimeError(f"unsupported prepared corpus retriever: {corpus.retriever_name}")
+        retriever = retriever_class(
             corpus,
             str(settings.query_encoder_path),
             device=settings.query_encoder_device,

@@ -14,8 +14,12 @@ declare global {
 }
 
 const configuredEnvironment = import.meta.env.VITE_APP_ENV?.trim().toLowerCase();
-export const appEnvironment = configuredEnvironment || import.meta.env.MODE;
+export const appEnvironment = import.meta.env.MODE === "clinical-evaluation" || import.meta.env.MODE === "production"
+  ? import.meta.env.MODE
+  : configuredEnvironment || import.meta.env.MODE;
 export const isProductionBuild = appEnvironment === "production";
+export const isClinicalEvaluationBuild = appEnvironment === "clinical-evaluation";
+export const isNonDemoBuild = isProductionBuild || isClinicalEvaluationBuild;
 
 export const runtimeConfig: HuiyiRuntimeConfig =
   typeof window !== "undefined" && window.HuiyiRuntimeConfig
@@ -24,7 +28,9 @@ export const runtimeConfig: HuiyiRuntimeConfig =
 
 export const environmentLabel = isProductionBuild
   ? runtimeConfig.environmentName?.trim() || import.meta.env.VITE_APP_ENV_LABEL?.trim() || "PROD"
-  : "DEMO / LOCAL";
+  : isClinicalEvaluationBuild
+    ? runtimeConfig.environmentName?.trim() || import.meta.env.VITE_APP_ENV_LABEL?.trim() || "临床评测环境"
+    : "DEMO / LOCAL";
 
 export const applicationVersion =
   runtimeConfig.version?.trim() || import.meta.env.VITE_APP_VERSION?.trim() || "0.1.0";

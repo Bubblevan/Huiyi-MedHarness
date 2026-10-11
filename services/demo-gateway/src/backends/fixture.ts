@@ -1,5 +1,4 @@
 import { createEvent, type ChatInput, type DemoEvent, type DemoScenario } from "../contracts.js";
-import { getPatient } from "../fixtures.js";
 import type { DemoBackend } from "./backend.js";
 
 export interface FixtureBackendOptions { delayMs?: number }
@@ -33,7 +32,7 @@ export class FixtureDemoBackend implements DemoBackend {
     try {
       yield emit("run.started", { backend: "fixture", scenario });
       yield emit("context.patient", { patientId: input.patientId });
-      const patient = getPatient(input.patientId);
+      const patient = (await import("../demo-seed/patients.js")).getPatient(input.patientId);
       yield emit("context.memory", { itemCount: patient?.memory.items ?? 0 });
       await this.pause(combinedSignal);
       if (scenario === "failure") {

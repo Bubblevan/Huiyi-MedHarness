@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build && node scripts/check-production-build.mjs",
+    "clinical-evaluation:dev": "vite --host 127.0.0.1 --mode clinical-evaluation",
+    "clinical-evaluation:build": "vite build --mode clinical-evaluation && node scripts/check-production-build.mjs --clinical-evaluation",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "browser:smoke": "playwright test"
+    "browser:smoke": "playwright test",
+    "clinical-evaluation:browser-smoke": "playwright test --config=playwright.clinical-evaluation.config.ts"
   },
   "dependencies": {
     "@assistant-ui/react": "0.15.25",

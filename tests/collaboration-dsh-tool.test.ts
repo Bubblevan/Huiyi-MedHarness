@@ -46,7 +46,7 @@ function lifecycle() {
     recall: vi.fn(async () => snapshot),
     commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
     sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
-    stats: vi.fn(async userId => ({ userId, memoryWindowItems: 1, records: { raw: 0, facts: 1, episodes: 0 } })),
+    stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 1, records: { raw: 0, facts: 1, episodes: 0 } })),
     forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 1 })),
     health: vi.fn(async () => ({ status: 'ok' as const })),
   }
@@ -64,7 +64,7 @@ describe('Huiyi DSH collaboration capability', () => {
   it('passes the current query, shared Memory snapshot, and separate RAG evidence to bounded spawn children', async () => {
     const { instance, memoryClient } = lifecycle()
     const evidenceClient: MedicalEvidenceClientPort = {
-      search: vi.fn(async request => evidenceSet(request.query)),
+      search: vi.fn(async (request: Parameters<MedicalEvidenceClientPort['search']>[0]) => evidenceSet(request.query)),
       health: vi.fn(async () => ({ status: 'ok' as const })),
     }
     const startRequests: Array<Record<string, unknown>> = []

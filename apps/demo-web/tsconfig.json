@@ -13,7 +13,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["vite/client", "vitest/globals"],
+    "baseUrl": ".",
+    "paths": { "@clinical-workstation-copy": ["src/copy/clinicalWorkstation.development.ts"] }
   },
   "include": ["src", "vite.config.ts", "vitest.config.ts"]
 }

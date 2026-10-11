@@ -66,7 +66,12 @@ describe('DSH clinical child runner', () => {
     ['max tokens', { stopReason: 'max-tokens', structured: { partial: 'must not parse' } }, identity, 'failed'],
     ['missing structured value', { stopReason: 'completed' }, identity, 'failed'],
     ['domain validation throws', { stopReason: 'completed', structured: { malformed: true } }, () => { throw new TypeError('PRIVATE DETAIL') }, 'failed'],
-  ] as const)('disposes the published handle after %s', async (_name, terminal, decode, expectedStatus) => {
+  ] as const)('disposes the published handle after %s', async (
+    _name: string,
+    terminal: { stopReason: 'completed' | 'error' | 'max-tokens'; structured?: unknown },
+    decode: ClinicalChildRequest['decode'],
+    expectedStatus: 'completed' | 'failed',
+  ) => {
     const { ctx, handle } = makeContext(Promise.resolve(terminal as { stopReason: 'completed' | 'error' | 'max-tokens'; structured?: unknown }))
     const result = await new DshClinicalChildRunner(ctx).run(parent, request({ decode }), new AbortController().signal)
     expect(result.status).toBe(expectedStatus)
@@ -129,6 +134,16 @@ describe('DSH clinical child runner', () => {
     expect(handle.dispose).toHaveBeenCalledTimes(1)
     expect(JSON.stringify(result)).not.toContain('invalid case complexity')
     expect(JSON.stringify(result)).not.toContain('BASIC')
+  })
+
+  it('records an allowlisted MDT-plan validation category without retaining rejected output', async () => {
+    const { ctx, handle } = makeContext(Promise.resolve({ stopReason: 'completed', structured: { teams: [] } }))
+    const decode = () => { throw new TypeError('MDT plan has no valid teams') }
+    const result = await new DshClinicalChildRunner(ctx).run(parent, request({ decode }), new AbortController().signal)
+    expect(result).toMatchObject({ status: 'failed', failureClass: 'InvalidStructuredOutput', validationCode: 'mdt_plan_no_valid_teams' })
+    expect(handle.dispose).toHaveBeenCalledTimes(1)
+    expect(JSON.stringify(result)).not.toContain('MDT plan has no valid teams')
+    expect(result).not.toHaveProperty('value')
   })
 
   it('does not expose an unknown validation error message as metadata', async () => {

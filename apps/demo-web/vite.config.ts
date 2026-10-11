@@ -7,8 +7,10 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, repoRoot, "");
-  const appEnvironment = (env.VITE_APP_ENV ?? mode).trim().toLowerCase();
-  const isProduction = appEnvironment === "production";
+  const appEnvironment = (mode === "clinical-evaluation" || mode === "production" ? mode : env.VITE_APP_ENV ?? mode).trim().toLowerCase();
+  const isProduction = appEnvironment === "production" || appEnvironment === "clinical-evaluation";
+  const copyModule = resolve(repoRoot, `apps/demo-web/src/copy/clinicalWorkstation.${isProduction ? "production" : "development"}.ts`);
+  const publicApiBase = (process.env.HUIYI_DEMO_API_BASE ?? env.HUIYI_DEMO_API_BASE ?? "/api").trim();
   const gatewayPort = process.env.HUIYI_DEMO_GATEWAY_PORT ?? env.HUIYI_DEMO_GATEWAY_PORT ?? "8320";
   const webPort = process.env.HUIYI_DEMO_WEB_PORT ?? "5173";
   return {
@@ -24,8 +26,14 @@ export default defineConfig(({ mode }) => {
         .replaceAll("__HUIYI_PAGE_DESCRIPTION__", description);
     },
   }],
-  envDir: repoRoot,
-  envPrefix: ["VITE_", "HUIYI_DEMO_"],
+    envDir: repoRoot,
+    envPrefix: "VITE_",
+    define: {
+      __HUIYI_CLINICAL_EVALUATION__: JSON.stringify(appEnvironment === "clinical-evaluation"),
+      __HUIYI_PRODUCTION_BUILD__: JSON.stringify(isProduction),
+      "import.meta.env.HUIYI_DEMO_API_BASE": JSON.stringify(publicApiBase),
+    },
+    resolve: { alias: [{ find: "@clinical-workstation-copy", replacement: copyModule }] },
   server: {
     host: "127.0.0.1",
     port: Number(webPort),

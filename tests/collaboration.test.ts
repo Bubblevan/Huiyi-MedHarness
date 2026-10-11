@@ -6,7 +6,7 @@ import type { ClinicalChildRequest, ClinicalChildResult, ClinicalChildRunner, Cl
 import { CollaborationOrchestrator } from '../src/collaboration/orchestrator.js'
 import { benchmarkPolicy, policyFor, productPolicy } from '../src/collaboration/policy.js'
 import { decodeComplexityDecision, planFromMdt, planFromRecruitment } from '../src/collaboration/planner.js'
-import { buildComplexityClassificationPrompt, buildTeamSynthesisPrompt } from '../src/collaboration/prompts.js'
+import { buildComplexityClassificationPrompt, buildMdtPlanningPrompt, buildTeamSynthesisPrompt } from '../src/collaboration/prompts.js'
 import { MetadataCollaborationTrace } from '../src/collaboration/trace.js'
 
 const parent = {} as Agent
@@ -275,6 +275,25 @@ describe('collaboration planner and policy', () => {
 })
 
 describe('collaboration cancellation and metadata trace', () => {
+  it('records the classifier decision rather than the pre-classification default', async () => {
+    const trace = new MetadataCollaborationTrace()
+    const runner = new FakeClinicalChildRunner(request => request.kind === 'complexity-classifier'
+      ? { structured: { complexity: 'advanced', rationaleSummary: 'Multiple bounded team views are needed.' } }
+      : request.kind === 'mdt-planner'
+        ? { structured: { teams: [{ goal: 'Assess the synthetic case.', members: specialists(1) }] } }
+        : defaultReply(request))
+
+    const snapshot = await new CollaborationOrchestrator(runner, trace).collaborate({
+      parentAgent: parent,
+      caseState: caseState(),
+      profile: 'product',
+      signal: new AbortController().signal,
+    })
+
+    expect(snapshot.complexity).toBe('advanced')
+    expect(trace.records.find(record => record.task === 'complexity-classifier')?.complexity).toBe('advanced')
+  })
+
   it('cancels before the first run without starting children', async () => {
     const controller = new AbortController()
     controller.abort()
@@ -348,6 +367,14 @@ describe('collaboration structured-output prompts', () => {
     expect(prompt).toContain('exactly these fields: complexity and rationaleSummary')
     expect(prompt).toContain('"basic", "intermediate", or "advanced"')
     expect(prompt).toContain('one plain sentence, non-empty, and no more than 160 characters')
+  })
+
+  it('requires a nonempty bounded MDT plan after an advanced classification', () => {
+    const prompt = buildMdtPlanningPrompt(caseState(), productPolicy.maxTeams, productPolicy.maxSpecialists)
+    expect(prompt).toContain('Create at least one and at most 2 multidisciplinary teams')
+    expect(prompt).toContain('at least one member with a role and expertise')
+    expect(prompt).toContain('Do not return an empty team list or empty members')
+    expect(prompt).toContain('Add another team only when the case supports a distinct goal')
   })
 
   it('distinguishes empty, wrong-type, and overlong classifier rationale without inspecting values', () => {

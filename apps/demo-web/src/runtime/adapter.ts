@@ -13,8 +13,10 @@ export interface WireDemoEvent {
 
 interface AdapterOptions {
   patientId: string;
+  encounterId?: string;
   sessionId: string;
   scenario: Scenario;
+  includeScenario?: boolean;
   onEvent: (event: WireDemoEvent) => void;
   onError: (message: string) => void;
   apiBase?: string;
@@ -48,7 +50,7 @@ export function createDemoAdapter(options: AdapterOptions): ChatModelAdapter {
       let runId: string | null = null;
       const cancel = () => {
         if (!runId) return;
-        void fetch(`${apiBase}/runs/${encodeURIComponent(runId)}/cancel`, { method: "POST" })
+        void fetch(`${apiBase}/runs/${encodeURIComponent(runId)}/cancel`, { method: "POST", credentials: "same-origin" })
           .then(async (response) => {
             if (!response.ok) return;
             const payload = await response.json() as { event?: unknown };
@@ -61,7 +63,14 @@ export function createDemoAdapter(options: AdapterOptions): ChatModelAdapter {
         const response = await fetch(`${apiBase}/chat`, {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ sessionId: options.sessionId, patientId: options.patientId, message, scenario: options.scenario }),
+          credentials: "same-origin",
+          body: JSON.stringify({
+            sessionId: options.sessionId,
+            patientId: options.patientId,
+            ...(options.encounterId ? { encounterId: options.encounterId } : {}),
+            message,
+            ...(options.includeScenario === false ? {} : { scenario: options.scenario }),
+          }),
           signal: abortSignal,
         });
         if (!response.ok || !response.body) {

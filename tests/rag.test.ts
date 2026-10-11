@@ -47,7 +47,7 @@ describe('RAG contracts and rendering', () => {
     const metadata = ragTraceMetadata([{ type: 'text', text: renderEvidenceSet(evidenceSet()) }])
     expect(metadata).toMatchObject({
       ragMode: 'iterative', retrievalRounds: 2, generatedQueryCount: 2,
-      candidateCount: 6, returnedEvidenceCount: 1, retrievalCalls: 4,
+      uniqueDocumentCount: 1, candidateCount: 6, returnedEvidenceCount: 1, retrievalCalls: 4,
       plannerCalls: 2, retrievalLatencyMs: 12.5, plannerLatencyMs: 18, ragLatencyMs: 32.5,
       plannerInputTokens: 100, plannerOutputTokens: 20,
       corpusVersion: 'medtext-local-a1b2', generatedQueryHashes: ['abc123'],
@@ -55,6 +55,12 @@ describe('RAG contracts and rendering', () => {
     expect(JSON.stringify(metadata)).not.toContain('PRIVATE_USER_QUERY')
     expect(JSON.stringify(metadata)).not.toContain('PRIVATE_GENERATED_QUERY')
     expect(JSON.stringify(metadata)).not.toContain('PRIVATE_SOURCE_SNIPPET')
+  })
+
+  it('ignores invalid negative retrieval counters in metadata traces', () => {
+    const invalid = evidenceSet()
+    invalid.retrieval.plannerCalls = -1
+    expect(ragTraceMetadata([{ type: 'text', text: renderEvidenceSet(invalid) }])).toBeUndefined()
   })
 })
 

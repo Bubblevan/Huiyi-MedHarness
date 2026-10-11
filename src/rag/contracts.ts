@@ -52,6 +52,14 @@ export interface EvidenceSet {
   corpusVersion: string
 }
 
+/** Bounded retrieval counters safe to carry in structured execution traces. */
+export type EvidenceRetrievalSummary = Pick<EvidenceSet, 'mode' | 'corpusVersion'> & Pick<EvidenceSet['retrieval'],
+  | 'rounds' | 'generatedQueries' | 'uniqueDocuments' | 'candidateCount' | 'returnedEvidenceCount'
+  | 'retrievalCalls' | 'plannerCalls' | 'retrievalLatencyMs' | 'plannerLatencyMs' | 'latencyMs'
+  | 'estimatedContextTokens' | 'plannerModel' | 'plannerPromptVersion' | 'plannerInputTokens'
+  | 'plannerOutputTokens' | 'degraded' | 'degradedErrorClass'
+>
+
 export interface MedicalEvidenceClientPort {
   search(request: MedicalEvidenceRequest, options?: { signal?: AbortSignal }): Promise<EvidenceSet>
   health(options?: { signal?: AbortSignal }): Promise<{ status: 'ok' }>

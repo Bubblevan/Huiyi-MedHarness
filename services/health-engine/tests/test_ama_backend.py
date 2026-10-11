@@ -3,8 +3,10 @@ from __future__ import annotations
 import tempfile
 import unittest
 import json
+import importlib
+import sqlite3
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from huiyi_health_engine.memory.ama_backend import AmaBackendError, AmaMemoryBackend, _Counters, _instrument, _parse_retrievals
 from huiyi_health_engine.memory.schemas import MemoryStats
@@ -12,6 +14,56 @@ from huiyi_health_engine.memory.service import namespace_for_user
 
 
 class AmaBackendTests(unittest.TestCase):
+    def test_session_end_generates_first_episode_when_episode_table_is_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as data_dir:
+            ama_class = AmaMemoryBackend(data_dir)._load_ama_class()
+            memory = ama_class.__new__(ama_class)
+            memory.user = "synthetic_patient"
+            memory.episodeSql = "synthetic_patientEpisode"
+            memory.memoryWindow = [{"role": "user", "content": "synthetic turn"}]
+            memory.memoryAgent = Mock()
+            memory.memoryAgent.inferenceGenerateEpisode.return_value = {"title": "synthetic episode"}
+            memory.constructEpisodicWrite = Mock()
+            memory.queryLastRecord = Mock(side_effect=[{"episode": 1}, None])
+
+            memory.judgeAndGenerate()
+
+        memory.memoryAgent.inferenceGenerateEpisode.assert_called_once()
+        memory.constructEpisodicWrite.assert_called_once_with(data={"title": "synthetic episode"})
+
+    def test_session_end_does_not_regenerate_existing_latest_episode(self) -> None:
+        with tempfile.TemporaryDirectory() as data_dir:
+            ama_class = AmaMemoryBackend(data_dir)._load_ama_class()
+            memory = ama_class.__new__(ama_class)
+            memory.user = "synthetic_patient"
+            memory.episodeSql = "synthetic_patientEpisode"
+            memory.memoryWindow = [{"role": "user", "content": "synthetic turn"}]
+            memory.memoryAgent = Mock()
+            memory.constructEpisodicWrite = Mock()
+            memory.queryLastRecord = Mock(side_effect=[{"episode": 1}, {"id": 1}])
+
+            memory.judgeAndGenerate()
+
+        memory.memoryAgent.inferenceGenerateEpisode.assert_not_called()
+        memory.constructEpisodicWrite.assert_not_called()
+
+    def test_pinned_ama_model_uses_configured_local_request_timeout(self) -> None:
+        class Response:
+            def raise_for_status(self) -> None:
+                return None
+
+            def json(self) -> dict[str, object]:
+                return {"choices": [{"message": {"content": "ok"}}]}
+
+        with tempfile.TemporaryDirectory() as data_dir:
+            AmaMemoryBackend(data_dir)._load_ama_class()
+            model = importlib.import_module("Model.model")
+            with patch.dict("os.environ", {"HUIYI_MEMORY_MODEL_TIMEOUT_SECONDS": "90"}):
+                agent = model.memoryAgent()
+                with patch.object(model.requests, "post", return_value=Response()) as post:
+                    self.assertEqual(agent.inference([]), "ok")
+            self.assertEqual(post.call_args.kwargs["timeout"], 90)
+
     def test_pinned_ama_initializes_user_isolated_sqlite_and_faiss_store(self) -> None:
         with tempfile.TemporaryDirectory() as data_dir:
             backend = AmaMemoryBackend(data_dir)
@@ -110,12 +162,36 @@ class AmaBackendTests(unittest.TestCase):
             backend._instances[namespace] = memory
             backend._counters[namespace] = _Counters()
 
-            first = backend.recall(namespace, "question one", strong=True)
-            second = backend.recall(namespace, "question two", strong=True)
+            with patch.object(backend, "_stats", return_value=MemoryStats(
+                userId=namespace,
+                memoryWindowItems=0,
+                records={"raw": 1, "facts": 0, "episodes": 0},
+            )):
+                first = backend.recall(namespace, "question one", strong=True)
+                second = backend.recall(namespace, "question two", strong=True)
 
         self.assertEqual([item.content for item in first.items], ["question one"])
         self.assertEqual([item.content for item in second.items], ["question two"])
         self.assertEqual(memory.memoryWindow, [])
+
+    def test_empty_namespace_recall_skips_unnecessary_model_calls(self) -> None:
+        class EmptyMemory:
+            memoryWindow: list[str] = []
+
+            def forwardRetrieve(self, *_args: object, **_kwargs: object) -> str:
+                raise AssertionError("empty memory must not invoke the AMA model")
+
+        with tempfile.TemporaryDirectory() as data_dir:
+            backend = AmaMemoryBackend(data_dir)
+            namespace = namespace_for_user("synthetic-empty-recall-user")
+            backend._instances[namespace] = EmptyMemory()
+            backend._counters[namespace] = _Counters()
+
+            result = backend.recall(namespace, "synthetic question", strong=False)
+
+        self.assertEqual(result.items, [])
+        self.assertEqual(result.retrieval_rounds, 0)
+        self.assertEqual(result.ama_llm_call_count, 0)
 
     def test_benchmark_usage_capture_counts_local_provider_tokens(self) -> None:
         class FakeMemoryAgent:
@@ -150,6 +226,50 @@ class AmaBackendTests(unittest.TestCase):
         self.assertEqual(counters.snapshot()["prompt_tokens"], 47)
         self.assertEqual(counters.snapshot()["completion_tokens"], 11)
         self.assertEqual(counters.snapshot()["usage_reports"], 1)
+
+    def test_commit_returns_provider_token_deltas_for_per_turn_trace(self) -> None:
+        class FakeMemoryAgent:
+            promptToken = 0
+            completionToken = 0
+
+            def inference(self, *_args: object, showUsage: bool = False, **_kwargs: object) -> str:
+                if showUsage:
+                    self.promptToken += 47
+                    self.completionToken += 11
+                return "{}"
+
+        class FakeMemory:
+            raw_records = 0
+
+            def __init__(self, **_kwargs: object):
+                self.memoryWindow: list[str] = []
+                self.memoryAgent = FakeMemoryAgent()
+
+            def forwardUser(self, *_args: object, **_kwargs: object) -> None:
+                type(self).raw_records += 1
+                self.memoryAgent.inference([], showUsage=False)
+
+            def forwardRobot(self, *_args: object, **_kwargs: object) -> None:
+                raise AssertionError("assistant output must not be persisted as patient history")
+
+            def retrieve(self, *_args: object, **_kwargs: object) -> None: return None
+            def refresh(self, *_args: object, **_kwargs: object) -> None: return None
+            def constructEpisodicWrite(self, *_args: object, **_kwargs: object) -> None: return None
+
+        with tempfile.TemporaryDirectory() as data_dir, patch.dict("os.environ", {"HUIYI_MEMORY_CAPTURE_USAGE": "1"}):
+            backend = AmaMemoryBackend(data_dir)
+            backend._ama_class = FakeMemory
+
+            def stats(_namespace: str, user_id: str) -> MemoryStats:
+                return MemoryStats(userId=user_id, memoryWindowItems=0, records={"raw": FakeMemory.raw_records, "facts": 0, "episodes": 0})
+
+            with patch.object(backend, "_stats", side_effect=stats):
+                outcome = backend.commit_turn(namespace_for_user("synthetic-usage-user"), "synthetic input", "synthetic output")
+
+        self.assertEqual(outcome.ama_llm_call_count, 1)
+        self.assertEqual(outcome.ama_prompt_tokens, 47)
+        self.assertEqual(outcome.ama_completion_tokens, 11)
+        self.assertEqual(outcome.ama_usage_report_count, 1)
 
     def test_optional_memory_llm_trace_is_phase_labeled_and_metadata_only(self) -> None:
         class FakeMemoryAgent:
@@ -203,39 +323,57 @@ class AmaBackendTests(unittest.TestCase):
         self.assertFalse(result.episode_generated)
         self.assertEqual(result.ama_llm_call_count, 0)
 
-    def test_forward_robot_name_error_is_reported_even_if_write_was_observed(self) -> None:
+    def test_forget_invalidates_cached_ama_instance_before_next_commit(self) -> None:
+        class FakeMemoryAgent:
+            def inference(self, *_args: object, **_kwargs: object) -> str:
+                return "{}"
+
         class FakeMemory:
-            memoryWindow: list[dict[str, str]] = []
-            raw_records = 0
+            live_tables: set[str] = set()
+            writes = 0
 
-            def forwardUser(self, _user_text: str, showUsage: bool = False) -> None:
-                del showUsage
+            def __init__(self, *, user: str, **_kwargs: object):
+                self.user = user
+                self.memoryWindow: list[str] = []
+                self.memoryAgent = FakeMemoryAgent()
+                self.live_tables.add(user)
 
-            def forwardRobot(self, _assistant_text: str, showUsage: bool = False) -> None:
-                del showUsage
-                self.raw_records += 1
-                raise NameError("upstream failure")
+            def clearAllMemory(self) -> None:
+                self.live_tables.discard(self.user)
+                self.memoryWindow.clear()
+
+            def forwardUser(self, _user_text: str, **_kwargs: object) -> None:
+                if self.user not in self.live_tables:
+                    raise sqlite3.OperationalError("no such table")
+                type(self).writes += 1
+                self.memoryAgent.inference()
+
+            def retrieve(self, *_args: object, **_kwargs: object) -> None: return None
+            def refresh(self, *_args: object, **_kwargs: object) -> None: return None
+            def constructEpisodicWrite(self, *_args: object, **_kwargs: object) -> None: return None
 
         with tempfile.TemporaryDirectory() as data_dir:
             backend = AmaMemoryBackend(data_dir)
-            namespace = namespace_for_user("synthetic-name-error-user")
-            memory = FakeMemory()
-            backend._instances[namespace] = memory
-            backend._counters[namespace] = _Counters()
+            backend._ama_class = FakeMemory
+            namespace = namespace_for_user("synthetic-forget-cache-user")
+            FakeMemory.live_tables.clear()
+            FakeMemory.writes = 0
+
+            backend.forget(namespace)
 
             def stats(_namespace: str, user_id: str) -> MemoryStats:
                 return MemoryStats(
                     userId=user_id,
-                    memoryWindowItems=len(memory.memoryWindow),
-                    records={"raw": memory.raw_records, "facts": 0, "episodes": 0},
+                    memoryWindowItems=0,
+                    records={"raw": FakeMemory.writes, "facts": 0, "episodes": 0},
                 )
 
             with patch.object(backend, "_stats", side_effect=stats):
-                with self.assertRaises(AmaBackendError) as raised:
-                    backend.commit_turn(namespace, "synthetic user", "synthetic answer")
+                outcome = backend.commit_turn(namespace, "synthetic user", "synthetic answer")
 
-        self.assertEqual(raised.exception.error_class, "NameError")
-        self.assertEqual(memory.raw_records, 1)
+        self.assertEqual(outcome.raw_count, 1)
+        self.assertEqual(FakeMemory.writes, 1)
+        self.assertIn(namespace, FakeMemory.live_tables)
 
 
 if __name__ == "__main__":

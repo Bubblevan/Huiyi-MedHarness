@@ -1,4 +1,4 @@
-import type { PatientContext } from "./contracts.js";
+import type { PatientContext } from "../contracts.js";
 
 export const patients: PatientContext[] = [
   {

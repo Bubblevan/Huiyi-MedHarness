@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 
 from .config import RagSettings
 from .planner import PlannerError, QueryPlanner
-from .retriever import MedCptRetriever, RetrievalCandidate
+from .retriever import MedCptRetriever, Qwen3EmbeddingRetriever, RetrievalCandidate
 
 
 class OperationCancelled(RuntimeError):
@@ -48,7 +48,7 @@ class AcquisitionResult:
 class IterativeEvidenceAcquirer:
     """Bounded i-MedRAG-derived search policy; this class never generates answers."""
 
-    def __init__(self, settings: RagSettings, retriever: MedCptRetriever, planner: QueryPlanner):
+    def __init__(self, settings: RagSettings, retriever: MedCptRetriever | Qwen3EmbeddingRetriever, planner: QueryPlanner):
         self.settings = settings
         self.retriever = retriever
         self.planner = planner
@@ -113,7 +113,7 @@ class IterativeEvidenceAcquirer:
                 planner_latency_ms += (time.perf_counter() - planner_started) * 1000
                 self._check(cancellation, deadline)
                 degraded = True
-                error_class = type(exc).__name__
+                error_class = exc.failure_class if isinstance(exc, PlannerError) else "UnexpectedError"
                 if round_number == 1:
                     self._check(cancellation, deadline)
                     retrieval_started = time.perf_counter()

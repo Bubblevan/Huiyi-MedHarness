@@ -61,7 +61,7 @@ class RagSettings:
         if not manifest_path.is_file():
             raise RuntimeError("HUIYI_RAG_MANIFEST_PATH must point to a prepared corpus/index manifest")
         if not query_encoder_path.is_dir():
-            raise RuntimeError("HUIYI_RAG_QUERY_ENCODER_PATH must point to the pinned local MedCPT Query Encoder snapshot")
+            raise RuntimeError("HUIYI_RAG_QUERY_ENCODER_PATH must point to the local query encoder snapshot named by the corpus manifest")
 
         default_mode = os.environ.get("HUIYI_RAG_DEFAULT_MODE", "single").strip()
         if default_mode not in {"single", "iterative"}:

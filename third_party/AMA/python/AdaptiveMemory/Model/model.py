@@ -2,8 +2,20 @@ import requests
 import json
 import re
 import time
+import os
 from Settings import prompt
 from Settings.config import api_key,base_url
+
+
+def _request_timeout_seconds() -> int:
+    raw = os.environ.get("HUIYI_MEMORY_MODEL_TIMEOUT_SECONDS", "60").strip()
+    try:
+        timeout = int(raw)
+    except ValueError as exc:
+        raise ValueError("HUIYI_MEMORY_MODEL_TIMEOUT_SECONDS must be an integer") from exc
+    if not 1 <= timeout <= 300:
+        raise ValueError("HUIYI_MEMORY_MODEL_TIMEOUT_SECONDS must be between 1 and 300")
+    return timeout
 
 class memoryAgent:
     """
@@ -64,7 +76,7 @@ class memoryAgent:
                 self.base_url,
                 headers=self.headers,
                 data=json.dumps(payload),
-                timeout=60,
+                timeout=_request_timeout_seconds(),
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:

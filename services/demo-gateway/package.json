@@ -7,6 +7,11 @@
     "dev": "node --env-file-if-exists=../../.env --import tsx --watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node --env-file-if-exists=../../.env dist/services/demo-gateway/src/server.js",
+    "clinical-evaluation:dev": "node --env-file-if-exists=../../.env --import tsx src/server.ts",
+    "clinical-evaluation:dataset": "node --import tsx src/clinical-evaluation/generate-dataset.ts",
+    "codex-bridge": "node --env-file-if-exists=../../.env --import tsx src/backends/codex-app-server-bridge.ts",
+    "clinical-eval": "node --env-file-if-exists=../../.env --import tsx ../../eval/clinical/cli.ts",
+    "clinical-eval:smoke": "node --env-file-if-exists=../../.env --import tsx ../../scripts/eval/gpt6-integrated-smoke.ts",
     "test": "vitest run"
   },
   "dependencies": {

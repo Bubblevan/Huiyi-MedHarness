@@ -43,7 +43,7 @@ class FakeBackend:
         counts = self.records.setdefault(namespace, {"raw": 0, "facts": 0, "episodes": 0})
         counts["raw"] += 2
         counts["facts"] += 1
-        return CommitOutcome(2, 1, 0, 2, False, False)
+        return CommitOutcome(2, 1, 0, 2, False, False, 41, 7, 2)
 
     def session_end(self, namespace: str, session_id: str) -> SessionEndOutcome:
         self.session_ends.append((namespace, session_id))
@@ -97,7 +97,12 @@ class MemoryServiceTests(unittest.TestCase):
         restarted = MemoryService(restarted_backend, self.temp_dir.name)
         duplicate = restarted.commit_turn(self.commit_request())
         self.assertEqual(first.status, "committed")
+        self.assertEqual(first.amaLlmCallCount, 2)
+        self.assertEqual(first.amaPromptTokens, 41)
+        self.assertEqual(first.amaCompletionTokens, 7)
+        self.assertEqual(first.amaUsageReportCount, 2)
         self.assertEqual(duplicate.status, "duplicate")
+        self.assertEqual(duplicate.amaPromptTokens, 41)
         self.assertTrue(duplicate.duplicate)
         self.assertEqual(restarted_backend.commits, [])
 

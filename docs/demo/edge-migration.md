@@ -1,5 +1,7 @@
 # Future Edge migration specification
 
+This document is the deployment design for the **P1 synthetic public demo** in [`docs/product/roadmap.md`](../product/roadmap.md). It does not authorize real-patient access. The portal host serves the web entry and lightweight gateway; model weights and medical corpora remain on the private local GPU side behind WireGuard.
+
 This document is a plan only. No cloud instance, DNS name, tunnel, proxy, TLS certificate, or public listener is configured by this task.
 
 ```mermaid

@@ -21,6 +21,8 @@ export const name = 'huiyi-medharness'
 export const inject = ['tools', 'systemPrompt']
 
 export interface ApplyWithIdentityOptions {
+  /** Optional capability switches for controlled benchmark arms. Defaults preserve the full bundle. */
+  readonly capabilities?: { readonly memory?: boolean; readonly rag?: boolean; readonly collaboration?: boolean }
   readonly memory?: MemoryLifecycleOptions
   readonly memoryClient?: MemoryClientPort
   readonly memoryTrace?: MemoryTraceSink
@@ -43,12 +45,14 @@ export function applyWithIdentity(
   const memoryClient = options.memoryClient ?? new MemoryClient()
   const memoryTrace = options.memoryTrace ?? new MetadataMemoryTrace()
   const memoryLifecycle = installMemoryLifecycle(ctx, memoryClient, memoryTrace, resolveUserId, options.memory)
-  installMemoryTools(ctx, memoryClient, memoryLifecycle)
-  installRagTool(ctx, evidenceClient)
-  installCollaborationWhenSpawnAvailable(ctx, memoryLifecycle, evidenceClient, {
-    ...(options.collaborationTrace ? { trace: options.collaborationTrace } : {}),
-    ...(options.collaborationCaseContext ? { caseContext: options.collaborationCaseContext } : {}),
-  })
+  if (options.capabilities?.memory !== false) installMemoryTools(ctx, memoryClient, memoryLifecycle)
+  if (options.capabilities?.rag !== false) installRagTool(ctx, evidenceClient)
+  if (options.capabilities?.collaboration !== false) {
+    installCollaborationWhenSpawnAvailable(ctx, memoryLifecycle, evidenceClient, {
+      ...(options.collaborationTrace ? { trace: options.collaborationTrace } : {}),
+      ...(options.collaborationCaseContext ? { caseContext: options.collaborationCaseContext } : {}),
+    })
+  }
   observeSessionEvents(ctx)
   return memoryLifecycle
 }

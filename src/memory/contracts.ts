@@ -48,6 +48,9 @@ export interface MemoryCommitResult {
   factCount?: number
   episodeCount?: number
   amaLlmCallCount?: number
+  amaPromptTokens?: number
+  amaCompletionTokens?: number
+  amaUsageReportCount?: number
   refreshTriggered?: boolean
   episodeGenerated?: boolean
 }
@@ -62,6 +65,9 @@ export interface MemorySessionEndResult {
   duplicate: boolean
   episodeGenerated?: boolean
   amaLlmCallCount?: number
+  amaPromptTokens?: number
+  amaCompletionTokens?: number
+  amaUsageReportCount?: number
 }
 
 export interface MemoryStats {

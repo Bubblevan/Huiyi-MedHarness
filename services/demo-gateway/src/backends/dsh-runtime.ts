@@ -12,11 +12,16 @@ import * as PiAi from "@deepseek-ai/dsh-llm-pi-ai";
 import * as Spawn from "@deepseek-ai/dsh-subagent-spawn-in-process";
 import { applyWithIdentity } from "../../../../src/index.js";
 import { MemoryClient } from "../../../../src/memory/client.js";
+import type { MemoryLifecycle } from "../../../../src/memory/lifecycle.js";
 import type { MemorySnapshot } from "../../../../src/memory/contracts.js";
 import { MetadataMemoryTrace } from "../../../../src/memory/trace.js";
+import type { MemoryTraceSink } from "../../../../src/memory/trace.js";
+import type { CollaborationTraceSink } from "../../../../src/collaboration/trace.js";
+import type { MedicalEvidenceClientPort } from "../../../../src/rag/contracts.js";
 import { RagClient } from "../../../../src/rag/client.js";
 import type { PatientContext } from "../contracts.js";
 import { createHash } from "node:crypto";
+import { readAppMode } from "../app-mode.js";
 
 export interface DshDemoAgent {
   readonly id: string;
@@ -42,13 +47,29 @@ export interface DshDemoObserver {
   readonly toolStarted: (input: { readonly name: string; readonly callId: string }) => void;
   readonly toolCompleted: (input: DshToolResultObservation) => void;
   readonly turnEnded: (reason: TurnEndReason) => void;
+  readonly usage?: (usage: { readonly inputTokens: number; readonly outputTokens: number; readonly totalTokens?: number }, scope: "root" | "subagent", sessionId: string) => void;
 }
 
 export interface DshDemoRuntimePort {
   createAgent(sessionId: string, patient: PatientContext): Promise<{ readonly agent: DshDemoAgent; dispose(): Promise<void> }>;
   createUserMessage(text: string): ReturnType<typeof createUserMessage>;
   observe(agent: DshDemoAgent, observer: DshDemoObserver): () => void;
+  flushMemory?(): Promise<void>;
   dispose(): Promise<void>;
+}
+
+export interface DshCapabilities {
+  readonly memory: boolean;
+  readonly rag: boolean;
+  readonly collaboration: boolean;
+}
+
+export interface DshWebRuntimeOptions {
+  readonly capabilities?: Partial<DshCapabilities>;
+  readonly syntheticAmaMemory?: boolean;
+  readonly collaborationTrace?: CollaborationTraceSink;
+  readonly memoryTrace?: MemoryTraceSink;
+  readonly evidenceClient?: MedicalEvidenceClientPort;
 }
 
 interface ModelConfiguration {
@@ -56,6 +77,7 @@ interface ModelConfiguration {
   readonly modelId: string;
   readonly baseUrl: string;
   readonly apiKeyEnv: string;
+  readonly api: "openai-completions";
   readonly displayName: string;
   readonly contextWindow: number;
   readonly maxTokens: number;
@@ -65,8 +87,27 @@ interface ModelConfiguration {
 export class DshWebRuntime implements DshDemoRuntimePort {
   private ctx?: Context;
   private startPromise?: Promise<void>;
+  private memoryLifecycle?: MemoryLifecycle;
   private readonly patientsByAgentId = new Map<string, PatientContext>();
   private readonly model = readModelConfiguration();
+  private readonly capabilities: DshCapabilities;
+  private readonly syntheticAmaMemory: boolean;
+  private readonly collaborationTrace: CollaborationTraceSink;
+  private readonly memoryTrace?: MemoryTraceSink;
+  private readonly evidenceClient?: MedicalEvidenceClientPort;
+
+  constructor(options: DshWebRuntimeOptions = {}) {
+    this.capabilities = {
+      memory: options.capabilities?.memory ?? true,
+      rag: options.capabilities?.rag ?? true,
+      collaboration: options.capabilities?.collaboration ?? true,
+    };
+    this.syntheticAmaMemory = options.syntheticAmaMemory ?? (readAppMode() === "clinical-evaluation" || process.env.HUIYI_DEMO_SYNTHETIC_AMA_MEMORY?.trim() === "1");
+    this.collaborationTrace = options.collaborationTrace ?? { record: () => undefined };
+    this.memoryTrace = options.memoryTrace;
+    this.evidenceClient = options.evidenceClient;
+    if (this.syntheticAmaMemory && !this.capabilities.memory) throw new TypeError("Synthetic AMA memory requires the memory capability");
+  }
 
   async createAgent(sessionId: string, patient: PatientContext): Promise<{ readonly agent: DshDemoAgent; dispose(): Promise<void> }> {
     await this.start();
@@ -84,7 +125,7 @@ export class DshWebRuntime implements DshDemoRuntimePort {
         agentCtx.systemPrompt.section({
           name: "huiyi-demo-clinical-response-policy",
           order: 270,
-          text: "This is a local demonstration with a synthetic patient. Treat the supplied patient snapshot as fictional contextual history and keep it separate from external medical evidence. Use the local search_medical_evidence tool when medical evidence would materially help; do not claim retrieval or citations unless that tool returns sources. consult_clinical_team is bounded decision support when a complex case benefits from distinct perspectives. You own the final user-facing answer. Be clear about uncertainty and encourage clinician review; this demo is not a diagnosis or a substitute for care.",
+          text: this.renderResponsePolicy(),
         });
       },
     });
@@ -95,6 +136,7 @@ export class DshWebRuntime implements DshDemoRuntimePort {
       dispose: async () => {
         if (disposed) return;
         disposed = true;
+        await this.memoryLifecycle?.endSession(handle.agent.id);
         this.patientsByAgentId.delete(handle.agent.id);
         await handle.dispose();
       },
@@ -107,14 +149,22 @@ export class DshWebRuntime implements DshDemoRuntimePort {
 
   observe(agent: DshDemoAgent, observer: DshDemoObserver): () => void {
     const dshAgent = agent as Agent;
+    const runtimeCtx = this.ctx;
+    if (!runtimeCtx) throw new Error("DSH runtime has not been started");
     const pendingTools = new Map<string, string>();
-    const disposeSession = dshAgent.ctx.on("session/event", (session, event: SessionEvent) => {
-      if (session.id !== dshAgent.id) return;
-      if (event.type === "turn/end") observer.turnEnded(event.data.reason);
-      else if (event.type === "tool/call") {
+    // Observe on the shared runtime context so usage events from direct child
+    // sessions bubble to the root run observer. The assistant-stream listener
+    // below stays agent-scoped, so child prose is never sent to the UI.
+    const disposeSession = runtimeCtx.on("session/event", (session, event: SessionEvent) => {
+      const isRoot = session.id === dshAgent.id;
+      const isChild = session.header?.origin === "subagent" && session.header.parentSession === dshAgent.id;
+      if (!isRoot && !isChild) return;
+      if (event.type === "assistant/message" && event.data.usage) observer.usage?.(event.data.usage, isRoot ? "root" : "subagent", session.id);
+      else if (isRoot && event.type === "turn/end") observer.turnEnded(event.data.reason);
+      else if (isRoot && event.type === "tool/call") {
         pendingTools.set(event.data.callId, event.data.name);
         observer.toolStarted({ name: event.data.name, callId: event.data.callId });
-      } else if (event.type === "tool/result") {
+      } else if (isRoot && event.type === "tool/result") {
         const name = pendingTools.get(event.data.message.toolCallId);
         if (!name) return;
         pendingTools.delete(event.data.message.toolCallId);
@@ -138,12 +188,17 @@ export class DshWebRuntime implements DshDemoRuntimePort {
   }
 
   async dispose(): Promise<void> {
+    await this.flushMemory();
     if (this.ctx) {
       const ctx = this.ctx;
       this.ctx = undefined;
       this.patientsByAgentId.clear();
       await ctx.fiber.dispose();
     }
+  }
+
+  async flushMemory(): Promise<void> {
+    await this.memoryLifecycle?.flush();
   }
 
   private async start(): Promise<void> {
@@ -155,8 +210,8 @@ export class DshWebRuntime implements DshDemoRuntimePort {
   }
 
   private async startContext(): Promise<void> {
-    const syntheticAmaMemory = process.env.HUIYI_DEMO_SYNTHETIC_AMA_MEMORY?.trim() === "1";
-    const production = process.env.HUIYI_APP_ENV?.trim().toLowerCase() === "production" || process.env.NODE_ENV === "production";
+    const syntheticAmaMemory = this.syntheticAmaMemory;
+    const production = readAppMode() === "production";
     if (syntheticAmaMemory && production) {
       throw new Error("Synthetic AMA memory is disabled in production");
     }
@@ -179,7 +234,7 @@ export class DshWebRuntime implements DshDemoRuntimePort {
       providers: {
         [this.model.providerName]: {
           displayName: this.model.displayName,
-          api: "openai-completions",
+          api: this.model.api,
           baseURL: this.model.baseUrl,
           apiKeyEnv: this.model.apiKeyEnv,
           models: [{ id: this.model.modelId, name: this.model.modelId, contextWindow: this.model.contextWindow }],
@@ -188,19 +243,24 @@ export class DshWebRuntime implements DshDemoRuntimePort {
     });
     ctx.on("agent/request", async (_request, next) => ({ ...(await next()), temperature: 0 }));
 
-    applyWithIdentity(
+    this.memoryLifecycle = applyWithIdentity(
       ctx,
       (agent) => {
         if (!syntheticAmaMemory) return undefined;
         const patient = this.patientsByAgentId.get(agent.id);
-        return patient ? syntheticPatientMemoryId(patient.patientId) : undefined;
+        return patient ? syntheticPatientMemoryId(patient.patientId, patient.tenantId) : undefined;
       },
-      new RagClient(),
+      this.evidenceClient ?? new RagClient(),
       {
-        memory: { readOnly: !syntheticAmaMemory },
+        memory: {
+          readOnly: !syntheticAmaMemory,
+          automaticRecallFirstTurnOnly: syntheticAmaMemory && readAppMode() === "clinical-evaluation",
+          commitBatchTurns: syntheticAmaMemory && readAppMode() === "clinical-evaluation" ? readMemoryCommitBatchTurns() : 1,
+        },
         memoryClient: new MemoryClient(),
-        memoryTrace: syntheticAmaMemory ? new MetadataMemoryTrace() : { record: () => undefined },
-        collaborationTrace: { record: () => undefined },
+        memoryTrace: syntheticAmaMemory ? this.memoryTrace ?? new MetadataMemoryTrace() : { record: () => undefined },
+        collaborationTrace: this.collaborationTrace,
+        capabilities: this.capabilities,
         ...(!syntheticAmaMemory ? {
           collaborationCaseContext: ({ agentId, turn }: { readonly agentId: string; readonly turn: number }) => {
             const patient = this.patientsByAgentId.get(agentId);
@@ -211,25 +271,47 @@ export class DshWebRuntime implements DshDemoRuntimePort {
     );
     this.ctx = ctx;
   }
+
+  private renderResponsePolicy(): string {
+    const instructions = [
+      "This is an isolated synthetic clinical-workflow evaluation. All supplied case material is fictional and must not be treated as verified medical history.",
+      this.capabilities.memory ? "Use patient-scoped memory only for information actually disclosed in prior turns; preserve source and uncertainty." : "Do not assume access to longitudinal memory beyond this active conversation.",
+      this.capabilities.rag ? "When the user asks for local evidence, asks whether evidence supports a medical claim, or asks to search, find, cite, or check literature, guidelines, or references, treat it as a retrieval request and call search_medical_evidence before answering. Do not answer an evidence-support question from memory alone, and never claim retrieval or citations unless the tool returns sources." : "No external evidence retrieval tool is available in this comparison arm; state when evidence has not been checked.",
+      this.capabilities.collaboration ? "For medically complex, multi-problem, conflicting, or newly high-risk cases, call consult_clinical_team once before answering; it is bounded support and you own the final response." : "Do not claim specialist collaboration or multi-agent review.",
+      "Separate known information from missing or conflicting details, avoid unsupported inferences, and make drafts subject to clinician review. This evaluation is not clinical advice.",
+    ];
+    return instructions.join(" ");
+  }
 }
 
-function syntheticPatientMemoryId(patientId: string): string {
-  const digest = createHash("sha256").update(`huiyi-demo-synthetic\0${patientId}`).digest("hex");
+function readMemoryCommitBatchTurns(): number {
+  const raw = process.env.HUIYI_MEMORY_COMMIT_BATCH_TURNS;
+  if (raw === undefined || raw.trim() === "") return 1;
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < 1 || value > 8) {
+    throw new TypeError("HUIYI_MEMORY_COMMIT_BATCH_TURNS must be an integer between 1 and 8");
+  }
+  return value;
+}
+
+export function syntheticPatientMemoryId(patientId: string, tenantId = "local-demo"): string {
+  const digest = createHash("sha256").update(`huiyi-synthetic\0${tenantId}\0${patientId}`).digest("hex");
   return `synthetic-demo:${digest}`;
 }
 
 export function readModelConfiguration(env: NodeJS.ProcessEnv = process.env): ModelConfiguration {
   const modelBackend = env.HUIYI_DEMO_MODEL_BACKEND?.trim() || "vllm";
-  if (modelBackend !== "vllm" && modelBackend !== "deepseek-api") {
-    throw new TypeError("HUIYI_DEMO_MODEL_BACKEND must be vllm or deepseek-api");
+  if (modelBackend !== "vllm" && modelBackend !== "deepseek-api" && modelBackend !== "codex-app-server") {
+    throw new TypeError("HUIYI_DEMO_MODEL_BACKEND must be vllm, deepseek-api, or codex-app-server");
   }
   const isDeepSeek = modelBackend === "deepseek-api";
-  const providerName = env.HUIYI_DEMO_PROVIDER?.trim() || (isDeepSeek ? "huiyi-demo-deepseek-api" : "huiyi-demo-local-qwen");
+  const isCodex = modelBackend === "codex-app-server";
+  const providerName = env.HUIYI_DEMO_PROVIDER?.trim() || (isDeepSeek ? "huiyi-demo-deepseek-api" : isCodex ? "huiyi-demo-local-codex" : "huiyi-demo-local-qwen");
   const modelId = isDeepSeek
     ? env.HUIYI_DEMO_DEEPSEEK_MODEL?.trim() || "deepseek-flash"
-    : env.HUIYI_DEMO_MODEL?.trim() || "Qwen/Qwen3-8B";
-  const apiKeyEnv = isDeepSeek ? "DEEPSEEK_API_KEY" : "HUIYI_LOCAL_QWEN_API_KEY";
-  const displayName = isDeepSeek ? "Huiyi Demo DeepSeek API" : "Huiyi Demo Local Qwen";
+    : isCodex ? env.HUIYI_DEMO_CODEX_MODEL?.trim() || "gpt-6-luna" : env.HUIYI_DEMO_MODEL?.trim() || "Qwen/Qwen3-8B";
+  const apiKeyEnv = isDeepSeek ? "DEEPSEEK_API_KEY" : isCodex ? "HUIYI_CODEX_BRIDGE_API_KEY" : "HUIYI_LOCAL_QWEN_API_KEY";
+  const displayName = isDeepSeek ? "Huiyi Demo DeepSeek API" : isCodex ? "Huiyi Local Codex App Server" : "Huiyi Demo Local Qwen";
 
   let baseUrl: string;
   if (isDeepSeek) {
@@ -240,6 +322,16 @@ export function readModelConfiguration(env: NodeJS.ProcessEnv = process.env): Mo
       throw new TypeError("HUIYI_DEMO_MODEL_BASE_URL cannot be overridden in DeepSeek API mode");
     }
     baseUrl = "https://api.deepseek.com";
+  } else if (isCodex) {
+    if (modelId !== "gpt-6-luna") throw new TypeError("The local Codex app-server bridge only allows gpt-6-luna");
+    const configuredBridge = env.HUIYI_CODEX_BRIDGE_URL?.trim() || "http://127.0.0.1:8333/v1";
+    const parsedUrl = new URL(configuredBridge);
+    if (parsedUrl.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(parsedUrl.hostname)
+      || parsedUrl.username || parsedUrl.password || parsedUrl.search || parsedUrl.hash || !parsedUrl.pathname.replace(/\/$/, "").endsWith("/v1")) {
+      throw new TypeError("The Codex app-server bridge URL must be a loopback HTTP /v1 URL");
+    }
+    if (!env.HUIYI_CODEX_BRIDGE_API_KEY) env.HUIYI_CODEX_BRIDGE_API_KEY = "local-only";
+    baseUrl = parsedUrl.toString().replace(/\/$/, "");
   } else {
     const configuredBaseUrl = env.HUIYI_DEMO_MODEL_BASE_URL?.trim() || "http://127.0.0.1:8000/v1";
     const parsedUrl = new URL(configuredBaseUrl);
@@ -258,6 +350,7 @@ export function readModelConfiguration(env: NodeJS.ProcessEnv = process.env): Mo
     modelId,
     baseUrl,
     apiKeyEnv,
+    api: "openai-completions",
     displayName,
     contextWindow: positiveInteger(env.HUIYI_DEMO_CONTEXT_WINDOW, 40960, 32768),
     maxTokens: positiveInteger(env.HUIYI_DEMO_MAX_TOKENS, 768, 4096),
@@ -285,9 +378,10 @@ function renderSyntheticPatientSnapshot(patient: PatientContext): string {
 }
 
 function toSyntheticMemorySnapshot(patient: PatientContext, sessionId: string, turn: number): MemorySnapshot {
+  const memoryNamespace = syntheticPatientMemoryId(patient.patientId, patient.tenantId);
   return {
-    snapshotId: `demo-fixture:${patient.patientId}:${turn}`,
-    userId: `demo-fixture:${patient.patientId}`,
+    snapshotId: `${memoryNamespace}:${turn}`,
+    userId: memoryNamespace,
     sessionId,
     turn,
     items: [

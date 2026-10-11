@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from array import array
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -29,8 +31,8 @@ class CorpusChunk:
 class CorpusIndex:
     corpus: str
     index: Any
-    metadata: tuple[dict[str, Any], ...]
-    chunks: dict[tuple[str, int], CorpusChunk]
+    metadata: Sequence[dict[str, Any]]
+    chunks: Mapping[tuple[str, int], CorpusChunk]
 
 
 @dataclass(frozen=True)
@@ -44,6 +46,138 @@ class PreparedCorpus:
     sources: tuple[dict[str, Any], ...]
     indices: tuple[CorpusIndex, ...]
     chunk_count: int
+
+
+class JsonlRecords(Sequence[dict[str, Any]]):
+    """Random-access JSONL rows without retaining decoded corpus metadata."""
+
+    def __init__(self, path: Path):
+        self.path = path
+        self._offsets = array("Q")
+        with path.open("rb") as stream:
+            offset = 0
+            for line in stream:
+                if line.strip():
+                    self._offsets.append(offset)
+                offset += len(line)
+
+    def __len__(self) -> int:
+        return len(self._offsets)
+
+    def __getitem__(self, index: int | slice) -> dict[str, Any] | list[dict[str, Any]]:
+        if isinstance(index, slice):
+            return [self[position] for position in range(*index.indices(len(self)))]
+        if index < 0:
+            index += len(self)
+        if index < 0 or index >= len(self):
+            raise IndexError(index)
+        with self.path.open("rb") as stream:
+            stream.seek(self._offsets[index])
+            line = stream.readline()
+        value = json.loads(line)
+        if not isinstance(value, dict):
+            raise TypeError("JSONL metadata row is not an object")
+        return value
+
+    def __iter__(self) -> Iterator[dict[str, Any]]:
+        with self.path.open("rb") as stream:
+            for line in stream:
+                if line.strip():
+                    value = json.loads(line)
+                    if not isinstance(value, dict):
+                        raise TypeError("JSONL metadata row is not an object")
+                    yield value
+
+
+class JsonlChunkFile:
+    """Validate one chunk JSONL file and retain only byte offsets, not chunk text."""
+
+    def __init__(self, path: Path):
+        self.path = path
+        self._offsets = array("Q")
+        self._present = bytearray()
+        self._size = 0
+        with path.open("rb") as stream:
+            for line in stream:
+                self._offsets.append(self._size)
+                present = bool(line.strip())
+                self._present.append(1 if present else 0)
+                if present:
+                    self._validate_row(line)
+                self._size += len(line)
+
+    @property
+    def chunk_count(self) -> int:
+        return sum(self._present)
+
+    def has_record(self, line_number: int) -> bool:
+        return 0 <= line_number < len(self._present) and bool(self._present[line_number])
+
+    def read_record(self, line_number: int) -> dict[str, Any]:
+        if not self.has_record(line_number):
+            raise KeyError(line_number)
+        start = self._offsets[line_number]
+        end = self._offsets[line_number + 1] if line_number + 1 < len(self._offsets) else self._size
+        with self.path.open("rb") as stream:
+            stream.seek(start)
+            line = stream.read(end - start)
+        value = self._validate_row(line)
+        return value
+
+    def _validate_row(self, line: bytes) -> dict[str, Any]:
+        try:
+            row = json.loads(line)
+        except (UnicodeError, json.JSONDecodeError):
+            raise CorpusError(f"prepared chunk file {self.path.name} contains invalid JSON") from None
+        if not isinstance(row, dict) or not isinstance(row.get("title"), str) or not isinstance(row.get("content"), str):
+            raise CorpusError(f"prepared chunk file {self.path.name} is missing title/content")
+        return row
+
+
+class CorpusChunkStore(Mapping[tuple[str, int], CorpusChunk]):
+    """Map FAISS metadata keys to chunks loaded from disk only when retrieved."""
+
+    def __init__(self, corpus: str, files: Mapping[str, JsonlChunkFile]):
+        self.corpus = corpus
+        self._files = dict(files)
+        self._chunk_count = sum(file.chunk_count for file in self._files.values())
+
+    @property
+    def document_count(self) -> int:
+        # Chunk filenames are the source-document IDs used by the prepared index.
+        return sum(1 for file in self._files.values() if file.chunk_count)
+
+    def __len__(self) -> int:
+        return self._chunk_count
+
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, tuple) or len(key) != 2 or not isinstance(key[0], str) or not isinstance(key[1], int):
+            return False
+        file = self._files.get(key[0])
+        return file is not None and file.has_record(key[1])
+
+    def __getitem__(self, key: tuple[str, int]) -> CorpusChunk:
+        try:
+            source_document_id, chunk_number = key
+            file = self._files[source_document_id]
+            row = file.read_record(chunk_number)
+        except (KeyError, TypeError, ValueError):
+            raise KeyError(key) from None
+        source_uri = row.get("sourceUri") or row.get("source_uri")
+        return CorpusChunk(
+            corpus=self.corpus,
+            source_document_id=source_document_id,
+            chunk_id=str(chunk_number),
+            title=row["title"],
+            content=row["content"],
+            source_uri=source_uri if isinstance(source_uri, str) else None,
+        )
+
+    def __iter__(self) -> Iterator[tuple[str, int]]:
+        for source_document_id, file in self._files.items():
+            for chunk_number, present in enumerate(file._present):
+                if present:
+                    yield (source_document_id, chunk_number)
 
 
 class CorpusRepository:
@@ -105,15 +239,11 @@ class CorpusRepository:
                 import faiss
 
                 index = faiss.read_index(str(index_path))
-                metadata = tuple(
-                    json.loads(line)
-                    for line in metadata_path.read_text(encoding="utf-8").splitlines()
-                    if line.strip()
-                )
+                metadata = JsonlRecords(metadata_path)
             except Exception as exc:
                 raise CorpusError(f"failed to load prepared {corpus} FAISS index ({type(exc).__name__})") from None
             if getattr(index, "metric_type", None) != faiss.METRIC_INNER_PRODUCT:
-                raise CorpusError(f"prepared {corpus} index is not MedCPT inner-product search")
+                raise CorpusError(f"prepared {corpus} index is not inner-product search")
             if index.ntotal != len(metadata) or index.ntotal != source["chunkCount"]:
                 raise CorpusError(f"prepared {corpus} index, metadata, and manifest counts differ")
             expected_vectors = spec.get("vectorCount")
@@ -123,13 +253,18 @@ class CorpusRepository:
             chunks = self._load_chunks(source)
             if len(chunks) != index.ntotal:
                 raise CorpusError(f"prepared {corpus} chunk count differs from its FAISS index")
-            if len({source_id for source_id, _ in chunks}) != source["documentCount"]:
+            if chunks.document_count != source["documentCount"]:
                 raise CorpusError(f"prepared {corpus} document count differs from manifest")
-            for row in metadata:
-                if not isinstance(row, dict) or not isinstance(row.get("source"), str) or not isinstance(row.get("index"), int):
-                    raise CorpusError(f"prepared {corpus} metadata contains an invalid chunk reference")
-                if (row["source"], row["index"]) not in chunks:
-                    raise CorpusError(f"prepared {corpus} metadata references a missing chunk")
+            try:
+                for row in metadata:
+                    if not isinstance(row.get("source"), str) or not isinstance(row.get("index"), int):
+                        raise CorpusError(f"prepared {corpus} metadata contains an invalid chunk reference")
+                    if (row["source"], row["index"]) not in chunks:
+                        raise CorpusError(f"prepared {corpus} metadata references a missing chunk")
+            except CorpusError:
+                raise
+            except Exception as exc:
+                raise CorpusError(f"prepared {corpus} metadata is invalid ({type(exc).__name__})") from None
             loaded_indices.append(CorpusIndex(corpus, index, metadata, chunks))
             total_chunks += len(chunks)
 
@@ -151,34 +286,18 @@ class CorpusRepository:
             chunk_count=total_chunks,
         )
 
-    def _load_chunks(self, source: dict[str, Any]) -> dict[tuple[str, int], CorpusChunk]:
-        chunks: dict[tuple[str, int], CorpusChunk] = {}
+    def _load_chunks(self, source: dict[str, Any]) -> CorpusChunkStore:
+        chunks: dict[str, JsonlChunkFile] = {}
         for item in source.get("chunkFiles", []):
             path = self._asset_path(item.get("path"))
             stem = path.name.removesuffix(".jsonl")
-            for chunk_number, line in enumerate(path.read_text(encoding="utf-8").splitlines()):
-                if not line.strip():
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    raise CorpusError(f"prepared chunk file {path.name} contains invalid JSON") from None
-                title = row.get("title") if isinstance(row, dict) else None
-                content = row.get("content") if isinstance(row, dict) else None
-                if not isinstance(title, str) or not isinstance(content, str):
-                    raise CorpusError(f"prepared chunk file {path.name} is missing title/content")
-                source_uri = row.get("sourceUri") or row.get("source_uri")
-                chunks[(stem, chunk_number)] = CorpusChunk(
-                    corpus=source["name"],
-                    source_document_id=stem,
-                    chunk_id=str(chunk_number),
-                    title=title,
-                    content=content,
-                    source_uri=source_uri if isinstance(source_uri, str) else None,
-                )
-        if len(chunks) != source["chunkCount"]:
+            if stem in chunks:
+                raise CorpusError(f"prepared {source['name']} contains duplicate chunk-file IDs")
+            chunks[stem] = JsonlChunkFile(path)
+        store = CorpusChunkStore(source["name"], chunks)
+        if len(store) != source["chunkCount"]:
             raise CorpusError(f"prepared {source['name']} chunk count differs from manifest")
-        return chunks
+        return store
 
     def _verify_files(self, files: object, label: str) -> list[tuple[str, str]]:
         if not isinstance(files, list) or not files:

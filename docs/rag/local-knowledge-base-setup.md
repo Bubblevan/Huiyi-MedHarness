@@ -13,44 +13,47 @@
 
 ## 语料优先级
 
-- 首批用可核验来源的 Textbooks、StatPearls，以及当前已下载的 PubMed 摘要样本；记录它们目前只是本机快照/部分下载。
-- Wikipedia 可作为低优先级背景资料单独标识，不应与指南或同行评审文献混成同一权威等级。
-- 先建立小型验证集和出处核验流程，再扩大索引；大规模 PubMed/Wikipedia 不应在每次启动时处理。
+- 当前统一索引已经包含 Textbooks、StatPearls、部分 PubMed、部分 Wikipedia 和慧宜医院官网公开资料；清单和数量见“当前本机索引”。
+- PubMed/Wikipedia 的本机下载仍是子集。Wikipedia 应作为背景材料区分标注，不与指南或同行评审文献混成同一权威等级。
+- 扩充语料前先检查本机磁盘、内存、索引空间和语料来源；不在服务启动时下载或重建大型索引。
 
 ## 当前项目契约
 
 - `CorpusRepository` 加载符合 manifest 的 chunk JSONL、FAISS 索引和 metadata；chunk 至少有 `title`、`content`，索引和来源分开记录。
-- 当前生产 RAG 实现使用 MedCPT Query/Article Encoder 和 FAISS 内积检索。查询编码器与建库编码器必须匹配；Qwen3-Embedding-0.6B 不能直接查询现有 MedCPT 向量。改用 Qwen 需要新增明确的 encoder adapter、按同一模型重建索引并重新做检索评测。
-- `scripts/rag/build_index.py` 需要本地 MedCPT Article Encoder 和已规范化的 chunk JSONL；`scripts/rag/prepare_corpus.py` 生成 manifest，不负责从任意 NXML/PDF 自动解析和清洗。
+- 当前运行的 RAG 使用 `Qwen3-Embedding-0.6B` 和 FAISS；索引由 `scripts/rag/build_qwen3_index.py` 构建，Health Engine 从 manifest 读取与索引匹配的 encoder。MedCPT 索引若切回运行，必须使用与其建库向量匹配的 MedCPT Query Encoder，不能混用 Qwen 向量。
+- `scripts/rag/prepare_corpus.py` 生成 manifest，不负责从任意 NXML/PDF 自动解析和清洗；原始语料解析、分块及每个 encoder 的向量索引应分阶段执行。
 - 单机先用 FAISS 便于检查版本、磁盘占用和语料隔离。只有需要多进程共享索引、远程服务、多租户管理或在线更新时，再比较 Milvus/Qdrant 等服务型向量库。
 
-## 本机盘点
+## 当前本机索引
 
-检查时，`E:\Health-Copilot-Models\MedCorp` 下有 Textbooks、StatPearls、PubMed、Wikipedia。Textbooks/PubMed/Wikipedia 含 MedRAG 风格 JSONL 分块；StatPearls 是 NXML 与图片/视频文件。目录大小约为 Textbooks 0.20 GB、StatPearls 2.52 GB、PubMed 0.53 GB、Wikipedia 1.47 GB；PubMed 与 Wikipedia 是部分数据。模型目录有 Qwen3-8B 和 Qwen3-Embedding-0.6B。
+当前 Health Engine `/v1/rag/status` 返回 `ready`，corpus version 为 `medtext-local-cc7d43568501e6b7`，使用 `Qwen3-Embedding-0.6B`，共 5 个来源、823,450 chunks。活动 manifest 为 `services/health-engine/data/local-rag-hc-rag-002/qwen3-corpus-manifest.json`，大小约 1.67 MB，SHA-256=`CCC89D1F6DEEF68536647541FBAD6C79C98F7185CFBE2CD0C00698B15F5B37CF`。来源拆分如下：
 
-在当前仓库和上述数据根目录中没有找到慧宜医院患者数据库、院内 corpus manifest 或已建 RAG 索引。需要用户确认“医院数据库”文件/服务位置和类型后才能接入。
+| 来源 | manifest `documentCount`（chunk JSONL 文件数） | chunks | 覆盖说明 |
+| --- | ---: | ---: | --- |
+| Textbooks | 18 | 125,847 | 本机 Textbooks 快照 |
+| StatPearls | 9,651 | 384,050 | 已进入活动索引 |
+| PubMed | 23 | 280,070 | 23 个可用 chunk JSONL 分片；本机部分快照，不是 PubMed 全量 |
+| Wikipedia | 5 | 33,414 | 5 个可用 chunk JSONL 分片；本机部分快照，不是 Wikipedia 全量 |
+| Huiyi | 59 | 69 | 59 个 chunk JSONL 文件，来自慧宜眼科医院官网公开页面；不是院内 EMR 或患者数据库 |
+| **总计** | **9,756** | **823,450** | 活动 Qwen3-Embedding FAISS 索引 |
 
-MedCPT Query/Article Encoder 已下载并整理到 `E:\Health-Copilot-Models\models\MedCPT-Query-Encoder` 与 `E:\Health-Copilot-Models\models\MedCPT-Article-Encoder`，主权重 SHA-256 已校验。模型不放在仓库工作树中；MedCorp 原始语料留在 `E:\Health-Copilot-Models\MedCorp`，本机派生的 JSONL、FAISS 索引和 manifest 留在被 Git 忽略的 `services/health-engine/data/local-rag`。
+**2026-10-11 文件级核验：** 使用 `scripts/rag/verify_index.py` 对活动 manifest 声明的五个来源、所有 chunk JSONL、FAISS 索引及 metadata 做 SHA-256/计数校验，结果 `status=verified`，版本 `medtext-local-cc7d43568501e6b7`，823,450 chunks，核验资产合计 4,717,040,705 bytes。可复核报告为 [`qwen3-index-20261011.json`](../../artifacts/rag-index-verifications/qwen3-index-20261011.json)，其中保存逐来源 chunk/文件数、index hash 和 manifest SHA-256。读取核验期间空闲 RAM 抽样为 18.3→17.8→18.3 GiB，C/D/E 空间未见变化；没有重建索引、下载模型/语料或启动生成模型。
 
-Health Engine Python 依赖现已安装在 `services/health-engine/.venv` 隔离环境中，该环境复用本机 CUDA Torch，不改全局 Anaconda。RAG 单测 11 项通过。完整 Textbooks 分块（125,847 chunks）及 PubMed 首个分片（15,377 chunks）已生成 MedCPT 768 维 FAISS 索引；manifest 版本为 `medtext-local-d7ac7e27faf8f0c3`，合计 141,224 chunks。Health Engine `/health` 与 `/v1/rag/status` 返回就绪；一条本地 iterative 检索实测完成 2 轮、4 次检索调用、2 次 Qwen 规划调用，并返回 3 条 Textbooks 证据。FAISS 方案不要求 Docker Desktop 或 Milvus。
+**计数口径：** 当前 `prepare_corpus.py` 把每个来源目录下的 chunk `*.jsonl` 文件数写入 manifest 的 `documentCount` 字段；9,756 不是独立论文/网页数。PubMed 与 Wikipedia 的本机来源 revision 分别记载 23 和 5 个可用分片。
 
-Gateway 已切换到本机 Qwen3-8B GGUF，前端与 Gateway 健康；合成病例的 DSH E2E 调用了 `search_medical_evidence` 和 `consult_clinical_team`，返回 3 条证据并完成 6 个 MDAgents-derived 子运行。仅本地测试开启的 synthetic-only AMA 记忆完成写入，并在同一合成患者第二轮召回了 2 条记忆；另一位合成患者首次召回为空。该验证证明本机链路可工作，不代表 300 档案全量评估或临床准确性验证。
+按索引 chunk 计数，Textbooks + StatPearls 为 **509,897**（约 **50.99 万**）；五源统一索引总计 **823,450**。这个口径是向量索引中的 chunk 数，不表示独立医学结论或经临床审核的有效证据数。
 
-Windows 本机模型路径固定为：
+Huiyi 网站采集来源、范围和校验记录见 [`huiyi-corpus.md`](huiyi-corpus.md)。这批公开资料包含院方、科室、医生及患者教育页面；患者教育页的来源审核状态仍需遵循该文件中的标记，不能当作临床指南。没有证据表明患者病历数据库已接入。
 
-```powershell
-$env:HUIYI_RAG_QUERY_ENCODER_PATH = 'E:\Health-Copilot-Models\models\MedCPT-Query-Encoder'
-$articleEncoderPath = 'E:\Health-Copilot-Models\models\MedCPT-Article-Encoder'
-```
+MedCorp 原始语料保留在 `E:\Health-Copilot-Models\MedCorp`；Qwen3-Embedding 模型位于 `E:\Health-Copilot-Models\models\Qwen3-Embedding-0.6B`。派生 chunk、FAISS index 和 manifest 位于被 Git 忽略的 `services/health-engine/data/local-rag-hc-rag-002`，索引构建不会覆盖原始语料或 MedCPT 文件。MedCPT Query/Article Encoder 仍保存在 E 盘，可作为独立、匹配的 encoder 路线，不是当前活动 manifest 的 encoder。
 
-查询编码器路径由 Health Engine 使用；建库时把 `$articleEncoderPath` 传给 `scripts/rag/build_index.py --article-encoder-path`。查询和建库必须使用这对相互匹配的 MedCPT 模型。
+最近一次 DSH→Health Engine 单轮 RAG smoke 使用 Codex app-server 的 GPT-6-Luna 生成，返回 3 条 StatPearls evidence，RAG single retrieval 为 257.2 ms、无 planner 降级；双语非生成 smoke 也曾命中 PubMed/StatPearls。Qwen3-8B 未用于当前生成路径。以上检索命中数和耗时不构成证据相关性、答案支持率或医学准确率。
 
-## 本机闭环顺序
+## 尚需完成
 
-1. 页面证据抽屉的浏览器验收仍待进行；目前已通过本机 Gateway SSE/API 完成实际证据检索与工具调用。
-2. StatPearls NXML 尚需离线解析与清洗，之后再单独建 corpus；Wikipedia 保持低优先级并明确其部分下载状态。
-3. 慧宜医院数据仍待确认数据类型、授权范围和源路径。若为临床制度或指南，作为单独的 `huiyi_hospital` corpus；若包含患者 EMR，必须走认证授权的患者上下文接口，不进入共享 FAISS。
-4. 300 个合成患者的生成审核、Simulation Lab、长跑评测及完整 MDAgents/AMA/i-MedRAG 覆盖报告仍是待实现工作；当前只做了少量本机合成患者链路验证。
-5. 逐步扩大 corpus 分片并记录索引空间、内存、召回质量和出处覆盖；不在 live request 中构建或更新索引。
+1. PubMed `documentCount=23`、Wikipedia `documentCount=5` 表明两者仍为局部快照；继续下载前先由用户决定范围，并复核磁盘、内存和模型/服务负载。现有 823,450 chunks 已可用于本机检索，不需要为启动服务开启 Milvus 或 Docker Desktop。
+2. 当前没有接入患者 EMR。患者身份与 Encounter 必须继续通过认证授权的患者上下文接口隔离，不能进入共享 FAISS。
+3. 300 例/2,400 项 synthetic cohort 已生成，Gateway 授权 sweep 和多条单例 DSH/RAG/AMA/协作运行已有工程证据；大规模 Luna 多轮评测与临床盲审成绩仍未完成，cohort 审核状态仍为 pending。
+4. 所有扩容/重建均应离线分批进行，记录 source manifest、chunk 数、index 磁盘占用、RAM/VRAM 快照和 retrieval evidence provenance；不在 live request 中构建索引。
 
-Linux 部署示例见 [`examples/local-rag.env.example`](../../examples/local-rag.env.example)，其中 Linux 路径仅适用于训练机。本机 Windows 的 MedCPT 模型使用上面的 E 盘路径；corpus/index 路径仍使用项目 `services/health-engine/data/local-rag` 下的忽略目录。
+Linux 部署示例见 [`examples/local-rag.env.example`](../../examples/local-rag.env.example)，其中 Linux 路径只适用于目标训练机。本机 Windows 模型放在 `E:\Health-Copilot-Models\models`，corpus/index 使用上述被 Git 忽略的本机数据目录。

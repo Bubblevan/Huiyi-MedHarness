@@ -7,7 +7,13 @@ const data: { [K in DemoEventName]: EventDataMap[K] } = {
   "context.memory": { itemCount: 6 },
   "evidence.started": { queryLabel: "synthetic" },
   "evidence.item": { evidenceId: "ev-001", rank: 1, source: "Demo evidence fixture", title: "Synthetic", snippet: "Synthetic snippet" },
-  "evidence.completed": { count: 1 },
+  "evidence.completed": { count: 1, retrieval: {
+    mode: "iterative", rounds: 2, generatedQueries: 4, uniqueDocuments: 7, candidateCount: 12,
+    returnedEvidenceCount: 1, retrievalCalls: 4, plannerCalls: 2, retrievalLatencyMs: 120.5,
+    plannerLatencyMs: 500.5, latencyMs: 621, estimatedContextTokens: 900,
+    plannerModel: "gpt-6-luna", plannerPromptVersion: "v1", corpusVersion: "corpus-v1", degraded: false,
+    plannerInputTokens: 20, plannerOutputTokens: 10,
+  } },
   "agent.classified": { complexity: "simple", simulated: false },
   "specialist.started": { specialist: "心内科", simulated: true },
   "specialist.completed": { specialist: "心内科", durationMs: 10, simulated: true },
@@ -33,6 +39,30 @@ describe("Huiyi demo event contract", () => {
   it("rejects malformed envelopes and payloads at runtime", () => {
     expect(() => parseDemoEvent({ version: 2 })).toThrow(/envelope/);
     expect(() => parseDemoEvent({ ...createEvent("assistant.delta", "r", "s", { text: "x" }), data: { text: 42 } })).toThrow(/Invalid data/);
+    expect(() => parseDemoEvent({
+      ...createEvent("run.failed", "r", "s", { code: "MODEL_FAILURE" }),
+      data: { code: "MODEL_FAILURE", diagnostic: { category: "provider", message: "raw provider response" } },
+    })).toThrow(/Invalid data/);
+  });
+
+  it("accepts bounded provider failure metadata without retaining raw messages", () => {
+    const parsed = parseDemoEvent(createEvent("run.failed", "r", "s", {
+      code: "MODEL_RATE_LIMIT",
+      diagnostic: { category: "rate_limit", providerErrorCode: "RATE_LIMIT", httpStatus: 429 },
+    }));
+    expect(parsed).toMatchObject({ data: { diagnostic: { category: "rate_limit", providerErrorCode: "RATE_LIMIT", httpStatus: 429 } } });
+  });
+
+  it("validates RAG telemetry using counters only", () => {
+    const retrieval = data["evidence.completed"].retrieval!;
+    expect(parseDemoEvent(createEvent("evidence.completed", "r", "s", { count: 1, retrieval })))
+      .toMatchObject({ data: { retrieval: { plannerCalls: 2 } } });
+    expect(() => parseDemoEvent(createEvent("evidence.completed", "r", "s", {
+      count: 1, retrieval: { ...retrieval, candidateCount: -1 },
+    }))).toThrow(/Invalid data/);
+    expect(() => parseDemoEvent(createEvent("evidence.completed", "r", "s", {
+      count: 1, retrieval: { ...retrieval, query: "patient-identifying text" },
+    } as never))).toThrow(/Invalid data/);
   });
 
   it("accepts the documented Unicode message limit but rejects malformed or smuggled fields", () => {

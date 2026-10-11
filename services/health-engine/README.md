@@ -51,6 +51,12 @@ services\health-engine\.venv\Scripts\python.exe -m uvicorn huiyi_health_engine.a
 
 The laptop's loopback Qwen endpoint can be the native `llama-server.exe` route documented in the [local demo runbook](../../docs/demo/local-runbook.md); vLLM/WSL is not required. The Article Encoder is used for offline index generation, while Health Engine loads the matching Query Encoder at runtime. Keep original source data, memory, and indexes outside Git. Do not enable the research parity endpoints in a clinical environment.
 
+## GPT-6-Luna synthetic evaluation route
+
+For Codex GPT-6-Luna evaluation, the Gateway backend setting is not enough: AMA's internal memory inference and an iterative RAG planner use the Health Engine process variables `HUIYI_LOCAL_LLM_BASE_URL` and `HUIYI_LOCAL_LLM_MODEL`. Start the Codex app-server bridge first, then use [`scripts/eval/start-gpt6-health-engine.ps1`](../../scripts/eval/start-gpt6-health-engine.ps1) to start a loopback Health Engine on port 8325 with a separate synthetic-memory directory. It routes both AMA and any planner calls to `http://127.0.0.1:8333/v1/chat/completions`, model `gpt-6-luna`; Qwen3-Embedding-0.6B remains an embedding/retrieval-only model. `-CheckOnly` checks the pinned bridge process and assets without generating; integrated eval then requires an enabled loopback-only route attestation that matches both AMA and the planner to the GPT-6-Luna bridge. AMA prompt/completion tokens are recorded per turn in the memory trace.
+
+Do not point a GPT-6-Luna run at an already-running 8322–8324 process unless its process was launched with the GPT-6-Luna environment above. Those existing processes may still use the separate local Qwen3-8B inference service. Health status alone does not attest the configured model route.
+
 The idempotency ledger defaults to `health-engine.sqlite3` under `HUIYI_MEMORY_DATA_DIR`. Set `HUIYI_MEMORY_LEDGER_PATH` to place that metadata database separately when the configured data directory is a frozen read-only AMA benchmark store. Its default product behavior is unchanged.
 
 The service runtime must provide FastAPI, Uvicorn, Pydantic v2, Requests, NumPy, `faiss-cpu`, `tiktoken`, and `sentence-transformers`. A sandboxed `uv pip install faiss-cpu` into the Health-Copilot environment was blocked by outbound network policy, so that environment was left unchanged. Do not use `uv sync` on the Health-Copilot environment because it also contains vLLM.

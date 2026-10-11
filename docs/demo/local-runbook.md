@@ -97,7 +97,29 @@ Then start the demo with `pnpm demo:dev`. The browser and Gateway continue to bi
 
 DeepSeek API mode sends the user's prompt, the synthetic patient context, and any retrieved local evidence snippets to DeepSeek for generation. Use synthetic demonstration content only; do not enter real patient data, identifiers, or confidential records. The evidence search and clinical-collaboration tools remain local to the Huiyi process; their results may be included in the model request.
 
-This is a local synthetic demo, not an internet-facing or hospital deployment. DSH calls the selected model route (local vLLM or DeepSeek API); the fixture error/recovery case is available only in fixture mode.
+## Native DSH + local Codex GPT-6-Luna app-server mode
+
+This development-only route uses the current local Codex CLI login and selected `gpt-6-luna` model. It starts Codex app-server as a child process and exposes a loopback OpenAI Chat Completions bridge for DSH. DSH keeps its own agent loop and tool execution; the bridge asks Codex for structured text or one DSH function call per generation. It does not need `OPENAI_API_KEY` and does not fall back to local Qwen.
+
+Start the bridge in terminal 1 after confirming `codex login status` reports a ChatGPT login:
+
+```powershell
+pnpm --filter @huiyi/demo-gateway codex-bridge
+```
+
+Select the backend in terminal 2. Set the same local-only bridge key in both processes if you override the default:
+
+```powershell
+$env:HUIYI_DEMO_BACKEND = 'dsh'
+$env:HUIYI_DEMO_MODEL_BACKEND = 'codex-app-server'
+$env:HUIYI_CODEX_BRIDGE_API_KEY = 'local-only'
+$env:HUIYI_DEMO_SYNTHETIC_AMA_MEMORY = '1'
+pnpm demo:dev
+```
+
+The model route remains bound to `127.0.0.1`; the app-server uses a read-only sandbox and no-approval policy. Use only synthetic case content. Codex app-server's turn output limit is currently prompt-constrained rather than a hard match for DSH `max_tokens`, so use short smoke runs and inspect usage/latency. This is an exploratory local bridge, not a production provider or a general OpenAI-compatible server.
+
+This is a local synthetic demo, not an internet-facing or hospital deployment. DSH calls the selected model route (local OpenAI-compatible endpoint, DeepSeek API, or development-only Codex app-server bridge); the fixture error/recovery case is available only in fixture mode.
 
 ## Production boundary
 

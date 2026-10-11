@@ -64,6 +64,9 @@ class MemoryCommitResult(StrictModel):
     factCount: int | None = None
     episodeCount: int | None = None
     amaLlmCallCount: int | None = None
+    amaPromptTokens: int | None = None
+    amaCompletionTokens: int | None = None
+    amaUsageReportCount: int | None = None
     refreshTriggered: bool | None = None
     episodeGenerated: bool | None = None
 
@@ -78,6 +81,9 @@ class MemorySessionEndResult(StrictModel):
     duplicate: bool
     episodeGenerated: bool | None = None
     amaLlmCallCount: int | None = None
+    amaPromptTokens: int | None = None
+    amaCompletionTokens: int | None = None
+    amaUsageReportCount: int | None = None
 
 
 class MemoryStats(StrictModel):

@@ -1,8 +1,21 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { DemoWorkspace } from "./workspace.js";
 import "./styles.css";
 
-createRoot(document.getElementById("root")!).render(
-  <React.StrictMode><DemoWorkspace /></React.StrictMode>,
-);
+declare const __HUIYI_CLINICAL_EVALUATION__: boolean;
+declare const __HUIYI_PRODUCTION_BUILD__: boolean;
+
+const root = createRoot(document.getElementById("root")!);
+if (__HUIYI_CLINICAL_EVALUATION__) {
+  void import("./clinicalEvaluationWorkspace.js").then(({ ClinicalEvaluationWorkspace }) => {
+    root.render(<React.StrictMode><ClinicalEvaluationWorkspace /></React.StrictMode>);
+  });
+} else if (__HUIYI_PRODUCTION_BUILD__) {
+  void import("./productionWorkspace.js").then(({ ProductionWorkspace }) => {
+    root.render(<React.StrictMode><ProductionWorkspace /></React.StrictMode>);
+  });
+} else {
+  void import("./workspace.js").then(({ DemoWorkspace }) => {
+    root.render(<React.StrictMode><DemoWorkspace /></React.StrictMode>);
+  });
+}

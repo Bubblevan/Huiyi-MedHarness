@@ -167,7 +167,7 @@ function optionalStringOrNull(value: unknown): boolean {
 }
 
 function optionalNumber(value: unknown): boolean {
-  return value === undefined || (typeof value === 'number' && Number.isFinite(value))
+  return value === undefined || value === null || (typeof value === 'number' && Number.isFinite(value))
 }
 
 function decodeSnapshot(value: unknown): MemorySnapshot {
@@ -178,7 +178,7 @@ function decodeSnapshot(value: unknown): MemorySnapshot {
     || !optionalNumber(row.amaLlmCallCount)
     || !optionalNumber(row.amaPromptTokens) || !optionalNumber(row.amaCompletionTokens)
     || !optionalNumber(row.amaUsageReportCount)
-    || (row.refreshTriggered !== undefined && typeof row.refreshTriggered !== 'boolean')) {
+    || (row.refreshTriggered !== undefined && row.refreshTriggered !== null && typeof row.refreshTriggered !== 'boolean')) {
     throw new TypeError('invalid snapshot')
   }
   const items = row.items.map(item => {
@@ -201,28 +201,49 @@ function decodeSnapshot(value: unknown): MemorySnapshot {
     sessionId: row.sessionId,
     turn: row.turn as number,
     items,
-    ...(row.tokenEstimate === undefined ? {} : { tokenEstimate: row.tokenEstimate as number }),
-    ...(row.retrievalRounds === undefined ? {} : { retrievalRounds: row.retrievalRounds as number }),
-    ...(row.refreshTriggered === undefined ? {} : { refreshTriggered: row.refreshTriggered as boolean }),
-    ...(row.amaLlmCallCount === undefined ? {} : { amaLlmCallCount: row.amaLlmCallCount as number }),
-    ...(row.amaPromptTokens === undefined ? {} : { amaPromptTokens: row.amaPromptTokens as number }),
-    ...(row.amaCompletionTokens === undefined ? {} : { amaCompletionTokens: row.amaCompletionTokens as number }),
-    ...(row.amaUsageReportCount === undefined ? {} : { amaUsageReportCount: row.amaUsageReportCount as number }),
+    ...(typeof row.tokenEstimate === 'number' ? { tokenEstimate: row.tokenEstimate } : {}),
+    ...(typeof row.retrievalRounds === 'number' ? { retrievalRounds: row.retrievalRounds } : {}),
+    ...(typeof row.refreshTriggered === 'boolean' ? { refreshTriggered: row.refreshTriggered } : {}),
+    ...(typeof row.amaLlmCallCount === 'number' ? { amaLlmCallCount: row.amaLlmCallCount } : {}),
+    ...(typeof row.amaPromptTokens === 'number' ? { amaPromptTokens: row.amaPromptTokens } : {}),
+    ...(typeof row.amaCompletionTokens === 'number' ? { amaCompletionTokens: row.amaCompletionTokens } : {}),
+    ...(typeof row.amaUsageReportCount === 'number' ? { amaUsageReportCount: row.amaUsageReportCount } : {}),
   }
 }
 
 function decodeCommitResult(value: unknown): MemoryCommitResult {
   const row = object(value)
   if (!['committed', 'duplicate', 'in_progress', 'failed'].includes(String(row.status))
-    || typeof row.duplicate !== 'boolean') throw new TypeError('invalid commit result')
-  return row as unknown as MemoryCommitResult
+    || typeof row.duplicate !== 'boolean'
+    || !optionalNumber(row.amaLlmCallCount) || !optionalNumber(row.amaPromptTokens)
+    || !optionalNumber(row.amaCompletionTokens) || !optionalNumber(row.amaUsageReportCount)) throw new TypeError('invalid commit result')
+  return normalizedResult<MemoryCommitResult>(row, ['committed', 'duplicate', 'in_progress', 'failed'], [
+    'rawCount', 'factCount', 'episodeCount', 'amaLlmCallCount', 'amaPromptTokens', 'amaCompletionTokens', 'amaUsageReportCount',
+  ], ['refreshTriggered', 'episodeGenerated'])
 }
 
 function decodeSessionEndResult(value: unknown): MemorySessionEndResult {
   const row = object(value)
   if (!['completed', 'duplicate', 'in_progress', 'skipped', 'failed'].includes(String(row.status))
-    || typeof row.duplicate !== 'boolean') throw new TypeError('invalid session-end result')
-  return row as unknown as MemorySessionEndResult
+    || typeof row.duplicate !== 'boolean'
+    || !optionalNumber(row.amaLlmCallCount) || !optionalNumber(row.amaPromptTokens)
+    || !optionalNumber(row.amaCompletionTokens) || !optionalNumber(row.amaUsageReportCount)) throw new TypeError('invalid session-end result')
+  return normalizedResult<MemorySessionEndResult>(row, ['completed', 'duplicate', 'in_progress', 'skipped', 'failed'], [
+    'amaLlmCallCount', 'amaPromptTokens', 'amaCompletionTokens', 'amaUsageReportCount',
+  ], ['episodeGenerated'])
+}
+
+function normalizedResult<T>(
+  row: Record<string, unknown>,
+  statuses: readonly string[],
+  numberFields: readonly string[],
+  booleanFields: readonly string[],
+): T {
+  const result: Record<string, unknown> = { status: row.status, duplicate: row.duplicate }
+  if (!statuses.includes(String(row.status))) throw new TypeError('invalid result status')
+  for (const field of numberFields) if (typeof row[field] === 'number' && Number.isFinite(row[field])) result[field] = row[field]
+  for (const field of booleanFields) if (typeof row[field] === 'boolean') result[field] = row[field]
+  return result as T
 }
 
 function decodeStats(value: unknown): MemoryStats {

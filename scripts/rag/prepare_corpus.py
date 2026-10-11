@@ -32,8 +32,16 @@ def build_manifest(args: argparse.Namespace) -> dict[str, object]:
 
     for name in args.corpora:
         corpus_root = root / name
-        chunk_root = corpus_root / "chunk"
-        index_root = corpus_root / "index" / "ncbi" / "MedCPT-Article-Encoder"
+        if name == "huiyi" and args.huiyi_chunk_root:
+            candidate = Path(args.huiyi_chunk_root)
+            chunk_root = candidate if candidate.is_absolute() else root / candidate
+        else:
+            chunk_root = corpus_root / "chunk"
+        if name == "huiyi" and args.huiyi_index_root:
+            candidate = Path(args.huiyi_index_root)
+            index_root = candidate if candidate.is_absolute() else root / candidate
+        else:
+            index_root = corpus_root / Path(args.index_subdirectory)
         chunk_paths = sorted(chunk_root.glob("*.jsonl"))
         index_path = index_root / "faiss.index"
         metadata_path = index_root / "metadatas.jsonl"
@@ -51,9 +59,11 @@ def build_manifest(args: argparse.Namespace) -> dict[str, object]:
         sources.append({
             "name": name,
             "revision": {
-                "textbooks": args.textbooks_revision,
-                "statpearls": args.statpearls_revision,
-                "pubmed": args.pubmed_revision,
+            "textbooks": args.textbooks_revision,
+            "statpearls": args.statpearls_revision,
+            "pubmed": args.pubmed_revision,
+            "wikipedia": args.wikipedia_revision,
+            "huiyi": args.huiyi_revision,
             }.get(name),
             "documentCount": len(chunk_paths),
             "chunkCount": chunk_count,
@@ -85,7 +95,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, object]:
         "sourceRepository": args.source_repository,
         "sources": sources,
         "retriever": {
-            "name": "MedCPT",
+            "name": args.retriever_name,
             "queryEncoderModel": args.query_encoder_model,
             "queryEncoderRevision": args.query_encoder_revision,
             "articleEncoderModel": args.article_encoder_model,
@@ -104,6 +114,12 @@ def main() -> int:
     parser.add_argument("--textbooks-revision")
     parser.add_argument("--statpearls-revision")
     parser.add_argument("--pubmed-revision")
+    parser.add_argument("--wikipedia-revision")
+    parser.add_argument("--huiyi-revision")
+    parser.add_argument("--huiyi-chunk-root", help="Huiyi chunk directory, absolute or relative to --corpus-root")
+    parser.add_argument("--huiyi-index-root", help="Huiyi MedCPT index directory, absolute or relative to --corpus-root")
+    parser.add_argument("--index-subdirectory", default="index/ncbi/MedCPT-Article-Encoder", help="Index directory under each corpus when no Huiyi override is provided")
+    parser.add_argument("--retriever-name", default="MedCPT")
     parser.add_argument("--source-repository", default="MedRAG/MedText sample prepared by repro/imedrag-small-20261007")
     parser.add_argument("--query-encoder-model", required=True)
     parser.add_argument("--query-encoder-revision", required=True)

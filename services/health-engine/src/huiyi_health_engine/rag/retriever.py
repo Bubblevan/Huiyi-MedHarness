@@ -8,6 +8,12 @@ import numpy as np
 from .corpus import CorpusChunk, PreparedCorpus
 
 
+QWEN3_TASK_DESCRIPTION = (
+    "Given a medical or healthcare information request, retrieve relevant evidence passages "
+    "that answer the query. The query and passages may be in Chinese or English."
+)
+
+
 @dataclass(frozen=True)
 class RetrievalCandidate:
     chunk: CorpusChunk
@@ -76,3 +82,53 @@ class MedCptRetriever:
         with self._torch.no_grad():
             result = self._model(**tokens).last_hidden_state[:, 0, :]
         return result[0].detach().float().cpu().numpy()
+
+
+class Qwen3EmbeddingRetriever(MedCptRetriever):
+    """Qwen3 multilingual last-token embeddings over normalized FAISS IP indices."""
+
+    def __init__(
+        self,
+        corpus: PreparedCorpus,
+        query_encoder_path: str,
+        device: str = "cpu",
+        query_max_length: int = 512,
+        encoder: Callable[[str], np.ndarray] | None = None,
+    ):
+        self.corpus = corpus
+        self.query_max_length = query_max_length
+        self._encode_override = encoder
+        self._tokenizer: Any = None
+        self._model: Any = None
+        if encoder is None:
+            from transformers import AutoModel, AutoTokenizer
+            import torch
+
+            self._torch = torch
+            self._tokenizer = AutoTokenizer.from_pretrained(
+                query_encoder_path, local_files_only=True, padding_side="left"
+            )
+            self._model = AutoModel.from_pretrained(query_encoder_path, local_files_only=True)
+            self._model.to(device)
+            self._model.eval()
+            self._device = device
+
+    def _encode(self, query: str) -> np.ndarray:
+        if self._encode_override is not None:
+            vector = np.asarray(self._encode_override(query), dtype=np.float32)
+            norm = np.linalg.norm(vector)
+            return vector / norm if norm else vector
+        formatted_query = f"Instruct: {QWEN3_TASK_DESCRIPTION}\nQuery:{query}"
+        tokens = self._tokenizer(
+            [formatted_query],
+            padding=True,
+            truncation=True,
+            max_length=self.query_max_length,
+            return_tensors="pt",
+        )
+        tokens = {key: value.to(self._device) for key, value in tokens.items()}
+        with self._torch.no_grad():
+            # Qwen3 uses left padding; the final position is the last real token.
+            pooled = self._model(**tokens).last_hidden_state[:, -1, :]
+            normalized = self._torch.nn.functional.normalize(pooled.float(), p=2, dim=1)
+        return normalized[0].detach().cpu().numpy()

@@ -1145,7 +1145,9 @@ class AMA:
         else:
             idOfEpisode = epiRes["id"]
 
-        if numOfEpisode != idOfEpisode:
+        # A patient with no prior episode still has an unfinished first
+        # episode. The default id of 1 is not evidence that episode 1 exists.
+        if epiRes is None or numOfEpisode != idOfEpisode:
             EpisodeCon = self.memoryAgent.inferenceGenerateEpisode(list(self.memoryWindow), "The dialogue ends.", showUsage = True)
             self.constructEpisodicWrite(data=EpisodeCon)
 

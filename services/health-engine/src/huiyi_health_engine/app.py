@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import asyncio
+import ipaddress
 import threading
 from contextlib import asynccontextmanager
 from functools import lru_cache
@@ -27,6 +28,7 @@ from .memory.schemas import (
     OpenAiEmbeddingResponse,
 )
 from .memory.service import MemoryConflictError, MemoryService
+from .runtime import HEALTH_ENGINE_SOURCE_SHA256
 from .rag.config import RagSettings
 from .rag.benchmark import (
     ImedragResearchRequest,
@@ -124,6 +126,29 @@ app = FastAPI(title="Huiyi Health Engine", version="0.1.0", lifespan=lifespan)
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/_internal/evaluation/config")
+def evaluation_config(request: Request) -> dict[str, str | bool | None]:
+    """Expose sanitized model-route provenance only for an explicitly enabled loopback evaluation."""
+    if os.environ.get("HUIYI_ENABLE_EVALUATION_CONFIG", "0").strip() != "1":
+        raise HTTPException(status_code=404, detail={"error": "not_found"})
+    try:
+        client_host = ipaddress.ip_address(request.client.host if request.client else "")
+    except ValueError:
+        raise HTTPException(status_code=403, detail={"error": "loopback_only"}) from None
+    if not client_host.is_loopback:
+        raise HTTPException(status_code=403, detail={"error": "loopback_only"})
+    return {
+        "healthEngineSourceSha256": HEALTH_ENGINE_SOURCE_SHA256,
+        "amaModel": os.environ.get("HUIYI_LOCAL_LLM_MODEL", "Qwen/Qwen3-8B"),
+        "amaEndpoint": os.environ.get("AMA_LLM_BASE_URL", _local_llm_url()),
+        "ragPlannerModel": os.environ.get("HUIYI_RAG_PLANNER_MODEL", os.environ.get("HUIYI_LOCAL_LLM_MODEL", "")),
+        "ragPlannerEndpoint": os.environ.get("HUIYI_RAG_PLANNER_BASE_URL", os.environ.get("HUIYI_LOCAL_LLM_BASE_URL", "")),
+        "ragEnabled": _rag_enabled(),
+        "memoryRecallIsolation": os.environ.get("HUIYI_MEMORY_ISOLATE_RECALLS", "0").strip().lower() in {"1", "true", "yes"},
+        "embeddingModel": os.environ.get("HUIYI_LOCAL_EMBEDDING_MODEL"),
+    }
 
 
 @app.get("/v1/rag/status", response_model=RagStatus)

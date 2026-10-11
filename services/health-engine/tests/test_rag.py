@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import threading
 import time
 from pathlib import Path
 
 import numpy as np
 import pytest
+import requests
 
 from huiyi_health_engine.rag.config import RagSettings
 from huiyi_health_engine.rag.corpus import CorpusChunk, CorpusIndex, CorpusRepository, PreparedCorpus
 from huiyi_health_engine.rag.iterative import IterativeEvidenceAcquirer, OperationCancelled, OperationTimeout
-from huiyi_health_engine.rag.planner import PlannerError, QueryPlan, parse_query_plan
+from huiyi_health_engine.rag.planner import PlannerError, QueryPlan, QueryPlanner, parse_query_plan
 from huiyi_health_engine.rag.retriever import MedCptRetriever, RetrievalCandidate
 from huiyi_health_engine.rag.schemas import EvidenceSet, MedicalEvidenceRequest
 from huiyi_health_engine.rag.service import EvidenceTokenizer, RagService
@@ -142,6 +144,58 @@ def test_structured_planner_output_is_validated_and_bounded():
             parse_query_plan(malformed, 2)
 
 
+def test_planner_requests_a_strict_json_schema(tmp_path: Path):
+    class JsonResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"choices": [{"message": {"content": '{"queries":["focused search"]}'}}]}
+
+    class RecordingSession:
+        payload = None
+
+        def post(self, _url, **kwargs):
+            self.payload = kwargs["json"]
+            return JsonResponse()
+
+    session = RecordingSession()
+    planner = QueryPlanner(settings(tmp_path), http=session)  # type: ignore[arg-type]
+    assert planner.plan("generic question", 1, []).queries == ["focused search"]
+    assert session.payload["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "rag_query_plan",
+            "strict": True,
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "queries": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "minItems": 1,
+                        "maxItems": 2,
+                    },
+                },
+                "required": ["queries"],
+                "additionalProperties": False,
+            },
+        },
+    }
+
+
+def test_planner_failure_class_is_safe_and_does_not_expose_provider_error_text(tmp_path: Path):
+    class TimeoutSession:
+        def post(self, *_args, **_kwargs):
+            raise requests.Timeout("private response detail")
+
+    planner = QueryPlanner(settings(tmp_path), http=TimeoutSession())  # type: ignore[arg-type]
+    with pytest.raises(PlannerError) as error:
+        planner.plan("generic question", 1, [])
+    assert error.value.failure_class == "Timeout"
+    assert str(error.value) == "Timeout"
+
+
 def test_iterative_rounds_are_bounded_and_duplicate_chunks_keep_query_provenance(tmp_path: Path):
     candidate = make_candidate()
     retriever = FakeRetriever(candidate)
@@ -167,7 +221,7 @@ def test_planner_failure_falls_back_to_single_and_marks_degradation(tmp_path: Pa
     result = acquirer.acquire("original query", "iterative", 3)
     assert result.effective_mode == "single"
     assert result.degraded is True
-    assert result.degraded_error_class == "PlannerError"
+    assert result.degraded_error_class == "MalformedPlan"
     assert result.planner_calls == 1
     assert result.retrieval_calls == 1
     assert retriever.calls[0] == ("original query", 3, 1)
@@ -307,6 +361,75 @@ def test_corpus_manifest_rejects_faiss_index_hash_mismatch(tmp_path: Path):
     manifest_path.write_text(json.dumps(manifest))
     with pytest.raises(Exception, match="asset hash mismatch"):
         CorpusRepository(tmp_path, manifest_path).load()
+
+
+def test_corpus_repository_keeps_chunk_text_disk_backed_and_preserves_physical_line_ids(tmp_path: Path):
+    import faiss
+
+    chunk = tmp_path / "textbooks/chunk/chapter.jsonl"
+    index_path = tmp_path / "textbooks/index/faiss.index"
+    metadata_path = tmp_path / "textbooks/index/metadatas.jsonl"
+    chunk.parent.mkdir(parents=True)
+    index_path.parent.mkdir(parents=True)
+    chunk.write_text(
+        '{"title":"First","content":"first passage"}\n\n{"title":"Third","content":"third passage"}\n',
+        encoding="utf-8",
+    )
+    metadata_path.write_text(
+        '{"index":2,"source":"chapter"}\n{"index":0,"source":"chapter"}\n',
+        encoding="utf-8",
+    )
+    index = faiss.IndexFlatIP(2)
+    index.add(np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32))
+    faiss.write_index(index, str(index_path))
+
+    chunk_asset = {"path": "textbooks/chunk/chapter.jsonl", "sha256": _sha256(chunk)}
+    index_asset = {"path": "textbooks/index/faiss.index", "sha256": _sha256(index_path)}
+    metadata_asset = {"path": "textbooks/index/metadatas.jsonl", "sha256": _sha256(metadata_path)}
+    index_hash_entries = sorted([
+        (index_asset["path"], index_asset["sha256"]),
+        (metadata_asset["path"], metadata_asset["sha256"]),
+    ])
+    index_hash = hashlib.sha256(
+        ("\n".join(f"{path}\t{digest}" for path, digest in index_hash_entries) + "\n").encode("utf-8")
+    ).hexdigest()
+    manifest = {
+        "corpusVersion": "lazy-v1",
+        "retriever": {
+            "name": "MedCPT",
+            "queryEncoderModel": "query",
+            "queryEncoderRevision": "query-rev",
+            "articleEncoderModel": "article",
+            "articleEncoderRevision": "article-rev",
+        },
+        "sources": [{
+            "name": "textbooks",
+            "documentCount": 1,
+            "chunkCount": 2,
+            "chunkFiles": [chunk_asset],
+        }],
+        "indices": [{
+            "corpus": "textbooks",
+            "indexPath": index_asset["path"],
+            "metadataPath": metadata_asset["path"],
+            "vectorCount": 2,
+            "files": [index_asset, metadata_asset],
+        }],
+        "indexHash": index_hash,
+    }
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    prepared = CorpusRepository(tmp_path, manifest_path).load()
+    bundle = prepared.indices[0]
+    assert len(bundle.metadata) == 2
+    assert bundle.metadata[0] == {"index": 2, "source": "chapter"}
+    assert not isinstance(bundle.chunks, dict)
+    assert bundle.chunks[("chapter", 0)].content == "first passage"
+    assert bundle.chunks[("chapter", 2)].content == "third passage"
+
+    retriever = MedCptRetriever(prepared, str(tmp_path), encoder=lambda _query: np.array([0.0, 1.0], dtype=np.float32))
+    assert retriever.search("query", 1, 1)[0].chunk.title == "First"
 
 
 def _sha256(path: Path) -> str:

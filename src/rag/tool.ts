@@ -65,6 +65,12 @@ const evidenceSetSchema = {
 } as const
 
 export function installRagTool(ctx: Context, client: MedicalEvidenceClientPort = new RagClient()): void {
+  const rawForcedMode = process.env.HUIYI_RAG_FORCE_MODE?.trim()
+  if (rawForcedMode && rawForcedMode !== 'single' && rawForcedMode !== 'iterative') {
+    throw new Error('HUIYI_RAG_FORCE_MODE must be single or iterative')
+  }
+  const forcedMode = rawForcedMode as 'single' | 'iterative' | undefined
+
   ctx.tools.register(defineTool({
     name: 'search_medical_evidence',
     description: 'Search the prepared local medical-reference corpus. Returns source-backed evidence only, never a diagnosis or final answer. If the result is empty, weak, or an error, say so and do not invent retrieved evidence or citations.',
@@ -90,7 +96,7 @@ export function installRagTool(ctx: Context, client: MedicalEvidenceClientPort =
     },
     async execute(args, exec): Promise<EvidenceSet> {
       const request = validateMedicalEvidenceRequest(args)
-      return client.search(request, { signal: exec.signal })
+      return client.search(forcedMode ? { ...request, mode: forcedMode } : request, { signal: exec.signal })
     },
   }))
 }

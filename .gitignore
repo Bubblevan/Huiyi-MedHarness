@@ -33,5 +33,7 @@ services/health-engine/.pytest_cache/
 /artifacts/hc-mem-003/preflight/arm-a-upstream/
 /artifacts/hc-mem-003/preflight/arm-b-sidecar/
 /artifacts/hc-mem-003/preflight/arm-c-dsh/
+/artifacts/clinical-eval/
+/services/demo-gateway/data/clinical-evaluation/
 __pycache__/
 *.py[cod]

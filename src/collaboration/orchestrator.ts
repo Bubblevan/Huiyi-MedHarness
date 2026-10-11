@@ -90,8 +90,11 @@ export class CollaborationOrchestrator {
         budget.failChildRun()
         degraded = true
       }
+      const tracedComplexity = request.kind === 'complexity-classifier' && result.status === 'completed'
+        ? (result.value as { readonly complexity: CaseComplexity }).complexity
+        : complexity
       this.trace.record({
-        event: 'child', caseHash, profile, complexity, task: request.kind, roleLabel: request.roleLabel,
+        event: 'child', caseHash, profile, complexity: tracedComplexity, task: request.kind, roleLabel: request.roleLabel,
         ...(result.runId ? { childRunId: result.runId } : {}),
         startedAt: result.startedAt, endedAt: result.endedAt, durationMs: Math.max(0, result.endedAt - result.startedAt),
         ...(result.stopReason ? { stopReason: result.stopReason } : {}),

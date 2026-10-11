@@ -146,6 +146,28 @@ describe("Demo Gateway HTTP/SSE boundary", () => {
     await new Promise<void>((resolve, reject) => dsh.close((error) => error ? reject(error) : resolve()));
   });
 
+  it("does not expose or load demo patients through production routes", async () => {
+    originalAppEnvironment = process.env.HUIYI_APP_ENV;
+    process.env.HUIYI_APP_ENV = "production";
+    expect(() => createDemoServer({ backendName: "fixture", log: () => undefined })).toThrow("Fixture backend is disabled in production");
+
+    const backend: DemoBackend = {
+      async *run() { return; },
+      cancel() {},
+    };
+    const app = await track(createDemoServer({ backendName: "dsh", backend, log: () => undefined }));
+    const patient = await fetch(`${app.baseUrl}/api/demo/patients/patient-htn`);
+    expect(patient.status).toBe(404);
+
+    const chat = await fetch(`${app.baseUrl}/api/chat`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId: "prod-session", patientId: "patient-htn", message: "test" }),
+    });
+    expect(chat.status).toBe(503);
+    expect(await chat.json()).toEqual({ error: "PATIENT_CONTEXT_ADAPTER_REQUIRED" });
+  });
+
   it("rejects browser-simple cross-origin media types and unexpected request fields", async () => {
     const app = await start();
     const payload = { sessionId: "s-safe", patientId: "patient-htn", message: "synthetic request" };

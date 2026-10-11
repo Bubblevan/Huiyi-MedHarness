@@ -143,7 +143,7 @@ describe('DSH turn-scoped memory lifecycle', () => {
     }
     const client: MemoryClientPort = {
       recall: vi.fn(async () => snapshot),
-      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false, amaLlmCallCount: 2, amaPromptTokens: 47, amaCompletionTokens: 11, amaUsageReportCount: 1 })),
       sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
       stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
       forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
@@ -178,8 +178,136 @@ describe('DSH turn-scoped memory lifecycle', () => {
       idempotencyKey: 'session-1:1', userText: 'synthetic test history', assistantText: 'synthetic reply',
     }))
     expect(records.map(record => record.operation)).toEqual(['automatic_recall', 'commit'])
+    expect(records.find(record => record.operation === 'commit')).toMatchObject({
+      amaLlmCallCount: 2, amaPromptTokens: 47, amaCompletionTokens: 11, amaUsageReportCount: 1,
+    })
     expect(JSON.stringify(records)).not.toContain('synthetic test history')
     expect(JSON.stringify(records)).not.toContain('synthetic reply')
+  })
+
+  it('uses AMA automatic recall once per Encounter session and keeps explicit manual recall available', async () => {
+    const snapshot: MemorySnapshot = { snapshotId: 'encounter-snapshot', userId: 'patient-1', sessionId: 'session-1', turn: 1, items: [] }
+    const client: MemoryClientPort = {
+      recall: vi.fn(async () => snapshot),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const records: MemoryTraceRecord[] = []
+    const lifecycle = new MemoryLifecycle(client, { record: record => records.push(record) }, () => 'patient-1', {
+      automaticRecallFirstTurnOnly: true,
+    })
+    const session = { id: 'session-1' } as Session
+    const agent = { id: 'session-1' } as Agent
+
+    lifecycle.observeSessionEvent(session, event('turn/start', { turn: 1 }, 1))
+    lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: 'first synthetic encounter turn' }] }, 1)
+    await expect(lifecycle.recallOnce(agent)).resolves.toEqual(snapshot)
+    lifecycle.observeSessionEvent(session, event('turn/start', { turn: 2 }, 2))
+    lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: 'follow-up synthetic encounter turn' }] }, 2)
+    await expect(lifecycle.recallOnce(agent)).resolves.toBeUndefined()
+    await expect(lifecycle.recallOnce(agent)).resolves.toBeUndefined()
+    await expect(lifecycle.manualRecall(agent, 'explicit historical query', false)).resolves.toEqual(snapshot)
+
+    expect(client.recall).toHaveBeenCalledTimes(2)
+    expect(records).toMatchObject([
+      { operation: 'automatic_recall', status: 'completed', turn: 1 },
+      { operation: 'automatic_recall', status: 'skipped', turn: 2, errorClass: 'encounter_context_already_active' },
+      { operation: 'manual_recall', status: 'completed', turn: 2 },
+    ])
+  })
+
+  it('batches patient-originated AMA writes at the configured Encounter turn boundary', async () => {
+    const client: MemoryClientPort = {
+      recall: vi.fn(async (): Promise<MemorySnapshot> => ({ snapshotId: 'batch-snapshot', userId: 'patient-1', sessionId: 'session-1', turn: 1, items: [] })),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const records: MemoryTraceRecord[] = []
+    const lifecycle = new MemoryLifecycle(client, { record: record => records.push(record) }, () => 'patient-1', { commitBatchTurns: 2 })
+    const session = { id: 'session-1' } as Session
+    const agent = { id: 'session-1' } as Agent
+
+    for (const turn of [1, 2]) {
+      lifecycle.observeSessionEvent(session, event('turn/start', { turn }, turn * 10))
+      lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: `synthetic patient turn ${turn}` }] }, turn)
+      lifecycle.observeSessionEvent(session, event('user/message', {
+        id: `user-${turn}`, role: 'user', content: [{ type: 'text', text: `synthetic patient turn ${turn}` }], source: { kind: 'user' },
+      }, turn * 10 + 1))
+      lifecycle.observeSessionEvent(session, event('assistant/message', {
+        turn, step: 1, interrupted: false, message: { content: [{ type: 'text', text: `synthetic assistant turn ${turn}` }] }, stream: [],
+      }, turn * 10 + 2))
+      lifecycle.observeSessionEvent(session, event('turn/end', { turn, reason: { kind: 'completed' } }, turn * 10 + 3))
+      await lifecycle.flush()
+    }
+
+    expect(client.commitTurn).toHaveBeenCalledTimes(1)
+    expect(client.commitTurn).toHaveBeenCalledWith(expect.objectContaining({
+      idempotencyKey: 'session-1:2',
+      userText: 'synthetic patient turn 1\n\nsynthetic patient turn 2',
+      assistantText: 'synthetic assistant turn 2',
+    }))
+    expect(records).toMatchObject([
+      { operation: 'commit', status: 'skipped', turn: 1, errorClass: 'encounter_batch_pending' },
+      { operation: 'commit', status: 'completed', turn: 2 },
+    ])
+    expect(JSON.stringify(records)).not.toContain('synthetic patient turn')
+    expect(JSON.stringify(records)).not.toContain('synthetic assistant turn')
+  })
+
+  it('flushes the final partial patient batch and finalizes AMA once when an Encounter closes', async () => {
+    const client: MemoryClientPort = {
+      recall: vi.fn(async (): Promise<MemorySnapshot> => ({ snapshotId: 'close-snapshot', userId: 'patient-1', sessionId: 'session-1', turn: 1, items: [] })),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false, amaLlmCallCount: 2, amaPromptTokens: 120, amaCompletionTokens: 12, amaUsageReportCount: 2 })),
+      sessionEnd: vi.fn(async () => ({ status: 'completed' as const, duplicate: false, episodeGenerated: true, amaLlmCallCount: 1, amaPromptTokens: 70, amaCompletionTokens: 8, amaUsageReportCount: 1 })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const records: MemoryTraceRecord[] = []
+    const lifecycle = new MemoryLifecycle(client, { record: record => records.push(record) }, () => 'patient-1', { commitBatchTurns: 2 })
+    const session = { id: 'session-1' } as Session
+    const agent = { id: 'session-1' } as Agent
+
+    for (const turn of [1, 2, 3]) {
+      lifecycle.observeSessionEvent(session, event('turn/start', { turn }, turn * 10))
+      lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: `synthetic patient turn ${turn}` }] }, turn)
+      lifecycle.observeSessionEvent(session, event('user/message', {
+        id: `user-${turn}`, role: 'user', content: [{ type: 'text', text: `synthetic patient turn ${turn}` }], source: { kind: 'user' },
+      }, turn * 10 + 1))
+      lifecycle.observeSessionEvent(session, event('assistant/message', {
+        turn, step: 1, interrupted: false, message: { content: [{ type: 'text', text: `synthetic assistant turn ${turn}` }] }, stream: [],
+      }, turn * 10 + 2))
+      lifecycle.observeSessionEvent(session, event('turn/end', { turn, reason: { kind: 'completed' } }, turn * 10 + 3))
+      await lifecycle.flush()
+    }
+
+    await lifecycle.endSession('session-1')
+    await lifecycle.endSession('session-1')
+
+    expect(client.commitTurn).toHaveBeenCalledTimes(2)
+    expect(client.commitTurn).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      idempotencyKey: 'session-1:2', userText: 'synthetic patient turn 1\n\nsynthetic patient turn 2',
+    }))
+    expect(client.commitTurn).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      idempotencyKey: 'session-1:3', userText: 'synthetic patient turn 3', assistantText: 'synthetic assistant turn 3',
+    }))
+    expect(client.sessionEnd).toHaveBeenCalledTimes(1)
+    expect(client.sessionEnd).toHaveBeenCalledWith({ userId: 'patient-1', sessionId: 'session-1' })
+    expect(records).toMatchObject([
+      { operation: 'commit', status: 'skipped', turn: 1, errorClass: 'encounter_batch_pending' },
+      { operation: 'commit', status: 'completed', turn: 2 },
+      { operation: 'commit', status: 'skipped', turn: 3, errorClass: 'encounter_batch_pending' },
+      { operation: 'commit', status: 'completed', turn: 3 },
+      { operation: 'session_end', status: 'completed', turn: 3, episodeGenerated: true, amaPromptTokens: 70 },
+    ])
+    expect(JSON.stringify(records)).not.toContain('synthetic patient turn')
+    expect(JSON.stringify(records)).not.toContain('synthetic assistant turn')
   })
 
   it('does not recall or commit Memory for a DSH subagent session', async () => {
@@ -277,6 +405,9 @@ describe('DSH turn-scoped memory lifecycle', () => {
     expect(client.recall).toHaveBeenCalledTimes(1)
     expect(client.recall).toHaveBeenCalledWith(expect.objectContaining({ strong: true }), expect.anything())
     expect(client.commitTurn).not.toHaveBeenCalled()
+    await lifecycle.endSession('locomo-session')
+    expect(client.sessionEnd).not.toHaveBeenCalled()
+    expect(records).toContainEqual(expect.objectContaining({ operation: 'session_end', status: 'skipped', errorClass: 'evaluation_read_only' }))
     expect(records).toContainEqual(expect.objectContaining({ operation: 'commit', status: 'skipped', errorClass: 'evaluation_read_only' }))
   })
 

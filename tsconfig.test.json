@@ -4,5 +4,5 @@
     "rootDir": ".",
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "eval/memory/locomo/**/*.ts", "tests/**/*.ts"]
+  "include": ["src/**/*.ts", "eval/memory/locomo/**/*.ts", "eval/clinical/**/*.ts", "scripts/eval/**/*.ts", "tests/**/*.ts"]
 }

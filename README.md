@@ -1,8 +1,47 @@
-# Huiyi MedHarness — F0
+# Huiyi MedHarness — 临床 Agent 工作台
 
-F0 is a small, out-of-tree DSH bundle that registers one native tool, `search_medical_evidence`. It searches only the synthetic fixture in `fixtures/evidence.json`; it does not connect to hospital data or a vector store, or implement its own model runtime or clinical workflow. The opt-in F0.1 smoke uses the model configured by DSH.
+Huiyi 的目标，是让 Agent 在了解患者既往病史、当前就诊情况和可追溯医学证据的前提下，辅助完成一次连续临床咨询，并把结构化结果交给医生审核。它不是泛泛的医疗问答产品。
 
-## Runtime boundary
+产品主线是 **临床工作流 → 循证分析 → 患者连续性 → 模型迭代 → 产品交付**：读取经授权的患者/Encounter 上下文，识别缺失信息并提出澄清问题，获取并引用医学证据，结合患者纵向记忆；复杂病例可进行受限专科协作；最终形成供执业医师复核的摘要或病历草稿。
+
+## 当前实现与目标边界
+
+| 能力 | 当前状态 |
+| --- | --- |
+| 本机临床工作台与 DSH 执行链路 | 已有本机合成数据验证记录；不等同于生产部署或临床验证。 |
+| 医学证据 | Health Engine 接入本地医学语料检索；当前记录为小规模验收，MedQA parity 仍有未通过项。 |
+| 患者连续性与协作 | AMA 记忆和 MDAgents-derived 协作已在有限合成场景走通；300 患者统一评测尚未完成。 |
+| 真实患者、机构登录与医生审核闭环 | 尚未实现；生产患者上下文接口缺失时 Gateway 保持 fail-closed。 |
+| SFT / RL 模型迭代 | 尚未完成训练 canary 或能力提升评测，不宣称模型效果提升。 |
+
+证据入口：本机知识库与有限 E2E 记录见 [`docs/rag/local-knowledge-base-setup.md`](docs/rag/local-knowledge-base-setup.md)；MedQA 45 题对照及未通过项见 [`eval/rag-parity/README.md`](eval/rag-parity/README.md)；性能实验只代表特定 Dev 配置，见 [`docs/perf/hc-perf-001-findings.md`](docs/perf/hc-perf-001-findings.md)。项目简历表述和可引用证据见 [`docs/product/evidence-backed-project-profile.md`](docs/product/evidence-backed-project-profile.md)。
+
+## 业务工作流
+
+```mermaid
+flowchart LR
+  P[经授权的患者与当前 Encounter] --> C[连续临床咨询与必要澄清]
+  C --> H[患者历史记忆]
+  C --> R[可追溯医学证据]
+  H --> A[受限 Agent 分析与复杂病例协作]
+  R --> A
+  A --> D[咨询摘要 / 病历草稿]
+  D --> V[执业医师复核与最终决策]
+```
+
+这条流程是产品目标。当前本机链路使用合成患者；患者身份认证、院内 EMR/Encounter 授权接口和医生审核/写回流程尚未接通。评测与临床工作台分离，模拟结果不得表述为临床有效性证据。
+
+## 开发与评测入口
+
+- [本地运行手册](docs/demo/local-runbook.md)
+- [统一临床任务评测 PRD](docs/eval/unified-clinical-task-evaluation-prd.md)
+- [产品路线图](docs/product/roadmap.md)
+- [参考产品研究](docs/demo/reference-study.md)
+- [模拟患者与 Simulation Lab PRD](docs/product/synthetic-patient-simulation-prd.md)
+
+以下章节保留 F0 和各工程能力的实现/验收细节；这些细节用于说明代码边界，不替代上面的产品定位。
+
+## F0 历史工具边界
 
 ```mermaid
 flowchart LR
@@ -18,7 +57,7 @@ flowchart LR
 
 DSH owns the agent, session, loop, dispatch, result admission, cancellation, and event stream. This package owns the tool contract, fixture data and search, and domain tests. There is one runtime: DSH.
 
-## Tool contract
+## F0 fixture 工具契约
 
 Input: `{ "query": string, "topK"?: integer }`.
 
@@ -117,16 +156,16 @@ The development health-engine uses the existing Python 3.12 uv environment with 
 
 The accepted reproduction was a small local smoke, not a MedQA accuracy run: 60 Textbooks chunks plus 33 chunks from one StatPearls article, MedCPT, Qwen3-8B, `n_rounds=1`, `n_queries=2`, and `k=3`. Its exact metadata-only trace and limitations are mapped in [the upstream audit](docs/rag/imedrag-upstream-map.md). Reusable retrieval/evaluation practices reviewed from Health-Copilot are recorded in [the engineering lessons note](docs/rag/health-copilot-engineering-lessons.md). Corpus and FAISS assets remain outside Git; the manifest records hashes, counts, model revisions, and the fact that the original dataset Git revisions were not captured.
 
-## Huiyi Demo Workstation
+## 本机临床工作台
 
-The local product demo runs with deterministic synthetic fixtures and needs no model, GPU, API key, or patient data:
+前端与 Gateway 可用 fixture 模式启动界面；如需实际模型、RAG、AMA 和 DSH 协作链路，按[本地运行手册](docs/demo/local-runbook.md)配置本机模型与 Health Engine。所有本机患者种子均为合成数据。
 
 ```powershell
 pnpm install
 pnpm demo:dev
 ```
 
-Open <http://localhost:5173>. Patient, memory, evidence, and answers are synthetic; fixture output is not medical advice or verified evidence. The future DSH adapter remains an explicit unavailable boundary and must be enabled only through a separately accepted integration. See [the local runbook](docs/demo/local-runbook.md) and [architecture decision](docs/adr/0004-local-demo-workstation.md).
+打开 <http://localhost:5173>。本地 fixture 模式仅用于界面与传输验收；本机 Qwen 路径可选用 DSH、Health Engine、本地 RAG、合成 AMA 记忆和受限协作。二者均不是生产患者服务；当前生产患者/Encounter adapter、机构登录和医生审核闭环未实现。架构边界见[本地运行手册](docs/demo/local-runbook.md)和[工作台 ADR](docs/adr/0004-local-demo-workstation.md)。
 
 ### Start the local RAG data plane
 
@@ -162,4 +201,4 @@ Live metrics, the local corpus manifest, limitations, frozen [acceptance prompts
 - `tests/evidence.test.ts` — offline contract and event-observation tests.
 - `docs/adr/0001-dsh-runtime-boundary.md` — pinned-source research and ownership decision.
 
-F0 established the native DSH tool boundary using deterministic synthetic evidence. HC-MEM-001 and HC-RAG-001 add separate capabilities behind the shared health-engine without changing DSH's ownership of the user turn. There is still no second AgentLoop, multi-agent orchestration, hosted OpenAI API dependency, or hospital-record integration.
+F0 建立了 DSH 原生工具边界。后续能力在同一个 DSH 用户回合下接入：Huiyi 的 MDAgents-derived 专科协作作为受限子运行，不创建第二个用户回合 AgentLoop；AMA 患者记忆与 RAG 外部医学证据保持分离。当前没有院内病历集成，也没有经过验收的机构身份与患者授权链路。论文方法的适配实现不等于上游论文原样复现。

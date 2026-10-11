@@ -29,14 +29,28 @@ interface DshSubagentStartRequest {
 
 function safeValidationCode(error: unknown): string | undefined {
   if (!(error instanceof TypeError)) return undefined
-  switch (error.message) {
-    case 'invalid complexity decision object': return 'invalid_complexity_decision_object'
-    case 'invalid case complexity': return 'invalid_case_complexity'
-    case 'invalid complexity rationale summary type': return 'invalid_complexity_rationale_summary_type'
-    case 'empty complexity rationale summary': return 'empty_complexity_rationale_summary'
-    case 'overlong complexity rationale summary': return 'overlong_complexity_rationale_summary'
-    default: return undefined
+  const codes: Readonly<Record<string, string>> = {
+    'invalid complexity decision object': 'invalid_complexity_decision_object',
+    'invalid case complexity': 'invalid_case_complexity',
+    'invalid complexity rationale summary type': 'invalid_complexity_rationale_summary_type',
+    'empty complexity rationale summary': 'empty_complexity_rationale_summary',
+    'overlong complexity rationale summary': 'overlong_complexity_rationale_summary',
+    'invalid recruitment plan': 'invalid_recruitment_plan',
+    'recruitment plan has no valid specialists': 'recruitment_plan_no_valid_specialists',
+    'invalid MDT plan': 'invalid_mdt_plan',
+    'MDT plan has no valid teams': 'mdt_plan_no_valid_teams',
+    'invalid specialist finding object': 'invalid_specialist_finding_object',
+    'specialist finding identity mismatch': 'specialist_finding_identity_mismatch',
+    'invalid specialist recommendation': 'invalid_specialist_recommendation',
+    'invalid specialist confidence': 'invalid_specialist_confidence',
+    'invalid team finding summary': 'invalid_team_finding_summary',
+    'team finding identity mismatch': 'team_finding_identity_mismatch',
+    'invalid moderator decision object': 'invalid_moderator_decision_object',
+    'invalid moderator decision fields': 'invalid_moderator_decision_fields',
+    'invalid moderator recommendation': 'invalid_moderator_recommendation',
+    'invalid moderator disagreement': 'invalid_moderator_disagreement',
   }
+  return codes[error.message]
 }
 
 type PendingChildResult =

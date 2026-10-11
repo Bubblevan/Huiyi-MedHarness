@@ -44,6 +44,9 @@ class CommitOutcome:
     ama_llm_call_count: int
     refresh_triggered: bool
     episode_generated: bool
+    ama_prompt_tokens: int = 0
+    ama_completion_tokens: int = 0
+    ama_usage_report_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -51,6 +54,9 @@ class SessionEndOutcome:
     skipped: bool
     episode_generated: bool
     ama_llm_call_count: int
+    ama_prompt_tokens: int = 0
+    ama_completion_tokens: int = 0
+    ama_usage_report_count: int = 0
 
 
 class MemoryBackend(Protocol):
@@ -134,6 +140,9 @@ class MemoryService:
                 factCount=outcome.fact_count,
                 episodeCount=outcome.episode_count,
                 amaLlmCallCount=outcome.ama_llm_call_count,
+                amaPromptTokens=outcome.ama_prompt_tokens,
+                amaCompletionTokens=outcome.ama_completion_tokens,
+                amaUsageReportCount=outcome.ama_usage_report_count,
                 refreshTriggered=outcome.refresh_triggered,
                 episodeGenerated=outcome.episode_generated,
             )
@@ -181,6 +190,9 @@ class MemoryService:
                 duplicate=False,
                 episodeGenerated=outcome.episode_generated,
                 amaLlmCallCount=outcome.ama_llm_call_count,
+                amaPromptTokens=outcome.ama_prompt_tokens,
+                amaCompletionTokens=outcome.ama_completion_tokens,
+                amaUsageReportCount=outcome.ama_usage_report_count,
             )
         except Exception as exc:
             with self._lock, self._connect() as connection:

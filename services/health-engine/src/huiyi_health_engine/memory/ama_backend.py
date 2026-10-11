@@ -76,6 +76,9 @@ class AmaMemoryBackend:
         with self._lock, self._quiet_ama_output():
             try:
                 memory = self._get_instance(namespace)
+                stats = self._stats(namespace, namespace)
+                if not any(stats.records.values()) and not getattr(memory, "memoryWindow", []):
+                    return RecallOutcome(items=[], retrieval_rounds=0, refresh_triggered=False, ama_llm_call_count=0)
                 before = self._counters[namespace].snapshot()
                 if self.isolate_recall_window:
                     memory.clearMemoryWindow()
@@ -105,10 +108,10 @@ class AmaMemoryBackend:
                 before_stats = self._stats(namespace, namespace)
                 before = self._counters[namespace].snapshot()
 
-                # AMA's documented capture lifecycle is the paired user/assistant
-                # forward. It runs only after DSH has emitted a completed turn.
+                # Persist patient-originated facts only. Assistant prose can
+                # contain generated clinical claims and must not be recalled as
+                # patient history on a later Encounter.
                 memory.forwardUser(user_text, showUsage=False)
-                memory.forwardRobot(assistant_text, showUsage=False)
 
                 after_stats = self._stats(namespace, namespace)
                 after = self._counters[namespace].snapshot()
@@ -119,6 +122,9 @@ class AmaMemoryBackend:
                     ama_llm_call_count=max(0, after["llm_calls"] - before["llm_calls"]),
                     refresh_triggered=after["refreshes"] > before["refreshes"],
                     episode_generated=after_stats.records["episodes"] > before_stats.records["episodes"],
+                    ama_prompt_tokens=max(0, after["prompt_tokens"] - before["prompt_tokens"]),
+                    ama_completion_tokens=max(0, after["completion_tokens"] - before["completion_tokens"]),
+                    ama_usage_report_count=max(0, after["usage_reports"] - before["usage_reports"]),
                 )
             except Exception as exc:
                 raise AmaBackendError(type(exc).__name__) from None
@@ -139,6 +145,9 @@ class AmaMemoryBackend:
                     skipped=after_stats.records["episodes"] == before_stats.records["episodes"],
                     episode_generated=after_stats.records["episodes"] > before_stats.records["episodes"],
                     ama_llm_call_count=max(0, after["llm_calls"] - before["llm_calls"]),
+                    ama_prompt_tokens=max(0, after["prompt_tokens"] - before["prompt_tokens"]),
+                    ama_completion_tokens=max(0, after["completion_tokens"] - before["completion_tokens"]),
+                    ama_usage_report_count=max(0, after["usage_reports"] - before["usage_reports"]),
                 )
             except Exception as exc:
                 raise AmaBackendError(type(exc).__name__) from None
@@ -149,12 +158,17 @@ class AmaMemoryBackend:
 
     def forget(self, namespace: str) -> None:
         with self._lock, self._quiet_ama_output():
+            memory = self._get_instance(namespace)
             try:
-                memory = self._get_instance(namespace)
                 memory.clearAllMemory()
-                memory.clearMemoryWindow()
             except Exception as exc:
                 raise AmaBackendError(type(exc).__name__) from None
+            finally:
+                # clearAllMemory drops the user's SQLite tables and FAISS files.
+                # Do not reuse the cached AMA object afterward: it was initialized
+                # against those tables and would write through a stale instance.
+                self._instances.pop(namespace, None)
+                self._counters.pop(namespace, None)
 
     def _get_instance(self, namespace: str) -> Any:
         if namespace in self._instances:
@@ -199,7 +213,8 @@ class AmaMemoryBackend:
         counts = {kind: 0 for kind in names}
         db_path = self.data_dir / "AMA.db"
         if db_path.exists():
-            with sqlite3.connect(db_path, timeout=10) as connection:
+            connection = sqlite3.connect(db_path, timeout=10)
+            try:
                 existing = {
                     row[0]
                     for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -208,6 +223,11 @@ class AmaMemoryBackend:
                     if table in existing:
                         quoted = '"' + table.replace('"', '""') + '"'
                         counts[kind] = int(connection.execute(f"SELECT COUNT(*) FROM {quoted}").fetchone()[0])
+            finally:
+                # sqlite3's context manager commits/rolls back; it does not close.
+                # Explicitly release the file handle so Windows can rotate or
+                # remove an isolated synthetic-memory directory immediately.
+                connection.close()
         memory = self._instances.get(namespace)
         window_items = len(memory.memoryWindow) if memory is not None else 0
         return MemoryStats(userId=user_id, memoryWindowItems=window_items, records=counts)
@@ -264,6 +284,9 @@ def _instrument(
                 error_class = "EmptyLocalModelResponse"
                 raise AmaBackendError(error_class)
             return response
+        except AmaBackendError as exc:
+            error_class = exc.error_class
+            raise
         except Exception as exc:
             error_class = type(exc).__name__
             raise

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://huiyi9e.com/schemas/clinical-evaluation-dataset-1.0.0.json",
+  "title": "Huiyi Clinical Evaluation Synthetic Dataset",
+  "description": "Deterministically generated synthetic patients, Encounters, and disclosure turn plans. Contains no real patient records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generation", "patients"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["patientCount", "turnCount", "encounterCount", "seed", "generator"],
+      "properties": {
+        "patientCount": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "turnCount": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "encounterCount": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "seed": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "generator": { "const": "Huiyi-MedHarness deterministic synthetic dataset generator" }
+      }
+    },
+    "patients": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/patient" }
+    }
+  },
+  "$defs": {
+    "patient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["patientId", "tenantId", "accessGroup", "displayName", "age", "sex", "encounterId", "encounter", "conditions", "medications", "allergies", "memory", "suggestedQuestion", "synthetic", "encounters"],
+      "properties": {
+        "patientId": { "type": "string", "pattern": "^SYN-P-[0-9]{4,}$" },
+        "tenantId": { "type": "string", "pattern": "^evaluation-tenant-[12]$" },
+        "accessGroup": { "enum": ["cohort-a", "cohort-b"] },
+        "displayName": { "type": "string", "pattern": "^模拟患者 [0-9]{4,}$" },
+        "age": { "type": "integer", "minimum": 20, "maximum": 84 },
+        "sex": { "enum": ["女", "男"] },
+        "encounterId": { "type": "string", "pattern": "^SYN-P-[0-9]{4,}-ENC-[0-9]{2}$" },
+        "encounter": { "type": "string" },
+        "conditions": { "type": "array", "items": { "type": "string" } },
+        "medications": { "type": "array", "items": { "type": "string" } },
+        "allergies": { "type": "array", "items": { "type": "string" } },
+        "memory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["summary", "items", "updatedLabel"],
+          "properties": {
+            "summary": { "type": "string" },
+            "items": { "type": "integer", "minimum": 0 },
+            "updatedLabel": { "type": "string" }
+          }
+        },
+        "suggestedQuestion": { "type": "string" },
+        "synthetic": { "const": true },
+        "encounters": { "type": "array", "minItems": 1, "maxItems": 20, "items": { "$ref": "#/$defs/encounter" } }
+      }
+    },
+    "encounter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["encounterId", "label", "status", "summary", "turnPlan"],
+      "properties": {
+        "encounterId": { "type": "string", "pattern": "^SYN-P-[0-9]{4,}-ENC-[0-9]{2}$" },
+        "label": { "type": "string" },
+        "status": { "enum": ["finished", "in-progress"] },
+        "summary": { "type": "string" },
+        "turnPlan": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/$defs/disclosure" } }
+      }
+    },
+    "disclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["turn", "patientMessage", "factToDisclose"],
+      "properties": {
+        "turn": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "patientMessage": { "type": "string", "minLength": 1 },
+        "factToDisclose": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

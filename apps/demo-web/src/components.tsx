@@ -1,8 +1,8 @@
 import { useContext, createContext, type ReactNode } from "react";
 import type { PatientContext as PatientRecord } from "../../../services/demo-gateway/src/contracts.js";
 import type { WireDemoEvent } from "./runtime/adapter.js";
-import { isProductionBuild } from "./config/env.js";
-import { clinicalCopy } from "./copy/clinicalWorkstation.js";
+import { isNonDemoBuild } from "./config/env.js";
+import { clinicalCopy } from "@clinical-workstation-copy";
 
 const EvidenceActionContext = createContext<(evidenceId: string) => void>(() => undefined);
 
@@ -14,7 +14,7 @@ export function useEvidenceAction() { return useContext(EvidenceActionContext); 
 
 export function BackendBadge({ backend, providerName, modelName }: { backend: string; providerName?: string; modelName?: string }) {
   const configuredModel = [providerName, modelName].filter((value) => typeof value === "string" && value.trim()).join(" · ");
-  const label = backend === "fixture" && !isProductionBuild
+  const label = backend === "fixture" && !isNonDemoBuild
     ? clinicalCopy.fixtureBackendLabel
     : backend === "dsh" && configuredModel
       ? configuredModel
@@ -22,12 +22,12 @@ export function BackendBadge({ backend, providerName, modelName }: { backend: st
   return <span className="backend-badge"><span className="status-dot" />{label}</span>;
 }
 
-export function PatientContext({ patient, loading = false }: { patient: PatientRecord | null; loading?: boolean }) {
+export function PatientContext({ patient, loading = false, syntheticLabel }: { patient: PatientRecord | null; loading?: boolean; syntheticLabel?: string }) {
   if (loading) return <section className="panel patient-panel" aria-label="Patient Context"><p className="muted">{clinicalCopy.patientLoading}</p></section>;
   if (!patient) return <section className="panel patient-panel patient-empty" aria-label="Patient Context"><div><h2>{clinicalCopy.patientEmptyTitle}</h2><p>{clinicalCopy.patientEmptyHint}</p></div></section>;
   return (
     <section className="panel patient-panel" aria-label="Patient Context">
-      <div className="panel-heading"><div><p className="eyebrow">PATIENT CONTEXT</p><h2>患者上下文</h2></div>{!isProductionBuild && <span className="synthetic-tag">{clinicalCopy.patientTag}</span>}</div>
+      <div className="panel-heading"><div><p className="eyebrow">PATIENT CONTEXT</p><h2>患者上下文</h2></div>{syntheticLabel ? <span className="synthetic-tag">{syntheticLabel}</span> : !isNonDemoBuild && <span className="synthetic-tag">{clinicalCopy.patientTag}</span>}</div>
       <div className="patient-identity">
         <div className="patient-avatar">{patient.displayName.slice(0, 1)}</div>
         <div><h3>{patient.displayName}</h3><p>{patient.sex} · {patient.age} 岁</p></div>
@@ -41,7 +41,7 @@ export function PatientContext({ patient, loading = false }: { patient: PatientR
         <p>{patient.memory.summary}</p>
         <small>患者历史上下文 · 与医学证据分开</small>
       </section>
-      {!isProductionBuild && <p className="synthetic-note">{clinicalCopy.patientDataNote}</p>}
+      {!isNonDemoBuild && <p className="synthetic-note">{clinicalCopy.patientDataNote}</p>}
     </section>
   );
 }
@@ -99,7 +99,7 @@ export function toSafeActivityEvent(event: WireDemoEvent): WireDemoEvent | null 
 
 export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; errorCode?: string }) {
   const summary = (event: WireDemoEvent): string => {
-    if (isProductionBuild) {
+    if (isNonDemoBuild) {
       if (event.event === "context.memory" && typeof event.data.itemCount === "number") return `${event.data.itemCount} 条摘要项`;
       if (event.event === "evidence.completed" && typeof event.data.count === "number") return `${event.data.count} 条 · 本地医学语料`;
       if (event.event === "agent.classified" && typeof event.data.complexity === "string") return event.data.complexity;
@@ -112,8 +112,8 @@ export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; 
     }
     if (event.event === "context.memory") return `${String(event.data.itemCount ?? 0)} 条摘要项`;
     if (event.event === "evidence.completed") return `${String(event.data.count ?? 0)} 条 · 本地医学语料`;
-    if (event.event === "agent.classified") return `${String(event.data.complexity ?? "unknown")}${event.data.simulated ? " · simulated execution" : ""}`;
-    if (event.event === "specialist.started" || event.event === "specialist.completed") return `${String(event.data.specialist ?? "专科")}${event.data.simulated ? " · simulated execution" : " · DSH child"}`;
+    if (event.event === "agent.classified") return `${String(event.data.complexity ?? "unknown")}${event.data.simulated ? ` · ${clinicalCopy.simulatedExecution}` : ""}`;
+    if (event.event === "specialist.started" || event.event === "specialist.completed") return `${String(event.data.specialist ?? "专科")}${event.data.simulated ? ` · ${clinicalCopy.simulatedExecution}` : ` · ${clinicalCopy.dshChild}`}`;
     if (event.event === "collaboration.completed") {
       const roles = Array.isArray(event.data.specialistRoles) ? event.data.specialistRoles.join(" / ") : "";
       const failures = Number(event.data.failedChildRuns ?? 0);
@@ -128,7 +128,7 @@ export function AgentActivity({ events, errorCode }: { events: WireDemoEvent[]; 
     <section className="panel activity-panel" aria-label="Agent Activity">
       <div className="panel-heading"><div><p className="eyebrow">EXECUTION TRACE</p><h2>Agent Activity</h2></div><span className="trace-count">{visible.length.toString().padStart(2, "0")}</span></div>
       <p className="activity-caption">{clinicalCopy.activityCaption}</p>
-      {errorCode && <div className="error-inline" role="status"><span className="error-indicator" />{clinicalCopy.serviceUnavailable}{!isProductionBuild && <code>{errorCode}</code>}</div>}
+      {errorCode && <div className="error-inline" role="status"><span className="error-indicator" />{clinicalCopy.serviceUnavailable}{!isNonDemoBuild && <code>{errorCode}</code>}</div>}
       <ol className="activity-list" aria-live="polite">
         {visible.length === 0 && <li className="activity-empty">{clinicalCopy.activityEmpty}</li>}
         {visible.map((event, index) => <li key={`${event.runId}-${event.event}-${index}`} className={`activity-item event-${event.event.replaceAll(".", "-")}`}>
@@ -156,12 +156,12 @@ export function EvidenceDrawer({ open, items, onClose, backend = "fixture" }: { 
       <aside className="evidence-drawer" role="dialog" aria-modal="true" aria-label="Evidence Sources">
         <div className="drawer-grabber" />
         <div className="drawer-heading"><div><p className="eyebrow">SOURCE REVIEW</p><h2>医学证据来源</h2></div><button className="icon-button" onClick={onClose} aria-label="关闭证据抽屉">×</button></div>
-        <span className="fixture-tag">{backend === "dsh" || isProductionBuild ? "本地医学检索结果" : clinicalCopy.fixtureEvidenceLabel}</span>
-        {items.length === 0 || (isProductionBuild && backend === "fixture") ? <p className="muted">本轮尚无可展示的证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
+        <span className="fixture-tag">{backend === "dsh" || isNonDemoBuild ? "本地医学检索结果" : clinicalCopy.fixtureEvidenceLabel}</span>
+        {items.length === 0 || (isNonDemoBuild && backend === "fixture") ? <p className="muted">本轮尚无可展示的证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
           <div className="evidence-card-top"><span className="citation-index">[{item.rank}]</span><code>{item.evidenceId}</code></div>
           <p className="evidence-source">{item.source}</p><h3>{item.title}</h3><p className="evidence-snippet">{item.snippet}</p>
         </article>)}</div>}
-        <p className="evidence-disclaimer">{backend === "dsh" || isProductionBuild ? clinicalCopy.evidenceDisclaimer : clinicalCopy.fixtureEvidenceDisclaimer}</p>
+        <p className="evidence-disclaimer">{backend === "dsh" || isNonDemoBuild ? clinicalCopy.evidenceDisclaimer : clinicalCopy.fixtureEvidenceDisclaimer}</p>
       </aside>
     </div>
   );

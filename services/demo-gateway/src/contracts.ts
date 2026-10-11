@@ -22,6 +22,9 @@ export type DemoScenario = "simple" | "complex" | "failure";
 
 export interface PatientContext {
   patientId: string;
+  tenantId?: string;
+  encounterId?: string;
+  synthetic?: boolean;
   displayName: string;
   age: number;
   sex: string;
@@ -36,8 +39,31 @@ export interface PatientContext {
 export interface ChatInput {
   sessionId: string;
   patientId: string;
+  encounterId?: string;
   message: string;
   scenario?: DemoScenario;
+}
+
+export interface RagRetrievalTelemetry {
+  mode: "single" | "iterative";
+  rounds: number;
+  generatedQueries: number;
+  uniqueDocuments: number;
+  candidateCount: number;
+  returnedEvidenceCount: number;
+  retrievalCalls: number;
+  plannerCalls: number;
+  retrievalLatencyMs: number;
+  plannerLatencyMs: number;
+  latencyMs: number;
+  estimatedContextTokens: number;
+  plannerModel: string;
+  plannerPromptVersion: string;
+  corpusVersion: string;
+  degraded: boolean;
+  plannerInputTokens?: number;
+  plannerOutputTokens?: number;
+  degradedErrorClass?: string;
 }
 
 export interface EventDataMap {
@@ -52,7 +78,7 @@ export interface EventDataMap {
     title: string;
     snippet: string;
   };
-  "evidence.completed": { count: number };
+  "evidence.completed": { count: number; retrieval?: RagRetrievalTelemetry };
   "agent.classified": { complexity: "simple" | "basic" | "intermediate" | "advanced"; simulated: boolean };
   "specialist.started": { specialist: string; simulated: boolean };
   "specialist.completed": { specialist: string; durationMs: number; simulated: boolean };
@@ -65,11 +91,23 @@ export interface EventDataMap {
     completedChildRuns: number;
     failedChildRuns: number;
     degraded: boolean;
+    externalEvidence?: {
+      status: "retrieved" | "empty" | "degraded" | "unavailable";
+      hitCount: number;
+      retrieval?: RagRetrievalTelemetry;
+    };
   };
   "assistant.delta": { text: string };
   "run.completed": { durationMs: number };
   "run.cancelled": { reason: "client_cancelled" };
-  "run.failed": { code: "FIXTURE_FAILURE" | "BACKEND_UNAVAILABLE" | "BACKEND_FAILURE" | "MODEL_UNAVAILABLE" | "MODEL_FAILURE" | "MODEL_ROUTE_UNAVAILABLE" | "MODEL_UNKNOWN" | "MODEL_CREDENTIAL_MISSING" | "MODEL_CREDENTIAL_INVALID" | "MODEL_CONFIG_INVALID" | "MODEL_AUTH_FAILED" | "MODEL_TIMEOUT" | "MODEL_RATE_LIMIT" | "TURN_INCOMPLETE" | "SESSION_BUSY" | "SESSION_CAPACITY" | "RUN_TIMEOUT" };
+  "run.failed": {
+    code: "FIXTURE_FAILURE" | "BACKEND_UNAVAILABLE" | "BACKEND_FAILURE" | "MODEL_UNAVAILABLE" | "MODEL_FAILURE" | "MODEL_ROUTE_UNAVAILABLE" | "MODEL_UNKNOWN" | "MODEL_CREDENTIAL_MISSING" | "MODEL_CREDENTIAL_INVALID" | "MODEL_CONFIG_INVALID" | "MODEL_AUTH_FAILED" | "MODEL_TIMEOUT" | "MODEL_RATE_LIMIT" | "TURN_INCOMPLETE" | "SESSION_BUSY" | "SESSION_CAPACITY" | "RUN_TIMEOUT";
+    diagnostic?: {
+      category: "authentication" | "rate_limit" | "timeout" | "provider" | "unknown";
+      providerErrorCode?: string;
+      httpStatus?: number;
+    };
+  };
 }
 
 export type DemoEvent = {
@@ -99,6 +137,39 @@ const isText = (value: unknown): value is string => typeof value === "string";
 const isNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const isBoolean = (value: unknown): value is boolean => typeof value === "boolean";
 
+function isSafeFailureDiagnostic(value: unknown): boolean {
+  if (!isRecord(value) || Object.keys(value).some((key) => !["category", "providerErrorCode", "httpStatus"].includes(key))) return false;
+  return ["authentication", "rate_limit", "timeout", "provider", "unknown"].includes(String(value.category))
+    && (value.providerErrorCode === undefined || (isText(value.providerErrorCode) && /^[A-Z0-9_]{1,48}$/.test(value.providerErrorCode)))
+    && (value.httpStatus === undefined || (Number.isInteger(value.httpStatus) && Number(value.httpStatus) >= 100 && Number(value.httpStatus) <= 599));
+}
+
+export function isRagRetrievalTelemetry(value: unknown): value is RagRetrievalTelemetry {
+  if (!isRecord(value) || Object.keys(value).some((key) => ![
+    "mode", "rounds", "generatedQueries", "uniqueDocuments", "candidateCount", "returnedEvidenceCount",
+    "retrievalCalls", "plannerCalls", "retrievalLatencyMs", "plannerLatencyMs", "latencyMs",
+    "estimatedContextTokens", "plannerModel", "plannerPromptVersion", "corpusVersion", "degraded",
+    "plannerInputTokens", "plannerOutputTokens", "degradedErrorClass",
+  ].includes(key))) return false;
+  const integers = ["rounds", "generatedQueries", "uniqueDocuments", "candidateCount", "returnedEvidenceCount", "retrievalCalls", "plannerCalls", "estimatedContextTokens"];
+  const latencies = ["retrievalLatencyMs", "plannerLatencyMs", "latencyMs"];
+  return (value.mode === "single" || value.mode === "iterative")
+    && integers.every((key) => Number.isSafeInteger(value[key]) && Number(value[key]) >= 0)
+    && latencies.every((key) => isNumber(value[key]) && Number(value[key]) >= 0)
+    && ["plannerModel", "plannerPromptVersion", "corpusVersion"].every((key) => isText(value[key]) && value[key].length <= 256)
+    && isBoolean(value.degraded)
+    && (value.plannerInputTokens === undefined || (Number.isSafeInteger(value.plannerInputTokens) && Number(value.plannerInputTokens) >= 0))
+    && (value.plannerOutputTokens === undefined || (Number.isSafeInteger(value.plannerOutputTokens) && Number(value.plannerOutputTokens) >= 0))
+    && (value.degradedErrorClass === undefined || (isText(value.degradedErrorClass) && /^[A-Za-z0-9_.-]{1,80}$/.test(value.degradedErrorClass)));
+}
+
+function isCollaborationEvidenceTelemetry(value: unknown): boolean {
+  if (!isRecord(value) || Object.keys(value).some((key) => !["status", "hitCount", "retrieval"].includes(key))) return false;
+  return ["retrieved", "empty", "degraded", "unavailable"].includes(String(value.status))
+    && Number.isSafeInteger(value.hitCount) && Number(value.hitCount) >= 0
+    && (value.retrieval === undefined || isRagRetrievalTelemetry(value.retrieval));
+}
+
 function isEventData(event: DemoEventName, data: unknown): boolean {
   if (!isRecord(data)) return false;
   switch (event) {
@@ -107,7 +178,7 @@ function isEventData(event: DemoEventName, data: unknown): boolean {
     case "context.memory": return isNumber(data.itemCount);
     case "evidence.started": return isText(data.queryLabel);
     case "evidence.item": return isText(data.evidenceId) && isNumber(data.rank) && isText(data.source) && isText(data.title) && isText(data.snippet);
-    case "evidence.completed": return isNumber(data.count);
+    case "evidence.completed": return isNumber(data.count) && (data.retrieval === undefined || isRagRetrievalTelemetry(data.retrieval));
     case "agent.classified": return (["basic", "simple", "intermediate", "advanced"].includes(String(data.complexity))) && isBoolean(data.simulated);
     case "specialist.started": return isText(data.specialist) && isBoolean(data.simulated);
     case "specialist.completed": return isText(data.specialist) && isNumber(data.durationMs) && isBoolean(data.simulated);
@@ -115,11 +186,13 @@ function isEventData(event: DemoEventName, data: unknown): boolean {
     case "tool.completed": return isText(data.tool) && isNumber(data.durationMs) && (data.status === "completed" || data.status === "failed");
     case "collaboration.completed": return ["basic", "intermediate", "advanced"].includes(String(data.complexity))
       && Array.isArray(data.specialistRoles) && data.specialistRoles.every(isText)
-      && isNumber(data.teamCount) && isNumber(data.completedChildRuns) && isNumber(data.failedChildRuns) && isBoolean(data.degraded);
+      && isNumber(data.teamCount) && isNumber(data.completedChildRuns) && isNumber(data.failedChildRuns) && isBoolean(data.degraded)
+      && (data.externalEvidence === undefined || isCollaborationEvidenceTelemetry(data.externalEvidence));
     case "assistant.delta": return isText(data.text);
     case "run.completed": return isNumber(data.durationMs);
     case "run.cancelled": return data.reason === "client_cancelled";
-    case "run.failed": return ["FIXTURE_FAILURE", "BACKEND_UNAVAILABLE", "BACKEND_FAILURE", "MODEL_UNAVAILABLE", "MODEL_FAILURE", "MODEL_ROUTE_UNAVAILABLE", "MODEL_UNKNOWN", "MODEL_CREDENTIAL_MISSING", "MODEL_CREDENTIAL_INVALID", "MODEL_CONFIG_INVALID", "MODEL_AUTH_FAILED", "MODEL_TIMEOUT", "MODEL_RATE_LIMIT", "TURN_INCOMPLETE", "SESSION_BUSY", "SESSION_CAPACITY", "RUN_TIMEOUT"].includes(String(data.code));
+    case "run.failed": return ["FIXTURE_FAILURE", "BACKEND_UNAVAILABLE", "BACKEND_FAILURE", "MODEL_UNAVAILABLE", "MODEL_FAILURE", "MODEL_ROUTE_UNAVAILABLE", "MODEL_UNKNOWN", "MODEL_CREDENTIAL_MISSING", "MODEL_CREDENTIAL_INVALID", "MODEL_CONFIG_INVALID", "MODEL_AUTH_FAILED", "MODEL_TIMEOUT", "MODEL_RATE_LIMIT", "TURN_INCOMPLETE", "SESSION_BUSY", "SESSION_CAPACITY", "RUN_TIMEOUT"].includes(String(data.code))
+      && (data.diagnostic === undefined || isSafeFailureDiagnostic(data.diagnostic));
     default: return assertNever(event);
   }
 }
@@ -141,9 +214,10 @@ export function parseDemoEvent(value: unknown): DemoEvent {
 
 export function validateChatInput(value: unknown): ChatInput {
   if (!isRecord(value) || Object.keys(value).some((key) =>
-      key !== "sessionId" && key !== "patientId" && key !== "message" && key !== "scenario") ||
+      key !== "sessionId" && key !== "patientId" && key !== "encounterId" && key !== "message" && key !== "scenario") ||
       !isText(value.sessionId) || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,79}$/.test(value.sessionId) ||
       !isText(value.patientId) || value.patientId.length > 80 ||
+      (value.encounterId !== undefined && (!isText(value.encounterId) || value.encounterId.length > 120)) ||
       !isText(value.message) || !value.message.trim() || value.message.length > 4000 ||
       (value.scenario !== undefined && !["simple", "complex", "failure"].includes(String(value.scenario)))) {
     throw new TypeError("Invalid chat request");
@@ -151,6 +225,7 @@ export function validateChatInput(value: unknown): ChatInput {
   return {
     sessionId: value.sessionId,
     patientId: value.patientId,
+    ...(isText(value.encounterId) ? { encounterId: value.encounterId } : {}),
     message: value.message.trim(),
     ...(value.scenario ? { scenario: value.scenario as DemoScenario } : {}),
   };

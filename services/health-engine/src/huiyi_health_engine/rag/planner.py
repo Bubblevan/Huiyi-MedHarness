@@ -11,7 +11,9 @@ from .prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM, planner_user_messag
 
 
 class PlannerError(RuntimeError):
-    pass
+    def __init__(self, failure_class: str = "UnexpectedError"):
+        super().__init__(failure_class)
+        self.failure_class = failure_class
 
 
 @dataclass(frozen=True)
@@ -48,7 +50,26 @@ class QueryPlanner:
                     "model": self.settings.planner_model,
                     "temperature": 0,
                     "max_tokens": self.settings.planner_max_tokens,
-                    "response_format": {"type": "json_object"},
+                    "response_format": {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "rag_query_plan",
+                            "strict": True,
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "queries": {
+                                        "type": "array",
+                                        "items": {"type": "string"},
+                                        "minItems": 1,
+                                        "maxItems": self.settings.max_queries_per_round,
+                                    },
+                                },
+                                "required": ["queries"],
+                                "additionalProperties": False,
+                            },
+                        },
+                    },
                     "messages": [
                         {"role": "system", "content": PLANNER_SYSTEM},
                         {"role": "user", "content": planner_user_message(
@@ -69,7 +90,7 @@ class QueryPlanner:
         except Exception as exc:
             if isinstance(exc, PlannerError):
                 raise
-            raise PlannerError(type(exc).__name__) from None
+            raise PlannerError(_safe_failure_class(exc)) from None
         return QueryPlan(
             queries=queries,
             model=self.settings.planner_model,
@@ -113,3 +134,19 @@ def _usage_count(value: object, key: str) -> int | None:
         return None
     count = value.get(key)
     return count if isinstance(count, int) and count >= 0 else None
+
+
+def _safe_failure_class(error: Exception) -> str:
+    """Return bounded diagnostic metadata without exposing request/response text."""
+    if isinstance(error, requests.HTTPError):
+        status = getattr(getattr(error, "response", None), "status_code", None)
+        return f"HttpStatus{status}" if isinstance(status, int) and 100 <= status <= 599 else "HttpError"
+    if isinstance(error, requests.Timeout):
+        return "Timeout"
+    if isinstance(error, requests.ConnectionError):
+        return "ConnectionError"
+    if isinstance(error, json.JSONDecodeError):
+        return "InvalidJson"
+    if isinstance(error, (KeyError, IndexError, TypeError)):
+        return "InvalidResponse"
+    return "UnexpectedError"
