@@ -13,9 +13,11 @@ import {
 import { parseDemoEvent, type DemoEvent } from "../../services/demo-gateway/src/contracts.js";
 import { MetadataMemoryTrace } from "../../src/memory/trace.js";
 import type { MemoryTraceRecord } from "../../src/memory/contracts.js";
+import type { MemoryRecallEvidenceRecord } from "../../src/memory/contracts.js";
 import type { CollaborationTraceSink } from "../../src/collaboration/trace.js";
 import type { MedicalEvidenceClientPort } from "../../src/rag/contracts.js";
 import type { ClinicalRunRecord, EvalArm, SyntheticClinicalCase } from "./contracts.js";
+import { matchSyntheticRecallFactIds } from "./ama-recall.js";
 
 const EVALUATION_ORIGIN = "http://127.0.0.1:5173";
 
@@ -146,6 +148,7 @@ function appendSseEvent(block: string, expectedRunId: string, events: DemoEvent[
 export class AuthenticatedClinicalGateway {
   readonly usage = new Map<string, ClinicalRunRecord["tokenUsage"]>();
   readonly memoryTrace: MemoryTraceRecord[] = [];
+  private readonly memoryRecallEvidenceBySession = new Map<string, MemoryRecallEvidenceRecord[]>();
   readonly tenantPrefix: string;
   private readonly accounts: EvaluationAccountInput[];
   private readonly accountByScope = new Map<string, EvaluationAccountInput>();
@@ -167,6 +170,7 @@ export class AuthenticatedClinicalGateway {
 }) {
     this.tenantPrefix = `eval-${input.studyRunId}-${input.arm}`;
     const patients = input.cases.map((item) => patientRecord(item, this.tenantPrefix));
+    const caseByPatientId = new Map(input.cases.map((item) => [syntheticEvaluationIdentity(item, this.tenantPrefix).patientId, item] as const));
     this.dataset = new SyntheticEvaluationDataset({ patientCount: patients.length }, patients);
     this.accounts = accountSet(this.tenantPrefix);
     for (const account of this.accounts) this.accountByScope.set(`${account.tenantId}\0${account.accessGroup}`, account);
@@ -196,6 +200,15 @@ export class AuthenticatedClinicalGateway {
       runtime: new DshWebRuntime({
         capabilities,
         syntheticAmaMemory: input.arm === "integrated",
+        matchSyntheticRecallFactIds: (patient, memoryItem) => {
+          const syntheticCase = caseByPatientId.get(patient.patientId);
+          return syntheticCase ? matchSyntheticRecallFactIds(syntheticCase, memoryItem.content) : [];
+        },
+        onMemoryRecallEvidence: (record) => {
+          const records = this.memoryRecallEvidenceBySession.get(record.sessionId) ?? [];
+          records.push(record);
+          this.memoryRecallEvidenceBySession.set(record.sessionId, records);
+        },
         ...(input.collaborationTrace ? { collaborationTrace: input.collaborationTrace } : {}),
         ...(input.evidenceClient ? { evidenceClient: input.evidenceClient } : {}),
         memoryTrace: input.arm === "integrated" ? {
@@ -228,6 +241,15 @@ export class AuthenticatedClinicalGateway {
 
   identityFor(item: SyntheticClinicalCase): SyntheticEvaluationIdentity {
     return syntheticEvaluationIdentity(item, this.tenantPrefix);
+  }
+
+  takeMemoryRecallEvidence(sessionId: string, fromTurn: number, toTurn: number): MemoryRecallEvidenceRecord[] {
+    const records = this.memoryRecallEvidenceBySession.get(sessionId) ?? [];
+    const selected = records.filter((record) => record.turn >= fromTurn && record.turn <= toTurn);
+    const remaining = records.filter((record) => record.turn < fromTurn || record.turn > toTurn);
+    if (remaining.length) this.memoryRecallEvidenceBySession.set(sessionId, remaining);
+    else this.memoryRecallEvidenceBySession.delete(sessionId);
+    return selected;
   }
 
   async createEncounterSession(item: SyntheticClinicalCase, encounterId: string): Promise<string> {

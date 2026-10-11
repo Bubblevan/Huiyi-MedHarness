@@ -99,8 +99,12 @@ function disclosedFactIds(syntheticCase: SyntheticClinicalCase, run: ClinicalRun
     run.patientMessage,
     ...(run.patientSimulation?.transcript.filter((item) => item.role === "patient").map((item) => item.text) ?? []),
   ];
+  const assistantText = run.assistantText.normalize("NFKC");
   for (const fact of syntheticCase.facts) {
-    if (fact.value !== syntheticCase.patient.privateIsolationCanary && fact.value.trim() && patientTexts.some((text) => text.includes(fact.value))) {
+    const recalledAndEchoed = (run.memoryUsage?.recalledFacts ?? []).some((item) => item.factId === fact.factId)
+      && assistantText.includes(fact.value.normalize("NFKC"));
+    if (fact.value !== syntheticCase.patient.privateIsolationCanary && fact.value.trim()
+      && (patientTexts.some((text) => text.includes(fact.value)) || recalledAndEchoed)) {
       candidates.add(fact.factId);
     }
   }
@@ -127,7 +131,14 @@ function section(
   note?: string,
 ) {
   const rows = items.length
-    ? items.map((item) => `${item.label}: ${item.value}${"factId" in item ? ` [fact:${item.factId}; encounter:${item.encounterId}]` : ""}`).join("\n")
+    ? items.map((item) => {
+      if (!("factId" in item)) return `${item.label}: ${item.value}`;
+      const recalled = run.memoryUsage?.recalledFacts?.find((entry) => entry.factId === item.factId);
+      const echoNote = recalled && run.assistantText.normalize("NFKC").includes(item.value.normalize("NFKC"))
+        ? `; AMA returned ${recalled.kind}${recalled.sourceId ? ` ${recalled.sourceId}` : ""}; exact fact echoed in response`
+        : "";
+      return `${item.label}: ${item.value} [fact:${item.factId}; encounter:${item.encounterId}${echoNote}]`;
+    }).join("\n")
     : "当前输入中没有此类结构化内容；空项不代表阴性或已完成评估。";
   const references = items.flatMap((item): Array<{ reference: string } | { display: string }> => {
     if ("factId" in item) {

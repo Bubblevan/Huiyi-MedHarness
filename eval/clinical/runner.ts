@@ -5,7 +5,7 @@ import { dshAgentSessionId } from "../../services/demo-gateway/src/backends/dsh.
 import type { DemoEvent, RagRetrievalTelemetry } from "../../services/demo-gateway/src/contracts.js";
 import { readModelConfiguration, syntheticPatientMemoryId } from "../../services/demo-gateway/src/backends/dsh-runtime.js";
 import { MemoryClient } from "../../src/memory/client.js";
-import type { MemoryTraceRecord } from "../../src/memory/contracts.js";
+import type { MemoryRecallEvidenceRecord, MemoryTraceRecord } from "../../src/memory/contracts.js";
 import { RagClient } from "../../src/rag/client.js";
 import { AuthenticatedClinicalGateway } from "./authenticated-gateway.js";
 import { TASKS } from "./catalog.js";
@@ -14,7 +14,7 @@ import { attestCodexBridgeHealth } from "./bridge-attestation.js";
 import { createReviewDraftBundle } from "./fhir-draft.js";
 import { makeBlindReviewPacket, type ClinicalBlindReviewPacket, type ClinicalReviewKeyEntry } from "./blind-review.js";
 import { createReviewTemplate } from "./scoring.js";
-import type { ClinicalReviewRecord, ClinicalRunRecord, EvalArm, PatientQuestionIntent, PatientSimulationMode, SyntheticClinicalCase, SyntheticTurn } from "./contracts.js";
+import type { ClinicalMemoryRecallFact, ClinicalReviewRecord, ClinicalRunRecord, EvalArm, PatientQuestionIntent, PatientSimulationMode, SyntheticClinicalCase, SyntheticTurn } from "./contracts.js";
 import { SyntheticPatientSimulator } from "./patient-simulator.js";
 import { captureHealthEngineSourceFingerprint } from "./source-fingerprint.js";
 
@@ -198,6 +198,7 @@ async function runCaseArm(input: {
   const patientSimulator = input.patientSimulationMode === "adaptive" ? new SyntheticPatientSimulator(task.case, { maxFollowUpMessages: input.patientFollowUpLimit }) : undefined;
   const cumulativeDisclosedFactIds = new Set<string>();
   const encounterDisclosedFactIds = new Set<string>();
+  const priorEncounterDisclosedFactIds = new Set<string>();
   let sessionId = "";
   let sessionTurn = 0;
   let encounter = "";
@@ -216,6 +217,7 @@ async function runCaseArm(input: {
     }
     for (const turn of task.case.turns) {
       if (turn.encounterId !== encounter) {
+        encounterDisclosedFactIds.forEach((id) => priorEncounterDisclosedFactIds.add(id));
         await closeCurrentSession();
         encounter = turn.encounterId;
         encounterDisclosedFactIds.clear();
@@ -332,6 +334,7 @@ async function runCaseArm(input: {
       const usageRows = providerRunIds.map((providerRunId) => service.usage.get(providerRunId)).filter((usage) => usage !== undefined);
       const reportedTokenUsage = usageRows.length ? aggregateTokenUsage(usageRows) : undefined;
       const collaborationRequested = toolCalls.some((call) => call.tool === "consult_clinical_team");
+      const dshSessionId = dshAgentSessionId(sessionId, identity.patientId, turn.encounterId);
       const tokenUsage: ClinicalRunRecord["tokenUsage"] = reportedTokenUsage
         ? {
           ...reportedTokenUsage,
@@ -357,6 +360,7 @@ async function runCaseArm(input: {
           maxPatientFollowUps: patientSimulator ? (input.patientFollowUpLimit ?? turn.patientPlan!.maxFollowUpMessages) : 0,
           disclosedFactIds: [...disclosedFactIds], cumulativeDisclosedFactIds: [...cumulativeDisclosedFactIds],
           encounterDisclosedFactIds: [...encounterDisclosedFactIds],
+          amaRecallEligibleFactIds: turn.requiredHistoricalFactIds.filter((id) => priorEncounterDisclosedFactIds.has(id)),
           triggeredIntents: [...triggeredIntents], transcript,
         },
         assistantText: answer.filter(Boolean).join("\n\n"), status,
@@ -365,8 +369,15 @@ async function runCaseArm(input: {
         evidence, ...(ragRetrievals.length ? { ragRetrievals } : {}), toolCalls, ...(collaboration ? { collaboration } : {}),
         tokenUsage,
         ...(task.arm === "integrated" ? {
-          memoryUsage: summarizeMemoryUsage(service.memoryTrace.filter((entry) =>
-            entry.sessionId === dshAgentSessionId(sessionId, identity.patientId, turn.encounterId) && entry.turn !== undefined && entry.turn >= turnMemoryStart && entry.turn <= turnMemoryEnd)),
+          memoryUsage: {
+            ...summarizeMemoryUsage(service.memoryTrace.filter((entry) =>
+              entry.sessionId === dshSessionId && entry.turn !== undefined && entry.turn >= turnMemoryStart && entry.turn <= turnMemoryEnd)),
+            recalledFacts: summarizeRecallFacts(
+              service.takeMemoryRecallEvidence(dshSessionId, turnMemoryStart, turnMemoryEnd),
+              task.case.facts,
+              answer.filter(Boolean).join("\n\n"),
+            ),
+          },
         } : {}),
       };
       records.push(record);
@@ -490,6 +501,19 @@ function summarizeMemoryUsage(records: readonly MemoryTraceRecord[]): NonNullabl
     failedOperations: records.filter((record) => record.status === "failed").length,
     operationCounts,
   };
+}
+
+function summarizeRecallFacts(records: readonly MemoryRecallEvidenceRecord[], facts: SyntheticClinicalCase["facts"], assistantText: string): readonly ClinicalMemoryRecallFact[] {
+  const unique = new Map<string, ClinicalMemoryRecallFact>();
+  const normalizedAnswer = assistantText.normalize("NFKC");
+  const factById = new Map(facts.map((fact) => [fact.factId, fact] as const));
+  for (const record of records) for (const item of record.items) for (const factId of item.factIds) {
+    const key = [factId, item.kind, item.sourceId ?? "", record.operation, record.turn].join("\0");
+    const fact = factById.get(factId);
+    const echoedInAssistant = Boolean(fact && fact.value !== "" && normalizedAnswer.includes(fact.value.normalize("NFKC")));
+    unique.set(key, { factId, kind: item.kind, ...(item.sourceId ? { sourceId: item.sourceId } : {}), operation: record.operation, turn: record.turn, echoedInAssistant });
+  }
+  return [...unique.values()].sort((left, right) => left.turn - right.turn || left.factId.localeCompare(right.factId));
 }
 
 function runTranscript(run: ClinicalRunRecord, fallbackPatientMessage: string): readonly { role: "patient" | "assistant"; text: string }[] {

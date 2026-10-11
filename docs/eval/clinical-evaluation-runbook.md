@@ -534,3 +534,11 @@ v5 smoke [`smoke-20261011051024-7120d23b.json`](../../artifacts/clinical-eval/sm
 现改为只纳入本轮显式披露 ID、当前 Encounter 会话内累计披露 ID及患者原话中可精确匹配的事实；不以跨 Encounter 的累计披露清单作为当前 Agent 已知事实。Composition 的结构化事实与来源按各自 Encounter 绑定；基础 FHIR Bundle 仅保留截至当前 Encounter 的 Encounter 资源、已披露 Observation 和已披露条件。若患者/助手文本或披露 ID 中出现隔离 canary，草稿导出 fail closed。
 
 临床评测纯离线测试 24/24 通过，包含隐藏事实、跨 Encounter 已披露但当前未召回的历史、canary 和未来 Encounter 检查；根测试 TypeScript 检查、Gateway build 与 git diff --check 通过。未启动模型、服务或浏览器。该 allowlist 让草稿不会把 gold truth 误标为当前输出，但 AMA 的历史召回仍需独立结构化追踪与真实 Agent E2E 验证。
+
+## 29. AMA 召回事实级来源链（离线实现）
+
+上一节的草稿 allowlist 能阻止把未披露 gold fact 直接塞进 Composition，但此前仍无法区分：某条历史事实是本轮患者重新披露的，还是 AMA 在新 Encounter 中实际召回的。现在 integrated clinical-eval 在召回文本仍处于进程内时，将其与该合成病例的唯一、非 canary 事实值做精确匹配；通用 memory trace 不接收任何召回原文、患者命名空间或 snapshot ID。评测记录只保留匹配事实 ID、AMA item 类型、上游 source ID、召回操作/turn，以及事实值是否在最终 Agent 回复中精确出现。模糊重复值和隔离 canary 不做映射。
+
+每轮另记录 `amaRecallEligibleFactIds`：只包含先前已在一个已关闭 Encounter 中向合成患者披露、且当前任务要求召回的历史事实。score report 的 `execution.amaRecallMechanism` 汇总 eligible opportunities、AMA 返回匹配数、精确回显数和对应比例；其范围明确是“合成文本的 exact-match 机制遥测”，不是临床正确率。FHIR 草稿仍需满足既有 Encounter/事实可见性规则；只有 AMA 结果匹配且本轮回复也精确提到事实值时，才可额外纳入对应历史事实，并在草稿行内标记 AMA source ID 和回显状态。
+
+验证仅运行 `tests/memory.test.ts` 与 `tests/clinical-eval.test.ts`（47/47 通过）、根 `tsconfig.test.json` no-emit 检查、demo-gateway TypeScript build 和 `git diff --check`。`pnpm typecheck` 在当前 Windows 安装上遇到对仓库 `node_modules` 的 `EPERM realpath`；直接执行仓库内 `tsc.cmd -p tsconfig.test.json --noEmit` 成功。没有启动浏览器、Gateway、Health Engine 或模型，也没有下载或重建索引。真实 AMA 长期记忆 E2E、300 例运行、病例批准及盲审仍未完成；exact-match 仅是保守的工程可观测性，不证明模型理解、正确使用或临床质量。

@@ -13,7 +13,7 @@ import * as Spawn from "@deepseek-ai/dsh-subagent-spawn-in-process";
 import { applyWithIdentity } from "../../../../src/index.js";
 import { MemoryClient } from "../../../../src/memory/client.js";
 import type { MemoryLifecycle } from "../../../../src/memory/lifecycle.js";
-import type { MemorySnapshot } from "../../../../src/memory/contracts.js";
+import type { MemoryItem, MemoryRecallEvidenceRecord, MemorySnapshot } from "../../../../src/memory/contracts.js";
 import { MetadataMemoryTrace } from "../../../../src/memory/trace.js";
 import type { MemoryTraceSink } from "../../../../src/memory/trace.js";
 import type { CollaborationTraceSink } from "../../../../src/collaboration/trace.js";
@@ -69,6 +69,10 @@ export interface DshWebRuntimeOptions {
   readonly syntheticAmaMemory?: boolean;
   readonly collaborationTrace?: CollaborationTraceSink;
   readonly memoryTrace?: MemoryTraceSink;
+  /** Evaluation-only: match recalled item content to a known synthetic fact catalog in process. */
+  readonly matchSyntheticRecallFactIds?: (patient: PatientContext, item: MemoryItem) => readonly string[];
+  /** Receives allowlisted recall metadata only; never receives recalled content. */
+  readonly onMemoryRecallEvidence?: (record: MemoryRecallEvidenceRecord) => void;
   readonly evidenceClient?: MedicalEvidenceClientPort;
 }
 
@@ -94,6 +98,8 @@ export class DshWebRuntime implements DshDemoRuntimePort {
   private readonly syntheticAmaMemory: boolean;
   private readonly collaborationTrace: CollaborationTraceSink;
   private readonly memoryTrace?: MemoryTraceSink;
+  private readonly matchSyntheticRecallFactIds?: DshWebRuntimeOptions["matchSyntheticRecallFactIds"];
+  private readonly onMemoryRecallEvidence?: DshWebRuntimeOptions["onMemoryRecallEvidence"];
   private readonly evidenceClient?: MedicalEvidenceClientPort;
 
   constructor(options: DshWebRuntimeOptions = {}) {
@@ -105,6 +111,8 @@ export class DshWebRuntime implements DshDemoRuntimePort {
     this.syntheticAmaMemory = options.syntheticAmaMemory ?? (readAppMode() === "clinical-evaluation" || process.env.HUIYI_DEMO_SYNTHETIC_AMA_MEMORY?.trim() === "1");
     this.collaborationTrace = options.collaborationTrace ?? { record: () => undefined };
     this.memoryTrace = options.memoryTrace;
+    this.matchSyntheticRecallFactIds = options.matchSyntheticRecallFactIds;
+    this.onMemoryRecallEvidence = options.onMemoryRecallEvidence;
     this.evidenceClient = options.evidenceClient;
     if (this.syntheticAmaMemory && !this.capabilities.memory) throw new TypeError("Synthetic AMA memory requires the memory capability");
   }
@@ -256,6 +264,14 @@ export class DshWebRuntime implements DshDemoRuntimePort {
           readOnly: !syntheticAmaMemory,
           automaticRecallFirstTurnOnly: syntheticAmaMemory && readAppMode() === "clinical-evaluation",
           commitBatchTurns: syntheticAmaMemory && readAppMode() === "clinical-evaluation" ? readMemoryCommitBatchTurns() : 1,
+          ...(syntheticAmaMemory && this.onMemoryRecallEvidence ? {
+            matchRecallFactIds: (snapshot: MemorySnapshot) => {
+              const patient = this.patientsByAgentId.get(snapshot.sessionId);
+              if (!patient || !this.matchSyntheticRecallFactIds) return new Map<number, readonly string[]>();
+              return new Map(snapshot.items.map((item, index) => [index, this.matchSyntheticRecallFactIds!(patient, item)] as const));
+            },
+            onRecallEvidence: (record: MemoryRecallEvidenceRecord) => this.onMemoryRecallEvidence!(record),
+          } : {}),
         },
         memoryClient: new MemoryClient(),
         memoryTrace: syntheticAmaMemory ? this.memoryTrace ?? new MetadataMemoryTrace() : { record: () => undefined },

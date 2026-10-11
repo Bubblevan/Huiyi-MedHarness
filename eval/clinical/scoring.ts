@@ -63,6 +63,7 @@ export function scoreClinicalRuns(runs: readonly ClinicalRunRecord[], reviews: r
         p95Ms: percentile(selected.map((run) => run.wallTimeMs), 0.95),
         dshAgentTokenUsage: rootUsage(selected),
         amaMemoryModelUsage: amaUsage(selected),
+        amaRecallMechanism: summarizeAmaRecallMechanism(selected),
         ragRetrieval: ragExecutionUsage(selected),
         fullWorkflowCost: "DSH root/direct-subagent, per-turn AMA, and Gateway-observed RAG planner tokens are recorded when reported; monetary pricing and child-only RAG calls are not attributed",
       },
@@ -94,6 +95,30 @@ export function scoreClinicalRuns(runs: readonly ClinicalRunRecord[], reviews: r
       crossPatientMemoryIsolation: isolationSummary(isolationProbes),
       patientAuthorization: "not measured by synthetic memory namespace probes",
     },
+  };
+}
+
+function summarizeAmaRecallMechanism(runs: readonly ClinicalRunRecord[]) {
+  let expectedCount = 0;
+  let returnedCount = 0;
+  let echoedCount = 0;
+  for (const run of runs) {
+    const expected = new Set(run.patientSimulation?.amaRecallEligibleFactIds ?? []);
+    const matched = new Map<string, boolean>();
+    for (const fact of run.memoryUsage?.recalledFacts ?? []) {
+      if (expected.has(fact.factId)) matched.set(fact.factId, (matched.get(fact.factId) ?? false) || fact.echoedInAssistant === true);
+    }
+    expectedCount += expected.size;
+    returnedCount += matched.size;
+    echoedCount += [...matched.values()].filter(Boolean).length;
+  }
+  return {
+    scope: "exact synthetic text matches in AMA results and assistant responses; mechanism telemetry, not clinical correctness",
+    eligibleFactOpportunities: expectedCount,
+    returnedFactMatches: returnedCount,
+    exactEchoes: echoedCount,
+    retrievalCoverageRate: expectedCount ? returnedCount / expectedCount : null,
+    exactEchoRateAmongReturned: returnedCount ? echoedCount / returnedCount : null,
   };
 }
 

@@ -185,6 +185,47 @@ describe('DSH turn-scoped memory lifecycle', () => {
     expect(JSON.stringify(records)).not.toContain('synthetic reply')
   })
 
+  it('emits recall source IDs and matched fact IDs without persisting recalled content or patient identity', async () => {
+    const privateText = 'synthetic private history phrase'
+    const snapshot: MemorySnapshot = {
+      snapshotId: 'private-snapshot-id', userId: 'private-patient-id', sessionId: 'session-1', turn: 1,
+      items: [{ kind: 'fact', content: privateText, sourceId: 'D1:2' }],
+    }
+    const client: MemoryClientPort = {
+      recall: vi.fn(async () => snapshot),
+      commitTurn: vi.fn(async () => ({ status: 'committed' as const, duplicate: false })),
+      sessionEnd: vi.fn(async () => ({ status: 'skipped' as const, duplicate: false })),
+      stats: vi.fn(async (userId: string) => ({ userId, memoryWindowItems: 0, records: { raw: 0, facts: 0, episodes: 0 } })),
+      forget: vi.fn(async () => ({ status: 'forgotten' as const, recordsRemoved: 0 })),
+      health: vi.fn(async () => ({ status: 'ok' as const })),
+    }
+    const evidence: unknown[] = []
+    const lifecycle = new MemoryLifecycle(client, { record: () => undefined }, () => 'private-patient-id', {
+      matchRecallFactIds: (recalled) => {
+        expect(recalled.items[0]?.content).toBe(privateText)
+        return new Map([[0, ['HCE-0001-H01']]])
+      },
+      onRecallEvidence: (record) => evidence.push(record),
+    })
+    const session = { id: 'session-1' } as Session
+    const agent = { id: 'session-1' } as Agent
+    lifecycle.observeSessionEvent(session, event('turn/start', { turn: 1 }, 1))
+    lifecycle.noteClaimed(agent, { source: { kind: 'user' }, content: [{ type: 'text', text: 'synthetic question' }] }, 1)
+
+    await lifecycle.recallOnce(agent)
+    await lifecycle.manualRecall(agent, 'historical detail', false)
+
+    expect(evidence).toHaveLength(2)
+    expect(evidence).toMatchObject([
+      { sessionId: 'session-1', turn: 1, operation: 'automatic_recall', items: [{ kind: 'fact', sourceId: 'D1:2', factIds: ['HCE-0001-H01'] }] },
+      { sessionId: 'session-1', turn: 1, operation: 'manual_recall', items: [{ kind: 'fact', sourceId: 'D1:2', factIds: ['HCE-0001-H01'] }] },
+    ])
+    const serialized = JSON.stringify(evidence)
+    expect(serialized).not.toContain(privateText)
+    expect(serialized).not.toContain('private-patient-id')
+    expect(serialized).not.toContain('private-snapshot-id')
+  })
+
   it('uses AMA automatic recall once per Encounter session and keeps explicit manual recall available', async () => {
     const snapshot: MemorySnapshot = { snapshotId: 'encounter-snapshot', userId: 'patient-1', sessionId: 'session-1', turn: 1, items: [] }
     const client: MemoryClientPort = {

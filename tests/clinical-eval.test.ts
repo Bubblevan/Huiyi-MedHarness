@@ -8,6 +8,7 @@ import { assertCodexLunaRoute, createClinicalRunPlan } from "../eval/clinical/ru
 import { createClinicalApprovalFromReview, createSyntheticCohortReviewPacket } from "../eval/clinical/review-packet.js";
 import { detectPatientQuestionIntents, SyntheticPatientSimulator } from "../eval/clinical/patient-simulator.js";
 import { createReviewDraftBundle } from "../eval/clinical/fhir-draft.js";
+import { matchSyntheticRecallFactIds } from "../eval/clinical/ama-recall.js";
 import { assessIsolationProbe } from "../eval/clinical/isolation.js";
 import { captureEvaluationSourceFingerprint, captureHealthEngineSourceFingerprint } from "../eval/clinical/source-fingerprint.js";
 import { summarizeCollaborationTrace } from "../eval/clinical/collaboration-trace-summary.js";
@@ -414,6 +415,67 @@ describe("clinical synthetic evaluation foundation", () => {
         disclosedFactIds: [canaryFact.factId], encounterDisclosedFactIds: [canaryFact.factId],
       },
     } })).toThrow(/isolation canary/);
+  });
+
+  it("matches only long exact synthetic AMA facts and can export a recalled fact only when echoed", () => {
+    const item = generateCohort({ count: 1 })[0]!;
+    const turn = item.turns.find((candidate) => candidate.turnId.endsWith("T08"))!;
+    const priorFact = item.facts.find((fact) => fact.factId === `${item.caseId}-H01`)!;
+    const canary = item.patient.privateIsolationCanary;
+    expect(matchSyntheticRecallFactIds(item, `既往记录：${priorFact.value}；测试标记：${canary}`)).toContain(priorFact.factId);
+    expect(matchSyntheticRecallFactIds(item, canary)).not.toContain(`${item.caseId}-X01`);
+
+    const run = {
+      ...sampleRun(item, turn, "integrated"),
+      patientMessage: "请整理本次复诊，不提供额外既往细节。",
+      assistantText: `既往记录为：${priorFact.value}`,
+      patientSimulation: {
+        mode: "adaptive" as const, assistantExchanges: 1, patientFollowUps: 0, maxPatientFollowUps: 3,
+        disclosedFactIds: [], encounterDisclosedFactIds: [], cumulativeDisclosedFactIds: [],
+        triggeredIntents: [], transcript: [{ role: "patient" as const, text: "请整理本次复诊，不提供额外既往细节。" }],
+      },
+      memoryUsage: {
+        scope: "health-engine-ama" as const, traceRecords: 1, llmCalls: 0, promptTokens: 0, completionTokens: 0,
+        usageReports: 0, retrievalRounds: 1, failedOperations: 0, operationCounts: { automatic_recall: 1 },
+        recalledFacts: [{ factId: priorFact.factId, kind: "fact" as const, sourceId: "D1:2", operation: "automatic_recall" as const, turn: 1 }],
+      },
+    };
+    const bundle = createReviewDraftBundle({ case: item, turn, run });
+    const composition = bundle.entry.find((entry) => entry.resource.resourceType === "Composition")!.resource;
+    const history = (composition.section as Array<{ title: string; text: { div: string } }>).find((section) => section.title === "既往重要病史")!;
+    expect(history.text.div).toContain(priorFact.value);
+    expect(history.text.div).toContain("AMA returned fact D1:2");
+
+    const notEchoed = createReviewDraftBundle({ case: item, turn, run: { ...run, assistantText: "我尚未复述任何既往事实。" } });
+    expect(JSON.stringify(notEchoed)).not.toContain(priorFact.value);
+  });
+
+  it("reports AMA retrieval coverage as mechanism telemetry without treating it as clinical correctness", () => {
+    const item = generateCohort({ count: 1 })[0]!;
+    const turn = item.turns.find((candidate) => candidate.turnId.endsWith("T05"))!;
+    const factId = turn.requiredHistoricalFactIds[0]!;
+    const run: ClinicalRunRecord = {
+      ...sampleRun(item, turn, "integrated"),
+      patientSimulation: {
+        mode: "adaptive", assistantExchanges: 1, patientFollowUps: 0, maxPatientFollowUps: 3,
+        disclosedFactIds: [], encounterDisclosedFactIds: [], cumulativeDisclosedFactIds: [],
+        amaRecallEligibleFactIds: [factId], triggeredIntents: [], transcript: [],
+      },
+      memoryUsage: {
+        scope: "health-engine-ama", traceRecords: 1, llmCalls: 0, promptTokens: 0, completionTokens: 0,
+        usageReports: 0, retrievalRounds: 1, failedOperations: 0, operationCounts: { automatic_recall: 1 },
+        recalledFacts: [
+          { factId, kind: "fact", sourceId: "D1:2", operation: "automatic_recall", turn: 1, echoedInAssistant: false },
+          { factId, kind: "episode", sourceId: "D1:3", operation: "automatic_recall", turn: 1, echoedInAssistant: true },
+        ],
+      },
+    };
+    const report = scoreClinicalRuns([run], []);
+    expect(report.byArm.integrated!.execution.amaRecallMechanism).toMatchObject({
+      scope: expect.stringContaining("not clinical correctness"),
+      eligibleFactOpportunities: 1, returnedFactMatches: 1, exactEchoes: 1,
+      retrievalCoverageRate: 1, exactEchoRateAmongReturned: 1,
+    });
   });
 
   it("keeps clinical scores suppressed until cohort approval and human adjudication", () => {

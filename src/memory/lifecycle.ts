@@ -3,7 +3,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
 import type { MemoryClientPort } from './client.js'
 import { MemoryClientError } from './client.js'
-import { emptyMemorySnapshot, type MemorySnapshot } from './contracts.js'
+import { emptyMemorySnapshot, type MemoryRecallEvidenceRecord, type MemoryRecallOperation, type MemorySnapshot } from './contracts.js'
 import type { MemoryTraceSink } from './trace.js'
 import { renderMemorySnapshot } from './prompt.js'
 
@@ -45,6 +45,10 @@ export interface MemoryLifecycleOptions {
   readOnly?: boolean
   /** Render an evaluation-only context from the snapshot and current question. */
   renderContext?: (snapshot: MemorySnapshot, query: string) => string
+  /** Match synthetic case facts while recall content is still in memory. Return indexes into snapshot.items. */
+  matchRecallFactIds?: (snapshot: MemorySnapshot) => ReadonlyMap<number, readonly string[]>
+  /** Receive only allowlisted source metadata and fact IDs; recall content is never passed to this sink. */
+  onRecallEvidence?: (record: MemoryRecallEvidenceRecord) => void
 }
 
 export class MemoryLifecycle {
@@ -126,6 +130,7 @@ export class MemoryLifecycle {
       strong: this.options.automaticStrongRetrieve ?? false,
     }, { signal }).then(response => {
       const snapshot = freezeSnapshot(response)
+      this.observeRecallEvidence(snapshot, 'automatic_recall')
       this.trace.record({
         sessionId: active.sessionId,
         turn: active.turn,
@@ -225,6 +230,7 @@ export class MemoryLifecycle {
       const snapshot = freezeSnapshot(await this.client.recall({
         userId, sessionId, turn, query, strong,
       }, { signal }))
+      this.observeRecallEvidence(snapshot, 'manual_recall')
       this.trace.record({
         sessionId, turn, operation: 'manual_recall', status: 'completed',
         itemCount: snapshot.items.length, tokenEstimate: snapshot.tokenEstimate,
@@ -465,6 +471,34 @@ export class MemoryLifecycle {
     // The DSH event callback has no Agent argument. Keep the trusted resolver's
     // value captured per session rather than resolving from model-visible text.
     return this.sessionUsers.get(sessionId)
+  }
+
+  private observeRecallEvidence(snapshot: MemorySnapshot, operation: MemoryRecallOperation): void {
+    const sink = this.options.onRecallEvidence
+    if (!sink) return
+    let matches: ReadonlyMap<number, readonly string[]> = new Map()
+    try {
+      matches = this.options.matchRecallFactIds?.(snapshot) ?? matches
+    } catch {
+      // Provenance matching must never change recall availability or the model response.
+    }
+    const items = snapshot.items.map((item, index) => {
+      const factIds = [...new Set((matches.get(index) ?? []).filter((id): id is string =>
+        typeof id === 'string' && /^[A-Za-z0-9._:-]{1,160}$/.test(id)))].slice(0, 64)
+      const sourceId = typeof item.sourceId === 'string' && /^[A-Za-z0-9._:-]{1,512}$/.test(item.sourceId)
+        ? item.sourceId
+        : undefined
+      return {
+        kind: item.kind,
+        ...(sourceId ? { sourceId } : {}),
+        factIds,
+      }
+    })
+    try {
+      sink({ sessionId: snapshot.sessionId, turn: snapshot.turn, operation, items })
+    } catch {
+      // Evaluation telemetry is best-effort and must not fail a clinical turn.
+    }
   }
 
   private readonly sessionUsers = new Map<string, string | undefined>()

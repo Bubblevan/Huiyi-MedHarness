@@ -32,6 +32,23 @@ export interface MemorySnapshot {
   readonly amaUsageReportCount?: number
 }
 
+export type MemoryRecallOperation = 'automatic_recall' | 'manual_recall'
+
+/** Safe evaluation metadata for a matched fact in an AMA recall result. Never contains memory text. */
+export interface MemoryRecallEvidenceItem {
+  readonly kind: MemoryKind
+  readonly sourceId?: string
+  readonly factIds: readonly string[]
+}
+
+/** Safe, in-process recall provenance; user IDs and recalled content are intentionally omitted. */
+export interface MemoryRecallEvidenceRecord {
+  readonly sessionId: string
+  readonly turn: number
+  readonly operation: MemoryRecallOperation
+  readonly items: readonly MemoryRecallEvidenceItem[]
+}
+
 export interface MemoryCommitRequest {
   idempotencyKey: string
   userId: string

@@ -108,6 +108,8 @@ export interface ClinicalRunRecord {
     readonly encounterDisclosedFactIds?: readonly string[];
     /** All facts disclosed to this simulated patient-agent conversation through the end of this turn. */
     readonly cumulativeDisclosedFactIds?: readonly string[];
+    /** Historical facts previously disclosed in a closed Encounter and therefore eligible for AMA rehydration. */
+    readonly amaRecallEligibleFactIds?: readonly string[];
     readonly triggeredIntents: readonly PatientQuestionIntent[];
     readonly transcript: readonly { readonly role: "patient" | "assistant"; readonly text: string }[];
   };
@@ -156,7 +158,19 @@ export interface ClinicalRunRecord {
     readonly retrievalRounds: number;
     readonly failedOperations: number;
     readonly operationCounts: Readonly<Record<string, number>>;
+    /** Fact IDs matched in returned AMA items; recalled text is never stored here. */
+    readonly recalledFacts?: readonly ClinicalMemoryRecallFact[];
   };
+}
+
+export interface ClinicalMemoryRecallFact {
+  readonly factId: string;
+  readonly kind: "raw" | "fact" | "episode";
+  readonly sourceId?: string;
+  readonly operation: "automatic_recall" | "manual_recall";
+  readonly turn: number;
+  /** Exact synthetic fact value was present in the completed assistant response. */
+  readonly echoedInAssistant?: boolean;
 }
 
 export interface ClinicalReviewRecord {
