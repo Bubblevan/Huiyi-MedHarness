@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { readAppMode } from "./app-mode.js";
 import type { DemoEvent } from "./contracts.js";
 import { createEvent, parseDemoEvent, validateChatInput } from "./contracts.js";
-import { DshDemoBackend } from "./backends/dsh.js";
+import { DshDemoBackend, DshSessionBusyError } from "./backends/dsh.js";
 import type { DemoBackend } from "./backends/backend.js";
 import { readModelConfiguration } from "./backends/dsh-runtime.js";
 import { FixtureDemoBackend } from "./backends/fixture.js";
@@ -370,9 +370,14 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
         if (!principal) { json(response, 401, { error: "AUTH_REQUIRED" }); return; }
         const sessionId = decodePathSegment(closeSessionMatch[1] ?? "");
         if (!sessionId) { json(response, 400, { error: "INVALID_PATH" }); return; }
-        const binding = evaluationSessions.closeSession(sessionId, principal);
+        const binding = evaluationSessions.resolve(sessionId, principal);
         if (!binding) { json(response, 404, { error: "SESSION_NOT_FOUND" }); return; }
-        await backend.closeSession?.(binding.sessionId, binding.patientId, binding.encounterId);
+        try { await backend.closeSession?.(binding.sessionId, binding.patientId, binding.encounterId); }
+        catch (error) {
+          if (error instanceof DshSessionBusyError) { json(response, 409, { error: "SESSION_BUSY" }); return; }
+          throw error;
+        }
+        if (!evaluationSessions.closeSession(sessionId, principal)) { json(response, 404, { error: "SESSION_NOT_FOUND" }); return; }
         response.writeHead(204, { "cache-control": "no-store" });
         response.end();
         try { log({ requestId, event: "session.closed", outcome: "allowed", role: principal.role }); } catch { /* logging cannot break session closure */ }

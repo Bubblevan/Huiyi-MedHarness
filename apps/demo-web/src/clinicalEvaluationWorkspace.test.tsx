@@ -43,6 +43,8 @@ beforeEach(() => {
 describe("clinical evaluation workspace flow", () => {
   it("binds the submitted turn to the selected patient, encounter, and server session", async () => {
     const sessionRequests: { patientId: string; encounterId: string }[] = [];
+    const sessionOperations: string[] = [];
+    const closedSessions: string[] = [];
     let chatBody: Record<string, unknown> | undefined;
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input), window.location.origin);
@@ -57,7 +59,16 @@ describe("clinical evaluation workspace flow", () => {
       if (url.pathname === "/api/sessions" && method === "POST") {
         const body = JSON.parse(String(init?.body)) as { patientId: string; encounterId: string };
         sessionRequests.push(body);
-        return json({ sessionId: body.patientId === "SYN-P-0002" ? "B0000002-session" : "A0000001-session" });
+        const sessionId = body.patientId === "SYN-P-0002" ? "B0000002-session" : "A0000001-session";
+        sessionOperations.push(`create:${sessionId}`);
+        return json({ sessionId });
+      }
+      const sessionCloseMatch = url.pathname.match(/^\/api\/sessions\/([^/]+)$/);
+      if (sessionCloseMatch && method === "DELETE") {
+        const closedSession = decodeURIComponent(sessionCloseMatch[1]!);
+        closedSessions.push(closedSession);
+        sessionOperations.push(`close:${closedSession}`);
+        return new Response(null, { status: 204 });
       }
       if (url.pathname === "/api/chat" && method === "POST") {
         chatBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
@@ -91,6 +102,8 @@ describe("clinical evaluation workspace flow", () => {
     await screen.findByText("合成患者 B");
     await waitFor(() => expect(screen.getByText("B0000002")).toBeInTheDocument());
     await waitFor(() => expect(sessionRequests).toHaveLength(2));
+    expect(closedSessions).toContain("A0000001-session");
+    expect(sessionOperations.indexOf("close:A0000001-session")).toBeLessThan(sessionOperations.indexOf("create:B0000002-session"));
 
     const input = screen.getByRole("textbox", { name: "描述本次复诊问题…" });
     fireEvent.change(input, { target: { value: "请整理本次合成复诊的问题。" } });
@@ -107,5 +120,6 @@ describe("clinical evaluation workspace flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "退出登录" }));
     await screen.findByRole("heading", { name: "登录临床工作台" });
     expect(screen.queryByText("合成患者 B")).not.toBeInTheDocument();
+    expect(closedSessions).toContain("B0000002-session");
   });
 });

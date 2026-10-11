@@ -4,6 +4,7 @@ import type { DemoBackend } from "../src/backends/backend.js";
 import { ClinicalEvaluationAuth, EVALUATION_SESSION_COOKIE, type EvaluationAccountInput } from "../src/clinical-evaluation/auth.js";
 import { generateSyntheticPatients, SyntheticEvaluationDataset } from "../src/clinical-evaluation/dataset.js";
 import { readAppMode } from "../src/app-mode.js";
+import { DshSessionBusyError } from "../src/backends/dsh.js";
 import { createDemoServer } from "../src/server.js";
 import { ClinicalDraftRegistry } from "../src/clinical-drafts/registry.js";
 
@@ -39,8 +40,13 @@ class EvaluationTestBackend implements DemoBackend {
   cancel(runId: string): void { this.cancellations.push(runId); }
 }
 
-async function start() {
-  const backend = new EvaluationTestBackend();
+class BusyCloseTestBackend extends EvaluationTestBackend {
+  async closeSession(_sessionId: string, _patientId: string, _encounterId?: string): Promise<void> {
+    throw new DshSessionBusyError();
+  }
+}
+
+async function start(backend: EvaluationTestBackend = new EvaluationTestBackend()) {
   const server = createDemoServer({
     backendName: "dsh",
     backend,
@@ -244,6 +250,28 @@ describe("synthetic clinical-evaluation identity and ownership boundary", () => 
     await request(app, "/api/auth/logout", cookieA, { method: "POST", body: "{}" });
     expect((await request(app, "/api/auth/session", cookieA)).status).toBe(401);
     expect((await request(app, "/api/sessions", cookieA, { method: "POST", body: JSON.stringify({ patientId: ownPatient.patientId, encounterId: ownEncounter.encounterId }) })).status).toBe(401);
+  });
+
+  it("keeps the Gateway session binding when DSH refuses to close a busy session", async () => {
+    originalAppEnvironment = process.env.HUIYI_APP_ENV;
+    process.env.HUIYI_APP_ENV = "clinical-evaluation";
+    const app = await start(new BusyCloseTestBackend());
+    const cookie = await login(app, accounts[0]!);
+    const patientResponse = await request(app, "/api/patients", cookie);
+    const patient = (await patientResponse.json() as { patients: Array<{ patientId: string; encounters: Array<{ encounterId: string }> }> }).patients[0]!;
+    const encounterId = patient.encounters[0]!.encounterId;
+    const created = await request(app, "/api/sessions", cookie, { method: "POST", body: JSON.stringify({ patientId: patient.patientId, encounterId }) });
+    const { sessionId } = await created.json() as { sessionId: string };
+
+    const close = await request(app, `/api/sessions/${sessionId}`, cookie, { method: "DELETE" });
+    expect(close.status).toBe(409);
+    expect(await close.json()).toEqual({ error: "SESSION_BUSY" });
+
+    const chat = await request(app, "/api/chat", cookie, { method: "POST", body: JSON.stringify({
+      sessionId, patientId: patient.patientId, encounterId, message: "synthetic session remains active",
+    }) });
+    expect(chat.status).toBe(200);
+    await chat.text();
   });
 
   it("does not enable synthetic evaluation implicitly in production", async () => {

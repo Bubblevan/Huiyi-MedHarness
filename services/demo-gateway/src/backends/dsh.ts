@@ -22,6 +22,10 @@ export interface DshDemoBackendOptions {
   }) => void;
 }
 
+export class DshSessionBusyError extends Error {
+  constructor() { super("Cannot close a busy DSH session"); this.name = "DshSessionBusyError"; }
+}
+
 class AsyncQueue<T> implements AsyncIterable<T> {
   private readonly values: T[] = [];
   private readonly waiters: Array<(value: IteratorResult<T>) => void> = [];
@@ -236,7 +240,7 @@ export class DshDemoBackend implements DemoBackend {
     const key = JSON.stringify([browserSessionId, patientId, encounterId ?? ""]);
     const entry = this.sessions.get(key);
     if (!entry) return;
-    if (entry.busyRunId) throw new Error("Cannot close a busy DSH session");
+    if (entry.busyRunId) throw new DshSessionBusyError();
     this.sessions.delete(key);
     await entry.handle.dispose();
     await this.runtime.flushMemory?.();

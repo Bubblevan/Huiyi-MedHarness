@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { AgentActivity, BackendBadge, EvidenceActionProvider, EvidenceDrawer, PatientContext, toSafeActivityEvent, type EvidenceRecord } from "./components.js";
 import { applicationVersion, environmentLabel, runtimeConfig } from "./config/env.js";
 import { clinicalCopy } from "@clinical-workstation-copy";
@@ -43,6 +43,8 @@ export function ClinicalEvaluationWorkspace() {
   const [draftError, setDraftError] = useState<string>();
   const [draftBusy, setDraftBusy] = useState(false);
   const [centerView, setCenterView] = useState<"consultation" | "draft">("consultation");
+  const currentSessionIdRef = useRef<string | null>(null);
+  const activeRunRef = useRef<{ runId: string; sessionId: string } | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -76,6 +78,31 @@ export function ClinicalEvaluationWorkspace() {
     }
   }, []);
 
+  const closeGatewaySession = useCallback(async (closingSessionId: string) => {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const activeRun = activeRunRef.current;
+      if (activeRun?.sessionId === closingSessionId) {
+        const cancelled = await fetch(`${API_BASE}/runs/${encodeURIComponent(activeRun.runId)}/cancel`, {
+          method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}",
+        });
+        if (!cancelled.ok && cancelled.status !== 404) throw new Error("RUN_CANCEL_FAILED");
+        if (activeRunRef.current?.runId === activeRun.runId) activeRunRef.current = null;
+      }
+      const response = await fetch(`${API_BASE}/sessions/${encodeURIComponent(closingSessionId)}`, { method: "DELETE", credentials: "same-origin" });
+      if (response.ok || response.status === 404) return;
+      if (response.status !== 409) throw new Error("SESSION_CLOSE_FAILED");
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+    throw new Error("SESSION_CLOSE_TIMEOUT");
+  }, []);
+
+  const closeCurrentSession = useCallback(async () => {
+    const closingSessionId = currentSessionIdRef.current;
+    if (!closingSessionId) return;
+    await closeGatewaySession(closingSessionId);
+    if (currentSessionIdRef.current === closingSessionId) currentSessionIdRef.current = null;
+  }, [closeGatewaySession]);
+
   const acceptAccount = useCallback(async (value: AccountView) => {
     setAccount(value);
     const result = await decodeJson<{ patients: PatientOption[] }>(await fetch(`${API_BASE}/patients`, { credentials: "same-origin" }));
@@ -98,6 +125,16 @@ export function ClinicalEvaluationWorkspace() {
 
   const refreshSelection = useCallback(async (selectedPatientId: string, selectedEncounterId: string, signal?: AbortSignal) => {
     if (!selectedPatientId || !selectedEncounterId || !account) return;
+    try {
+      await closeCurrentSession();
+      if (signal?.aborted) return;
+    } catch (error) {
+      if (signal?.aborted) return;
+      setPatient(null);
+      setSessionId(null);
+      setErrorCode(error instanceof Error ? error.message : "SESSION_CLOSE_FAILED");
+      return;
+    }
     setPatient(null);
     setSessionId(null);
     setEvents([]);
@@ -107,20 +144,21 @@ export function ClinicalEvaluationWorkspace() {
     setCenterView("consultation");
     setErrorCode(undefined);
     try {
-      const [contextResponse, sessionResponse] = await Promise.all([
-        fetch(`${API_BASE}/patients/${encodeURIComponent(selectedPatientId)}/context?encounterId=${encodeURIComponent(selectedEncounterId)}`, { credentials: "same-origin", signal }),
-        fetch(`${API_BASE}/sessions`, {
-          method: "POST",
-          credentials: "same-origin",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ patientId: selectedPatientId, encounterId: selectedEncounterId }),
-          signal,
-        }),
-      ]);
-      const context = await decodeJson<PatientRecord>(contextResponse);
-      const session = await decodeJson<{ sessionId: string }>(sessionResponse);
+      const context = await decodeJson<PatientRecord>(await fetch(
+        `${API_BASE}/patients/${encodeURIComponent(selectedPatientId)}/context?encounterId=${encodeURIComponent(selectedEncounterId)}`,
+        { credentials: "same-origin", signal },
+      ));
       if (signal?.aborted) return;
+      const session = await decodeJson<{ sessionId: string }>(await fetch(`${API_BASE}/sessions`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ patientId: selectedPatientId, encounterId: selectedEncounterId }),
+        signal,
+      }));
+      if (signal?.aborted) { await closeGatewaySession(session.sessionId); return; }
       setPatient(context);
+      currentSessionIdRef.current = session.sessionId;
       setSessionId(session.sessionId);
       await loadDraft(selectedPatientId, selectedEncounterId, signal);
     } catch (error) {
@@ -129,7 +167,7 @@ export function ClinicalEvaluationWorkspace() {
       setSessionId(null);
       setErrorCode(error instanceof Error ? error.message : "PATIENT_CONTEXT_UNAVAILABLE");
     }
-  }, [account, loadDraft]);
+  }, [account, closeCurrentSession, closeGatewaySession, loadDraft]);
 
   useEffect(() => {
     if (!account || !patientId || !encounterId) return;
@@ -141,7 +179,11 @@ export function ClinicalEvaluationWorkspace() {
   const onEvent = useCallback((event: WireDemoEvent) => {
     const safeEvent = toSafeActivityEvent(event);
     if (safeEvent) setEvents((previous) => [...previous, safeEvent]);
-    if (event.event === "run.started") setErrorCode(undefined);
+    if (event.event === "run.started") {
+      activeRunRef.current = { runId: event.runId, sessionId: event.sessionId };
+      setErrorCode(undefined);
+    }
+    if (["run.completed", "run.cancelled", "run.failed"].includes(event.event) && activeRunRef.current?.runId === event.runId) activeRunRef.current = null;
     if (event.event === "evidence.item" && typeof event.data.evidenceId === "string") {
       setEvidence((previous) => previous.some((item) => item.evidenceId === event.data.evidenceId)
         ? previous
@@ -250,6 +292,7 @@ export function ClinicalEvaluationWorkspace() {
   }
 
   async function logout() {
+    await closeCurrentSession().catch(() => undefined);
     await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" }).catch(() => undefined);
     setAccount(null); setPatients([]); setPatientId(""); setEncounterId(""); setPatient(null); setSessionId(null); setEvents([]); setEvidence([]); setDraft(null); setDraftError(undefined); setCenterView("consultation"); setErrorCode(undefined);
   }
