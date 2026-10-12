@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "huiyi-edge-demo-performance/v1",
+  "createdAt": "2026-10-12T06:02:48.170Z",
+  "scope": "local HTTPS Caddy -> edge-auth -> loopback Gateway; synthetic accounts and patient data only",
+  "modelTrafficGenerated": false,
+  "patientContextRead": {
+    "n": 10,
+    "success": 10,
+    "p50Ms": 5.21,
+    "p95Ms": 10.18
+  },
+  "login": {
+    "n": 10,
+    "success": 10,
+    "p50Ms": 365.65,
+    "p95Ms": 392.02
+  },
+  "edgeApiConcurrency": [
+    {
+      "concurrency": 10,
+      "requests": 10,
+      "success": 10,
+      "failed": 0,
+      "wallMs": 352.83,
+      "requestP95Ms": 352.05
+    },
+    {
+      "concurrency": 20,
+      "requests": 20,
+      "success": 20,
+      "failed": 0,
+      "wallMs": 386.19,
+      "requestP95Ms": 349.63
+    }
+  ],
+  "authorization": {
+    "syntheticAccounts": 2,
+    "crossAccountContextHttpStatus": 404,
+    "crossPatientSessionChatHttpStatus": 404,
+    "expectedDenied": 404,
+    "modelCallForAttackProbe": false
+  },
+  "gatewayUnavailableHttpStatus": 502,
+  "status": "passed"
+}

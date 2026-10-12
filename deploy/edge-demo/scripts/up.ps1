@@ -4,6 +4,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $DeploymentRoot = Split-Path -Parent $PSScriptRoot
+$RepositoryRoot = Resolve-Path (Join-Path $DeploymentRoot '..\..')
 $ComposeFile = Join-Path $DeploymentRoot 'compose.yaml'
 $EnvFile = Join-Path $DeploymentRoot '.env'
 
@@ -22,6 +23,16 @@ if (-not $SkipGatewayHealthCheck) {
 $DockerVersion = & docker info --format '{{.ServerVersion}}' 2>$null
 if ($LASTEXITCODE -ne 0 -or -not $DockerVersion) {
   throw 'Docker Engine is not reachable. Start Docker Desktop; this script does not install or download Docker.'
+}
+
+$Pnpm = Get-Command pnpm -ErrorAction SilentlyContinue
+if (-not $Pnpm) { throw 'pnpm is required to build the clinical-evaluation frontend before creating the static edge image.' }
+Push-Location $RepositoryRoot.Path
+try {
+  & $Pnpm.Source --filter @huiyi/demo-web clinical-evaluation:build
+  if ($LASTEXITCODE -ne 0) { throw 'Clinical-evaluation frontend build failed; edge image was not built.' }
+} finally {
+  Pop-Location
 }
 
 & docker compose --project-directory $DeploymentRoot --env-file $EnvFile -f $ComposeFile config | Out-Null

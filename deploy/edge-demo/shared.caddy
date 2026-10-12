@@ -1,0 +1,32 @@
+(huiyi-edge) {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy same-origin
+		Permissions-Policy camera=(), microphone=(), geolocation=()
+	}
+
+	@api path /api/*
+	handle @api {
+		reverse_proxy edge-auth:8081 {
+			flush_interval -1
+		}
+	}
+
+	@runtimeConfig path /runtime-config.js
+	handle @runtimeConfig {
+		reverse_proxy edge-auth:8081
+	}
+
+	@health path /healthz
+	handle @health {
+		respond "ok" 200
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

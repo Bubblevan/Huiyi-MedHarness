@@ -5,6 +5,8 @@
 !.env.example
 **/node_modules
 **/dist
+!apps/demo-web/dist/
+!apps/demo-web/dist/**
 **/build
 **/__pycache__
 **/.pytest_cache

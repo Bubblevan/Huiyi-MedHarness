@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "huiyi-resume-metrics-map/v1",
+  "generatedAt": "2026-10-12",
+  "project": "Huiyi-MedHarness",
+  "scope": "Synthetic engineering evaluations and local edge-demo acceptance only; no clinical validation or public deployment claim.",
+  "bullets": {
+    "B1": {
+      "status": "measured-engineering-result",
+      "runId": "20261011104158-f3ea4e2f",
+      "sourceRevision": "492595785b61ab795e60588212997a646a805aa2",
+      "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+      "pairedTaskCompletion": {
+        "single": { "numerator": 26, "denominator": 48, "percent": 54.17 },
+        "integrated": { "numerator": 32, "denominator": 48, "percent": 66.67 },
+        "differencePercentagePoints": 12.5,
+        "integratedOnlyWins": 10,
+        "singleOnlyWins": 4,
+        "ties": 34
+      },
+      "jointlyDisclosedHistoricalFactReference": {
+        "single": { "numerator": 19, "denominator": 44, "percent": 43.18 },
+        "integrated": { "numerator": 30, "denominator": 44, "percent": 68.18 },
+        "differencePercentagePoints": 25,
+        "integratedOnlyWins": 13,
+        "singleOnlyWins": 2,
+        "ties": 29
+      },
+      "executionSuccess": {
+        "single": { "numerator": 47, "denominator": 48, "percent": 97.92 },
+        "integrated": { "numerator": 42, "denominator": 48, "percent": 87.5 }
+      },
+      "medicalEvidenceCitationValidity": {
+        "status": "not-measurable",
+        "numerator": null,
+        "denominator": null,
+        "reason": "No identifiable evidence IDs in answers and retrieval passage text was not retained."
+      },
+      "sources": [
+        "docs/resume/BULLET1-EVIDENCE.md",
+        "docs/resume/BULLET1-EVIDENCE.json"
+      ],
+      "limitations": [
+        "6 synthetic longitudinal cases; 7 execution failures retained in the denominator",
+        "Integrated simultaneously enabled AMA, RAG, and collaboration; no component-level causality",
+        "Blinded model-assisted engineering scoring, not clinician review"
+      ]
+    },
+    "B2": {
+      "status": "measured-development-result",
+      "runId": "resume-b2-20261012053523-609ac99a",
+      "sourceRevision": "8aebe5ed0cc990ee3c191839f1cbb9a514879595",
+      "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+      "pairedTaskSatisfaction": {
+        "single": { "numerator": 1, "denominator": 10, "percent": 10 },
+        "iterativeRag": { "numerator": 10, "denominator": 10, "percent": 100 },
+        "differencePercentagePoints": 90,
+        "integratedOnlyWins": 9,
+        "singleOnlyWins": 0,
+        "ties": 1
+      },
+      "necessaryInformationCoverage": {
+        "single": { "earned": 2, "possible": 20, "percent": 10 },
+        "iterativeRag": { "earned": 20, "possible": 20, "percent": 100 }
+      },
+      "retrieval": {
+        "indexVersion": "medtext-local-cc7d43568501e6b7",
+        "sources": 5,
+        "chunks": 823450,
+        "embeddingModel": "Qwen3-Embedding-0.6B",
+        "iterativeRagTasksWithRetrievedPassage": { "numerator": 9, "denominator": 10 },
+        "sameTurnCitationIdsMatched": { "numerator": 29, "denominator": 29 },
+        "scoredMedicalWorkflowClaims": {
+          "direct": 25,
+          "partial": 3,
+          "unsupported": 0,
+          "contradicted": 0,
+          "total": 28
+        }
+      },
+      "performance": {
+        "singleP50Seconds": 4.9,
+        "singleP95Seconds": 7.09,
+        "ragP50Seconds": 28,
+        "ragP95Seconds": 56.58,
+        "singleObservedTokensTotal": 173074,
+        "ragObservedTokensTotal": 725846,
+        "monetaryCost": "not measured"
+      },
+      "sources": [
+        "docs/eval/RESUME-B2-FINAL.md",
+        "docs/eval/RESUME-B2-FINAL.json"
+      ],
+      "limitations": [
+        "10 fixed development pairs, one evidence task per case",
+        "Blind model-assisted engineering score, not clinician review",
+        "4 scored answer excerpts omitted trailing source lists",
+        "29/29 ID traceability does not establish medical claim support",
+        "One RAG task had no retrieved passage and remains in the denominator"
+      ]
+    },
+    "B3": {
+      "status": "insufficient-evidence-for-independent-effect",
+      "amaMechanism": {
+        "crossEncounterOpportunities": 20,
+        "uniqueFactIds": 5,
+        "exactFactIdHits": 5,
+        "exactFactIdHitRatePercent": 25,
+        "hitFactsExactlyEchoedInAnswer": 0,
+        "hitFactEchoDenominator": 5,
+        "automaticRecallCompleted": { "numerator": 13, "denominator": 14 },
+        "commitCompleted": { "numerator": 19, "denominator": 22 }
+      },
+      "collaborationMechanism": {
+        "integratedTasksCallingClinicalTeam": 5,
+        "completedExpectedChildSessions": { "numerator": 10, "denominator": 10 },
+        "singleAgentAttributionExperiment": false
+      },
+      "sources": ["docs/eval/RESUME-B3-FINAL.md"],
+      "limitations": [
+        "No AMA-only matched A/B or collaboration-only matched A/B",
+        "B1 history fact result has bundled AMA/RAG/collaboration confounding",
+        "Cross-patient AMA isolation probe not run"
+      ]
+    },
+    "B5": {
+      "status": "READY_TO_BUY_VPS-for-local-edge-only-synthetic-demo",
+      "localAuthorizationSweep": {
+        "syntheticPatients": 300,
+        "contextChecks": 600,
+        "authorizedReads": 150,
+        "deniedReads": 450,
+        "unauthorizedSuccesses": 0,
+        "contextReadP95Ms": 2.59,
+        "modelGenerationRequests": 0,
+        "accounts": 2
+      },
+      "localEdgeBrowserDemo": {
+        "realModelRequests": 1,
+        "model": "GPT-6-Luna via local Codex bridge",
+        "httpStatus": 200,
+        "evidenceItems": 3,
+        "structuredDraftCreated": true,
+        "reviewAction": "needs-more-history",
+        "clinicalApprovalPerformed": false,
+        "endToEndMs": 46623,
+        "firstSseBodyByteMs": 77.8,
+        "realModelLatencyP95": "not estimated"
+      },
+      "edgeApi": {
+        "loginP95Ms": { "value": 392.02, "n": 10 },
+        "patientContextReadP95Ms": { "value": 10.18, "n": 10 },
+        "concurrency10": { "success": 10, "requests": 10 },
+        "concurrency20": { "success": 20, "requests": 20 },
+        "crossAccountContextStatus": 404,
+        "crossPatientChatStatus": 404,
+        "unreachableGatewayStatus": 502,
+        "idleContainerMemoryMiB": 57.55
+      },
+      "sources": [
+        "deploy/edge-demo/README.md",
+        "artifacts/edge-demo/local-e2e-result-20261012.json",
+        "artifacts/edge-demo/performance-20261012.json",
+        "artifacts/clinical-eval/authz-sweeps/authz-sweep-20261011-154507.json"
+      ],
+      "limitations": [
+        "Local loopback only; no public DNS/ACME, VPS or public latency results",
+        "WireGuard tunnel, production SSO, persistent authorization store and EMR not tested",
+        "One real-model request is not a percentile",
+        "Synthetic accounts and data only"
+      ]
+    }
+  }
+}

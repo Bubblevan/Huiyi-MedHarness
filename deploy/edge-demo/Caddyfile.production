@@ -1,0 +1,9 @@
+import /etc/caddy/shared.caddy
+
+{$SITE_ADDRESS} {
+	import huiyi-edge
+}
+
+http://127.0.0.1:8888 {
+	respond /healthz "ok" 200
+}

@@ -1,0 +1,1214 @@
+{
+  "schemaVersion": "huiyi-resume-b2-result/v1",
+  "status": "measured-development-result",
+  "studyRunId": "resume-b2-20261012053523-609ac99a",
+  "sourceRevision": "8aebe5ed0cc990ee3c191839f1cbb9a514879595",
+  "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+  "split": "development",
+  "selection": {
+    "pairedTaskCount": 10,
+    "attemptCount": 20,
+    "taskIds": [
+      "HCE-0001-T07",
+      "HCE-0002-T07",
+      "HCE-0003-T07",
+      "HCE-0004-T07",
+      "HCE-0005-T07",
+      "HCE-0006-T07",
+      "HCE-0007-T07",
+      "HCE-0008-T07",
+      "HCE-0009-T07",
+      "HCE-0010-T07"
+    ],
+    "selectionRule": "First ten cases in cohort order with one evidence task; each is the frozen T07 evidence request. No label or answer-key data was read before generation."
+  },
+  "model": "gpt-6-luna via local Codex app-server bridge",
+  "generation": {
+    "temperature": 0,
+    "maxTokens": 384,
+    "ragMode": "iterative",
+    "attemptTimeoutMs": 240000,
+    "bridgeMaxConcurrentTurns": 1,
+    "maxConcurrentGeneration": 1
+  },
+  "armCapabilities": {
+    "baseline": {
+      "memory": false,
+      "rag": false,
+      "collaboration": false
+    },
+    "ragArm": {
+      "memory": false,
+      "rag": true,
+      "collaboration": false
+    }
+  },
+  "corpus": {
+    "version": "medtext-local-cc7d43568501e6b7",
+    "sources": 5,
+    "chunkCount": 823450,
+    "embeddingModel": "Qwen3-Embedding-0.6B"
+  },
+  "scores": {
+    "method": "independent blinded model-assisted engineering score; not clinician review",
+    "caseCount": 10,
+    "answerCount": 20,
+    "taskSatisfaction": {
+      "single-agent": {
+        "completed": 10,
+        "denominator": 10,
+        "taskSatisfaction": {
+          "earned": 1,
+          "possible": 10,
+          "rate": 0.1
+        },
+        "necessaryInformationCoverage": {
+          "earned": 2,
+          "possible": 20,
+          "rate": 0.1,
+          "maximumPerTask": 2
+        },
+        "retrievalTasks": {
+          "withPassage": 0,
+          "denominator": 10
+        },
+        "citations": {
+          "observed": 0,
+          "matchedToSameTurnEvidence": 0,
+          "rate": null
+        },
+        "medicalClaims": {
+          "count": 0,
+          "direct": 0,
+          "partial": 0,
+          "unsupported": 0,
+          "contradicted": 0
+        },
+        "latencyMs": {
+          "p50": 4900.321749999988,
+          "p95": 7088.432695000001,
+          "denominator": 10
+        },
+        "observedTokens": {
+          "total": 173074,
+          "meanPerTask": 17307.4
+        }
+      },
+      "integrated": {
+        "completed": 10,
+        "denominator": 10,
+        "taskSatisfaction": {
+          "earned": 10,
+          "possible": 10,
+          "rate": 1
+        },
+        "necessaryInformationCoverage": {
+          "earned": 20,
+          "possible": 20,
+          "rate": 1,
+          "maximumPerTask": 2
+        },
+        "retrievalTasks": {
+          "withPassage": 9,
+          "denominator": 10
+        },
+        "citations": {
+          "observed": 29,
+          "matchedToSameTurnEvidence": 29,
+          "rate": 1
+        },
+        "medicalClaims": {
+          "count": 28,
+          "direct": 25,
+          "partial": 3,
+          "unsupported": 0,
+          "contradicted": 0
+        },
+        "latencyMs": {
+          "p50": 28003.31145,
+          "p95": 56583.93100999994,
+          "denominator": 10
+        },
+        "observedTokens": {
+          "total": 725846,
+          "meanPerTask": 72584.6
+        }
+      }
+    },
+    "necessaryInformationCoverage": {
+      "singleAgent": {
+        "earned": 2,
+        "possible": 20,
+        "rate": 0.1,
+        "maximumPerTask": 2
+      },
+      "integrated": {
+        "earned": 20,
+        "possible": 20,
+        "rate": 1,
+        "maximumPerTask": 2
+      },
+      "pairedDifference": 0.9
+    },
+    "pairedOutcomeCounts": {
+      "integratedOnlyWins": 9,
+      "singleOnlyWins": 0,
+      "ties": 1
+    },
+    "integratedMedicalClaimEvidenceAudit": {
+      "count": 28,
+      "direct": 25,
+      "partial": 3,
+      "unsupported": 0,
+      "contradicted": 0,
+      "claimLevelAudit": [
+        {
+          "caseId": "HCE-0001",
+          "taskId": "HCE-0001-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-5660D2448FE8F0EC"
+          ],
+          "anchors": [
+            "early warning scoring system",
+            "heart rate and trends",
+            "rapid response team ... initiate urgent treatment"
+          ]
+        },
+        {
+          "caseId": "HCE-0001",
+          "taskId": "HCE-0001-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-CC11FF1FDAF23722"
+          ],
+          "anchors": [
+            "combine multiple vital-sign abnormalities",
+            "timely clinical response",
+            "facilitate escalation of care"
+          ]
+        },
+        {
+          "caseId": "HCE-0001",
+          "taskId": "HCE-0001-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-81C805B5B2F07865"
+          ],
+          "anchors": [
+            "high-risk category",
+            "transferred to other major acuity facilities"
+          ]
+        },
+        {
+          "caseId": "HCE-0002",
+          "taskId": "HCE-0002-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-19ED35D89B1A8C57"
+          ],
+          "anchors": [
+            "did not give a positive history of their documented disease",
+            "did not have cancer according to their hospital records"
+          ]
+        },
+        {
+          "caseId": "HCE-0002",
+          "taskId": "HCE-0002-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-9D04AEF2471F606B"
+          ],
+          "anchors": [
+            "both from the patient and from collateral sources",
+            "chronicity ... precipitating factors"
+          ]
+        },
+        {
+          "caseId": "HCE-0002",
+          "taskId": "HCE-0002-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-C9AF073AB4ED84A0"
+          ],
+          "anchors": [
+            "Family members or immediate caregivers can provide information when patients are unsure or unable to answer"
+          ]
+        },
+        {
+          "caseId": "HCE-0003",
+          "taskId": "HCE-0003-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-750E6A6F994AA884"
+          ],
+          "anchors": [
+            "patient ownership of a treatment plan",
+            "considering personal barriers",
+            "concrete, stepwise actions"
+          ]
+        },
+        {
+          "caseId": "HCE-0003",
+          "taskId": "HCE-0003-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-AFEE24EFA319E7FB"
+          ],
+          "anchors": [
+            "motivation, time, finances, treatment priorities"
+          ]
+        },
+        {
+          "caseId": "HCE-0003",
+          "taskId": "HCE-0003-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-032763241ED7EC3D"
+          ],
+          "anchors": [
+            "preferences, values, and circumstances"
+          ]
+        },
+        {
+          "caseId": "HCE-0003",
+          "taskId": "HCE-0003-T07",
+          "support": "partial",
+          "evidenceIds": [
+            "MED-750E6A6F994AA884",
+            "MED-AFEE24EFA319E7FB",
+            "MED-032763241ED7EC3D"
+          ],
+          "anchors": [
+            "considering personal barriers",
+            "preferences, values, and circumstances"
+          ]
+        },
+        {
+          "caseId": "HCE-0004",
+          "taskId": "HCE-0004-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-B6954A7C9463591F"
+          ],
+          "anchors": [
+            "medication reconciliation during care transitions",
+            "communication handoffs",
+            "post-discharge follow-up for updating medical history and medications"
+          ]
+        },
+        {
+          "caseId": "HCE-0004",
+          "taskId": "HCE-0004-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-1ECE2D53DA5DD84E"
+          ],
+          "anchors": [
+            "before patients are discharged",
+            "understand their dosages"
+          ]
+        },
+        {
+          "caseId": "HCE-0004",
+          "taskId": "HCE-0004-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-0617673907F79C0D"
+          ],
+          "anchors": [
+            "accurate medication reconciliation at discharge",
+            "decrease medication errors and adverse drug events"
+          ]
+        },
+        {
+          "caseId": "HCE-0005",
+          "taskId": "HCE-0005-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-846A0C4450C43933"
+          ],
+          "anchors": [
+            "detailed medical history",
+            "family and others involved ... helpful information"
+          ]
+        },
+        {
+          "caseId": "HCE-0005",
+          "taskId": "HCE-0005-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-8F35DB763701B827"
+          ],
+          "anchors": [
+            "clarification of the nature of prior allergic reactions"
+          ]
+        },
+        {
+          "caseId": "HCE-0005",
+          "taskId": "HCE-0005-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-F6328BF2D488AD19"
+          ],
+          "anchors": [
+            "promptly and accurately documented",
+            "type and severity of the ADR"
+          ]
+        },
+        {
+          "caseId": "HCE-0006",
+          "taskId": "HCE-0006-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-0C01E7972F81B5AB"
+          ],
+          "anchors": [
+            "Each visit should assess: Visual acuity IOP",
+            "Fundus findings OCT/OCTA parameters"
+          ]
+        },
+        {
+          "caseId": "HCE-0006",
+          "taskId": "HCE-0006-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-D00A4BE6FE23F5B9"
+          ],
+          "anchors": [
+            "monitor disease status over subsequent visits"
+          ]
+        },
+        {
+          "caseId": "HCE-0006",
+          "taskId": "HCE-0006-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-063A12CBD117E00B"
+          ],
+          "anchors": [
+            "structured and lifelong surveillance",
+            "monitored at least every 6 months",
+            "based on disease severity and surgical history"
+          ]
+        },
+        {
+          "caseId": "HCE-0008",
+          "taskId": "HCE-0008-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-B6954A7C9463591F"
+          ],
+          "anchors": [
+            "medication reconciliation during care transitions",
+            "communication handoffs",
+            "follow-up for updating ... medications"
+          ]
+        },
+        {
+          "caseId": "HCE-0008",
+          "taskId": "HCE-0008-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-1197C623828DD28E"
+          ],
+          "anchors": [
+            "bring a list ... or the actual bottles",
+            "duplicate bottles",
+            "medications prescribed by other providers",
+            "use them intermittently"
+          ]
+        },
+        {
+          "caseId": "HCE-0008",
+          "taskId": "HCE-0008-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-D25341EC5C8047C7"
+          ],
+          "anchors": [
+            "medications prescribed ... currently taking",
+            "over-the-counter supplements and medications"
+          ]
+        },
+        {
+          "caseId": "HCE-0009",
+          "taskId": "HCE-0009-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-69B917AA9BD48E6A"
+          ],
+          "anchors": [
+            "informed of the findings",
+            "possible abnormality ... informed immediately",
+            "plan to evaluate",
+            "results ... will be available"
+          ]
+        },
+        {
+          "caseId": "HCE-0009",
+          "taskId": "HCE-0009-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-C9D6EFB43E243054"
+          ],
+          "anchors": [
+            "communication of critical results",
+            "ordering provider's name missing",
+            "provider's pager number missing"
+          ]
+        },
+        {
+          "caseId": "HCE-0010",
+          "taskId": "HCE-0010-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-53BA012C17F0722E"
+          ],
+          "anchors": [
+            "balancing competing priorities",
+            "medication interactions, monitoring requirements, and coordination with specialists"
+          ]
+        },
+        {
+          "caseId": "HCE-0010",
+          "taskId": "HCE-0010-T07",
+          "support": "direct",
+          "evidenceIds": [
+            "MED-E7AEA951CDF72A05"
+          ],
+          "anchors": [
+            "medication reconciliation to preclude any drug-drug interactions",
+            "alert the healthcare team"
+          ]
+        },
+        {
+          "caseId": "HCE-0010",
+          "taskId": "HCE-0010-T07",
+          "support": "partial",
+          "evidenceIds": [
+            "MED-6FC6E55005D725ED"
+          ],
+          "anchors": [
+            "multiple drugs",
+            "multiple specialists who do not communicate",
+            "risk of adverse drug reactions, drug–drug interactions, and poor compliance increases"
+          ]
+        },
+        {
+          "caseId": "HCE-0010",
+          "taskId": "HCE-0010-T07",
+          "support": "partial",
+          "evidenceIds": [
+            "MED-53BA012C17F0722E",
+            "MED-E7AEA951CDF72A05"
+          ],
+          "anchors": [
+            "balancing competing priorities",
+            "medication interactions",
+            "medication reconciliation"
+          ]
+        }
+      ]
+    },
+    "pairedDifferences": {
+      "taskSatisfactionPercentagePoints": 90,
+      "necessaryInformationCoveragePercentagePoints": 90
+    }
+  },
+  "perTask": [
+    {
+      "caseId": "HCE-0001",
+      "taskId": "HCE-0001-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 4780.3243999999995,
+          "observedTokens": 17303,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 23922.7732,
+          "observedTokens": 71451,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-81C805B5B2F07865",
+            "MED-5660D2448FE8F0EC",
+            "MED-CC11FF1FDAF23722"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 3,
+            "direct": 3,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0002",
+      "taskId": "HCE-0002-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 6945.6181,
+          "observedTokens": 17295,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 25293.259,
+          "observedTokens": 71930,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-9D04AEF2471F606B",
+            "MED-19ED35D89B1A8C57",
+            "MED-C9AF073AB4ED84A0"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 6,
+            "matchedToSameTurnEvidence": 6
+          },
+          "medicalClaims": {
+            "count": 3,
+            "direct": 3,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0003",
+      "taskId": "HCE-0003-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 7205.281000000003,
+          "observedTokens": 17359,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 28356.0518,
+          "observedTokens": 71444,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-750E6A6F994AA884",
+            "MED-AFEE24EFA319E7FB",
+            "MED-032763241ED7EC3D"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 6,
+            "matchedToSameTurnEvidence": 6
+          },
+          "medicalClaims": {
+            "count": 4,
+            "direct": 3,
+            "partial": 1,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0004",
+      "taskId": "HCE-0004-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 4709.652700000006,
+          "observedTokens": 17300,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 28154.3851,
+          "observedTokens": 71479,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-B6954A7C9463591F",
+            "MED-1ECE2D53DA5DD84E",
+            "MED-0617673907F79C0D"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 3,
+            "matchedToSameTurnEvidence": 3
+          },
+          "medicalClaims": {
+            "count": 3,
+            "direct": 3,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0005",
+      "taskId": "HCE-0005-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 4542.327699999994,
+          "observedTokens": 17283,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 27852.237800000003,
+          "observedTokens": 71316,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-846A0C4450C43933",
+            "MED-8F35DB763701B827",
+            "MED-F6328BF2D488AD19"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 3,
+            "direct": 3,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0006",
+      "taskId": "HCE-0006-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 4464.697500000009,
+          "observedTokens": 17291,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 31109.2898,
+          "observedTokens": 71331,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-0C01E7972F81B5AB",
+            "MED-D00A4BE6FE23F5B9",
+            "MED-063A12CBD117E00B"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 3,
+            "direct": 3,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0007",
+      "taskId": "HCE-0007-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 4858.044800000003,
+          "observedTokens": 17293,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 6188.413300000015,
+          "observedTokens": 17943,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0008",
+      "taskId": "HCE-0008-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 5920.4613000000245,
+          "observedTokens": 17291,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 76604.88199999998,
+          "observedTokens": 125781,
+          "retrievedPassageCount": 6,
+          "retrievedEvidenceIds": [
+            "MED-B6954A7C9463591F",
+            "MED-1197C623828DD28E",
+            "MED-06CBE103EECDDFA1",
+            "MED-B6954A7C9463591F",
+            "MED-1197C623828DD28E",
+            "MED-D25341EC5C8047C7"
+          ],
+          "retrievalCalls": 8,
+          "retrievalRounds": 4,
+          "citations": {
+            "observed": 3,
+            "matchedToSameTurnEvidence": 3
+          },
+          "medicalClaims": {
+            "count": 3,
+            "direct": 3,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0009",
+      "taskId": "HCE-0009-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 6935.273300000001,
+          "observedTokens": 17360,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 27698.121199999994,
+          "observedTokens": 71727,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-69B917AA9BD48E6A",
+            "MED-CC92DD001B1CFC64",
+            "MED-C9D6EFB43E243054"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 5,
+            "matchedToSameTurnEvidence": 5
+          },
+          "medicalClaims": {
+            "count": 2,
+            "direct": 2,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    },
+    {
+      "caseId": "HCE-0010",
+      "taskId": "HCE-0010-T07",
+      "arms": {
+        "single-agent": {
+          "blindedLabel": "X",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 0,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 0,
+            "possible": 2
+          },
+          "latencyMs": 4942.598699999973,
+          "observedTokens": 17299,
+          "retrievedPassageCount": 0,
+          "retrievedEvidenceIds": [],
+          "retrievalCalls": 0,
+          "retrievalRounds": 0,
+          "citations": {
+            "observed": 0,
+            "matchedToSameTurnEvidence": 0
+          },
+          "medicalClaims": {
+            "count": 0,
+            "direct": 0,
+            "partial": 0,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        },
+        "integrated": {
+          "blindedLabel": "Y",
+          "status": "completed",
+          "taskSatisfaction": {
+            "earned": 1,
+            "possible": 1
+          },
+          "necessaryInformationCoverage": {
+            "earned": 2,
+            "possible": 2
+          },
+          "latencyMs": 32113.879799999995,
+          "observedTokens": 81444,
+          "retrievedPassageCount": 3,
+          "retrievedEvidenceIds": [
+            "MED-53BA012C17F0722E",
+            "MED-E7AEA951CDF72A05",
+            "MED-6FC6E55005D725ED"
+          ],
+          "retrievalCalls": 4,
+          "retrievalRounds": 2,
+          "citations": {
+            "observed": 6,
+            "matchedToSameTurnEvidence": 6
+          },
+          "medicalClaims": {
+            "count": 4,
+            "direct": 2,
+            "partial": 2,
+            "unsupported": 0,
+            "contradicted": 0
+          }
+        }
+      }
+    }
+  ],
+  "limitations": {
+    "scoringScope": "The scorer assessed answer text excerpts against the supplied retrieval passage pool. Four answer excerpts replaced trailing source lists with a removal marker; raw citation-ID traceability is reported separately. This is blinded model-assisted engineering scoring, not clinical review.",
+    "smallDevelopmentSet": true,
+    "oneEvidenceTaskPerCase": true,
+    "oneIntegratedTaskHadNoRetrievedPassage": true,
+    "clinicalApproval": false,
+    "monetaryTokenCost": "not measured",
+    "answerExcerptsWithSourceListRemoved": 4
+  },
+  "excludedPilot": {
+    "runId": "resume-b2-20261012053320-134b8a7e",
+    "status": "invalid-protocol",
+    "reason": "RAG arm did not force iterative retrieval; preserved locally and excluded from all reported scores."
+  }
+}

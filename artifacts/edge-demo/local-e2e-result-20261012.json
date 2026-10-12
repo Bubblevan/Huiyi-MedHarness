@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "huiyi-edge-demo-local-e2e/v1",
+  "measuredAt": "2026-10-12",
+  "status": "passed-local-synthetic-demo",
+  "baseRevision": "514cd9c8995d7fd0bfc54abdf27e3f3e5cbb50a5",
+  "testedSourceState": "base revision plus the local deployment fixes present during this run; fingerprint below covers the tested deployment/frontend/Gateway files",
+  "sourceFingerprintSha256": "73665d018049543f8a46c644ba507cdfde97ea4ed0e4fcdde58f399f0a0862b9",
+  "scope": "Docker Desktop edge containers on loopback; synthetic accounts and patient data; local Gateway, DSH, GPT-6-Luna Codex bridge, and local RAG",
+  "topology": [
+    "browser",
+    "local HTTPS Caddy",
+    "edge-auth same-origin/session proxy",
+    "loopback Gateway via Docker Desktop host.docker.internal route",
+    "DSH",
+    "local RAG",
+    "GPT-6-Luna through local Codex app-server bridge"
+  ],
+  "browserModelPath": {
+    "attempts": 1,
+    "completed": 1,
+    "httpStatus": 200,
+    "runCompleted": true,
+    "retrievalToolCompleted": true,
+    "evidenceItems": 3,
+    "structuredDraftCreated": true,
+    "reviewAction": "需补充问诊",
+    "auditEntryCreated": true,
+    "clinicalApprovalPerformed": false,
+    "endToEndMs": 46623,
+    "firstSseBodyByteMs": 77.8,
+    "latencyPercentile": null,
+    "rawPromptOrResponseStored": false
+  },
+  "workflow": [
+    "login",
+    "switch synthetic patient",
+    "switch prior Encounter",
+    "submit one clinical question",
+    "receive evidence and structured draft",
+    "mark draft as needing more history",
+    "inspect audit entry",
+    "logout"
+  ],
+  "edgePerformance": {
+    "login": {
+      "n": 10,
+      "success": 10,
+      "p50Ms": 365.65,
+      "p95Ms": 392.02
+    },
+    "patientContextRead": {
+      "n": 10,
+      "success": 10,
+      "p50Ms": 5.21,
+      "p95Ms": 10.18
+    },
+    "apiConcurrency": [
+      {
+        "concurrency": 10,
+        "success": 10,
+        "requests": 10,
+        "successRate": 1,
+        "wallMs": 352.83,
+        "requestP95Ms": 352.05
+      },
+      {
+        "concurrency": 20,
+        "success": 20,
+        "requests": 20,
+        "successRate": 1,
+        "wallMs": 386.19,
+        "requestP95Ms": 349.63
+      }
+    ],
+    "realModelP95": "not-estimated; one live request only"
+  },
+  "authorizationAndFailure": {
+    "syntheticAccounts": 2,
+    "crossAccountContextStatus": 404,
+    "crossPatientChatWithOtherAccountSessionStatus": 404,
+    "modelCallsForDeniedProbes": 0,
+    "unreachableGatewayStatus": 502,
+    "gatewayFailureUnitTests": {
+      "passed": 23,
+      "failed": 0
+    }
+  },
+  "edgeRuntime": {
+    "containers": 2,
+    "idleCombinedMemoryMiB": 57.55,
+    "hostPortsBoundToLoopback": true,
+    "gatewayRemainedBoundToLoopback": true,
+    "caddyConfigurationValid": true,
+    "composeConfigurationValid": true
+  },
+  "relatedAuthorizationSweep": {
+    "evidenceFile": "../clinical-eval/authz-sweeps/authz-sweep-20261011-154507.json",
+    "syntheticPatients": 300,
+    "contextChecks": 600,
+    "authorizedReads": 150,
+    "deniedReads": 450,
+    "unauthorizedSuccesses": 0,
+    "contextReadP95Ms": 2.59,
+    "modelGenerationRequests": 0,
+    "scope": "separate in-memory synthetic Gateway sweep; not the 2-account edge-browser run"
+  },
+  "validation": {
+    "edgeProxyTests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "gatewayBackendTests": {
+      "passed": 23,
+      "failed": 0
+    },
+    "frontendClinicalEvaluationProductionBuild": "passed",
+    "productionCopyCheck": "passed",
+    "caddyValidation": "passed",
+    "composeConfig": "passed"
+  },
+  "artifacts": [
+    "clinical-workflow-review-20261012.png",
+    "clinical-workflow-audit-20261012.png",
+    "performance-20261012.json"
+  ],
+  "limitations": [
+    "local synthetic demonstration only; no public DNS, VPS, production OIDC/SSO, or real patient/EMR data",
+    "WireGuard tunnel and public ACME certificate not exercised",
+    "one real-model browser request is not a latency percentile",
+    "the browser reviewer action was not a clinical approval",
+    "the Caddy local CA may need to be trusted by the user's browser"
+  ]
+}
