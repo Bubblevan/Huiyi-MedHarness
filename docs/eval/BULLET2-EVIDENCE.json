@@ -32,15 +32,27 @@
   "currentCitationRun": {
     "runId": "20261011184053-5bce7818",
     "sourceCommit": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
-    "pairedTaskCount": 31,
-    "integratedSameTurnResolvableCitationTokens": 10,
-    "integratedCitationTokens": 20,
+    "pairedTaskCount": 40,
+    "integratedSameTurnResolvableCitationTokens": 24,
+    "integratedCitationTokens": 48,
     "sameTurnIdResolutionRate": 0.5,
-    "evidenceRequiredTasks": 4,
-    "tasksWithSameTurnValidCitation": 2,
-    "sameTurnCitationCoverageRate": 0.5,
-    "claimToPassageSupport": null,
-    "claimToPassageSupportStatus": "not-measured-in-this-run"
+    "integratedSamePatientSameArmSessionResolvableCitationTokens": 47,
+    "samePatientSameArmSessionIdResolutionRate": 0.9791666667,
+    "evidenceRequiredTasks": 5,
+    "tasksWithSameTurnValidCitation": 5,
+    "sameTurnCitationCoverageRate": 1.0,
+    "claimToPassageSupport": {
+      "runArtifact": "docs/eval/BULLET2-CITATION-SUPPORT-20261012.json",
+      "reviewedEvidenceTasks": 5,
+      "scoredSourceClaimRelations": 13,
+      "directlySupported": 8,
+      "partiallySupported": 5,
+      "unsupported": 0,
+      "contradicted": 0,
+      "directSupportRate": 0.6153846154,
+      "reviewType": "non-independent Codex engineering review; not clinician review"
+    },
+    "claimToPassageSupportStatus": "initial-small-sample-engineering-review"
   },
   "historicalSupportReview": {
     "runId": "20261011172610-bccbc7f7",
@@ -56,13 +68,13 @@
     "humanClinicalReview": false,
     "comparableToCurrentCitationRun": false
   },
-  "resumeCandidate": "基于 Qwen3-Embedding-0.6B 与 FAISS 构建并核验 823,450 个医学知识 chunk 的五源本地索引；中英固定检索 smoke 2/2 返回 3 条证据（单次 283–284 ms）。GPT-6-Luna 集成运行中，同轮来源 ID 精确匹配 10/20（50%），证据任务同轮引用覆盖 2/4（50%）；医学主张的原文支持率在当前版本尚未测量。",
+  "resumeCandidate": "基于 Qwen3-Embedding-0.6B 与 FAISS 构建并核验 823,450 个医学知识 chunk 的五源本地索引；GPT-6-Luna 集成运行中，5 个合成病例、40 个配对任务的引用 ID 有 47/48 可在同患者同会话内追溯（97.9%）；5 个循证回答片段级直接支持 8/13（61.5%），该结果为非独立工程复核，尚无 RAG 对照或临床审核，不能声称效果提升。",
   "effectImprovementClaimReady": false,
   "limitations": [
     "PubMed and Wikipedia are partial local snapshots.",
     "Huiyi corpus is public website content, not hospital EMR.",
     "No clean RAG-versus-no-RAG paired causal comparison is available.",
-    "Current source-ID metrics do not establish passage support.",
+    "The current small, non-independent passage-support review does not establish comparative improvement.",
     "Historical passage-support sample is n=6 from a different source revision and must not be merged into current-run rates.",
     "No clinician review or clinical efficacy validation was performed."
   ],
@@ -71,6 +83,8 @@
     "artifacts/clinical-eval/rag-smokes/rag-single-20261011-082052.json",
     "docs/eval/B1-SPRINT-002-RESULTS.md",
     "docs/eval/clinical-workflow-run-2026-10-12.md",
-    "docs/eval/evidence-citation-id-resolution.md"
+    "docs/eval/evidence-citation-id-resolution.md",
+    "docs/eval/BULLET2-CITATION-SUPPORT-20261012.md",
+    "docs/eval/BULLET2-CITATION-SUPPORT-20261012.json"
   ]
 }

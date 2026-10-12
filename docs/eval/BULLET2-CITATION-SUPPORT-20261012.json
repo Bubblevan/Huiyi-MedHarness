@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "1.0.0",
+  "bullet": "B2",
+  "runId": "20261011184053-5bce7818",
+  "runSourceCommit": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+  "analysisWorkspaceHead": "889414dcb106aa1d629d6f40a878e48a31fc29d9",
+  "runSourceIsAncestorOfAnalysisHead": true,
+  "runtimeCodeChangedSinceRunSource": false,
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "experiment": {
+    "cohort": "development",
+    "caseCount": 5,
+    "evidenceTaskId": "T07",
+    "integratedEvidenceTasks": 5,
+    "singleEvidenceTasks": 5,
+    "integratedTasksWithRetrievedEvidence": 5,
+    "evidenceReturnedPerIntegratedTask": 3,
+    "model": "gpt-6-luna"
+  },
+  "passageRecovery": {
+    "corpusPath": "services/health-engine/data/local-rag-hc-rag-002/corpus",
+    "taskLevelRetrievedEvidenceReferences": 15,
+    "uniqueContentBoundEvidenceIds": 13,
+    "recomputedIdsMatchedToLocalChunks": 13,
+    "idAlgorithm": "SHA-256 over corpus, source document ID, chunk ID, and exact chunk content joined by NUL; first 16 hex characters, uppercase, prefixed MED-",
+    "locationConvention": "corpusFile is relative to corpusPath; lineNumber is the zero-based JSONL row and equals chunkId"
+  },
+  "citationIntegrity": {
+    "scope": "all citation tokens in the five Integrated T07 answers, including source-list lines",
+    "citationTokenCount": 25,
+    "sameTurnResolvableTokens": 24,
+    "sameTurnResolvableRate": 0.96,
+    "unresolvedTokens": [
+      {
+        "caseId": "HCE-0001",
+        "token": "MED-6BDB777A4F",
+        "reason": "truncated ID; the returned ID is MED-6BDB777A4F6B6B56"
+      }
+    ],
+    "bodyCitationTokens": 10,
+    "bodyCitationTokensResolvable": 10,
+    "bodyCitationResolutionRate": 1.0
+  },
+  "sessionCitationLineage": {
+    "scope": "all citation tokens in the 40 Integrated tasks; an ID resolves only if returned in the current turn or an earlier turn of the same case and same arm",
+    "citationTokenCount": 48,
+    "sameTurnResolvableTokens": 24,
+    "samePatientSameArmSessionResolvableTokens": 47,
+    "samePatientSameArmSessionResolutionRate": 0.9791666667,
+    "unresolvedTokens": [
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "token": "MED-6BDB777A4F",
+        "reason": "truncated ID; no exact ID with this value was returned earlier in the same session"
+      }
+    ],
+    "futureCrossPatientAndCrossArmEvidenceUsed": false
+  },
+  "passageSupportReview": {
+    "reviewType": "Codex-assisted engineering review; not independent and not clinician review",
+    "unit": "one answer-specific retrieved-source-to-claim relation; repeated footer listings within the same answer are not new units",
+    "directSupport": 8,
+    "partialSupport": 5,
+    "unsupported": 0,
+    "contradicted": 0,
+    "unassessable": 0,
+    "scoredRelations": 13,
+    "directSupportRate": 0.6153846154,
+    "atLeastPartialSupportRate": 1.0,
+    "excludedRetrievedSources": [
+      {
+        "caseId": "HCE-0001",
+        "evidenceId": "MED-C647026D0C470AFA",
+        "corpusFile": "statpearls/chunk/article-170799.jsonl",
+        "lineNumber": 39,
+        "reason": "The answer explicitly labels it unrelated and not used as support."
+      },
+      {
+        "caseId": "HCE-0003",
+        "evidenceId": "MED-AFEE24EFA319E7FB",
+        "corpusFile": "statpearls/chunk/article-144016.jsonl",
+        "lineNumber": 38,
+        "reason": "The answer explicitly lists it as overlapping and not separately used as support. The adjacent inline claim cites MED-750E6A6F994AA884, which supports the shared-planning portion but not its time/financial/motivation examples; that relation is scored partial."
+      }
+    ],
+    "relations": [
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "evidenceId": "MED-6BDB777A4F6B6B56",
+        "source": "statpearls/article-17289/31",
+        "corpusFile": "statpearls/chunk/article-17289.jsonl",
+        "lineNumber": 31,
+        "title": "Agitation -- History and Physical",
+        "rating": "direct",
+        "claimSummary": "Difficulty breathing, slurred speech, seizures, or hemiparesis require immediate clinician evaluation.",
+        "passageSummary": "The retrieved chunk explicitly lists difficulty breathing, slurred speech, seizures, and hemiparesis among symptoms requiring immediate evaluation."
+      },
+      {
+        "caseId": "HCE-0001",
+        "turnId": "HCE-0001-T07",
+        "evidenceId": "MED-510863EC1D2FF45F",
+        "source": "statpearls/article-17142/47",
+        "corpusFile": "statpearls/chunk/article-17142.jsonl",
+        "lineNumber": 47,
+        "title": "Acute Abdomen -- Evaluation",
+        "rating": "direct",
+        "claimSummary": "Unstable vital signs or suspected life-threatening acute abdominal pathology warrant urgent emergency evaluation.",
+        "passageSummary": "The retrieved chunk says unstable vital signs, peritonitis, or suspected life-threatening abdominal conditions warrant urgent emergency-department evaluation."
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "evidenceId": "MED-19ED35D89B1A8C57",
+        "source": "pubmed/pubmed23n0021/4378",
+        "corpusFile": "pubmed/chunk/pubmed23n0021.jsonl",
+        "lineNumber": 4378,
+        "title": "Errors in reporting cancer and other conditions by persons in a prospective study.",
+        "rating": "direct",
+        "claimSummary": "An interview-versus-record study found both under-reporting and over-reporting of some conditions.",
+        "passageSummary": "The retrieved abstract reports participants who did not report documented cancer and participants who reported cancer absent from hospital records."
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "evidenceId": "MED-8F35DB763701B827",
+        "source": "statpearls/article-24867/14",
+        "corpusFile": "statpearls/chunk/article-24867.jsonl",
+        "lineNumber": 14,
+        "title": "Medical History -- Definition/Introduction -- Allergies and Medications",
+        "rating": "partial",
+        "claimSummary": "Ask about allergy reaction details and accurately record the medication, reaction type, and severity.",
+        "passageSummary": "The chunk supports assessing medication allergies and clarifying prior reaction nature, but does not state the full type-and-severity documentation claim made in the answer."
+      },
+      {
+        "caseId": "HCE-0002",
+        "turnId": "HCE-0002-T07",
+        "evidenceId": "MED-F6328BF2D488AD19",
+        "source": "statpearls/article-161219/49",
+        "corpusFile": "statpearls/chunk/article-161219.jsonl",
+        "lineNumber": 49,
+        "title": "Adverse Drug Reactions -- Additional Considerations -- Timely and Accurate Documentation of Allergies",
+        "rating": "direct",
+        "claimSummary": "Document the drug allergy and the reaction type and severity accurately.",
+        "passageSummary": "The chunk explicitly recommends prompt, accurate documentation of drug allergies and a detailed account of adverse-reaction type and severity."
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "evidenceId": "MED-750E6A6F994AA884",
+        "source": "statpearls/article-144016/39",
+        "corpusFile": "statpearls/chunk/article-144016.jsonl",
+        "lineNumber": 39,
+        "title": "Lifestyle Mental Wellbeing for the Primary Care Visit -- Key Clinical Considerations",
+        "rating": "partial",
+        "claimSummary": "Discuss barriers and collaboratively set concrete, stepwise, feasible plans; the answer also attaches examples about time, finances, and motivation.",
+        "passageSummary": "This chunk supports patient ownership, partnership, considering personal barriers, and concrete stepwise actions, but not the time/financial/motivation examples included in the same cited claim."
+      },
+      {
+        "caseId": "HCE-0003",
+        "turnId": "HCE-0003-T07",
+        "evidenceId": "MED-18072B9FC3230518",
+        "source": "pubmed/pubmed23n0014/13412",
+        "corpusFile": "pubmed/chunk/pubmed23n0014.jsonl",
+        "lineNumber": 13412,
+        "title": "\"Adherence\" and the negotiated approach to patienthood.",
+        "rating": "direct",
+        "claimSummary": "A psychiatry-clinic study found adherence associated with negotiation and patients receiving the plan they wanted; the answer limits generalization.",
+        "passageSummary": "The abstract reports adherence was significantly related to negotiation and to patients getting the plan they wanted."
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "evidenceId": "MED-1ECE2D53DA5DD84E",
+        "source": "statpearls/article-155646/22",
+        "corpusFile": "statpearls/chunk/article-155646.jsonl",
+        "lineNumber": 22,
+        "title": "Reducing Hospital Readmissions -- Summary / Explanation -- Strategies for Reducing Hospital Readmissions",
+        "rating": "partial",
+        "claimSummary": "The answer says post-discharge follow-up supports checking and updating medication lists.",
+        "passageSummary": "This chunk supports medication reconciliation before discharge, not specifically post-discharge follow-up."
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "evidenceId": "MED-B6954A7C9463591F",
+        "source": "statpearls/article-27419/39",
+        "corpusFile": "statpearls/chunk/article-27419.jsonl",
+        "lineNumber": 39,
+        "title": "Polypharmacy -- Additional Considerations -- Strategies to Prevent Polypharmacy",
+        "rating": "direct",
+        "claimSummary": "Close post-discharge follow-up can update medication history and reduce medication-related problems.",
+        "passageSummary": "The chunk explicitly recommends close post-discharge follow-up to update history and medications."
+      },
+      {
+        "caseId": "HCE-0004",
+        "turnId": "HCE-0004-T07",
+        "evidenceId": "MED-90F5E28ACB4E0AB1",
+        "source": "statpearls/article-41082/8",
+        "corpusFile": "statpearls/chunk/article-41082.jsonl",
+        "lineNumber": 8,
+        "title": "Nursing Admission Assessment and Examination -- Issues of Concern -- Summary Nursing Admission Assessment",
+        "rating": "partial",
+        "claimSummary": "The answer says post-discharge follow-up supports checking and updating medication lists.",
+        "passageSummary": "This chunk supports verifying medication names and doses through reconciliation but does not specify post-discharge follow-up."
+      },
+      {
+        "caseId": "HCE-0005",
+        "turnId": "HCE-0005-T07",
+        "evidenceId": "MED-F6328BF2D488AD19",
+        "source": "statpearls/article-161219/49",
+        "corpusFile": "statpearls/chunk/article-161219.jsonl",
+        "lineNumber": 49,
+        "title": "Adverse Drug Reactions -- Additional Considerations -- Timely and Accurate Documentation of Allergies",
+        "rating": "direct",
+        "claimSummary": "Ask about and document drug allergies and adverse-reaction details and severity.",
+        "passageSummary": "The chunk explicitly supports accurate documentation of allergy and reaction type/severity."
+      },
+      {
+        "caseId": "HCE-0005",
+        "turnId": "HCE-0005-T07",
+        "evidenceId": "MED-8F35DB763701B827",
+        "source": "statpearls/article-24867/14",
+        "corpusFile": "statpearls/chunk/article-24867.jsonl",
+        "lineNumber": 14,
+        "title": "Medical History -- Definition/Introduction -- Allergies and Medications",
+        "rating": "partial",
+        "claimSummary": "Ask about and document drug allergies and adverse-reaction details and severity.",
+        "passageSummary": "The chunk supports allergy assessment and clarification of prior reaction nature, but not all asserted documentation details."
+      },
+      {
+        "caseId": "HCE-0005",
+        "turnId": "HCE-0005-T07",
+        "evidenceId": "MED-846A0C4450C43933",
+        "source": "statpearls/article-161219/48",
+        "corpusFile": "statpearls/chunk/article-161219.jsonl",
+        "lineNumber": 48,
+        "title": "Adverse Drug Reactions -- Additional Considerations -- Medical History Review",
+        "rating": "direct",
+        "claimSummary": "Detailed medication/allergy history and pharmacist assistance can improve medication history gathering/outcomes.",
+        "passageSummary": "The chunk supports detailed history gathering, helpful input from family/caregivers, and pharmacist involvement."
+      }
+    ]
+  },
+  "limitations": [
+    "Only five development cases and the Integrated T07 evidence task were reviewed; Single answers did not retrieve evidence and do not supply a comparable support denominator.",
+    "The support labels are a non-independent engineering assessment of retrieved chunk text, not physician review, clinical validation, or a claim that the statements themselves are clinically correct.",
+    "No controlled RAG-versus-no-RAG answer-accuracy comparison was run; no causal improvement claim is supported.",
+    "The review scores answer-specific source-to-claim links, not all medical claims across all 40 tasks or all 823,450 indexed chunks."
+  ]
+}
