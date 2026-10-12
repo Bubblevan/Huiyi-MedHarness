@@ -1,88 +1,48 @@
 {
-  "schemaVersion": "huiyi-resume-metrics-map/v2",
+  "schemaVersion": "huiyi-resume-metrics-map/v3",
   "generatedAt": "2026-10-12",
   "project": "Huiyi-MedHarness",
   "scope": "Synthetic engineering evaluations and local edge prototype only; no clinical validation or public production deployment.",
   "resumeSelection": {
-    "B1PrimaryRun": "20261011184053-5bce7818",
-    "B1PrimarySourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
-    "B1OlderRunRetainedSeparately": "20261011104158-f3ea4e2f",
+    "B1PrimaryRun": null,
+    "B1Status": "prior-small-sample-result-withdrawn; new cohort pending manual review",
+    "B1CandidateCohort": "artifacts/clinical-eval/cohort-300-heterogeneous-v3.jsonl",
+    "B1CandidateCohortSha256": "704ac38d51afaf755b41cc1ea95bb7fcc38cb5ffb846af4161cd1c52a3ea6b88",
     "postTraining": "pending real training and independent evaluation"
   },
   "bullets": {
     "B1": {
-      "status": "measured-engineering-result",
-      "selectedForResume": true,
-      "runId": "20261011184053-5bce7818",
-      "model": "gpt-6-luna",
-      "modelBackend": "codex-app-server",
-      "sourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
-      "sourceSha256": "18190a8bc8a597664ed0f4eddf475dc264d6baa958815d915c22618d0296156d",
-      "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
-      "scope": {
-        "syntheticCases": 5,
-        "pairedTasks": 40,
-        "finalArmRecords": 80,
-        "finalRecordStatus": "80 unique arm-task records; all execution status completed",
-        "clinicalReviewStatus": "pending"
+      "status": "candidate-cohort-pending-manual-review",
+      "selectedForResume": false,
+      "performanceMetric": null,
+      "cohort": {
+        "generator": "synthetic-heterogeneous-v3",
+        "path": "artifacts/clinical-eval/cohort-300-heterogeneous-v3.jsonl",
+        "sha256": "704ac38d51afaf755b41cc1ea95bb7fcc38cb5ffb846af4161cd1c52a3ea6b88",
+        "syntheticCases": 300,
+        "turns": 2400,
+        "uniqueCompositeSignatures": 300,
+        "domains": 15,
+        "encountersPerCase": {
+          "minimum": 2,
+          "maximum": 4
+        },
+        "difficulty": {
+          "easy": 60,
+          "moderate": 150,
+          "hard": 90
+        },
+        "casesWithConflicts": 99,
+        "casesWithRiskEvents": 61,
+        "clinicalReviewStatus": "pending",
+        "modelEvaluation": "not run"
       },
-      "pairedTaskCompletion": {
-        "single": { "numerator": 23, "denominator": 40, "percent": 57.5 },
-        "integrated": { "numerator": 39, "denominator": 40, "percent": 97.5 },
-        "differencePercentagePoints": 40,
-        "integratedOnlyWins": 16,
-        "singleOnlyWins": 0,
-        "bothComplete": 23,
-        "neitherComplete": 1
-      },
-      "disclosedHistoryFactReference": {
-        "single": { "numerator": 21, "denominator": 40, "percent": 52.5 },
-        "integrated": { "numerator": 36, "denominator": 40, "percent": 90 },
-        "integratedDifferencePercentagePoints": 37.5,
-        "provenanceLimit": "Historical correctness is not attributable to AMA; no per-fact AMA sourceId evidence is recorded."
-      },
-      "structuredDrafts": {
-        "single": { "numerator": 10, "denominator": 10, "percent": 100 },
-        "integrated": { "numerator": 10, "denominator": 10, "percent": 100 }
-      },
-      "evidence": {
-        "sameTurnIdsMatched": { "numerator": 24, "denominator": 48, "percent": 50 },
-        "medicalClaimSupportValidity": {
-          "status": "not-measurable",
-          "reason": "B1 did not retain the evidence passage text needed to independently score whether medical evidence supports each claim."
-        }
-      },
-      "execution": {
-        "singleSuccess": { "numerator": 40, "denominator": 40 },
-        "integratedSuccess": { "numerator": 40, "denominator": 40 },
-        "historicalAttempts": { "total": 32, "completed": 11, "failed": 21, "modelTimeout": 20, "gatewayException": 1 },
-        "allAttemptsIncludingFinal": { "total": 112, "completed": 91, "failed": 21 },
-        "singleLatencySeconds": { "p50": 7.64, "p95": 14.52 },
-        "integratedLatencySeconds": { "p50": 20.6, "p95": 116.13 },
-        "observedTokenTotals": { "single": 969356, "integrated": 2705573 },
-        "monetaryCost": "not measured"
-      },
-      "olderVersionSeparate": {
-        "runId": "20261011104158-f3ea4e2f",
-        "sourceRevision": "492595785b61ab795e60588212997a646a805aa2",
-        "syntheticCases": 6,
-        "pairedTasks": 48,
-        "singlePercent": 54.17,
-        "integratedPercent": 66.67,
-        "differencePercentagePoints": 12.5,
-        "pooling": "prohibited; same frozen cohort hash but different selected case count and source revision"
-      },
-      "sources": [
+      "manualReview": "artifacts/clinical-eval/reviews/cohort-300-heterogeneous-v3-manual-review.csv",
+      "archivedPilotArtifacts": [
         "docs/eval/B1-SPRINT-002-RESULTS.md",
-        "docs/eval/B1-SPRINT-002-RESULTS.json",
-        "docs/eval/B1-SPRINT-002-per-task-cost.json"
+        "docs/eval/B1-SPRINT-002-RESULTS.json"
       ],
-      "limitations": [
-        "Five development synthetic cases only; no human clinician adjudication",
-        "Integrated changes several capabilities together; no component-level causal attribution",
-        "Medical claim support validity is not measurable",
-        "Manifest stopReason retains an initial 64/80 cutoff note, but the finalized ledger and report contain all 80 unique arm-task records"
-      ]
+      "note": "The earlier small-sample result was withdrawn from resume use by the user. Archived run evidence remains unchanged and is not selected as a claim."
     },
     "B2": {
       "status": "measured-development-result",

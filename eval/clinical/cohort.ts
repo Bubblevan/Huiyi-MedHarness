@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { SCENARIO_CATALOG, TASKS } from "./catalog.js";
-import { CLINICAL_EVAL_GENERATOR, CLINICAL_EVAL_SCHEMA, LEGACY_CLINICAL_EVAL_GENERATOR, TARGET_TURNS_PER_PATIENT, type FhirBundle, type PatientQuestionIntent, type SyntheticClinicalCase, type SyntheticFact, type SyntheticPatientPlan, type SyntheticTurn } from "./contracts.js";
+import { CLINICAL_EVAL_GENERATOR, CLINICAL_EVAL_SCHEMA, HETEROGENEOUS_CLINICAL_EVAL_GENERATOR, LEGACY_CLINICAL_EVAL_GENERATOR, TARGET_TURNS_PER_PATIENT, type FhirBundle, type PatientQuestionIntent, type SyntheticClinicalCase, type SyntheticFact, type SyntheticPatientPlan, type SyntheticTurn } from "./contracts.js";
 
 const SYNTHETIC_TAG = { system: "https://huiyi.invalid/fhir/CodeSystem/data-origin", code: "synthetic", display: "Synthetic evaluation data" } as const;
 
@@ -116,18 +116,26 @@ export function generateCohort(options: GenerateCohortOptions = {}): SyntheticCl
 }
 
 export function validateSyntheticCase(value: SyntheticClinicalCase): void {
-  if (value.schemaVersion !== CLINICAL_EVAL_SCHEMA || ![CLINICAL_EVAL_GENERATOR, LEGACY_CLINICAL_EVAL_GENERATOR].includes(value.generatorVersion) || value.synthetic !== true) {
+  if (value.schemaVersion !== CLINICAL_EVAL_SCHEMA || ![CLINICAL_EVAL_GENERATOR, LEGACY_CLINICAL_EVAL_GENERATOR, HETEROGENEOUS_CLINICAL_EVAL_GENERATOR].includes(value.generatorVersion) || value.synthetic !== true) {
     throw new TypeError("case schema or synthetic marker is invalid");
   }
   if (value.clinicalReviewStatus !== "pending" && value.clinicalReviewStatus !== "approved") throw new TypeError("invalid clinical review status");
   if (value.turns.length !== TARGET_TURNS_PER_PATIENT) throw new TypeError(`case must contain exactly ${TARGET_TURNS_PER_PATIENT} turns`);
+  if (value.generatorVersion === HETEROGENEOUS_CLINICAL_EVAL_GENERATOR) {
+    const design = value.caseDesign;
+    if (!design || design.designVersion !== "heterogeneous-v3"
+      || !["easy", "moderate", "hard"].includes(design.difficultyTier)
+      || ![2, 3, 4].includes(design.encounterCount)
+      || !design.domain || !design.trajectory || !design.historyDependency || !design.communicationStyle || !design.informationGap
+      || !design.conflictType || !design.riskEvent) throw new TypeError("heterogeneous-v3 case design metadata is incomplete");
+  }
   if (new Set(value.facts.map((entry) => entry.factId)).size !== value.facts.length) throw new TypeError("fact IDs must be unique per case");
   const knownFacts = new Set(value.facts.map((entry) => entry.factId));
   for (const turn of value.turns) {
     for (const id of [...turn.requiredHistoricalFactIds, ...turn.requiredCurrentFactIds, ...turn.expectedRiskSignalIds]) {
       if (!knownFacts.has(id)) throw new TypeError(`turn ${turn.turnId} refers to unknown fact ${id}`);
     }
-    if (value.generatorVersion === CLINICAL_EVAL_GENERATOR && !turn.patientPlan) throw new TypeError(`turn ${turn.turnId} is missing its v2 patient plan`);
+    if ((value.generatorVersion === CLINICAL_EVAL_GENERATOR || value.generatorVersion === HETEROGENEOUS_CLINICAL_EVAL_GENERATOR) && !turn.patientPlan) throw new TypeError(`turn ${turn.turnId} is missing its adaptive patient plan`);
     if (turn.patientPlan) {
       const allowedFacts = new Set([...turn.requiredHistoricalFactIds, ...turn.requiredCurrentFactIds, ...turn.expectedRiskSignalIds]);
       const validIntents = new Set<PatientQuestionIntent>(["chief-concern", "timeline", "prior-history", "medication", "allergy", "source", "preference", "safety"]);
@@ -160,7 +168,6 @@ export function toPatientContext(input: { readonly syntheticPatientId: string; r
   patientId: string; displayName: string; age: number; sex: string; encounter: string; conditions: string[]; medications: string[]; allergies: string[];
   memory: { summary: string; items: number; updatedLabel: string }; suggestedQuestion: string;
 } {
-  const scenario = SCENARIO_CATALOG.find((entry) => entry.id === input.case.scenarioFamily)!;
   return {
     patientId: input.syntheticPatientId,
     displayName: input.case.patient.displayName,

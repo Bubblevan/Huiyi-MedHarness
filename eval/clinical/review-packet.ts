@@ -31,6 +31,7 @@ export function createSyntheticCohortReviewPacket(input: {
       split: item.split,
       scenarioFamily: item.scenarioFamily,
       complexity: item.complexity,
+      caseDesign: item.caseDesign ?? null,
       synthetic: true as const,
       profile: {
         syntheticLabel: `合成档案 ${reviewCaseId}`,

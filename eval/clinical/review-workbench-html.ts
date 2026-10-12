@@ -81,6 +81,12 @@ const SCRIPT = String.raw`(() => {
     const summary = text("summary", item.reviewCaseId + " · " + item.profile.syntheticLabel + " · " + item.complexity);
     details.append(summary);
     details.append(text("p", "合成档案：" + item.profile.age + " 岁 · " + item.profile.gender + " · 场景族 " + item.scenarioFamily));
+    if (item.caseDesign) {
+      const design = item.caseDesign;
+      details.append(text("p", "设计维度：难度 " + design.difficultyTier + " · 领域 " + design.domain + " · 轨迹 " + design.trajectory
+        + " · 历史依赖 " + design.historyDependency + " · 资料缺口 " + design.informationGap + " · 冲突 " + design.conflictType
+        + " · 风险 " + design.riskEvent + " · " + design.encounterCount + " 次就诊"));
+    }
     details.append(text("h3", "事实与 Encounter 来源"));
     appendList(details, item.facts, (fact) => "[" + fact.factId + " · " + fact.encounterId + " · " + fact.category + "] " + fact.label + "：" + fact.value);
     details.append(text("h3", "问诊与披露计划"));

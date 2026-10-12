@@ -11,6 +11,7 @@
     "clinical-evaluation:dataset": "node --import tsx src/clinical-evaluation/generate-dataset.ts",
     "codex-bridge": "node --env-file-if-exists=../../.env --import tsx src/backends/codex-app-server-bridge.ts",
     "clinical-eval": "node --env-file-if-exists=../../.env --import tsx ../../eval/clinical/cli.ts",
+    "clinical-eval:prepare-cohort-v3": "node --import tsx ../../scripts/clinical-eval/prepare-heterogeneous-cohort.ts",
     "clinical-eval:resume-b2": "node --env-file-if-exists=../../.env --import tsx ../../scripts/eval/run-resume-b2-ab.ts",
     "clinical-eval:smoke": "node --env-file-if-exists=../../.env --import tsx ../../scripts/eval/gpt6-integrated-smoke.ts",
     "test": "vitest run"

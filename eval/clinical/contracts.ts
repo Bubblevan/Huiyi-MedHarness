@@ -3,12 +3,27 @@ import type { RagRetrievalTelemetry } from "../../services/demo-gateway/src/cont
 export const CLINICAL_EVAL_SCHEMA = "huiyi-clinical-eval/v1" as const;
 export const CLINICAL_EVAL_GENERATOR = "synthetic-longitudinal-v2" as const;
 export const LEGACY_CLINICAL_EVAL_GENERATOR = "synthetic-longitudinal-v1" as const;
+export const HETEROGENEOUS_CLINICAL_EVAL_GENERATOR = "synthetic-heterogeneous-v3" as const;
 export const TARGET_TURNS_PER_PATIENT = 8;
 
 export type CohortSplit = "development" | "validation" | "held-out";
 export type EvalArm = "single-agent" | "integrated";
 export type PatientSimulationMode = "scripted" | "adaptive";
 export type PatientQuestionIntent = "chief-concern" | "timeline" | "prior-history" | "medication" | "allergy" | "source" | "preference" | "safety";
+export type ClinicalDifficultyTier = "easy" | "moderate" | "hard";
+
+export interface SyntheticCaseDesign {
+  readonly designVersion: "heterogeneous-v3";
+  readonly domain: string;
+  readonly trajectory: string;
+  readonly historyDependency: string;
+  readonly communicationStyle: string;
+  readonly informationGap: string;
+  readonly conflictType: string;
+  readonly riskEvent: string;
+  readonly difficultyTier: ClinicalDifficultyTier;
+  readonly encounterCount: 2 | 3 | 4;
+}
 
 export interface SyntheticPatientDisclosure {
   readonly factIds: readonly string[];
@@ -60,7 +75,7 @@ export interface SyntheticTurn {
 
 export interface SyntheticClinicalCase {
   readonly schemaVersion: typeof CLINICAL_EVAL_SCHEMA;
-  readonly generatorVersion: typeof CLINICAL_EVAL_GENERATOR | typeof LEGACY_CLINICAL_EVAL_GENERATOR;
+  readonly generatorVersion: typeof CLINICAL_EVAL_GENERATOR | typeof LEGACY_CLINICAL_EVAL_GENERATOR | typeof HETEROGENEOUS_CLINICAL_EVAL_GENERATOR;
   readonly synthetic: true;
   readonly clinicalReviewStatus: "pending" | "approved";
   readonly caseId: string;
@@ -68,6 +83,8 @@ export interface SyntheticClinicalCase {
   readonly split: CohortSplit;
   readonly scenarioFamily: string;
   readonly complexity: "basic" | "complex";
+  /** Present on the independently reviewable heterogeneous-v3 candidate cohort. */
+  readonly caseDesign?: SyntheticCaseDesign;
   readonly patient: {
     readonly patientId: string;
     readonly age: number;
