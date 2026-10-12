@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { attestCodexBridgeHealth } from "../../eval/clinical/bridge-attestation.js";
@@ -18,6 +18,7 @@ const BRIDGE_URL = process.env.HUIYI_CODEX_BRIDGE_URL?.trim() || "http://127.0.0
 const BRIDGE_KEY = process.env.HUIYI_CODEX_BRIDGE_API_KEY?.trim() || "local-only";
 const HEALTH_ENGINE_URL = process.env.HUIYI_HEALTH_ENGINE_URL?.trim() || "http://127.0.0.1:8325";
 const TASK_COUNT = 10;
+const ATTEMPT_TIMEOUT_MS = 4 * 60_000;
 
 interface TaskPair {
   readonly case: SyntheticClinicalCase;
@@ -140,7 +141,7 @@ async function runAttempt(input: {
       patientId: gateway.identityFor(task.case).patientId,
       encounterId: task.turn.encounterId,
       message: task.turn.patientMessage,
-      signal: AbortSignal.timeout(600_000),
+      signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
     });
     runId = execution.runId;
     events = execution.events;
@@ -242,6 +243,8 @@ async function main(): Promise<void> {
   const studyRunId = `resume-b2-${startedAt.replace(/[-:.TZ]/g, "").slice(0, 14)}-${randomUUID().slice(0, 8)}`;
   const outputDirectory = resolve(ROOT, "artifacts/clinical-eval/private", studyRunId);
   await mkdir(outputDirectory, { recursive: true });
+  const attemptRowsPath = resolve(outputDirectory, "attempt-rows.jsonl");
+  await writeFile(attemptRowsPath, "", "utf8");
   const rag = new RagClient();
   const gateways = new Map<"single-agent" | "integrated", AuthenticatedClinicalGateway>();
   for (const arm of ["single-agent", "integrated"] as const) {
@@ -260,7 +263,10 @@ async function main(): Promise<void> {
     for (const [index, task] of tasks.entries()) {
       const order = index % 2 === 0 ? ["single-agent", "integrated"] as const : ["integrated", "single-agent"] as const;
       for (const arm of order) {
-        attempts.push(await runAttempt({ task, arm, gateway: gateways.get(arm)! }));
+        const attempt = await runAttempt({ task, arm, gateway: gateways.get(arm)! });
+        attempts.push(attempt);
+        await appendFile(attemptRowsPath, `${JSON.stringify(attempt)}\n`, "utf8");
+        process.stdout.write(`${JSON.stringify({ studyRunId, caseId: attempt.caseId, turnId: attempt.turnId, arm, status: attempt.status, wallTimeMs: Math.round(attempt.wallTimeMs) })}\n`);
       }
     }
   } finally {
@@ -301,7 +307,7 @@ async function main(): Promise<void> {
     attemptCount: attempts.length,
     order: "Pair order alternates deterministically by task index to reduce a systematic first/second-arm effect.",
     model: "gpt-6-luna via local Codex app-server bridge",
-    generation: { temperature: 0, maxTokens: 384, bridgeMaxConcurrentTurns: readiness.bridgeMaxConcurrentTurns, maxConcurrentGeneration: 1 },
+    generation: { temperature: 0, maxTokens: 384, attemptTimeoutMs: ATTEMPT_TIMEOUT_MS, bridgeMaxConcurrentTurns: readiness.bridgeMaxConcurrentTurns, maxConcurrentGeneration: 1 },
     capabilities: {
       baseline: { memory: false, rag: false, collaboration: false },
       ragArm: { memory: false, rag: true, collaboration: false },
