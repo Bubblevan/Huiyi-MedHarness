@@ -236,6 +236,7 @@ async function main(): Promise<void> {
   process.env.HUIYI_CODEX_BRIDGE_API_KEY = BRIDGE_KEY;
   process.env.HUIYI_HEALTH_ENGINE_URL = HEALTH_ENGINE_URL;
   process.env.HUIYI_DEMO_MAX_TOKENS = "384";
+  process.env.HUIYI_RAG_FORCE_MODE = "iterative";
   const readiness = await assertReady();
   const { bytes: cohortBytes, tasks } = await loadTasks();
   const cohortSha256 = sha256(cohortBytes);
@@ -307,7 +308,7 @@ async function main(): Promise<void> {
     attemptCount: attempts.length,
     order: "Pair order alternates deterministically by task index to reduce a systematic first/second-arm effect.",
     model: "gpt-6-luna via local Codex app-server bridge",
-    generation: { temperature: 0, maxTokens: 384, attemptTimeoutMs: ATTEMPT_TIMEOUT_MS, bridgeMaxConcurrentTurns: readiness.bridgeMaxConcurrentTurns, maxConcurrentGeneration: 1 },
+    generation: { temperature: 0, maxTokens: 384, ragMode: "iterative", attemptTimeoutMs: ATTEMPT_TIMEOUT_MS, bridgeMaxConcurrentTurns: readiness.bridgeMaxConcurrentTurns, maxConcurrentGeneration: 1 },
     capabilities: {
       baseline: { memory: false, rag: false, collaboration: false },
       ragArm: { memory: false, rag: true, collaboration: false },
