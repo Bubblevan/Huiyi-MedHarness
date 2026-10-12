@@ -1,48 +1,87 @@
 {
-  "schemaVersion": "huiyi-resume-metrics-map/v1",
+  "schemaVersion": "huiyi-resume-metrics-map/v2",
   "generatedAt": "2026-10-12",
   "project": "Huiyi-MedHarness",
-  "scope": "Synthetic engineering evaluations and local edge-demo acceptance only; no clinical validation or public deployment claim.",
+  "scope": "Synthetic engineering evaluations and local edge prototype only; no clinical validation or public production deployment.",
+  "resumeSelection": {
+    "B1PrimaryRun": "20261011184053-5bce7818",
+    "B1PrimarySourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+    "B1OlderRunRetainedSeparately": "20261011104158-f3ea4e2f",
+    "postTraining": "pending real training and independent evaluation"
+  },
   "bullets": {
     "B1": {
       "status": "measured-engineering-result",
-      "runId": "20261011104158-f3ea4e2f",
-      "sourceRevision": "492595785b61ab795e60588212997a646a805aa2",
+      "selectedForResume": true,
+      "runId": "20261011184053-5bce7818",
+      "model": "gpt-6-luna",
+      "modelBackend": "codex-app-server",
+      "sourceRevision": "0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0",
+      "sourceSha256": "18190a8bc8a597664ed0f4eddf475dc264d6baa958815d915c22618d0296156d",
       "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+      "scope": {
+        "syntheticCases": 5,
+        "pairedTasks": 40,
+        "finalArmRecords": 80,
+        "finalRecordStatus": "80 unique arm-task records; all execution status completed",
+        "clinicalReviewStatus": "pending"
+      },
       "pairedTaskCompletion": {
-        "single": { "numerator": 26, "denominator": 48, "percent": 54.17 },
-        "integrated": { "numerator": 32, "denominator": 48, "percent": 66.67 },
+        "single": { "numerator": 23, "denominator": 40, "percent": 57.5 },
+        "integrated": { "numerator": 39, "denominator": 40, "percent": 97.5 },
+        "differencePercentagePoints": 40,
+        "integratedOnlyWins": 16,
+        "singleOnlyWins": 0,
+        "bothComplete": 23,
+        "neitherComplete": 1
+      },
+      "disclosedHistoryFactReference": {
+        "single": { "numerator": 21, "denominator": 40, "percent": 52.5 },
+        "integrated": { "numerator": 36, "denominator": 40, "percent": 90 },
+        "integratedDifferencePercentagePoints": 37.5,
+        "provenanceLimit": "Historical correctness is not attributable to AMA; no per-fact AMA sourceId evidence is recorded."
+      },
+      "structuredDrafts": {
+        "single": { "numerator": 10, "denominator": 10, "percent": 100 },
+        "integrated": { "numerator": 10, "denominator": 10, "percent": 100 }
+      },
+      "evidence": {
+        "sameTurnIdsMatched": { "numerator": 24, "denominator": 48, "percent": 50 },
+        "medicalClaimSupportValidity": {
+          "status": "not-measurable",
+          "reason": "B1 did not retain the evidence passage text needed to independently score whether medical evidence supports each claim."
+        }
+      },
+      "execution": {
+        "singleSuccess": { "numerator": 40, "denominator": 40 },
+        "integratedSuccess": { "numerator": 40, "denominator": 40 },
+        "historicalAttempts": { "total": 32, "completed": 11, "failed": 21, "modelTimeout": 20, "gatewayException": 1 },
+        "allAttemptsIncludingFinal": { "total": 112, "completed": 91, "failed": 21 },
+        "singleLatencySeconds": { "p50": 7.64, "p95": 14.52 },
+        "integratedLatencySeconds": { "p50": 20.6, "p95": 116.13 },
+        "observedTokenTotals": { "single": 969356, "integrated": 2705573 },
+        "monetaryCost": "not measured"
+      },
+      "olderVersionSeparate": {
+        "runId": "20261011104158-f3ea4e2f",
+        "sourceRevision": "492595785b61ab795e60588212997a646a805aa2",
+        "syntheticCases": 6,
+        "pairedTasks": 48,
+        "singlePercent": 54.17,
+        "integratedPercent": 66.67,
         "differencePercentagePoints": 12.5,
-        "integratedOnlyWins": 10,
-        "singleOnlyWins": 4,
-        "ties": 34
-      },
-      "jointlyDisclosedHistoricalFactReference": {
-        "single": { "numerator": 19, "denominator": 44, "percent": 43.18 },
-        "integrated": { "numerator": 30, "denominator": 44, "percent": 68.18 },
-        "differencePercentagePoints": 25,
-        "integratedOnlyWins": 13,
-        "singleOnlyWins": 2,
-        "ties": 29
-      },
-      "executionSuccess": {
-        "single": { "numerator": 47, "denominator": 48, "percent": 97.92 },
-        "integrated": { "numerator": 42, "denominator": 48, "percent": 87.5 }
-      },
-      "medicalEvidenceCitationValidity": {
-        "status": "not-measurable",
-        "numerator": null,
-        "denominator": null,
-        "reason": "No identifiable evidence IDs in answers and retrieval passage text was not retained."
+        "pooling": "prohibited; same frozen cohort hash but different selected case count and source revision"
       },
       "sources": [
-        "docs/resume/BULLET1-EVIDENCE.md",
-        "docs/resume/BULLET1-EVIDENCE.json"
+        "docs/eval/B1-SPRINT-002-RESULTS.md",
+        "docs/eval/B1-SPRINT-002-RESULTS.json",
+        "docs/eval/B1-SPRINT-002-per-task-cost.json"
       ],
       "limitations": [
-        "6 synthetic longitudinal cases; 7 execution failures retained in the denominator",
-        "Integrated simultaneously enabled AMA, RAG, and collaboration; no component-level causality",
-        "Blinded model-assisted engineering scoring, not clinician review"
+        "Five development synthetic cases only; no human clinician adjudication",
+        "Integrated changes several capabilities together; no component-level causal attribution",
+        "Medical claim support validity is not measurable",
+        "Manifest stopReason retains an initial 64/80 cutoff note, but the finalized ledger and report contain all 80 unique arm-task records"
       ]
     },
     "B2": {
@@ -58,32 +97,28 @@
         "singleOnlyWins": 0,
         "ties": 1
       },
-      "necessaryInformationCoverage": {
-        "single": { "earned": 2, "possible": 20, "percent": 10 },
-        "iterativeRag": { "earned": 20, "possible": 20, "percent": 100 }
-      },
       "retrieval": {
         "indexVersion": "medtext-local-cc7d43568501e6b7",
         "sources": 5,
         "chunks": 823450,
         "embeddingModel": "Qwen3-Embedding-0.6B",
-        "iterativeRagTasksWithRetrievedPassage": { "numerator": 9, "denominator": 10 },
-        "sameTurnCitationIdsMatched": { "numerator": 29, "denominator": 29 },
-        "scoredMedicalWorkflowClaims": {
-          "direct": 25,
-          "partial": 3,
-          "unsupported": 0,
-          "contradicted": 0,
-          "total": 28
-        }
+        "integratedTasksWithRetrievedPassage": { "numerator": 9, "denominator": 10 },
+        "sameTurnCitationIdsMatched": { "numerator": 29, "denominator": 29 }
+      },
+      "claimAudit": {
+        "scoredClaims": 28,
+        "direct": 25,
+        "partial": 3,
+        "unsupported": 0,
+        "contradicted": 0
       },
       "performance": {
         "singleP50Seconds": 4.9,
         "singleP95Seconds": 7.09,
         "ragP50Seconds": 28,
         "ragP95Seconds": 56.58,
-        "singleObservedTokensTotal": 173074,
-        "ragObservedTokensTotal": 725846,
+        "singleObservedTokens": 173074,
+        "ragObservedTokens": 725846,
         "monetaryCost": "not measured"
       },
       "sources": [
@@ -91,85 +126,68 @@
         "docs/eval/RESUME-B2-FINAL.json"
       ],
       "limitations": [
-        "10 fixed development pairs, one evidence task per case",
-        "Blind model-assisted engineering score, not clinician review",
-        "4 scored answer excerpts omitted trailing source lists",
-        "29/29 ID traceability does not establish medical claim support",
-        "One RAG task had no retrieved passage and remains in the denominator"
+        "Ten fixed development pairs, one evidence task per case",
+        "Blinded model-assisted engineering score, not clinician review",
+        "Four answer excerpts omitted trailing source lists",
+        "ID traceability does not establish medical correctness",
+        "One RAG task had no retrieved passage and stays in the denominator"
       ]
     },
     "B3": {
-      "status": "memory-measured-no-answer-gain__collaboration-treatment-not-exercised",
-      "runId": "resume-b3-20261012063421-6e15d54f",
-      "sourceRevision": "116059d4a549daedde279e5c87969fe71a749185",
-      "sourceFingerprintSha256": "757e723af0128118385b8a84c34eb5d46db3ed590266ea390653e5b8fa697101",
-      "driverScriptSha256": "b899d43aa8677356417a13c691a33ed575545a3b785b85b21cbd5d445ee6c988",
-      "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
-      "memoryOnly": {
-        "syntheticCases": 3,
-        "pairedTargetTurns": 6,
-        "historicalFactOpportunitiesPerArm": 12,
-        "single": {
-          "completedTargetTurns": { "numerator": 6, "denominator": 6 },
-          "encounterStartExpectedFactIdRecall": { "numerator": 0, "denominator": 6 },
-          "exactHistoricalFactEcho": { "numerator": 0, "denominator": 12, "percent": 0 },
-          "p50Seconds": 5.396,
-          "p95Seconds": 8.567,
-          "observedTokensTotal": 104326
-        },
-        "amaOnly": {
-          "completedTargetTurns": { "numerator": 5, "denominator": 6 },
-          "encounterStartExpectedFactIdRecall": { "numerator": 0, "denominator": 6 },
-          "exactHistoricalFactEcho": { "numerator": 0, "denominator": 12, "percent": 0 },
-          "p50Seconds": 14.045,
-          "p95Seconds": 240.002,
-          "observedTokensTotal": 91099,
-          "timeouts": 1
-        },
-        "differencePercentagePoints": 0,
-        "pairedOutcomes": { "amaOnlyWins": 0, "singleWins": 0, "ties": 6 }
+      "status": "measured-long-dialogue-integration-diagnostic",
+      "benchmark": "LoCoMo mc10",
+      "run": "HC-MEM-003 three-conversation diagnostic",
+      "model": "Qwen3-8B on local vLLM through real DSH AgentLoop",
+      "scope": {
+        "fullConversations": 3,
+        "includedQuestionCount": 385,
+        "excludedCategory5Count": 112,
+        "conversationIds": ["conv-26", "conv-30", "conv-41"],
+        "fullBenchmark": false
       },
-      "collaborationCapabilityComparison": {
-        "pairedCases": 6,
-        "frozenKeyPoints": 14,
-        "single": {
-          "completedTasks": { "numerator": 3, "denominator": 6 },
-          "keyPointCoverage": { "numerator": 8, "denominator": 14, "percent": 57.14 },
-          "collaborationToolCalls": 0,
-          "childRuns": 0,
-          "p50Seconds": 155.51,
-          "p95Seconds": 240.005,
-          "observedTokensTotal": 49479,
-          "timeouts": 3
-        },
-        "integrated": {
-          "completedTasks": { "numerator": 1, "denominator": 6 },
-          "keyPointCoverage": { "numerator": 3, "denominator": 14, "percent": 21.43 },
-          "collaborationToolCalls": 0,
-          "childRuns": 0,
-          "p50Seconds": 240.004,
-          "p95Seconds": 240.016,
-          "observedTokensTotal": 16796,
-          "timeouts": 5
-        },
-        "differencePercentagePoints": -35.71,
-        "pairedOutcomes": { "integratedWins": 0, "singleWins": 2, "ties": 4 },
-        "scorer": { "model": "gpt-6-luna", "blindLabels": true, "httpStatus": 200, "clinicianReview": false },
-        "interpretation": "Capability-enabled arm did not invoke collaboration, so this does not measure executed multi-agent collaboration effect."
+      "dshArm": {
+        "tokenF1": 0.4408,
+        "bleu1": 0.386,
+        "parseErrors": 0,
+        "memorySnapshotParity": { "numerator": 385, "denominator": 385 },
+        "sourceReferenceParity": { "numerator": 385, "denominator": 385 },
+        "validMemorySourceRefs": { "numerator": 782, "denominator": 792, "percent": 98.74 },
+        "p50Milliseconds": 5994,
+        "p95Milliseconds": 11676,
+        "automaticRecalls": 385,
+        "modelSteps": 385,
+        "toolCalls": 0,
+        "memoryWrites": 0
       },
-      "sources": ["docs/eval/RESUME-B3-FINAL.md", "docs/eval/RESUME-B3-FINAL.json"],
-      "privateEvidenceDirectory": "artifacts/clinical-eval/private/resume-b3-20261012063421-6e15d54f",
+      "dshVsSidecar": {
+        "tokenF1Difference": 0.0022,
+        "bleu1Difference": 0.0042,
+        "overallParityTolerance": 0.01,
+        "passed": true
+      },
+      "separateNegativeExperiments": {
+        "amaOnlyExactFactEcho": { "numerator": 0, "denominator": 12 },
+        "amaOnlyExpectedTargetFactIdRecall": { "numerator": 0, "denominator": 6 },
+        "collaborationArmActualToolCalls": 0,
+        "collaborationArmChildRuns": 0,
+        "interpretation": "No AMA answer-level gain or executed multi-agent benefit is claimed."
+      },
+      "sources": [
+        "artifacts/hc-mem-003/three-conversation-diagnostic/final-report.md",
+        "artifacts/hc-mem-003/three-conversation-diagnostic/aggregate-metrics.json",
+        "eval/memory/locomo/manifest-hc-mem-003-three-conversation-diagnostic.json",
+        "docs/eval/RESUME-B3-FINAL.md",
+        "docs/eval/RESUME-B3-FINAL.json"
+      ],
       "limitations": [
-        "Three cases for memory and six cases for collaboration; development split only",
-        "Historical fact scoring requires an exact normalized value match and is not semantic adjudication",
-        "All failures/timeouts are retained in task and coverage denominators",
-        "The scorer uses the same model family as generation and is not a clinician",
-        "Collaboration tool calls and child runs were zero in both arms, so no executed multi-agent effect is estimable",
-        "Token totals are not monetary cost and failed requests may lack observed token usage"
+        "Three full conversations only; not the complete ten-conversation set",
+        "No GPT-4o-mini judge was run; not comparable to the paper's headline score",
+        "Proves integration parity and source consistency for this diagnostic slice, not an AMA quality gain",
+        "Memory source-reference validity is not medical evidence validity"
       ]
     },
     "B5": {
-      "status": "READY_TO_BUY_VPS-for-local-edge-only-synthetic-demo",
+      "status": "measured-local-edge-prototype",
       "localAuthorizationSweep": {
         "syntheticPatients": 300,
         "contextChecks": 600,
@@ -195,7 +213,6 @@
       "edgeApi": {
         "loginP95Ms": { "value": 392.02, "n": 10 },
         "patientContextReadP95Ms": { "value": 10.18, "n": 10 },
-        "concurrency10": { "success": 10, "requests": 10 },
         "concurrency20": { "success": 20, "requests": 20 },
         "crossAccountContextStatus": 404,
         "crossPatientChatStatus": 404,
@@ -209,8 +226,8 @@
         "artifacts/clinical-eval/authz-sweeps/authz-sweep-20261011-154507.json"
       ],
       "limitations": [
-        "Local loopback only; no public DNS/ACME, VPS or public latency results",
-        "WireGuard tunnel, production SSO, persistent authorization store and EMR not tested",
+        "Local loopback only; no public DNS/ACME, VPS or public latency",
+        "WireGuard, production SSO, persistent authorization store, and EMR were not tested",
         "One real-model request is not a percentile",
         "Synthetic accounts and data only"
       ]

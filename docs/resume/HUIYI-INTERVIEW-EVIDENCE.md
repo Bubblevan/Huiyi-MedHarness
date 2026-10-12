@@ -1,49 +1,51 @@
 # Huiyi-MedHarness｜面试证据与口径
 
-## 项目经历可投递结论
+## 简历选用结论
 
-可投递的重点仍是临床 Agent 工作流、医学 RAG 与本机边缘 Demo。所有数字均来自合成病例或本机工程验证，不代表临床有效性、公网生产服务或真人医生审核。B3 已完成隔离测量，但没有证明 AMA 回答级收益；协作能力开启臂没有触发专家子运行。因此简历不写 AMA 或多专家协作的独立提升，也不把 B1 组合实验差值归因到这两个组件。
+BOSS 主结果采用 B1 最新完整冻结版本（5 例、40 对），B1 旧版本（6 例、48 对）只保留为独立历史结果，不跨版本拼接。B3 使用公开长对话基准的 DSH 集成诊断结果作为工程指标；AMA-only 的独立试验未见正确事实回显提升，多专家能力试验也没有实际触发 child run，因此不写成组件级收益。所有完成率、质量分数均来自合成数据或公开基准工程评测，不等同于临床验证。
 
-## B1｜统一临床工作流
+## B1｜统一临床工作流：BOSS 主结果
 
-- **样本：**6 个合成纵向病例、48 组同病例同轮计划任务；前 5 例 40 对完整，第 6 例失败保留于主分母。最终账本 96 条（每臂 48），另有 5 次重试记录，不重复计为计划任务。
-- **主结果：**关键任务完成率 Single 26/48（54.17%），Integrated 32/48（66.67%），配对净差 +12.50 个百分点；Integrated 独胜 10、Single 独胜 4、平 34。
-- **历史事实：**两臂共同披露的 44 组事实中，正确引用 Single 19/44（43.18%），Integrated 30/44（68.18%），配对净差 +25.00 个百分点；Integrated 独胜 13、Single 独胜 2、平 29。未披露事实不计作遗漏。
-- **执行代价：**成功率 47/48（97.92%）对 42/48（87.50%）；端到端 P50 8.92 秒对 20.55 秒，P95 242.38 秒对 300.01 秒。观测 Token 总量分别 1,124,661 与 3,093,652，未换算货币成本。
-- **版本：**运行 `20261011104158-f3ea4e2f`，评测源提交 `492595785b61ab795e60588212997a646a805aa2`；冻结 Cohort SHA-256 `7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c`。该运行源提交是后续仓库历史的祖先，不是本次最终提交。
-- **限制：**A/B 臂是完整 Harness 组合比较，Integrated 同时开启 AMA、RAG 和协作，故 +25pp 既往事实结果不能归因给 AMA。评分是盲化合成工程评分，不是真人临床审核。医学证据引用有效率为**不可测**：没有可识别的答案证据 ID，且运行未保留检索段落正文；不可写成 0% 或任何提升值。
+- 选定运行：20261011184053-5bce7818，GPT-6-Luna，经 Codex app-server；冻结运行源码 0c7ddc93df99cbe92cc4ac4b25ba34c933e376b0，source SHA-256 18190a8bc8a597664ed0f4eddf475dc264d6baa958815d915c22618d0296156d。该源码提交是当前 main（c8b19df）的祖先。Cohort SHA-256 为 7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c。
+- 固定范围：HCE-0001 至 HCE-0005，5 个合成纵向病例、每例 8 轮，40 个同病例同轮配对任务。运行账本有 80 个唯一最终臂任务，Single 与 Integrated 各 40 条，均为执行完成；80 条评分记录覆盖这 40 对。关键任务的评分完成结果仍按每臂 40 个预定任务作分母。
+- 主结果：Single 23/40（57.5%），Integrated 39/40（97.5%），配对净差 +40.0 个百分点；Integrated 独赢 16 对、Single 独赢 0 对、双方完成 23 对、双方未完成 1 对。
+- 其他指标：已披露历史事实正确引用 Single 21/40（52.5%）、Integrated 36/40（90.0%）；合规结构化草稿两臂均为 10/10。延迟 P50/P95：Single 7.64/14.52 秒，Integrated 20.60/116.13 秒。观测 Token 总量分别为 969,356 与 2,705,573，不是货币成本。
+- 失败留存：最终运行的 attempt-history 有 32 条先前尝试，其中 11 条成功、21 条失败（20 次 MODEL_TIMEOUT、1 次 AUTHENTICATED_GATEWAY_EXCEPTION）；之后对缺少的臂任务补跑，runs.jsonl 最终含 80 个唯一且成功执行的臂任务。112 次总尝试中 91 次完成、21 次失败，失败保留在历史中，不扩大配对任务分母。
+- 清单解释：manifest 的 stopReason 保留了初次 64/80 时停止计分的描述；同一清单的 finalizedAt、completedTurns/completedRuns=80、runs.jsonl 的 80 个唯一记录及最终 score report 的 40/40 每臂共同表明续跑后完成了全部预定臂任务。该描述不代表最终只评了 32 对。
+- 评分及限制：隐藏 A/B 标签的模型辅助工程评分，不是真人临床审核；临床审核仍 pending。医学证据 ID 在 Integrated 回答中有 24/48 可匹配同轮检索结果，但“医学证据是否支持结论”不可测。历史事实评分没有逐事实 AMA sourceId 命中记录，故 90.0% 不能归因于 AMA 单独效果；B1 是整体 Harness 组合比较。
+- 旧版本单独留档：运行 20261011104158-f3ea4e2f、源码 492595785b61ab795e60588212997a646a805aa2、6 例/48 对；Single 26/48（54.2%），Integrated 32/48（66.7%），+12.5 个百分点。运行源码版本与纳入病例数不同；两次使用同一冻结 Cohort SHA，但分母不同，不与新版拼接或作跨版本因果比较。旧结果只用于解释历史演进，不是 BOSS 主数字。
 
 ## B2｜医学 RAG
 
-- **固定样本：**10 个 development 病例各 1 个固定 T07 循证问题，共 10 对、20 次生成；GPT-6-Luna，temperature 0、最多 384 tokens。A 关闭 RAG，B 开启迭代 RAG；两臂均关闭记忆及协作。
-- **任务满足率：**Single 1/10（10%），Integrated/RAG 10/10（100%），+90 个百分点；Integrated 独赢 9、Single 独赢 0、平 1。必要信息覆盖分别 2/20 与 20/20。
-- **检索与引用：**RAG 臂 9/10 任务至少召回一段；1 个未成功召回的任务仍保留在分母且被评分为完成。29/29 个答案引用 ID 可关联至同轮检索记录。盲评分可见的 28 条医学/工作流主张中，25 条直接支持、3 条部分支持、0 条不支持、0 条矛盾。
-- **资源：**索引为五源 `medtext-local-cc7d43568501e6b7`，823,450 chunks，使用 Qwen3-Embedding-0.6B。Single / RAG 的 P50/P95 为 4.90/7.09 秒与 28.00/56.58 秒；观测 Token 总量为 173,074 与 725,846（每题均值 17,307 与 72,585，约 4.19 倍）。Token 不是货币成本。
-- **版本：**运行 `resume-b2-20261012053523-609ac99a`，生成源码提交 `8aebe5ed0cc990ee3c191839f1cbb9a514879595`，冻结 Cohort SHA-256 同 B1。早期 6 条错误配置试跑已标为 `invalid-protocol`，保留但不计分。
-- **限制：**隔离子 Agent 进行的是盲化模型辅助工程评分，不是临床审核。4 份长回答的评分副本移除了末尾来源列表；主张支持只覆盖副本中可见文本。29/29 只证明引用 ID 可追溯，不证明临床结论正确。10 对开发集结果不外推到 held-out 或临床表现。
+- 固定开发集：10 个病例各 1 个 T07 循证任务，共 10 对、20 次生成；GPT-6-Luna，关闭记忆和协作，仅切换 RAG。
+- 任务满足率：无 RAG 1/10（10%），RAG 10/10（100%），+90 个百分点；RAG 独赢 9、无 RAG 独赢 0、平 1。RAG 臂 9/10 任务检索到段落，29/29 个回答引用 ID 匹配同轮检索记录。
+- 索引：medtext-local-cc7d43568501e6b7，5 个来源、823,450 chunks，Qwen3-Embedding-0.6B。28 条评分可见的医学/工作流主张中，25 条直接支持、3 条部分支持、0 条不支持、0 条矛盾；4 份评分副本移除了末尾来源列表，主张支持结论仅适用于评分副本的可见内容。
+- 限制：盲化模型辅助工程评分，不是临床审核；10 对 development 结果不外推到 held-out。引用 ID 可追溯不等于结论正确。较早的 6 条错误配置试跑已标为 invalid-protocol，不计入上述结果。
 
-## B3｜长期记忆与复杂协作
+## B3｜长期记忆与跨会话上下文
 
-- **最新隔离运行：**`resume-b3-20261012063421-6e15d54f`，base Git `116059d4a549daedde279e5c87969fe71a749185`，run-source fingerprint `757e723af0128118385b8a84c34eb5d46db3ed590266ea390653e5b8fa697101`，driver SHA `b899d43aa8677356417a13c691a33ed575545a3b785b85b21cbd5d445ee6c988`。Cohort SHA 与 B1/B2 相同。运行 driver 当时未提交，故同时记录 fingerprint 和 driver SHA；结果提交时只更新文档。
-- **AMA-only 配对：**3 例合成纵向病例、6 个 T05/T06 配对任务、12 个历史事实机会。RAG 和协作两臂关闭。Single 完成 6/6、AMA-only 完成 5/6（1 次超时保留）；T05 目标事实 ID 命中均为 0/6，成功回答中的精确事实回显均为 0/12。任务打平 6/6，净差 0 pp。只按规范化精确值匹配，不评语义改写。P50/P95 为 5.40/8.57 秒与 14.05/240.00 秒；观测 Token 总量 104,326 与 91,099，不代表货币成本。
-- **协作能力开启的配对结果：**6 例复杂 development 病例、14 个冻结关键点；两臂都关闭 AMA/RAG，Integrated 只开启协作能力。Single 完成 3/6、覆盖 8/14（57.1%）；协作能力开启臂完成 1/6、覆盖 3/14（21.4%），配对 Single 独胜 2、Integrated 独胜 0、打平 4。Integrated 有 5 次 240 秒超时。盲化 GPT-6-Luna 评分返回 HTTP 200，但两臂实际协作调用与 child run 均为 **0**。所以 -35.7 pp 是这次能力开关分组的工程结果，**不能归因于已执行的多专家协作**。
-- **结果使用规则：**当前不声称 AMA 正确病史引用率提升或多专家协作覆盖率提升。B3 的可核实发现是 AMA-only 的精确回答级收益 0/12，以及协作路由在本轮 0 次触发；B1 中 19/44→30/44 是完整 Harness 差值，仍受 AMA、RAG、协作同时变化的混杂。
-- **审计文件：**脱敏逐项结果见 [RESUME-B3-FINAL.json](../eval/RESUME-B3-FINAL.json)；报告见 [RESUME-B3-FINAL.md](../eval/RESUME-B3-FINAL.md)。原始 prompts/answers 留在本机 git-ignored `artifacts/clinical-eval/private/resume-b3-20261012063421-6e15d54f/`。旧冻结运行 `20261011184053-5bce7818` 的机制遥测仍可作为历史补充，但不覆盖这次隔离实验结果。
+- 选用工程指标：HC-MEM-003 公开 LoCoMo mc10 长对话记忆诊断。只取数据集中 3 段完整对话（conv-26、conv-30、conv-41），共 1,451 个对话项目、385 道非 category-5 QA；category 5 的 112 题排除。不是完整 10 对话基准结果。
+- DSH C 臂：真实 DSH Session、Agent、AgentLoop 加 Huiyi 自动记忆生命周期，Qwen3-8B 生成；Token-F1 0.4408、BLEU-1 0.3860、解析错误 0。与 sidecar B 臂比较，差值分别 +0.0022 和 +0.0042，均在预设 ±0.01 总体容差内。
+- 集成一致性：385/385 题 MemorySnapshot 一致、385/385 题来源引用一致；782/792 条记忆来源引用有效（98.74%）。本次 QA 每题一次自动召回、一个模型步骤；没有 tool call 或 memory write。结果证明这批诊断样本上的 DSH 集成和来源一致性，不证明 AMA 带来回答质量提升。
+- 可比性限制：未评其余 7 段对话；没有跑论文所用 GPT-4o-mini judge，禁止与论文 Token-F1 0.510 / BLEU-1 0.432 作等价比较。A→B BLEU-1 差 -0.01128，略越过 0.01 容差；仅作为诊断备注。
+- AMA-only 失败实验：3 例、6 个配对目标轮、12 个历史事实机会；两臂精确事实回显均为 0/12，T05 目标事实 ID 命中均为 0/6，AMA 臂有 1 次超时。该结果不支持记忆收益，不能包装成正向提升。
+- 协作失败实验：6 个病例、14 个冻结关键点；Single 覆盖 8/14，Integrated 覆盖 3/14，Integrated 有 5 次超时。两臂协作工具调用与 child run 均为 0，因此没有测到实际多专家协作效果。BOSS 正文不写成协作收益。
 
-## B5｜本机边缘 Demo
+## B5｜边缘门户与患者级权限
 
-- **授权 sweep：**300 个合成患者、600 次患者/Encounter 上下文检查；授权读取 150、拒绝 450、越权成功 0；上下文只读 P95 2.59 ms。2 个内存合成账号，无模型生成。
-- **Docker HTTPS 边缘链路：**Caddy 静态前端 → edge-auth → 仍绑定 loopback 的 Gateway → DSH → GPT-6-Luna 本地 Codex bridge + 本地 RAG。单次浏览器问诊 HTTP 200、3 条证据、生成结构化草稿；端到端 46.623 秒、SSE 首包 77.8 ms；只标记“需补充问诊”，**未执行临床批准**。
-- **边缘 API：**登录 P95 392.02 ms（n=10）；患者上下文读取 P95 10.18 ms（n=10）；并发 10 成功 10/10，并发 20 成功 20/20。另一合成账号访问越权上下文和跨患者会话均返回 404，未触发模型请求；Gateway 不可达时代理返回 502。
-- **运行与交付：**两个边缘容器空闲合计约 57.6 MiB；5/5 edge proxy 单测与 23/23 Gateway backend 测试通过。`READY_TO_BUY_VPS` 仅指本地 edge-only 合成演示和配置包达到购机前门槛。
-- **没有验证：**公网 DNS/ACME、真实 WireGuard 隧道、VPS 重启/回滚、生产 OIDC/SSO、真实数据库行级权限、真实 EMR、生产临床使用及公网延迟。单次 GPT 请求不是 P95。
+- 本地授权 sweep：300 个合成患者、600 次患者/Encounter 上下文检查，授权读取 150、拒绝 450，越权成功 0；上下文只读 P95 2.59 ms。
+- 本机 Docker Compose 浏览器链路：HTTPS 前端、edge-auth、仅监听 loopback 的 Gateway、DSH、GPT-6-Luna 本地 Codex bridge 与本地 RAG。1 次真实模型请求返回 HTTP 200，展示 3 条证据、生成结构化草稿并留下“需补充问诊”审阅状态；46.623 秒端到端，SSE 首包 77.8 ms。未执行临床批准。
+- 边缘 API：并发 20 时 20/20 成功；跨账号患者上下文和跨患者会话返回 404，Gateway 不可达时代理返回 502。20 并发结论限于本机本次合成 API 压测。
+- 未验证：公网 DNS/ACME、VPS、真实 WireGuard 隧道、生产 SSO、持久授权存储、真实 EMR 与公网延迟；因此只表述为本机原型与本地授权检查，不声称公网生产部署或完整私有化生产交付。
 
-## 关键文件
+## 后训练
 
-- 简历正文：[HUIYI-BOSS-FINAL.md](HUIYI-BOSS-FINAL.md)
-- 机器可读指标映射：[HUIYI-METRICS-MAP.json](HUIYI-METRICS-MAP.json)
-- B1 逐任务结果：[BULLET1-EVIDENCE.json](BULLET1-EVIDENCE.json)、[BULLET1-EVIDENCE.md](BULLET1-EVIDENCE.md)
-- B2 配对结果：[RESUME-B2-FINAL.json](../eval/RESUME-B2-FINAL.json)、[RESUME-B2-FINAL.md](../eval/RESUME-B2-FINAL.md)
+待实际训练、独立评测和可复核结果后填写；本版不写后训练成绩。
+
+## 证据文件
+
+- B1 冻结结果与逐任务判定：[B1-SPRINT-002-RESULTS.md](../eval/B1-SPRINT-002-RESULTS.md)、[B1-SPRINT-002-RESULTS.json](../eval/B1-SPRINT-002-RESULTS.json)、[B1-SPRINT-002-per-task-cost.json](../eval/B1-SPRINT-002-per-task-cost.json)
+- B2 配对结果：[RESUME-B2-FINAL.md](../eval/RESUME-B2-FINAL.md)、[RESUME-B2-FINAL.json](../eval/RESUME-B2-FINAL.json)
 - B3 隔离评测：[RESUME-B3-FINAL.md](../eval/RESUME-B3-FINAL.md)、[RESUME-B3-FINAL.json](../eval/RESUME-B3-FINAL.json)
-- B5 部署与本地验收：[deploy/edge-demo/README.md](../../deploy/edge-demo/README.md)、[local-e2e-result-20261012.json](../../artifacts/edge-demo/local-e2e-result-20261012.json)
-- B5 截图：[临床草稿](../../artifacts/edge-demo/clinical-workflow-review-20261012.png)、[审阅留痕](../../artifacts/edge-demo/clinical-workflow-audit-20261012.png)
+- B3 长对话诊断：[final-report.md](../../artifacts/hc-mem-003/three-conversation-diagnostic/final-report.md)、[aggregate-metrics.json](../../artifacts/hc-mem-003/three-conversation-diagnostic/aggregate-metrics.json)、[manifest](../../eval/memory/locomo/manifest-hc-mem-003-three-conversation-diagnostic.json)
+- B5 本机验收：[部署说明](../../deploy/edge-demo/README.md)、[浏览器链路结果](../../artifacts/edge-demo/local-e2e-result-20261012.json)、[授权 sweep](../../artifacts/clinical-eval/authz-sweeps/authz-sweep-20261011-154507.json)
