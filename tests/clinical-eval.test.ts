@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Script } from "node:vm";
 import { createClinicalApprovalTemplate, applyClinicalApproval } from "../eval/clinical/approval.js";
-import { readDemoEventStream } from "../eval/clinical/authenticated-gateway.js";
+import { readDemoEventStream, resolveEvalArmCapabilities } from "../eval/clinical/authenticated-gateway.js";
 import { makeBlindReviewPacket, mergeBlindedReviews, type ClinicalReviewKeyEntry } from "../eval/clinical/blind-review.js";
 import { generateCohort, toPatientContext, validateSyntheticCase } from "../eval/clinical/cohort.js";
 import { summarizeSyntheticCohort } from "../eval/clinical/cohort-audit.js";
@@ -22,6 +22,12 @@ import type { ClinicalReviewRecord, ClinicalRunRecord, SyntheticClinicalCase } f
 import { createEvent } from "../services/demo-gateway/src/contracts.js";
 
 describe("clinical synthetic evaluation foundation", () => {
+  it("isolates evaluation arm capabilities while allowing a targeted integrated ablation", () => {
+    expect(resolveEvalArmCapabilities("single-agent")).toEqual({ memory: false, rag: false, collaboration: false });
+    expect(resolveEvalArmCapabilities("integrated", { memory: false, rag: true, collaboration: false }))
+      .toEqual({ memory: false, rag: true, collaboration: false });
+  });
+
   it("deduplicates repeated RAG telemetry references without merging different summaries", () => {
     const retrieval = {
       mode: "single" as const, rounds: 1, generatedQueries: 0, uniqueDocuments: 3, candidateCount: 3,

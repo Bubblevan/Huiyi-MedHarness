@@ -25,6 +25,11 @@ export interface SyntheticEvaluationIdentity extends PatientAccessScope {
   readonly patientId: string;
 }
 
+export function resolveEvalArmCapabilities(arm: EvalArm, integratedOverrides: Partial<DshCapabilities> = {}): DshCapabilities {
+  if (arm === "single-agent") return { memory: false, rag: false, collaboration: false };
+  return { memory: true, rag: true, collaboration: true, ...integratedOverrides };
+}
+
 function caseOrdinal(item: SyntheticClinicalCase): number {
   const match = item.caseId.match(/(\d+)$/);
   if (!match) throw new TypeError(`synthetic case ID has no numeric assignment suffix: ${item.caseId}`);
@@ -163,8 +168,9 @@ export class AuthenticatedClinicalGateway {
   constructor(input: {
     readonly studyRunId: string;
     readonly arm: EvalArm;
-  readonly cases: readonly SyntheticClinicalCase[];
+    readonly cases: readonly SyntheticClinicalCase[];
   readonly concurrency: number;
+    readonly integratedCapabilities?: Partial<DshCapabilities>;
   readonly evidenceClient?: MedicalEvidenceClientPort;
   readonly collaborationTrace?: CollaborationTraceSink;
 }) {
@@ -174,9 +180,7 @@ export class AuthenticatedClinicalGateway {
     this.dataset = new SyntheticEvaluationDataset({ patientCount: patients.length }, patients);
     this.accounts = accountSet(this.tenantPrefix);
     for (const account of this.accounts) this.accountByScope.set(`${account.tenantId}\0${account.accessGroup}`, account);
-    const capabilities: DshCapabilities = input.arm === "single-agent"
-      ? { memory: false, rag: false, collaboration: false }
-      : { memory: true, rag: true, collaboration: true };
+    const capabilities = resolveEvalArmCapabilities(input.arm, input.integratedCapabilities);
     this.backend = new DshDemoBackend({
       maxSessions: Math.max(16, input.concurrency * 4 + 4),
       resolvePatient: (patientId, encounterId) => this.dataset.getPatientForBackend(patientId, encounterId),
@@ -199,7 +203,7 @@ export class AuthenticatedClinicalGateway {
       },
       runtime: new DshWebRuntime({
         capabilities,
-        syntheticAmaMemory: input.arm === "integrated",
+        syntheticAmaMemory: input.arm === "integrated" && capabilities.memory,
         matchSyntheticRecallFactIds: (patient, memoryItem) => {
           const syntheticCase = caseByPatientId.get(patient.patientId);
           return syntheticCase ? matchSyntheticRecallFactIds(syntheticCase, memoryItem.content) : [];
@@ -211,7 +215,7 @@ export class AuthenticatedClinicalGateway {
         },
         ...(input.collaborationTrace ? { collaborationTrace: input.collaborationTrace } : {}),
         ...(input.evidenceClient ? { evidenceClient: input.evidenceClient } : {}),
-        memoryTrace: input.arm === "integrated" ? {
+        memoryTrace: input.arm === "integrated" && capabilities.memory ? {
           record: (record) => {
             this.memoryTrace.push(record);
             new MetadataMemoryTrace().record(record);
