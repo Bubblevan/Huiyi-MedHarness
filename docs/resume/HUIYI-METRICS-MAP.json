@@ -99,27 +99,73 @@
       ]
     },
     "B3": {
-      "status": "insufficient-evidence-for-independent-effect",
-      "amaMechanism": {
-        "crossEncounterOpportunities": 20,
-        "uniqueFactIds": 5,
-        "exactFactIdHits": 5,
-        "exactFactIdHitRatePercent": 25,
-        "hitFactsExactlyEchoedInAnswer": 0,
-        "hitFactEchoDenominator": 5,
-        "automaticRecallCompleted": { "numerator": 13, "denominator": 14 },
-        "commitCompleted": { "numerator": 19, "denominator": 22 }
+      "status": "memory-measured-no-answer-gain__collaboration-treatment-not-exercised",
+      "runId": "resume-b3-20261012063421-6e15d54f",
+      "sourceRevision": "116059d4a549daedde279e5c87969fe71a749185",
+      "sourceFingerprintSha256": "757e723af0128118385b8a84c34eb5d46db3ed590266ea390653e5b8fa697101",
+      "driverScriptSha256": "b899d43aa8677356417a13c691a33ed575545a3b785b85b21cbd5d445ee6c988",
+      "cohortSha256": "7d70893f2ffab9f8711f5ac260a1f70729bef758fb41f7cae50afaa894a6310c",
+      "memoryOnly": {
+        "syntheticCases": 3,
+        "pairedTargetTurns": 6,
+        "historicalFactOpportunitiesPerArm": 12,
+        "single": {
+          "completedTargetTurns": { "numerator": 6, "denominator": 6 },
+          "encounterStartExpectedFactIdRecall": { "numerator": 0, "denominator": 6 },
+          "exactHistoricalFactEcho": { "numerator": 0, "denominator": 12, "percent": 0 },
+          "p50Seconds": 5.396,
+          "p95Seconds": 8.567,
+          "observedTokensTotal": 104326
+        },
+        "amaOnly": {
+          "completedTargetTurns": { "numerator": 5, "denominator": 6 },
+          "encounterStartExpectedFactIdRecall": { "numerator": 0, "denominator": 6 },
+          "exactHistoricalFactEcho": { "numerator": 0, "denominator": 12, "percent": 0 },
+          "p50Seconds": 14.045,
+          "p95Seconds": 240.002,
+          "observedTokensTotal": 91099,
+          "timeouts": 1
+        },
+        "differencePercentagePoints": 0,
+        "pairedOutcomes": { "amaOnlyWins": 0, "singleWins": 0, "ties": 6 }
       },
-      "collaborationMechanism": {
-        "integratedTasksCallingClinicalTeam": 5,
-        "completedExpectedChildSessions": { "numerator": 10, "denominator": 10 },
-        "singleAgentAttributionExperiment": false
+      "collaborationCapabilityComparison": {
+        "pairedCases": 6,
+        "frozenKeyPoints": 14,
+        "single": {
+          "completedTasks": { "numerator": 3, "denominator": 6 },
+          "keyPointCoverage": { "numerator": 8, "denominator": 14, "percent": 57.14 },
+          "collaborationToolCalls": 0,
+          "childRuns": 0,
+          "p50Seconds": 155.51,
+          "p95Seconds": 240.005,
+          "observedTokensTotal": 49479,
+          "timeouts": 3
+        },
+        "integrated": {
+          "completedTasks": { "numerator": 1, "denominator": 6 },
+          "keyPointCoverage": { "numerator": 3, "denominator": 14, "percent": 21.43 },
+          "collaborationToolCalls": 0,
+          "childRuns": 0,
+          "p50Seconds": 240.004,
+          "p95Seconds": 240.016,
+          "observedTokensTotal": 16796,
+          "timeouts": 5
+        },
+        "differencePercentagePoints": -35.71,
+        "pairedOutcomes": { "integratedWins": 0, "singleWins": 2, "ties": 4 },
+        "scorer": { "model": "gpt-6-luna", "blindLabels": true, "httpStatus": 200, "clinicianReview": false },
+        "interpretation": "Capability-enabled arm did not invoke collaboration, so this does not measure executed multi-agent collaboration effect."
       },
-      "sources": ["docs/eval/RESUME-B3-FINAL.md"],
+      "sources": ["docs/eval/RESUME-B3-FINAL.md", "docs/eval/RESUME-B3-FINAL.json"],
+      "privateEvidenceDirectory": "artifacts/clinical-eval/private/resume-b3-20261012063421-6e15d54f",
       "limitations": [
-        "No AMA-only matched A/B or collaboration-only matched A/B",
-        "B1 history fact result has bundled AMA/RAG/collaboration confounding",
-        "Cross-patient AMA isolation probe not run"
+        "Three cases for memory and six cases for collaboration; development split only",
+        "Historical fact scoring requires an exact normalized value match and is not semantic adjudication",
+        "All failures/timeouts are retained in task and coverage denominators",
+        "The scorer uses the same model family as generation and is not a clinician",
+        "Collaboration tool calls and child runs were zero in both arms, so no executed multi-agent effect is estimable",
+        "Token totals are not monetary cost and failed requests may lack observed token usage"
       ]
     },
     "B5": {

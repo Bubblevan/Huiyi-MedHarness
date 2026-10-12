@@ -2,7 +2,7 @@
 
 ## 项目经历可投递结论
 
-可以投递以临床 Agent、RAG 与本地边缘演示为重点的项目经历。所有数字均为合成病例或本机工程验证结果；不代表临床有效性、公网生产服务或真人医生审核。B3 的独立记忆/协作效果目前为 `INSUFFICIENT_EVIDENCE`，不应声称 AMA 或多专家协作单独带来质量提升。
+可投递的重点仍是临床 Agent 工作流、医学 RAG 与本机边缘 Demo。所有数字均来自合成病例或本机工程验证，不代表临床有效性、公网生产服务或真人医生审核。B3 已完成隔离测量，但没有证明 AMA 回答级收益；协作能力开启臂没有触发专家子运行。因此简历不写 AMA 或多专家协作的独立提升，也不把 B1 组合实验差值归因到这两个组件。
 
 ## B1｜统一临床工作流
 
@@ -24,10 +24,11 @@
 
 ## B3｜长期记忆与复杂协作
 
-- **独立效果状态：`INSUFFICIENT_EVIDENCE`。**尚无 AMA-only 或协作-only 的同输入配对实验，不声称记忆准确率提升或复杂病例关键点覆盖提升。
-- **已有 AMA 机制记录：**冻结运行 `20261011184053-5bce7818` 在 20 次跨 Encounter 召回机会中精确命中 5 次（5 个唯一事实 ID，25%）；命中的 5 个事实均未在当轮回答精确回显（0/5）。Automatic recall 13/14 完成；commit 19/22 完成。这些是机制遥测，不是语义正确率。
-- **协作流程：**该历史运行中 5 条 Integrated 任务调用临床协作，预期子 Agent session 为 10/10；另有一个独立 smoke 完成 7/7 子运行且未降级。这些证明执行路径，不证明协作带来质量提升。
-- **限制：**跨患者记忆隔离探针未运行；B1 中 19/44→30/44 是完整 Harness 比较，存在 AMA、RAG、协作混杂，不能改写成 AMA 因果效果。
+- **最新隔离运行：**`resume-b3-20261012063421-6e15d54f`，base Git `116059d4a549daedde279e5c87969fe71a749185`，run-source fingerprint `757e723af0128118385b8a84c34eb5d46db3ed590266ea390653e5b8fa697101`，driver SHA `b899d43aa8677356417a13c691a33ed575545a3b785b85b21cbd5d445ee6c988`。Cohort SHA 与 B1/B2 相同。运行 driver 当时未提交，故同时记录 fingerprint 和 driver SHA；结果提交时只更新文档。
+- **AMA-only 配对：**3 例合成纵向病例、6 个 T05/T06 配对任务、12 个历史事实机会。RAG 和协作两臂关闭。Single 完成 6/6、AMA-only 完成 5/6（1 次超时保留）；T05 目标事实 ID 命中均为 0/6，成功回答中的精确事实回显均为 0/12。任务打平 6/6，净差 0 pp。只按规范化精确值匹配，不评语义改写。P50/P95 为 5.40/8.57 秒与 14.05/240.00 秒；观测 Token 总量 104,326 与 91,099，不代表货币成本。
+- **协作能力开启的配对结果：**6 例复杂 development 病例、14 个冻结关键点；两臂都关闭 AMA/RAG，Integrated 只开启协作能力。Single 完成 3/6、覆盖 8/14（57.1%）；协作能力开启臂完成 1/6、覆盖 3/14（21.4%），配对 Single 独胜 2、Integrated 独胜 0、打平 4。Integrated 有 5 次 240 秒超时。盲化 GPT-6-Luna 评分返回 HTTP 200，但两臂实际协作调用与 child run 均为 **0**。所以 -35.7 pp 是这次能力开关分组的工程结果，**不能归因于已执行的多专家协作**。
+- **结果使用规则：**当前不声称 AMA 正确病史引用率提升或多专家协作覆盖率提升。B3 的可核实发现是 AMA-only 的精确回答级收益 0/12，以及协作路由在本轮 0 次触发；B1 中 19/44→30/44 是完整 Harness 差值，仍受 AMA、RAG、协作同时变化的混杂。
+- **审计文件：**脱敏逐项结果见 [RESUME-B3-FINAL.json](../eval/RESUME-B3-FINAL.json)；报告见 [RESUME-B3-FINAL.md](../eval/RESUME-B3-FINAL.md)。原始 prompts/answers 留在本机 git-ignored `artifacts/clinical-eval/private/resume-b3-20261012063421-6e15d54f/`。旧冻结运行 `20261011184053-5bce7818` 的机制遥测仍可作为历史补充，但不覆盖这次隔离实验结果。
 
 ## B5｜本机边缘 Demo
 
@@ -43,6 +44,6 @@
 - 机器可读指标映射：[HUIYI-METRICS-MAP.json](HUIYI-METRICS-MAP.json)
 - B1 逐任务结果：[BULLET1-EVIDENCE.json](BULLET1-EVIDENCE.json)、[BULLET1-EVIDENCE.md](BULLET1-EVIDENCE.md)
 - B2 配对结果：[RESUME-B2-FINAL.json](../eval/RESUME-B2-FINAL.json)、[RESUME-B2-FINAL.md](../eval/RESUME-B2-FINAL.md)
-- B3 记忆与协作限制：[RESUME-B3-FINAL.md](../eval/RESUME-B3-FINAL.md)
+- B3 隔离评测：[RESUME-B3-FINAL.md](../eval/RESUME-B3-FINAL.md)、[RESUME-B3-FINAL.json](../eval/RESUME-B3-FINAL.json)
 - B5 部署与本地验收：[deploy/edge-demo/README.md](../../deploy/edge-demo/README.md)、[local-e2e-result-20261012.json](../../artifacts/edge-demo/local-e2e-result-20261012.json)
 - B5 截图：[临床草稿](../../artifacts/edge-demo/clinical-workflow-review-20261012.png)、[审阅留痕](../../artifacts/edge-demo/clinical-workflow-audit-20261012.png)
