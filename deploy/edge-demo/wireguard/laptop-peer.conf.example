@@ -1,0 +1,11 @@
+# Laptop peer. Keep the real private key outside Git and restrict the Gateway
+# firewall rule to the WireGuard interface/source 10.77.0.1.
+[Interface]
+Address = 10.77.0.2/24
+PrivateKey = REPLACE_WITH_LAPTOP_PRIVATE_KEY
+
+[Peer]
+PublicKey = REPLACE_WITH_SERVER_PUBLIC_KEY
+Endpoint = REPLACE_WITH_VPS_PUBLIC_IPV4:51820
+AllowedIPs = 10.77.0.1/32
+PersistentKeepalive = 25

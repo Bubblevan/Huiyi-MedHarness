@@ -1,0 +1,12 @@
+# VPS WireGuard server. Create private keys with `wg genkey`; keep all real keys
+# in /etc/wireguard/wg0.conf and never in this repository.
+[Interface]
+Address = 10.77.0.1/24
+ListenPort = 51820
+PrivateKey = REPLACE_WITH_SERVER_PRIVATE_KEY
+
+[Peer]
+# Synthetic-demo laptop peer. The cloud edge proxy reaches the Gateway at this
+# address only after the tunnel is up; do not expose TCP 8320 on the public NIC.
+PublicKey = REPLACE_WITH_LAPTOP_PUBLIC_KEY
+AllowedIPs = 10.77.0.2/32

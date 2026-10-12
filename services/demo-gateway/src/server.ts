@@ -562,7 +562,13 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const port = Number(process.env.HUIYI_DEMO_GATEWAY_PORT ?? "8320");
-  const host = "127.0.0.1";
+  // Loopback remains the safe default. A deployment may bind only its WireGuard
+  // interface address so the edge portal can reach the Gateway without making
+  // the DSH/model service public.
+  const host = process.env.HUIYI_DEMO_BIND_HOST?.trim() || "127.0.0.1";
+  if (host === "0.0.0.0" && process.env.HUIYI_ALLOW_WIDE_GATEWAY_BIND !== "1") {
+    throw new Error("Binding the clinical Gateway to all interfaces requires HUIYI_ALLOW_WIDE_GATEWAY_BIND=1; prefer its WireGuard address");
+  }
   const server = createDemoServer({ port, host });
   server.listen(port, host, () => process.stdout.write(`Huiyi demo gateway listening on http://${host}:${port}\n`));
 }
