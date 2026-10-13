@@ -2,6 +2,8 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { createHash, randomUUID } from "node:crypto";
 import { isAbsolute, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { localGatewayTracePath, writeLocalGatewayTrace } from "./trace.js";
+import { installGatewayTraceFetchAdapter, runWithGatewayTraceContext, type GatewayTraceContext } from "./trace-context.js";
 import { readAppMode } from "./app-mode.js";
 import type { DemoEvent } from "./contracts.js";
 import { createEvent, parseDemoEvent, validateChatInput } from "./contracts.js";
@@ -134,7 +136,24 @@ function sendEvent(response: ServerResponse, event: DemoEvent): boolean {
   }
 }
 
+async function* withGatewayTraceContext(
+  source: AsyncIterable<DemoEvent>,
+  context: GatewayTraceContext,
+): AsyncIterable<DemoEvent> {
+  const iterator = runWithGatewayTraceContext(context, () => source[Symbol.asyncIterator]());
+  try {
+    while (true) {
+      const result = await runWithGatewayTraceContext(context, () => iterator.next());
+      if (result.done) return;
+      yield result.value;
+    }
+  } finally {
+    if (iterator.return) await runWithGatewayTraceContext(context, () => iterator.return!());
+  }
+}
+
 export function createDemoServer(options: DemoServerOptions = {}): Server {
+  installGatewayTraceFetchAdapter();
   const mode = readAppMode();
   const production = mode === "production";
   const clinicalEvaluation = mode === "clinical-evaluation";
@@ -171,13 +190,21 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
   const activeRuns = new Map<string, { controller: AbortController; sessionId: string; startedAt: number; settled: Promise<void>; settle: () => void; ownerAuthSessionId?: string }>();
   const pendingLogoutCleanups = new Set<Promise<void>>();
   const failedLogins = new Map<string, { count: number; blockedUntil: number }>();
-  const log = options.log ?? ((metadata: Record<string, string | number>) => process.stdout.write(`${JSON.stringify(metadata)}\n`));
+  const log = options.log ?? ((metadata: Record<string, string | number>) => {
+    process.stdout.write(`${JSON.stringify(metadata)}\n`);
+    writeLocalGatewayTrace(metadata);
+  });
+  if (!options.log) log({ event: "gateway.trace.ready", traceFile: localGatewayTracePath() } as Record<string, string | number>);
 
   const server = createServer((request, response) => {
     const requestId = randomUUID();
     const handleRequest = async (): Promise<void> => {
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const method = request.method ?? "GET";
+    const incomingEdgeTrace = request.headers["x-huiyi-trace-id"];
+    const edgeTraceId = typeof incomingEdgeTrace === "string" && /^[A-Za-z0-9_-]{8,80}$/.test(incomingEdgeTrace)
+      ? incomingEdgeTrace
+      : undefined;
 
     if (method === "GET" && url.pathname === "/api/health") {
       const modelConfiguration = backendName === "dsh" ? readModelConfiguration() : undefined;
@@ -472,6 +499,17 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
       const runId = randomUUID();
       const controller = new AbortController();
       const startedAt = Date.now();
+      let firstEventAt: number | undefined;
+      let firstAssistantDeltaAt: number | undefined;
+      let eventCount = 0;
+      let assistantDeltaCount = 0;
+      let assistantChars = 0;
+      let toolStartedCount = 0;
+      let toolCompletedCount = 0;
+      let evidenceItemCount = 0;
+      let lastEvent = "none";
+      let terminalEvent = "none";
+      let heartbeat: NodeJS.Timeout | undefined;
       let settle!: () => void;
       const settled = new Promise<void>((resolve) => { settle = resolve; });
       const runState = { controller, sessionId: input.sessionId, startedAt, settled, settle, ...(chatPrincipal ? { ownerAuthSessionId: chatPrincipal.authSessionId } : {}) };
@@ -484,6 +522,31 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
         "x-run-id": runId,
       });
       response.flushHeaders();
+      log({
+        requestId,
+        ...(edgeTraceId ? { edgeTraceId } : {}),
+        runId,
+        event: "run.accepted",
+        backend: backendName,
+        sessionHash: createHash("sha256").update(input.sessionId, "utf8").digest("hex").slice(0, 16),
+      });
+      heartbeat = setInterval(() => {
+        log({
+          requestId,
+          ...(edgeTraceId ? { edgeTraceId } : {}),
+          runId,
+          event: "run.heartbeat",
+          elapsedMs: Date.now() - startedAt,
+          eventCount,
+          lastEvent,
+          assistantDeltaCount,
+          assistantChars,
+          stage: assistantDeltaCount > 0 ? "assistant_stream" : eventCount > 0 ? "backend_waiting_for_text" : "backend_waiting_for_first_event",
+          firstEventMs: firstEventAt === undefined ? -1 : firstEventAt - startedAt,
+          firstAssistantDeltaMs: firstAssistantDeltaAt === undefined ? -1 : firstAssistantDeltaAt - startedAt,
+        });
+      }, 15_000);
+      heartbeat.unref();
       response.on("close", () => {
         if (!response.writableEnded) controller.abort();
       });
@@ -493,8 +556,29 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
       let assistantText = "";
       const capturedEvidence: Array<{ evidenceId: string; rank: number; source: string; title: string; snippet: string }> = [];
       try {
-        for await (const event of backend.run(input, { runId, signal: controller.signal })) {
+        const traceContext: GatewayTraceContext = { requestId, runId, ...(edgeTraceId ? { edgeTraceId } : {}) };
+        for await (const event of withGatewayTraceContext(backend.run(input, { runId, signal: controller.signal }), traceContext)) {
           if (response.destroyed) break;
+          eventCount += 1;
+          lastEvent = event.event;
+          if (firstEventAt === undefined) {
+            firstEventAt = Date.now();
+            log({ requestId, ...(edgeTraceId ? { edgeTraceId } : {}), runId, event: "run.first_event", eventName: event.event, elapsedMs: firstEventAt - startedAt });
+          }
+          if (event.event === "assistant.delta") {
+            assistantDeltaCount += 1;
+            assistantChars += event.data.text.length;
+            if (firstAssistantDeltaAt === undefined) {
+              firstAssistantDeltaAt = Date.now();
+              log({ requestId, ...(edgeTraceId ? { edgeTraceId } : {}), runId, event: "run.first_assistant_delta", elapsedMs: firstAssistantDeltaAt - startedAt });
+            }
+          } else if (event.event === "tool.started") toolStartedCount += 1;
+          else if (event.event === "tool.completed") toolCompletedCount += 1;
+          else if (event.event === "evidence.item") evidenceItemCount += 1;
+          if (event.event === "run.completed" || event.event === "run.failed" || event.event === "run.cancelled") {
+            terminalEvent = event.event;
+            if (event.event === "run.failed") errorCode = event.data.code;
+          }
           if (event.event === "assistant.delta") assistantText = `${assistantText}${event.data.text}`.slice(0, 200_000);
           if (event.event === "evidence.item") capturedEvidence.push({
             evidenceId: event.data.evidenceId, rank: event.data.rank, source: event.data.source,
@@ -531,12 +615,34 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
           timestamp: new Date().toISOString(), data: { code: errorCode as "BACKEND_UNAVAILABLE" | "BACKEND_FAILURE" },
         });
       } finally {
+        if (heartbeat) clearInterval(heartbeat);
         if (controller.signal.aborted && status === "completed") status = "cancelled";
         activeRuns.delete(runId);
         if (!response.destroyed) response.end();
         const sessionHash = createHash("sha256").update(input.sessionId, "utf8").digest("hex").slice(0, 16);
         try {
-          log({ requestId, sessionHash, runId, event: "run.terminal", duration: Date.now() - startedAt, backend: backendName, status, ...(errorCode ? { errorCode } : {}) });
+          log({
+            requestId,
+            ...(edgeTraceId ? { edgeTraceId } : {}),
+            sessionHash,
+            runId,
+            event: "run.terminal",
+            duration: Date.now() - startedAt,
+            durationMs: Date.now() - startedAt,
+            backend: backendName,
+            status,
+            terminalEvent,
+            eventCount,
+            lastEvent,
+            assistantDeltaCount,
+            assistantChars,
+            toolStartedCount,
+            toolCompletedCount,
+            evidenceItemCount,
+            firstEventMs: firstEventAt === undefined ? -1 : firstEventAt - startedAt,
+            firstAssistantDeltaMs: firstAssistantDeltaAt === undefined ? -1 : firstAssistantDeltaAt - startedAt,
+            ...(errorCode ? { errorCode } : {}),
+          });
         } finally {
           runState.settle();
         }

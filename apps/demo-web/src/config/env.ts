@@ -14,10 +14,10 @@ declare global {
 }
 
 const configuredEnvironment = import.meta.env.VITE_APP_ENV?.trim().toLowerCase();
-export const appEnvironment = import.meta.env.MODE === "clinical-evaluation" || import.meta.env.MODE === "production"
+export const appEnvironment = ["clinical-evaluation", "production", "edge"].includes(import.meta.env.MODE)
   ? import.meta.env.MODE
   : configuredEnvironment || import.meta.env.MODE;
-export const isProductionBuild = appEnvironment === "production";
+export const isProductionBuild = appEnvironment === "production" || appEnvironment === "edge";
 export const isClinicalEvaluationBuild = appEnvironment === "clinical-evaluation";
 export const isNonDemoBuild = isProductionBuild || isClinicalEvaluationBuild;
 

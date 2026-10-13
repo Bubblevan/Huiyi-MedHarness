@@ -40,6 +40,8 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
 .mobile-panel-button, .mobile-close { display: none; }
 
 .workstation-grid { flex: 1 1 auto; min-height: 0; padding: 19px 22px 14px; display: grid; grid-template-columns: minmax(240px, 275px) minmax(440px, 1fr) minmax(260px, 302px); gap: 16px; max-width: 1800px; width: 100%; margin: 0 auto; }
+.production-grid { grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); max-width: 1500px; }
+.clinician-grid { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); max-width: 1600px; }
 .consultation-column { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .clinical-evaluation-shell .consultation-column { height: 100%; }
 .workstation-center-tabs { display: flex; flex: 0 0 auto; gap: 6px; padding: 0 0 10px; }
@@ -265,13 +267,21 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
 .mobile-backdrop { display: none; }
 
 @media (min-width: 1500px) { .workstation-grid { grid-template-columns: 288px minmax(540px, 1fr) 320px; gap: 19px; padding-inline: 30px; } }
+@media (min-width: 1500px) { .clinician-grid { grid-template-columns: 340px minmax(0, 1fr); max-width: 1640px; } }
 @media (max-width: 1100px) { .workstation-grid { grid-template-columns: 235px minmax(390px, 1fr); }.activity-column { display: none; }.topbar { padding-inline: 18px; } }
+@media (min-width: 761px) and (max-width: 1100px) { .clinician-grid { grid-template-columns: minmax(245px, 290px) minmax(0, 1fr); } }
+@media (min-width: 761px) and (max-width: 1100px) { .production-grid { grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); } }
 @media (max-width: 760px) {
   body { min-width: 350px; }
   .topbar { height: 60px; padding: 0 13px; gap: 10px; }
   .brand { min-width: auto; gap: 8px; }.brand-logo { width: 144px; max-height: 38px; }
   .topbar-context { display: flex; gap: 0; }.product-name, .backend-badge { display: none; }.topbar-actions { gap: 6px; }.new-session-button { padding: 7px; font-size: 0; }.new-session-button span { font-size: 16px; margin: 0; }.mobile-panel-button { display: block; border: 1px solid var(--line); border-radius: 5px; background: white; padding: 6px 7px; font-size: 8px; cursor: pointer; }
   .workstation-grid { flex: 1; display: block; padding: 10px 9px 7px; }
+  .production-grid { display: flex; flex-direction: column; gap: 8px; padding: 9px; }
+  .production-grid .patient-column { display: flex; flex: 0 0 auto; }
+  .production-grid .patient-panel { height: auto; max-height: 24vh; min-height: 84px; padding: 11px 13px; }
+  .production-grid .consultation { height: auto; min-height: 0; flex: 1 1 auto; }
+  .production-shell .product-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
   .consultation { min-height: min(420px, calc(100dvh - 205px)); height: calc(100dvh - 205px); }
   .clinical-evaluation-shell .consultation-column { height: auto; }
   .clinical-evaluation-shell .clinical-draft-review { height: max(420px, calc(100dvh - 300px)); flex: 0 0 auto; }
@@ -280,3 +290,120 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px sol
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+/* Larger, higher-contrast clinical typography for comfortable reading. */
+.workstation-shell:not(.clinical-evaluation-shell) .product-name { font-size: 18px; }
+.workstation-shell:not(.clinical-evaluation-shell) .environment-badge,
+.workstation-shell:not(.clinical-evaluation-shell) .synthetic-tag,
+.workstation-shell:not(.clinical-evaluation-shell) .fixture-tag { font-size: 13px; letter-spacing: 0; padding: 6px 9px; }
+.workstation-shell:not(.clinical-evaluation-shell) .new-session-button,
+.workstation-shell:not(.clinical-evaluation-shell) .mobile-panel-button { font-size: 15px; padding: 10px 13px; }
+.workstation-shell:not(.clinical-evaluation-shell) .patient-empty h2 { font-size: 22px; }
+.workstation-shell:not(.clinical-evaluation-shell) .patient-empty p { font-size: 16px; line-height: 1.6; }
+.workstation-shell:not(.clinical-evaluation-shell) .eyebrow { color: #5e716b; font-size: 12px; letter-spacing: .3px; }
+.workstation-shell:not(.clinical-evaluation-shell) .panel-heading h2,
+.workstation-shell:not(.clinical-evaluation-shell) .consultation-header h1 { font-size: 22px; }
+.workstation-shell:not(.clinical-evaluation-shell) .patient-identity h3 { font-size: 21px; }
+.workstation-shell:not(.clinical-evaluation-shell) .patient-identity p,
+.workstation-shell:not(.clinical-evaluation-shell) .small-label { color: #536861; font-size: 15px; }
+.workstation-shell:not(.clinical-evaluation-shell) .encounter-chip strong { font-size: 17px; }
+.workstation-shell:not(.clinical-evaluation-shell) .clinical-section h3,
+.workstation-shell:not(.clinical-evaluation-shell) .memory-heading h3 { font-size: 16px; }
+.workstation-shell:not(.clinical-evaluation-shell) .clinical-section li,
+.workstation-shell:not(.clinical-evaluation-shell) .memory-card p { color: #485c56; font-size: 16px; line-height: 1.65; }
+.workstation-shell:not(.clinical-evaluation-shell) .memory-heading span:not(.memory-icon),
+.workstation-shell:not(.clinical-evaluation-shell) .memory-card small { color: #596d66; font-size: 13px; }
+.workstation-shell:not(.clinical-evaluation-shell) .consultation-header { padding: 22px 25px 18px; }
+.workstation-shell:not(.clinical-evaluation-shell) .scenario-strip > div:first-child,
+.workstation-shell:not(.clinical-evaluation-shell) .scenario-actions { font-size: 14px; }
+.workstation-shell:not(.clinical-evaluation-shell) .scenario-button { font-size: 14px; padding: 8px 12px; }
+.workstation-shell:not(.clinical-evaluation-shell) .welcome-kicker { color: #536f65; font-size: 13px; letter-spacing: 0; }
+.workstation-shell:not(.clinical-evaluation-shell) .welcome-card h2 { font-size: 23px; }
+.workstation-shell:not(.clinical-evaluation-shell) .welcome-card p { color: #53645e; font-size: 16px; line-height: 1.75; }
+.workstation-shell:not(.clinical-evaluation-shell) .quick-prompts button { font-size: 15px; padding: 10px 12px; }
+.workstation-shell:not(.clinical-evaluation-shell) .user-message-card,
+.workstation-shell:not(.clinical-evaluation-shell) .assistant-markdown { color: #2f4540; font-size: 17px; line-height: 1.8; }
+.workstation-shell:not(.clinical-evaluation-shell) .message-label,
+.workstation-shell:not(.clinical-evaluation-shell) .assistant-message-body > .message-label { color: #596e66; font-size: 13px; }
+.workstation-shell:not(.clinical-evaluation-shell) .composer-input { min-height: 64px; font-size: 18px; line-height: 1.6; }
+.workstation-shell:not(.clinical-evaluation-shell) .composer-hint { max-width: 72%; color: #4f625c; font-size: 13px; line-height: 1.6; }
+.workstation-shell:not(.clinical-evaluation-shell) .send-button,
+.workstation-shell:not(.clinical-evaluation-shell) .stop-button { min-height: 42px; font-size: 15px; padding: 9px 14px; }
+.workstation-shell:not(.clinical-evaluation-shell) .composer-disclaimer { color: #53665f; font-size: 13px; line-height: 1.6; }
+.workstation-shell:not(.clinical-evaluation-shell) .error-notice { font-size: 14px; }
+.workstation-shell:not(.clinical-evaluation-shell) .evidence-drawer { font-size: 15px; }
+.workstation-shell:not(.clinical-evaluation-shell) .evidence-card h3 { font-size: 16px; }
+.workstation-shell:not(.clinical-evaluation-shell) .evidence-snippet,
+.workstation-shell:not(.clinical-evaluation-shell) .evidence-disclaimer { color: #52665f; font-size: 14px; line-height: 1.65; }
+
+@media (max-width: 760px) {
+  .workstation-shell:not(.clinical-evaluation-shell) .brand-logo { width: 125px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .product-name { display: block; font-size: 12px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .topbar { gap: 7px; padding-inline: 9px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .topbar-actions { gap: 5px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .new-session-button { min-width: 40px; padding: 8px; font-size: 0; }
+  .workstation-shell:not(.clinical-evaluation-shell) .new-session-button span { margin: 0; font-size: 20px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .mobile-panel-button { padding: 8px; font-size: 13px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .scenario-strip { flex-wrap: wrap; padding: 10px 12px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .scenario-strip > div:first-child > span:last-child { display: inline; }
+  .workstation-shell:not(.clinical-evaluation-shell) .scenario-actions { flex-wrap: wrap; gap: 7px; }
+  .workstation-shell:not(.clinical-evaluation-shell) .composer-hint { max-width: 100%; }
+}
+
+@media (max-width: 470px) {
+  .workstation-shell:not(.clinical-evaluation-shell) .product-name { display: none; }
+}
+
+.edge-login-area, .edge-unavailable { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f1f5f4; }
+.edge-login-card { width: min(520px, 100%); display: grid; gap: 18px; padding: 34px; border: 1px solid #dfe8e4; border-radius: 16px; background: #fff; box-shadow: 0 18px 55px rgba(40, 68, 62, .09); }
+.edge-login-card > img { width: min(280px, 80%); max-height: 70px; object-fit: contain; object-position: left center; }
+.edge-eyebrow { margin: 4px 0 -14px; color: #526e64; font-size: 16px; font-weight: 700; }
+.edge-login-card h1, .edge-unavailable h1 { margin: 0; color: #344a44; font-size: 30px; line-height: 1.3; }
+.edge-login-note, .edge-synthetic-note { margin: 0; color: #53665f; font-size: 17px; line-height: 1.7; }
+.edge-login-card label { display: grid; gap: 8px; color: #465d55; font-size: 17px; font-weight: 600; }
+.edge-login-card input { min-height: 54px; border: 1px solid #d5e0db; border-radius: 8px; padding: 12px 14px; color: #263b35; background: white; font: 18px "Segoe UI", "Microsoft YaHei", sans-serif; }
+.edge-login-card input:focus { outline: 3px solid #b5d7cb; outline-offset: 1px; }
+.edge-login-card > button { min-height: 54px; border: 0; border-radius: 8px; background: #18786c; color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; }
+.edge-login-card > button:disabled { opacity: .6; cursor: wait; }
+.edge-login-error { margin: 0; color: #a24435; font-size: 16px; line-height: 1.5; }
+.edge-synthetic-note { padding-top: 12px; border-top: 1px solid #edf1ef; color: #61756d; font-size: 14px; }
+.edge-unavailable { align-content: center; justify-items: center; text-align: center; gap: 14px; }
+.edge-unavailable img { width: min(310px, 78vw); max-height: 78px; object-fit: contain; }
+.edge-unavailable p { max-width: 620px; margin: 0; color: #53665f; font-size: 18px; line-height: 1.7; }
+.edge-workstation { background: #f1f5f4; }
+.edge-topbar .product-name { font-size: 19px; }
+.edge-topbar .account-label { color: #3d554d; font-size: 16px; font-weight: 600; }
+.edge-topbar .new-session-button { font-size: 15px; }
+.edge-case-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 13px 26px; border-bottom: 1px solid var(--line); background: #fbfcfb; }
+.edge-case-toolbar label { display: flex; align-items: center; gap: 9px; color: #526760; font-size: 16px; font-weight: 600; }
+.edge-case-toolbar select { min-height: 44px; max-width: min(42vw, 460px); border: 1px solid #d5e0db; border-radius: 7px; padding: 8px 12px; background: #fff; color: #304840; font: 16px "Segoe UI", "Microsoft YaHei", sans-serif; }
+.edge-grid { grid-template-columns: minmax(310px, 380px) minmax(0, 1fr); max-width: 1580px; }
+.edge-grid .patient-panel { min-height: 320px; }
+.edge-grid .consultation { min-height: 560px; flex: 1 1 auto; }
+.edge-footer { display: grid; justify-items: center; gap: 5px; padding: 12px 20px; border-top: 1px solid var(--line); background: #fff; text-align: center; }
+.edge-footer p { margin: 0; color: #4b6259; font-size: 14px; line-height: 1.55; }
+
+@media (max-width: 760px) {
+  .edge-login-area, .edge-unavailable { padding: 14px; }
+  .edge-login-card { gap: 14px; padding: 22px; }
+  .edge-login-card h1, .edge-unavailable h1 { font-size: 25px; }
+  .edge-login-note { font-size: 16px; }
+  .edge-topbar { height: auto; min-height: 64px; flex-wrap: wrap; padding: 8px 12px; }
+  .edge-topbar .brand-logo { width: 122px; }
+  .edge-topbar .product-name { display: none; }
+  .edge-topbar .topbar-actions { gap: 5px; }
+  .edge-topbar .account-label { display: none; }
+  .edge-topbar .new-session-button { min-width: auto; padding: 8px; font-size: 12px; }
+  .edge-case-toolbar { align-items: stretch; gap: 9px; padding: 10px 12px; }
+  .edge-case-toolbar label { flex: 1 1 100%; justify-content: space-between; font-size: 14px; }
+  .edge-case-toolbar select { flex: 1; max-width: none; min-height: 42px; font-size: 14px; }
+  .edge-grid { display: flex; flex-direction: column; gap: 8px; padding: 8px; }
+  .edge-grid .patient-column { display: flex; max-height: 29vh; }
+  .edge-grid .patient-panel { min-height: 0; padding: 12px; }
+  .edge-grid .patient-identity { padding: 9px 0; }
+  .edge-grid .clinical-section, .edge-grid .memory-card { display: none; }
+  .edge-grid .encounter-chip { margin-top: 7px; padding: 8px; }
+  .edge-grid .consultation { min-height: 390px; height: calc(100dvh - 405px); flex: 1 1 auto; }
+  .edge-footer { padding: 9px 12px; }
+  .edge-footer p { font-size: 12px; }
+}

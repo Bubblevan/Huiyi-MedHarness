@@ -1,0 +1,18 @@
+:8080 {
+	handle /api/* {
+		@private_access remote_ip 127.0.0.1 ::1
+		handle @private_access {
+			reverse_proxy 127.0.0.1:8321 {
+				flush_interval -1
+				header_up X-Edge-Client-IP {remote_host}
+			}
+		}
+		respond "API access requires an approved private or HTTPS entry point." 403
+	}
+
+	handle {
+		root * /srv/huiyi-edge/www
+		try_files {path} /index.html
+		file_server
+	}
+}

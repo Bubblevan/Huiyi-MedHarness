@@ -1,7 +1,16 @@
 import type { ClinicalWorkstationCopy } from "./clinicalWorkstation.js";
 
 export const clinicalCopy = {
-  productName: "临床工作台",
+  productName: "慧宜临床辅助工作台",
+  consultationLabel: "本次复诊",
+  consultationTitle: "复诊工作台",
+  patientContextLabel: "患者信息",
+  patientTitle: "患者概况",
+  encounterLabel: "本次就诊",
+  memoryTitle: "既往摘要",
+  memoryContextNote: "患者既往就诊信息",
+  sourceReviewLabel: "来源核验",
+  evidenceSourceLabel: "可追溯医学来源",
   gatewayUnavailable: "服务连接暂不可用，请稍后重试或联系管理员。",
   scenarioLabel: "快捷工作流",
   scenarioInstruction: "从患者上下文开始",

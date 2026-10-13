@@ -1,3 +1,3 @@
-// Local Vite fallback. The edge deployment proxies this path to the runtime
-// metadata endpoint so provider/model values are supplied by the active Gateway.
+// Optional public-facing runtime settings. Keep credentials and internal
+// provider/model details on the server; the clinician workspace does not read them.
 window.HuiyiRuntimeConfig = window.HuiyiRuntimeConfig || {};

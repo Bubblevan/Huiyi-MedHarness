@@ -20,6 +20,14 @@ const forbiddenCopy = [
   "PRESENTATION CASES",
   "DEMO SCENARIOS",
   "Clinical Demo Workstation",
+  "gpt-6-luna",
+  "huiyi-demo-local-codex",
+  "Agent Activity",
+  "EXECUTION TRACE",
+  "仅显示结构化执行元数据",
+  "仅显示脱敏执行元数据",
+  "DSH · DeepSeek API",
+  "Session 已开始",
   "simulated multi-specialist flow",
   "simulated execution",
   "fixture 错误状态测试",
@@ -44,7 +52,8 @@ const forbiddenCopy = [
   "HUIYI_LOCAL_QWEN_API_KEY",
 ];
 const clinicalEvaluationBuild = process.argv.includes("--clinical-evaluation");
-if (!clinicalEvaluationBuild) forbiddenCopy.push("模拟患者", "模拟数据");
+const edgeBuild = process.argv.includes("--edge");
+if (!clinicalEvaluationBuild && !edgeBuild) forbiddenCopy.push("模拟患者", "模拟数据");
 const requiredProductionCopy = clinicalEvaluationBuild ? [
   "临床评测环境",
   "模拟患者",
@@ -57,13 +66,16 @@ const requiredProductionCopy = clinicalEvaluationBuild ? [
   "本系统输出不构成诊断或治疗建议，需由医疗专业人员结合完整病史判断。",
   "本系统仅用于辅助临床工作流，最终决策由执业医师负责。",
 ] : [
-  "PROD",
+  "慧宜临床辅助工作台",
+  "患者信息",
+  "本次复诊",
   "尚未选择患者",
   "请先加载患者上下文",
   "描述本次复诊问题…",
   "请遵循机构隐私政策；输入可识别患者信息前，请确认已获得授权。",
   "当前病例",
-  "仅显示脱敏执行元数据",
+  "来源核验",
+  "医学证据来源",
   "本系统输出不构成诊断或治疗建议，需由医疗专业人员结合完整病史判断。",
   "本系统仅用于辅助临床工作流，最终决策由执业医师负责。",
 ];

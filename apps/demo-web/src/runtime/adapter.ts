@@ -50,7 +50,9 @@ export function createDemoAdapter(options: AdapterOptions): ChatModelAdapter {
       let runId: string | null = null;
       const cancel = () => {
         if (!runId) return;
-        void fetch(`${apiBase}/runs/${encodeURIComponent(runId)}/cancel`, { method: "POST", credentials: "same-origin" })
+        void fetch(`${apiBase}/runs/${encodeURIComponent(runId)}/cancel`, {
+          method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}",
+        })
           .then(async (response) => {
             if (!response.ok) return;
             const payload = await response.json() as { event?: unknown };

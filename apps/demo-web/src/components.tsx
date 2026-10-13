@@ -23,30 +23,31 @@ export function BackendBadge({ backend, providerName, modelName }: { backend: st
 }
 
 export function PatientContext({ patient, loading = false, syntheticLabel }: { patient: PatientRecord | null; loading?: boolean; syntheticLabel?: string }) {
-  if (loading) return <section className="panel patient-panel" aria-label="Patient Context"><p className="muted">{clinicalCopy.patientLoading}</p></section>;
-  if (!patient) return <section className="panel patient-panel patient-empty" aria-label="Patient Context"><div><h2>{clinicalCopy.patientEmptyTitle}</h2><p>{clinicalCopy.patientEmptyHint}</p></div></section>;
+  const patientContextLabel = clinicalCopy.patientContextLabel;
+  if (loading) return <section className="panel patient-panel" aria-label={patientContextLabel}><p className="muted">{clinicalCopy.patientLoading}</p></section>;
+  if (!patient) return <section className="panel patient-panel patient-empty" aria-label={patientContextLabel}><div><p className="eyebrow">{patientContextLabel}</p><h2>{clinicalCopy.patientEmptyTitle}</h2><p>{clinicalCopy.patientEmptyHint}</p></div></section>;
   const encounterHistory = patient.encounterHistory ?? [];
   return (
-    <section className="panel patient-panel" aria-label="Patient Context">
-      <div className="panel-heading"><div><p className="eyebrow">PATIENT CONTEXT</p><h2>患者上下文</h2></div>{syntheticLabel ? <span className="synthetic-tag">{syntheticLabel}</span> : !isNonDemoBuild && <span className="synthetic-tag">{clinicalCopy.patientTag}</span>}</div>
+    <section className="panel patient-panel" aria-label={patientContextLabel}>
+      <div className="panel-heading"><div><p className="eyebrow">{patientContextLabel}</p><h2>{clinicalCopy.patientTitle}</h2></div>{syntheticLabel ? <span className="synthetic-tag">{syntheticLabel}</span> : !isNonDemoBuild && <span className="synthetic-tag">{clinicalCopy.patientTag}</span>}</div>
       <div className="patient-identity">
         <div className="patient-avatar">{patient.displayName.slice(0, 1)}</div>
         <div><h3>{patient.displayName}</h3><p>{patient.sex} · {patient.age} 岁</p></div>
       </div>
-      <div className="encounter-chip"><span className="small-label">当前 Encounter</span><strong>{patient.encounter}</strong></div>
+      <div className="encounter-chip"><span className="small-label">{clinicalCopy.encounterLabel}</span><strong>{patient.encounter}</strong></div>
       {encounterHistory.length > 0 && <section className="clinical-section encounter-history">
         <h3>既往就诊 <span>{encounterHistory.length}</span></h3>
         <ol>{encounterHistory.map((item) => <li key={item.encounterId}>
-          <strong>{item.label}</strong><small>{item.encounterId}</small><p>{item.summary}</p>
+          <strong>{item.label}</strong><p>{item.summary}</p>
         </li>)}</ol>
       </section>}
       <section className="clinical-section"><h3>已知问题 <span>{patient.conditions.length}</span></h3><ul>{patient.conditions.map((condition) => <li key={condition}><span className="clinical-mark amber" />{condition}</li>)}</ul></section>
       <section className="clinical-section"><h3>用药记录 <span>{patient.medications.length}</span></h3><ul>{patient.medications.map((medication) => <li key={medication}><span className="clinical-mark blue" />{medication}</li>)}</ul></section>
       <section className="clinical-section"><h3>过敏信息</h3><ul>{patient.allergies.map((allergy) => <li key={allergy}><span className="clinical-mark green" />{allergy}</li>)}</ul></section>
-      <section className="memory-card" aria-label="Longitudinal Memory">
-        <div className="memory-heading"><span className="memory-icon">M</span><div><h3>长期记忆摘要</h3><span>{patient.memory.items} 条 · {patient.memory.updatedLabel}</span></div></div>
+      <section className="memory-card" aria-label={clinicalCopy.memoryTitle}>
+        <div className="memory-heading"><span className="memory-icon">既</span><div><h3>{clinicalCopy.memoryTitle}</h3><span>{patient.memory.updatedLabel}</span></div></div>
         <p>{patient.memory.summary}</p>
-        <small>患者历史上下文 · 与医学证据分开</small>
+        <small>{clinicalCopy.memoryContextNote}</small>
       </section>
       {!isNonDemoBuild && <p className="synthetic-note">{clinicalCopy.patientDataNote}</p>}
     </section>
@@ -171,13 +172,13 @@ export function EvidenceDrawer({ open, items, onClose, backend = "fixture" }: { 
   if (!open) return null;
   return (
     <div className="drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <aside className="evidence-drawer" role="dialog" aria-modal="true" aria-label="Evidence Sources">
+      <aside className="evidence-drawer" role="dialog" aria-modal="true" aria-label="医学证据来源">
         <div className="drawer-grabber" />
-        <div className="drawer-heading"><div><p className="eyebrow">SOURCE REVIEW</p><h2>医学证据来源</h2></div><button className="icon-button" onClick={onClose} aria-label="关闭证据抽屉">×</button></div>
-        <span className="fixture-tag">{backend === "dsh" || isNonDemoBuild ? "本地医学检索结果" : clinicalCopy.fixtureEvidenceLabel}</span>
+        <div className="drawer-heading"><div><p className="eyebrow">{clinicalCopy.sourceReviewLabel}</p><h2>医学证据来源</h2></div><button className="icon-button" onClick={onClose} aria-label="关闭证据抽屉">×</button></div>
+        <span className="fixture-tag">{backend === "dsh" || isNonDemoBuild ? clinicalCopy.evidenceSourceLabel : clinicalCopy.fixtureEvidenceLabel}</span>
         {items.length === 0 || (isNonDemoBuild && backend === "fixture") ? <p className="muted">本轮尚无可展示的证据。</p> : <div className="evidence-list">{items.map((item) => <article className="evidence-card" key={item.evidenceId} id={item.evidenceId}>
-          <div className="evidence-card-top"><span className="citation-index">[{item.rank}]</span><code>{item.evidenceId}</code></div>
-          <p className="evidence-source">{item.source}</p><h3>{item.title}</h3><p className="evidence-snippet">{item.snippet}</p>
+          <div className="evidence-card-top"><span className="citation-index">[{item.rank}]</span>{!isNonDemoBuild && <code>{item.evidenceId}</code>}</div>
+          <p className="evidence-source">{backend === "fixture" && !isNonDemoBuild ? clinicalCopy.fixtureEvidenceLabel : item.source}</p><h3>{item.title}</h3><p className="evidence-snippet">{item.snippet}</p>
         </article>)}</div>}
         <p className="evidence-disclaimer">{backend === "dsh" || isNonDemoBuild ? clinicalCopy.evidenceDisclaimer : clinicalCopy.fixtureEvidenceDisclaimer}</p>
       </aside>

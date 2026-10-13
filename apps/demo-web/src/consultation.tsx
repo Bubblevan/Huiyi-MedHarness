@@ -34,22 +34,23 @@ function QuickPrompts({ enabled }: { enabled: boolean }) {
   return <div className="quick-prompts"><button disabled={!enabled} onClick={() => void aui.composer.setText(clinicalCopy.quickPromptVisit)}>整理复诊问题 <span>↗</span></button><button disabled={!enabled} onClick={() => void aui.composer.setText(clinicalCopy.quickPromptNextSteps)}>生成沟通清单 <span>↗</span></button></div>;
 }
 
-export function Consultation({ patientId, encounterId, sessionId, scenario, canSubmit, onEvent, onError, onRetry, onChooseScenario, includeScenario = true, errorCode }: {
+export function Consultation({ patientId, encounterId, sessionId, scenario, canSubmit, onEvent, onError, onRetry, onChooseScenario, includeScenario = true, showInternalMetadata = true, errorCode }: {
   patientId: string; encounterId?: string; sessionId: string; scenario: Scenario; canSubmit: boolean;
   includeScenario?: boolean;
+  showInternalMetadata?: boolean;
   onEvent: (event: WireDemoEvent) => void; onError: (code: string) => void; onRetry: () => void; onChooseScenario: (scenario: Scenario) => void; errorCode?: string;
 }) {
   const adapter = useMemo<ChatModelAdapter>(() => createDemoAdapter({ patientId, encounterId, sessionId, scenario, includeScenario, onEvent, onError, apiBase: API_BASE }), [patientId, encounterId, sessionId, scenario, includeScenario, onEvent, onError]);
   const runtime = useLocalRuntime(adapter);
   return <AssistantRuntimeProvider runtime={runtime}>
-    <section className="consultation" aria-label="Consultation">
+    <section className="consultation" aria-label={clinicalCopy.consultationTitle}>
       <header className="consultation-header">
-        <div><p className="eyebrow">CONSULTATION</p><h1>复诊工作台</h1></div>
-        <div className="session-meta"><span><i /> Encounter</span><span>Session <code>{sessionId.slice(0, 8)}</code></span></div>
+        <div><p className="eyebrow">{clinicalCopy.consultationLabel}</p><h1>{clinicalCopy.consultationTitle}</h1></div>
+        {showInternalMetadata && <div className="session-meta"><span><i /> Encounter</span><span>Session <code>{sessionId.slice(0, 8)}</code></span></div>}
       </header>
       {!isNonDemoBuild && <div className="scenario-strip" aria-label={clinicalCopy.scenarioAriaLabel}>
         <div><span className="scenario-label">{clinicalCopy.scenarioLabel}</span><span>{clinicalCopy.scenarioInstruction}</span></div>
-        <div className="scenario-actions"><button className={scenario === "simple" ? "scenario-button selected" : "scenario-button"} onClick={() => onChooseScenario("simple")} title={`开始${clinicalCopy.simpleScenario}场景`}>{clinicalCopy.simpleScenario}</button><span className="scenario-separator">/</span><span className="scenario-current">{scenario === "complex" ? clinicalCopy.complexScenario : scenario === "failure" ? clinicalCopy.failureScenario : clinicalCopy.currentScenario}</span></div>
+        <div className="scenario-actions"><button aria-pressed={scenario === "simple"} className={scenario === "simple" ? "scenario-button selected" : "scenario-button"} onClick={() => onChooseScenario("simple")}>{clinicalCopy.simpleScenario}</button><button aria-pressed={scenario === "complex"} className={scenario === "complex" ? "scenario-button selected" : "scenario-button"} onClick={() => onChooseScenario("complex")}>{clinicalCopy.complexScenario}</button></div>
       </div>}
       {errorCode && <div className="consultation-error"><ErrorNotice message={`执行状态：${errorCode}`} onRetry={onRetry} /></div>}
       <ThreadPrimitive.Root className="thread-root">

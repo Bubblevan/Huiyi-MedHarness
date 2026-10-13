@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BoundedTurnGate } from "./bounded-turn-gate.js";
+import { writeLocalGatewayTrace } from "../trace.js";
 
 const MODEL = "gpt-6-luna";
 const MAX_BODY_BYTES = 1_000_000;
@@ -65,12 +66,27 @@ interface PendingRequest {
 interface ActiveTurn {
   readonly resolve: (value: { text: string; usage?: TokenUsage }) => void;
   readonly reject: (error: Error) => void;
+  readonly trace: CodexBridgeTraceContext;
+  readonly startedAt: number;
   text: string;
+  modelDeltaCount: number;
+  modelOutputChars: number;
+  firstModelDeltaMs?: number;
+  turnStartAcceptedAt?: number;
   turnId?: string;
   usage?: TokenUsage;
   timer: NodeJS.Timeout;
   signal?: AbortSignal;
   abortListener?: () => void;
+  heartbeat: NodeJS.Timeout;
+}
+
+export interface CodexBridgeTraceContext {
+  readonly requestId: string;
+  readonly runId?: string;
+  readonly edgeTraceId?: string;
+  readonly modelRequestId: string;
+  readonly attempt?: number;
 }
 
 export class CodexAppServerTurnError extends Error {
@@ -230,8 +246,33 @@ export class CodexAppServerClient {
     catch (error) { this.startPromise = undefined; throw error; }
   }
 
-  async complete(request: ChatCompletionRequest, signal?: AbortSignal): Promise<{ readonly completion: ParsedCompletion; readonly usage?: TokenUsage }> {
-    return this.turnGate.run(() => this.completeWithBoundedRetry(request, signal), signal);
+  async complete(
+    request: ChatCompletionRequest,
+    signal?: AbortSignal,
+    trace: CodexBridgeTraceContext = { requestId: randomUUID(), modelRequestId: randomUUID() },
+  ): Promise<{ readonly completion: ParsedCompletion; readonly usage?: TokenUsage }> {
+    const queuedAt = Date.now();
+    writeLocalGatewayTrace({ ...trace, event: "model.request.queued", modelName: MODEL, messageCount: request.messages.length, toolCount: request.tools.length, activeTurns: this.turnGate.activeCount, queuedTurns: this.turnGate.queuedCount });
+    try {
+      return await this.turnGate.run(async () => {
+        const queueWaitMs = Date.now() - queuedAt;
+        const admittedAt = Date.now();
+        writeLocalGatewayTrace({ ...trace, event: "model.request.admitted", modelName: MODEL, queueWaitMs, activeTurns: this.turnGate.activeCount, queuedTurns: this.turnGate.queuedCount });
+        try {
+          const result = await this.completeWithBoundedRetry(request, signal, trace);
+          writeLocalGatewayTrace({ ...trace, event: "model.request.completed", modelName: MODEL, status: "completed", durationMs: Date.now() - queuedAt, elapsedMs: Date.now() - admittedAt, usagePresent: Boolean(result.usage), modelOutputChars: result.completion.content.length });
+          return result;
+        } catch (error) {
+          if (signal?.aborted) throw error;
+          const failure = safeCodexBridgeFailure(error);
+          writeLocalGatewayTrace({ ...trace, event: "model.request.failed", modelName: MODEL, status: "failed", durationMs: Date.now() - queuedAt, errorCategory: failure.category, ...(failure.rpcMethod ? { rpcMethod: failure.rpcMethod } : {}), ...(failure.rpcCode !== undefined ? { rpcCode: failure.rpcCode } : {}), ...(failure.systemErrorCode ? { systemErrorCode: failure.systemErrorCode } : {}), ...(failure.turnStatus ? { turnStatus: failure.turnStatus } : {}) });
+          throw error;
+        }
+      }, signal);
+    } catch (error) {
+      if (signal?.aborted) writeLocalGatewayTrace({ ...trace, event: "model.request.cancelled", modelName: MODEL, status: "cancelled", durationMs: Date.now() - queuedAt });
+      throw error;
+    }
   }
 
   async dispose(): Promise<void> {
@@ -275,8 +316,9 @@ export class CodexAppServerClient {
     this.notify("initialized", {});
   }
 
-  private async completeExclusive(request: ChatCompletionRequest, signal?: AbortSignal, repairMalformedResponse = false): Promise<{ readonly completion: ParsedCompletion; readonly usage?: TokenUsage }> {
+  private async completeExclusive(request: ChatCompletionRequest, signal: AbortSignal | undefined, repairMalformedResponse: boolean, trace: CodexBridgeTraceContext): Promise<{ readonly completion: ParsedCompletion; readonly usage?: TokenUsage }> {
     signal?.throwIfAborted();
+    const threadStartAt = Date.now();
     await this.start();
     const developerMessages = request.messages
       .filter((message) => message.role === "system" || message.role === "developer")
@@ -303,6 +345,8 @@ export class CodexAppServerClient {
         ...(repairMalformedResponse ? ["The previous completion did not match the required structured response schema. Return exactly one valid response matching the supplied schema. Do not add Markdown, commentary, or extra fields; do not omit required fields. If requesting a DSH host function, encode its arguments as a JSON object string and use only the declared function name."] : []),
       ].join("\n\n"),
     });
+    const threadStartMs = Date.now() - threadStartAt;
+    writeLocalGatewayTrace({ ...trace, event: "model.thread.started", modelName: MODEL, threadStartMs, status: "completed" });
     const thread = isRecord(threadResult) && isRecord(threadResult.thread) ? threadResult.thread : undefined;
     const threadId = thread && typeof thread.id === "string" ? thread.id : undefined;
     if (!threadId) throw new Error("Codex app-server did not return a thread id");
@@ -318,16 +362,28 @@ export class CodexAppServerClient {
     });
     const schema = structuredCompletionSchema(request.tools.map((tool) => tool.function.name), request.toolChoice, request.responseSchema);
     const result = await new Promise<{ text: string; usage?: TokenUsage }>((resolveTurn, rejectTurn) => {
-      const active: ActiveTurn = {
+      let active!: ActiveTurn;
+      active = {
         resolve: resolveTurn,
         reject: rejectTurn,
+        trace,
+        startedAt: Date.now(),
         text: "",
+        modelDeltaCount: 0,
+        modelOutputChars: 0,
+        heartbeat: setInterval(() => {
+          const stage = active.firstModelDeltaMs === undefined
+            ? active.turnStartAcceptedAt === undefined ? "turn_start_pending" : "waiting_for_first_model_delta"
+            : "model_streaming";
+          writeLocalGatewayTrace({ ...active.trace, event: "model.turn.heartbeat", modelName: MODEL, elapsedMs: Date.now() - active.startedAt, firstModelDeltaMs: active.firstModelDeltaMs ?? -1, modelDeltaCount: active.modelDeltaCount, modelOutputChars: active.modelOutputChars, stage, turnIdPresent: Boolean(active.turnId), activeTurns: this.turnGate.activeCount, queuedTurns: this.turnGate.queuedCount });
+        }, 15_000),
         timer: setTimeout(() => {
           void this.rpc("turn/interrupt", { threadId }).catch(() => undefined);
           this.settleTurn(threadId, active, new Error("Codex app-server model turn timed out"));
         }, TURN_TIMEOUT_MS),
         ...(signal ? { signal } : {}),
       };
+      active.heartbeat.unref();
       if (signal) {
         active.abortListener = () => {
           void this.rpc("turn/interrupt", { threadId }).catch(() => undefined);
@@ -343,7 +399,9 @@ export class CodexAppServerClient {
         input: [{ type: "text", text: prompt, text_elements: [] }],
         outputSchema: schema,
       }).then((turnResult) => {
+        active.turnStartAcceptedAt = Date.now();
         if (isRecord(turnResult) && isRecord(turnResult.turn) && typeof turnResult.turn.id === "string") active.turnId = turnResult.turn.id;
+        writeLocalGatewayTrace({ ...trace, event: "model.turn_start.accepted", modelName: MODEL, turnStartMs: active.turnStartAcceptedAt - active.startedAt, turnIdPresent: Boolean(active.turnId), stage: active.firstModelDeltaMs === undefined ? "waiting_for_first_model_delta" : "model_streaming" });
       }).catch((error: unknown) => this.settleTurn(threadId, active, normalizeError(error)));
     });
 
@@ -355,18 +413,21 @@ export class CodexAppServerClient {
 
   private async completeWithBoundedRetry(
     request: ChatCompletionRequest,
-    signal?: AbortSignal,
+    signal: AbortSignal | undefined,
+    trace: CodexBridgeTraceContext,
   ): Promise<{ readonly completion: ParsedCompletion; readonly usage?: TokenUsage }> {
     // Each attempt uses an ephemeral thread and replays the same DSH transcript;
     // host-side tools run only after this method returns, so no tool side effect
     // is repeated by the retry.
+    let attempt = 1;
     return withBoundedCodexAppServerRetry((repairMalformedResponse) =>
-      this.completeExclusive(request, signal, repairMalformedResponse), signal, (event, reason) => {
+      this.completeExclusive(request, signal, repairMalformedResponse, { ...trace, attempt: attempt++ }), signal, (event, reason) => {
       if (event === "attempt") {
         this.retryCounts.attempts += 1;
         this.retryCounts[reason === "malformed_response" ? "malformedResponse" : "providerTurn"] += 1;
       } else if (event === "succeeded") this.retryCounts.successes += 1;
       else this.retryCounts.failures += 1;
+      writeLocalGatewayTrace({ ...trace, event: `model.retry.${event}`, modelName: MODEL, attempt: 2, retryCount: this.retryCounts.attempts, retryReason: reason, status: event });
     });
   }
 
@@ -396,7 +457,15 @@ export class CodexAppServerClient {
       if (!threadId) continue;
       const active = this.turns.get(threadId);
       if (!active) continue;
-      if (message.method === "item/agentMessage/delta" && typeof params.delta === "string") active.text += params.delta;
+      if (message.method === "item/agentMessage/delta" && typeof params.delta === "string") {
+        active.text += params.delta;
+        active.modelDeltaCount += 1;
+        active.modelOutputChars += params.delta.length;
+        if (active.firstModelDeltaMs === undefined) {
+          active.firstModelDeltaMs = Date.now() - active.startedAt;
+          writeLocalGatewayTrace({ ...active.trace, event: "model.first_delta", modelName: MODEL, firstModelDeltaMs: active.firstModelDeltaMs, modelDeltaCount: active.modelDeltaCount, modelOutputChars: active.modelOutputChars, stage: "model_streaming" });
+        }
+      }
       else if (message.method === "thread/tokenUsage/updated" && isRecord(params.tokenUsage) && isRecord(params.tokenUsage.last)) {
         const usage = params.tokenUsage.last;
         if (isNonNegativeInteger(usage.inputTokens) && isNonNegativeInteger(usage.outputTokens)) {
@@ -442,7 +511,25 @@ export class CodexAppServerClient {
     if (this.turns.get(threadId) !== turn) return;
     this.turns.delete(threadId);
     clearTimeout(turn.timer);
+    clearInterval(turn.heartbeat);
     if (turn.signal && turn.abortListener) turn.signal.removeEventListener("abort", turn.abortListener);
+    const cancelled = Boolean(error && turn.signal?.aborted);
+    const failure = error && !cancelled ? safeCodexBridgeFailure(error) : undefined;
+    writeLocalGatewayTrace({
+      ...turn.trace,
+      event: "model.turn.terminal",
+      modelName: MODEL,
+      status: cancelled ? "cancelled" : error ? "failed" : "completed",
+      durationMs: Date.now() - turn.startedAt,
+      firstModelDeltaMs: turn.firstModelDeltaMs ?? -1,
+      modelDeltaCount: turn.modelDeltaCount,
+      modelOutputChars: turn.modelOutputChars,
+      turnIdPresent: Boolean(turn.turnId),
+      ...(error ? { errorCategory: failure?.category ?? "unknown" } : {}),
+      ...(failure?.turnStatus ? { turnStatus: failure.turnStatus } : {}),
+      ...(failure?.rpcMethod ? { rpcMethod: failure.rpcMethod } : {}),
+      ...(failure?.rpcCode !== undefined ? { rpcCode: failure.rpcCode } : {}),
+    });
     if (error) turn.reject(error);
     else turn.resolve({ text: turn.text, ...(turn.usage ? { usage: turn.usage } : {}) });
   }
@@ -583,12 +670,18 @@ async function handleBridgeRequest(request: IncomingMessage, response: ServerRes
     writeJson(response, 415, { error: { message: "Content-Type must be application/json", type: "invalid_request_error" } });
     return;
   }
+  const requestId = traceHeader(request.headers["x-huiyi-request-id"]) ?? randomUUID();
+  const runId = traceHeader(request.headers["x-huiyi-run-id"]);
+  const edgeTraceId = traceHeader(request.headers["x-huiyi-trace-id"]);
+  const modelRequestId = randomUUID();
+  const trace: CodexBridgeTraceContext = { requestId, modelRequestId, ...(runId ? { runId } : {}), ...(edgeTraceId ? { edgeTraceId } : {}) };
   const controller = new AbortController();
   response.on("close", () => { if (!response.writableEnded) controller.abort(); });
   try {
     const requestValue = await readJson(request);
     const decoded = decodeChatCompletionRequest(requestValue);
-    const result = await client.complete(decoded, controller.signal);
+    writeLocalGatewayTrace({ ...trace, event: "bridge.request.accepted", modelName: MODEL, messageCount: decoded.messages.length, toolCount: decoded.tools.length, status: "accepted" });
+    const result = await client.complete(decoded, controller.signal, trace);
     if (controller.signal.aborted) return;
     const id = `chatcmpl-${randomUUID()}`;
     const created = Math.floor(Date.now() / 1000);
@@ -598,6 +691,7 @@ async function handleBridgeRequest(request: IncomingMessage, response: ServerRes
       completion_tokens: result.usage.outputTokens,
       total_tokens: result.usage.totalTokens,
     } : undefined;
+    writeLocalGatewayTrace({ ...trace, event: "bridge.response.ready", modelName: MODEL, status: "completed", outputChars: result.completion.content.length, toolCount: result.completion.toolCalls.length, usagePresent: Boolean(result.usage), stage: "response_ready" });
     if (!decoded.stream) {
       writeJson(response, 200, {
         id, object: "chat.completion", created, model: MODEL,
@@ -617,18 +711,27 @@ async function handleBridgeRequest(request: IncomingMessage, response: ServerRes
     if (decoded.includeUsage && usage) writeSse(response, { id, object: "chat.completion.chunk", created, model: MODEL, choices: [], usage });
     response.end("data: [DONE]\n\n");
   } catch (error) {
-    if (controller.signal.aborted || response.destroyed) return;
+    if (controller.signal.aborted || response.destroyed) {
+      writeLocalGatewayTrace({ ...trace, event: "bridge.request.cancelled", modelName: MODEL, status: "cancelled" });
+      return;
+    }
     const status = error instanceof RangeError ? 413 : error instanceof TypeError && !(error instanceof CodexAppServerModelResponseError) ? 400 : 502;
     let safeFailure: SafeCodexBridgeFailure | undefined;
     if (status === 502) {
       safeFailure = safeCodexBridgeFailure(error);
       process.stderr.write(`${JSON.stringify({ event: "codex_bridge.model_request_failed", ...safeFailure })}\n`);
     }
+    writeLocalGatewayTrace({ ...trace, event: "bridge.request.failed", modelName: MODEL, status: "failed", httpStatus: status, ...(safeFailure ? { errorCategory: safeFailure.category, ...(safeFailure.rpcMethod ? { rpcMethod: safeFailure.rpcMethod } : {}), ...(safeFailure.rpcCode !== undefined ? { rpcCode: safeFailure.rpcCode } : {}), ...(safeFailure.systemErrorCode ? { systemErrorCode: safeFailure.systemErrorCode } : {}), ...(safeFailure.turnStatus ? { turnStatus: safeFailure.turnStatus } : {}) } : {}) });
     const message = status === 502 ? "Codex app-server model request failed" : error instanceof Error ? error.message : "Invalid model request";
     writeJson(response, status, safeFailure
       ? safeCodexBridgeErrorBody(safeFailure)
       : { error: { message, type: "invalid_request_error" } });
   }
+}
+
+function traceHeader(value: string | string[] | undefined): string | undefined {
+  const candidate = Array.isArray(value) ? value.length === 1 ? value[0] : undefined : value;
+  return candidate && /^[A-Za-z0-9_-]{8,80}$/.test(candidate) ? candidate : undefined;
 }
 
 function decodeChatCompletionRequest(value: unknown): ChatCompletionRequest {
@@ -742,6 +845,7 @@ function readTurnConcurrency(raw: string | undefined): number {
 
 async function main(): Promise<void> {
   const bridge = await startCodexAppServerBridge();
+  writeLocalGatewayTrace({ event: "bridge.server.ready", route: "codex-app-server", modelName: MODEL, activeTurns: 0, maxConcurrentTurns: readTurnConcurrency(process.env.HUIYI_CODEX_BRIDGE_MAX_CONCURRENT_TURNS) });
   process.stdout.write(`${JSON.stringify({ status: "listening", host: bridge.host, port: bridge.port, model: MODEL })}\n`);
   const close = (): void => { void bridge.close().catch(() => undefined); };
   process.once("SIGINT", close);
