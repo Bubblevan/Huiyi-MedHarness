@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { createServer as createNetServer } from "node:net";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { CodexAppServerClient, CodexAppServerModelResponseError, CodexAppServerTurnError, decodeJsonSchemaResponseFormat, isRetryableCodexAppServerFailure, isRetryableCodexAppServerTurnError, parseStructuredCompletion, safeCodexBridgeErrorBody, safeCodexBridgeFailure, startCodexAppServerBridge, structuredCompletionSchema, withBoundedCodexAppServerRetry } from "../src/backends/codex-app-server-bridge.js";
+import { CodexAppServerClient, CodexAppServerModelResponseError, CodexAppServerTurnError, decodeJsonSchemaResponseFormat, isRetryableCodexAppServerFailure, isRetryableCodexAppServerTurnError, parseStructuredCompletion, safeCodexBridgeErrorBody, safeCodexBridgeFailure, startCodexAppServerBridge, structuredCompletionSchema, toolChoiceForExplicitEvidenceRequest, withBoundedCodexAppServerRetry } from "../src/backends/codex-app-server-bridge.js";
 import { readModelConfiguration } from "../src/backends/dsh-runtime.js";
 
 describe("local Codex app-server model route", () => {
@@ -171,6 +171,36 @@ describe("local Codex app-server model route", () => {
     expect(schema).toMatchObject({ type: "object", additionalProperties: false });
     const properties = schema.properties as Record<string, unknown>;
     expect((properties.tool_calls as { maxItems: number }).maxItems).toBe(1);
+  });
+
+  it("forces local medical retrieval only for explicit, not-yet-served evidence requests", () => {
+    const tools = [{ type: "function", function: { name: "search_medical_evidence" } }] as const;
+    const explicitRequest = {
+      tools,
+      toolChoice: "auto",
+      responseSchema: undefined,
+      messages: [{ role: "user", content: "请检索本地医学指南，并为结论附上证据来源。" }],
+    } as const;
+    expect(toolChoiceForExplicitEvidenceRequest(explicitRequest)).toEqual({
+      type: "function", function: { name: "search_medical_evidence" },
+    });
+
+    expect(toolChoiceForExplicitEvidenceRequest({
+      ...explicitRequest,
+      messages: [{ role: "user", content: "最近血压有点高，复诊时需要注意什么？" }],
+    })).toBe("auto");
+    expect(toolChoiceForExplicitEvidenceRequest({
+      ...explicitRequest,
+      responseSchema: { type: "object" },
+    })).toBe("auto");
+    expect(toolChoiceForExplicitEvidenceRequest({
+      ...explicitRequest,
+      messages: [
+        { role: "user", content: "请检索本地医学指南并附上证据来源。" },
+        { role: "assistant", tool_calls: [{ id: "rag-1", type: "function", function: { name: "search_medical_evidence", arguments: "{}" } }] },
+        { role: "tool", tool_call_id: "rag-1", content: "retrieval result" },
+      ],
+    })).toBe("auto");
   });
 
   it("passes a strict JSON response schema into the structured completion schema", () => {

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "huiyi-rag-tool-selection-fix-eval/v1",
+  "createdAt": "2026-10-13",
+  "status": "passed_with_scope_note",
+  "source": {
+    "gitRevision": "eb20a79f79a3994673ddd8e3dc12c9081e7c1c2c",
+    "workingTreeDirty": true,
+    "postFixApplicationSourceSha256": "cd1b9e64330f0ca2434dad0e232ae93134c45f939d226618d92214cef6b34aaa",
+    "healthEngineSourceSha256": "d9a2ba63ff4be2f9b8e06804f3d8f5ca0147092e91de6868d30e429462da1aba"
+  },
+  "cause": {
+    "category": "stochastic_model_tool_selection",
+    "detail": "The DSH host exposed search_medical_evidence and instructed GPT-6-Luna to call it, but the bridge still sent tool_choice=auto. The model sometimes returned a final answer without calling the tool; the run completed with no evidence events.",
+    "excludedCauses": ["health-engine-unavailable", "index-not-ready", "browser-evidence-rendering"],
+    "baselineApplicationSourceSha256": "2ed9ad33e9ae7a8f624182b01d3ba64b57a5c96d66506bb893d10bea10c15f06"
+  },
+  "baseline": {
+    "explicitEvidenceRequests": 2,
+    "ragToolInvocations": 1,
+    "invocationRate": 0.5,
+    "successfulRequestEvidenceItems": 3,
+    "successfulRequestCitationIdsMatchingCards": { "matched": 5, "total": 5 },
+    "failedRequestEvidenceItems": 0,
+    "failedRequestCitationCount": 0
+  },
+  "fix": {
+    "location": "services/demo-gateway/src/backends/codex-app-server-bridge.ts",
+    "behavior": "For a recognized explicit evidence request, when RAG is declared, tool choice is auto, no response schema is imposed, and the latest user turn has not already invoked RAG, force the existing search_medical_evidence function choice.",
+    "preservesSingleRetrievalPerTurn": true,
+    "unitTests": { "passed": 14, "failed": 0 },
+    "gatewayBuild": "passed",
+    "diffCheck": "passed"
+  },
+  "postFixBrowserRun": {
+    "artifact": "../e2e-gpt6-luna-20261013/run-20261013T125003836Z-edge-v2/edge-browser-e2e.json",
+    "model": "gpt-6-luna",
+    "backend": "codex-app-server",
+    "explicitEvidenceRequests": 1,
+    "explicitRequestsInvoked": 1,
+    "invocationRate": 1.0,
+    "forcedChoiceEvents": 2,
+    "forcedChoiceByTurn": ["explicit-evidence-request", "cross-session-memory-request; trigger text unavailable in privacy-safe trace"],
+    "evidence": {
+      "itemsForExplicitRequest": 3,
+      "citationIds": 6,
+      "citationIdsMatchingEvidenceCards": { "matched": 6, "total": 6 },
+      "semanticClaimSupportRate": null,
+      "retrievalLatencyMs": 563.4,
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "corpusChunks": 823450,
+      "embeddingModel": "Qwen3-Embedding-0.6B"
+    },
+    "browserE2EChecks": { "passed": 13, "total": 13 },
+    "patientScope": {
+      "deniedContext": { "statusCode": 404, "count": 1 },
+      "deniedSessionCreate": { "statusCode": 404, "count": 1 },
+      "deniedChat": { "statusCode": 404, "count": 1 },
+      "unauthorizedDownstreamModelCalls": 0
+    },
+    "cancellationAndRecovery": {
+      "cancelStatusCode": 202,
+      "cancelEndpointMs": 16,
+      "cancelTerminalMs": 32,
+      "newSessionReadyMs": 177
+    },
+    "amaCrossSessionRecall": {
+      "passed": true,
+      "targetSyntheticFact": "145/92 blood pressure",
+      "recalledItems": 9,
+      "persistedFactCountBeforeCleanup": 9
+    },
+    "logoutRevocation": { "passed": true, "postLogoutStatusCode": 401 },
+    "latencyMs": {
+      "explicitRagTurnEndToEnd": 42922,
+      "explicitRagFirstVisibleText": 18939,
+      "completedAnswerTurns": { "n": 2, "p50": 53837, "p95NearestRank": 64814 },
+      "firstVisibleText": { "n": 2, "p50": 30265, "p95NearestRank": 41591 }
+    },
+    "tokenUsage": {
+      "dsh": { "input": 77224, "output": 563, "total": 77787 },
+      "ama": { "input": 233996, "output": 966, "total": 234962 },
+      "combinedTotal": 312749,
+      "monetaryCost": null
+    },
+    "runtime": {
+      "freeRamGiBStart": 24.1,
+      "freeRamGiBEnd": 23.5,
+      "javascriptPageErrors": 0,
+      "unclassifiedBrowserConsoleErrors": 6,
+      "realPatientDataUsed": false,
+      "downloads": 0
+    },
+    "cleanup": {
+      "memoryForgetStatus": 200,
+      "memoryEmpty": true,
+      "recordsAfterCleanup": { "raw": 0, "facts": 0, "episodes": 0 }
+    }
+  },
+  "interpretation": {
+    "explicitRagUnderTriggerAddressed": true,
+    "smallSampleWarning": "Post-fix browser evidence is one explicit request (1/1); it validates the forced route, not a population reliability rate.",
+    "overTriggerNote": "One force-choice event and three evidence items also occurred during the cross-session memory turn. Its triggering content was not retained in the privacy-safe trace, so that match cannot be attributed or ruled intentional.",
+    "publicIngressOrProductionSlaTested": false
+  },
+  "excludedRuns": [
+    {
+      "runs": ["run-20261013T123423766Z-edge-v2", "run-20261013T123656340Z-edge-v2"],
+      "reason": "They used an already-running bridge process that had not loaded the patched bridge code; they are preserved as observations but excluded from post-fix counts."
+    }
+  ]
+}

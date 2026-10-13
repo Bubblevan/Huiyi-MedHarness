@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "huiyi-gpt6-luna-edge-e2e-aggregate/v1",
+  "status": "partial",
+  "createdAt": "2026-10-13",
+  "source": {
+    "gitRevision": "eb20a79f79a3994673ddd8e3dc12c9081e7c1c2c",
+    "applicationSourceSha256": "2ed9ad33e9ae7a8f624182b01d3ba64b57a5c96d66506bb893d10bea10c15f06",
+    "healthEngineSourceSha256": "d9a2ba63ff4be2f9b8e06804f3d8f5ca0147092e91de6868d30e429462da1aba",
+    "sameApplicationSourceAcrossRuns": true,
+    "workingTreeDirty": true
+  },
+  "route": {
+    "dshModel": "gpt-6-luna",
+    "modelBackend": "codex-app-server",
+    "embeddingModel": "Qwen3-Embedding-0.6B",
+    "corpusVersion": "medtext-local-cc7d43568501e6b7",
+    "corpusChunks": 823450,
+    "corpusSources": 5
+  },
+  "sample": {
+    "runs": 2,
+    "syntheticPatients": 1,
+    "completedAnswerTurns": 4,
+    "cancelledTurns": 2,
+    "realPatientDataUsed": false
+  },
+  "metrics": {
+    "login": { "passed": 2, "total": 2 },
+    "patientScopeDenials": {
+      "context": { "denied": 2, "total": 2, "statusCode": 404 },
+      "sessionCreate": { "denied": 2, "total": 2, "statusCode": 404 },
+      "chat": { "denied": 2, "total": 2, "statusCode": 404 },
+      "unauthorizedDownstreamModelCalls": 0
+    },
+    "rag": {
+      "explicitRequests": 2,
+      "toolInvocations": 1,
+      "invocationRate": 0.5,
+      "returnedEvidenceItemsOnInvokedRun": 3,
+      "renderedCitationsOnInvokedRun": 5,
+      "citationIdsMatchingEvidenceCards": 5,
+      "citationIdValidityRateWhenInvoked": 1.0,
+      "semanticClaimSupportRate": null
+    },
+    "amaCrossSessionRecall": {
+      "correctTargetFactRecalls": 2,
+      "attempts": 2,
+      "rate": 1.0,
+      "fact": "synthetic home morning blood pressure 145/92",
+      "retrievedItemsPerRun": [8, 10]
+    },
+    "cancellationAndRecovery": {
+      "cancelled": 2,
+      "attempts": 2,
+      "cancelEndpointStatus": 202,
+      "edgeTerminalMs": [15, 18],
+      "newSessionReadyMs": [148, 148]
+    },
+    "logoutRevocation": { "passed": 2, "total": 2, "postLogoutStatusCode": 401 },
+    "completedTurnLatencyMs": {
+      "n": 4,
+      "p50": 38243,
+      "p95NearestRank": 53269,
+      "samples": [32455, 44031, 26519, 53269]
+    },
+    "firstAssistantDeltaLatencyMs": {
+      "n": 4,
+      "p50": 20484,
+      "p95NearestRank": 35765,
+      "samples": [15143, 25825, 6931, 35765]
+    },
+    "browserFirstVisibleTextLatencyMs": {
+      "n": 2,
+      "p50": 21363,
+      "p95NearestRank": 35779,
+      "samples": [6947, 35779]
+    },
+    "tokenUsage": {
+      "dsh": { "input": 94856, "output": 602, "total": 95458 },
+      "ama": { "input": 468931, "output": 2138, "total": 471069 },
+      "combined": { "input": 563787, "output": 2740, "total": 566527 },
+      "monetaryCost": null
+    },
+    "memoryCleanup": { "successfullyForgotten": 2, "attempts": 2 },
+    "javascriptPageErrors": { "count": 0, "runs": 2 },
+    "unclassifiedBrowserConsoleErrors": { "count": 12, "runs": 2 },
+    "freeRamGiBLatestRun": { "start": 22.4, "end": 21.7 }
+  },
+  "separateIntegratedSmoke": {
+    "artifact": "../clinical-eval/smokes/smoke-20261013112855-b257bfa0.json",
+    "syntheticPatients": 1,
+    "turnsCompleted": 2,
+    "collaborationChildRuns": { "completed": 6, "failed": 0 },
+    "ragRetrievalCalls": 2,
+    "retryCount": 0,
+    "durationMs": 152789,
+    "notMergedIntoEdgeLatencyOrRates": true
+  },
+  "runs": [
+    {
+      "artifact": "run-20261013T120521811Z-edge-v2/edge-browser-e2e.json",
+      "status": "passed",
+      "ragToolInvoked": true
+    },
+    {
+      "artifact": "run-20261013T121338437Z-edge-v2/edge-browser-e2e.json",
+      "status": "partial",
+      "ragToolInvoked": false
+    }
+  ],
+  "limitations": [
+    "RAG tool invocation was stochastic across two explicit evidence requests; deterministic retrieval is not implemented.",
+    "Sample is one synthetic patient repeated twice; no clinical outcome inference or production SLA.",
+    "Citation validity is identifier-to-card matching only; semantic evidence support is unmeasured.",
+    "Public ingress, sustained concurrency, and high-load behavior were not tested.",
+    "Token usage is model-reported and no billable currency amount is available through this local Codex route."
+  ]
+}

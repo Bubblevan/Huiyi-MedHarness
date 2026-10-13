@@ -48,6 +48,64 @@ interface TokenUsage {
   readonly totalTokens: number;
 }
 
+const MEDICAL_EVIDENCE_TOOL = "search_medical_evidence";
+
+/**
+ * Turn an explicit evidence-search request into a deterministic first tool
+ * choice. The model still writes the retrieval query and the answer; the host
+ * only removes stochastic tool selection from this narrow, user-requested path.
+ */
+export function toolChoiceForExplicitEvidenceRequest(
+  request: Pick<ChatCompletionRequest, "messages" | "tools" | "toolChoice" | "responseSchema">,
+): unknown {
+  if (request.toolChoice !== "auto" || request.responseSchema !== undefined
+    || !request.tools.some(({ function: fn }) => fn.name === MEDICAL_EVIDENCE_TOOL)) return request.toolChoice;
+
+  const lastUserIndex = findLastIndex(request.messages, (message) => message.role === "user");
+  if (lastUserIndex < 0) return request.toolChoice;
+  const lastUserText = messageText(request.messages[lastUserIndex]?.content);
+  if (!hasExplicitMedicalEvidenceIntent(lastUserText)
+    || evidenceToolAlreadyCalled(request.messages, lastUserIndex)) return request.toolChoice;
+
+  return { type: "function", function: { name: MEDICAL_EVIDENCE_TOOL } };
+}
+
+function findLastIndex<T>(values: readonly T[], predicate: (value: T) => boolean): number {
+  for (let index = values.length - 1; index >= 0; index -= 1) if (predicate(values[index]!)) return index;
+  return -1;
+}
+
+function messageText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (!Array.isArray(value)) return "";
+  return value.flatMap((block) => isRecord(block) && block.type === "text" && typeof block.text === "string" ? [block.text] : []).join("\n");
+}
+
+function hasExplicitMedicalEvidenceIntent(text: string): boolean {
+  const asksToRetrieve = /检索|搜索|查找|查阅|查证|核对文献|search|look\s*up|find\s+(?:medical\s+)?(?:evidence|references|literature|guidelines)|check\s+(?:the\s+)?(?:evidence|literature|guidelines)/i.test(text);
+  const namesMedicalEvidence = /医学|医疗|临床|本地|证据|文献|指南|参考资料|medical|clinical|evidence|literature|guidelines?/i.test(text);
+  const requestsCitations = /(?:引用|列出来源|提供出处|附上来源|cite|citation|references?)/i.test(text);
+  return namesMedicalEvidence && (asksToRetrieve || requestsCitations);
+}
+
+function evidenceToolAlreadyCalled(messages: readonly Record<string, unknown>[], lastUserIndex: number): boolean {
+  const namesByCallId = new Map<string, string>();
+  for (const message of messages.slice(lastUserIndex + 1)) {
+    if (message.role === "assistant" && Array.isArray(message.tool_calls)) {
+      for (const rawCall of message.tool_calls) {
+        if (!isRecord(rawCall) || !isRecord(rawCall.function) || typeof rawCall.function.name !== "string") continue;
+        const name = rawCall.function.name;
+        if (name === MEDICAL_EVIDENCE_TOOL) return true;
+        if (typeof rawCall.id === "string") namesByCallId.set(rawCall.id, name);
+      }
+    }
+    if ((message.role === "tool" || message.role === "function")
+      && (message.name === MEDICAL_EVIDENCE_TOOL
+        || (typeof message.tool_call_id === "string" && namesByCallId.get(message.tool_call_id) === MEDICAL_EVIDENCE_TOOL))) return true;
+  }
+  return false;
+}
+
 interface JsonRpcMessage {
   readonly id?: number;
   readonly method?: string;
@@ -251,6 +309,11 @@ export class CodexAppServerClient {
     signal?: AbortSignal,
     trace: CodexBridgeTraceContext = { requestId: randomUUID(), modelRequestId: randomUUID() },
   ): Promise<{ readonly completion: ParsedCompletion; readonly usage?: TokenUsage }> {
+    const selectedToolChoice = toolChoiceForExplicitEvidenceRequest(request);
+    const routedRequest = selectedToolChoice === request.toolChoice ? request : { ...request, toolChoice: selectedToolChoice };
+    if (selectedToolChoice !== request.toolChoice) {
+      writeLocalGatewayTrace({ ...trace, event: "model.rag_tool_choice.forced", modelName: MODEL });
+    }
     const queuedAt = Date.now();
     writeLocalGatewayTrace({ ...trace, event: "model.request.queued", modelName: MODEL, messageCount: request.messages.length, toolCount: request.tools.length, activeTurns: this.turnGate.activeCount, queuedTurns: this.turnGate.queuedCount });
     try {
@@ -259,7 +322,7 @@ export class CodexAppServerClient {
         const admittedAt = Date.now();
         writeLocalGatewayTrace({ ...trace, event: "model.request.admitted", modelName: MODEL, queueWaitMs, activeTurns: this.turnGate.activeCount, queuedTurns: this.turnGate.queuedCount });
         try {
-          const result = await this.completeWithBoundedRetry(request, signal, trace);
+          const result = await this.completeWithBoundedRetry(routedRequest, signal, trace);
           writeLocalGatewayTrace({ ...trace, event: "model.request.completed", modelName: MODEL, status: "completed", durationMs: Date.now() - queuedAt, elapsedMs: Date.now() - admittedAt, usagePresent: Boolean(result.usage), modelOutputChars: result.completion.content.length });
           return result;
         } catch (error) {

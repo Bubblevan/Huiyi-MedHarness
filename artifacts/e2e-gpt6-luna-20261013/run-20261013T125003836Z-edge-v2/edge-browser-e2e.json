@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "huiyi-edge-gpt6-luna-browser-e2e/v1",
+  "status": "passed",
+  "createdAt": "2026-10-13T12:50:03.836Z",
+  "source": {
+    "gitRevision": "eb20a79f79a3994673ddd8e3dc12c9081e7c1c2c",
+    "workingTreeDirty": true,
+    "sourceSha256": "cd1b9e64330f0ca2434dad0e232ae93134c45f939d226618d92214cef6b34aaa",
+    "healthEngineSourceSha256": "d9a2ba63ff4be2f9b8e06804f3d8f5ca0147092e91de6868d30e429462da1aba"
+  },
+  "route": {
+    "model": "gpt-6-luna",
+    "backend": "codex-app-server",
+    "bridgeConcurrency": 2,
+    "embedding": "Qwen3-Embedding-0.6B",
+    "corpusVersion": "medtext-local-cc7d43568501e6b7",
+    "corpusChunks": 823450,
+    "provider": "huiyi-demo-local-codex"
+  },
+  "checks": {
+    "preflight": "passed",
+    "gateway": "passed",
+    "edge": "passed",
+    "frontend": "passed",
+    "loginAndAuthorizedPatient": "passed",
+    "patientScopeIsolation": "passed",
+    "amaCommit": "passed",
+    "cancelRoute": "passed",
+    "crossSessionAmaRecall": "passed",
+    "postCancelRecovery": "passed",
+    "logoutRevokesSession": "passed",
+    "ragEvidenceCitation": "passed",
+    "cleanup": "passed"
+  },
+  "metrics": {
+    "freeRamAtStartGiB": 24.1,
+    "loginAndContextMs": 147,
+    "deniedStatuses": {
+      "context": 404,
+      "session": 404,
+      "chat": 404
+    },
+    "modelCallsBeforeAuthorizedTurn": 0,
+    "firstTurn": {
+      "completed": true,
+      "endToEndMs": 42922,
+      "firstVisibleMs": 18939,
+      "assistantChars": 366,
+      "citationCount": 6,
+      "evidenceCardCount": 3,
+      "citationsValid": true
+    },
+    "memoryRecordsAfterCommit": {
+      "raw": 1,
+      "facts": 9,
+      "episodes": 0
+    },
+    "cancel": {
+      "chatStatus": 200,
+      "runIdPresent": true,
+      "firstEvent": "run.started",
+      "terminalEvent": "run.cancelled",
+      "cancelStatus": 202,
+      "cancelMs": 16,
+      "elapsedMs": 32
+    },
+    "sessionAfterCancelMs": 177,
+    "secondTurn": {
+      "completed": true,
+      "endToEndMs": 64888,
+      "firstVisibleMs": 41591,
+      "assistantChars": 62,
+      "bloodPressureFactRecall": true,
+      "denialMarker": false
+    },
+    "newSessionAmaRecallItems": 9,
+    "firstVisible": [
+      {
+        "firstDeltaMs": 18885,
+        "firstVisibleMs": 18899,
+        "deltaToVisibleMs": 14
+      },
+      {
+        "firstDeltaMs": 41531,
+        "firstVisibleMs": 41539,
+        "deltaToVisibleMs": 8
+      }
+    ],
+    "pageErrors": 0,
+    "consoleErrorCount": 6,
+    "completedTurns": {
+      "count": 2,
+      "p50Ms": 53837,
+      "p95Ms": 64814,
+      "firstAssistantDeltaP50Ms": 30200,
+      "firstAssistantDeltaP95Ms": 41522
+    },
+    "firstVisibleLatency": {
+      "count": 2,
+      "p50Ms": 30265,
+      "p95Ms": 41591
+    },
+    "gatewayTerminals": [
+      {
+        "reason": "terminal_completed",
+        "durationMs": 42859,
+        "firstAssistantDeltaMs": 18877,
+        "evidenceItemCount": 3
+      },
+      {
+        "reason": "terminal_cancelled",
+        "durationMs": 23,
+        "firstAssistantDeltaMs": -1,
+        "evidenceItemCount": 0
+      },
+      {
+        "reason": "terminal_completed",
+        "durationMs": 64814,
+        "firstAssistantDeltaMs": 41522,
+        "evidenceItemCount": 3
+      }
+    ],
+    "ragEvidence": {
+      "requested": true,
+      "toolInvoked": true,
+      "evidenceItems": 6,
+      "citationCount": 6,
+      "evidenceCardCount": 3,
+      "citationsValid": true
+    },
+    "tokenUsage": {
+      "dsh": {
+        "inputTokens": 77224,
+        "outputTokens": 563,
+        "totalTokens": 77787
+      },
+      "ama": {
+        "inputTokens": 233996,
+        "outputTokens": 966,
+        "totalTokens": 234962
+      },
+      "combinedTotalTokens": 312749
+    },
+    "unauthorizedModelRequests": 0,
+    "freeRamAtEndGiB": 23.5
+  },
+  "trace": {
+    "edgeAudit": {
+      "auth.login:allowed": 1,
+      "patient.list:allowed": 1,
+      "patient.context:allowed": 2,
+      "patient.context.result:allowed": 2,
+      "session.create:allowed": 2,
+      "patient.context:denied": 1,
+      "session.create:denied": 1,
+      "chat:denied": 1,
+      "chat.start:allowed": 3,
+      "chat.result:allowed": 3,
+      "run.cancel:allowed": 1,
+      "session.close:allowed": 2,
+      "auth.logout:allowed": 1
+    },
+    "edgeStreamEvents": {
+      "edge.chat.accepted": 3,
+      "edge.chat.response_headers": 3,
+      "edge.chat.heartbeat": 6,
+      "edge.chat.terminal": 3
+    },
+    "memory": [
+      {
+        "operation": "automatic_recall",
+        "status": "completed",
+        "itemCount": 0,
+        "latencyMs": 83,
+        "amaPromptTokens": 0,
+        "amaCompletionTokens": 0
+      },
+      {
+        "operation": "commit",
+        "status": "completed",
+        "latencyMs": 23971,
+        "amaPromptTokens": 89270,
+        "amaCompletionTokens": 481
+      },
+      {
+        "operation": "automatic_recall",
+        "status": "failed",
+        "latencyMs": 7
+      },
+      {
+        "operation": "commit",
+        "status": "skipped"
+      },
+      {
+        "operation": "automatic_recall",
+        "status": "completed",
+        "itemCount": 9,
+        "latencyMs": 28991,
+        "amaPromptTokens": 36596,
+        "amaCompletionTokens": 152
+      },
+      {
+        "operation": "commit",
+        "status": "completed",
+        "latencyMs": 23283,
+        "amaPromptTokens": 90358,
+        "amaCompletionTokens": 301
+      },
+      {
+        "operation": "session_end",
+        "status": "completed",
+        "latencyMs": 5849,
+        "amaPromptTokens": 17772,
+        "amaCompletionTokens": 32
+      },
+      {
+        "operation": "session_end",
+        "status": "skipped",
+        "latencyMs": 5868,
+        "amaPromptTokens": 0,
+        "amaCompletionTokens": 0
+      }
+    ]
+  },
+  "cleanup": {
+    "browserClosed": true,
+    "gatewayClosed": true,
+    "forgetStatus": 200,
+    "memoryEmpty": true,
+    "isolatedHealthEngineLeftRunning": true,
+    "localCodexBridgeLeftRunning": true
+  },
+  "failures": [],
+  "finishedAt": "2026-10-13T12:52:03.894Z"
+}
