@@ -21,7 +21,7 @@
           "questionId": { "type": "string", "minLength": 1 },
           "query": { "type": "string", "minLength": 1 },
           "language": { "enum": ["zh", "en", "mixed"] },
-          "taskCategory": { "enum": ["exact_term", "semantic", "multi_hop", "bilingual", "source_conflict", "no_answer"] },
+        "taskCategory": { "enum": ["exact_term", "semantic", "multi_hop", "bilingual", "source_conflict", "applicability_boundary", "no_answer"] },
           "corpusVersion": { "type": "string", "minLength": 1 },
           "answerability": { "enum": ["answerable", "no_answer", "pending"] },
           "answerabilityAdjudicationNote": { "type": "string", "minLength": 1 },

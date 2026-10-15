@@ -1,0 +1,281 @@
+{
+  "schemaVersion": "huiyi-h2-final-run-manifest/v1",
+  "status": {
+    "QUALITY_IMPROVEMENT_DEMONSTRATED": "YES",
+    "QUALITY_EVALUATION_COMPLETE": "NO",
+    "completionBlockers": [
+      "Frozen HOLDOUT contains zero source/version-conflict questions, so conflict quality remains unmeasured.",
+      "No external clinical/human Gold labels were available; LLM judge agreement with external Gold is unknown."
+    ]
+  },
+  "dataset": {
+    "datasetId": "h2-quality-v12a-holdout-20261016",
+    "split": "holdout",
+    "sha256": "54ba19184a685b6fdb996efb915ffaf53af6b09b55edbc4339f95563ceb55b4b",
+    "questionCount": 200,
+    "developmentCount": 100,
+    "holdoutCount": 200,
+    "corpusVersion": "medtext-local-cc7d43568501e6b7",
+    "sourceConflictQuestionCount": 0
+  },
+  "corpus": {
+    "manifestSha256": "ccc89d1f6deef68536647541fbad6c79c98f7185cfbe2cd0c00698b15f5b37cf",
+    "chunks": 823450,
+    "sourceCount": 5,
+    "encoder": "Qwen3-Embedding-0.6B",
+    "encoderRevision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "reranker": "bge-reranker-v2-m3",
+    "downloadsDuringThisRun": 0,
+    "indexRebuilt": false
+  },
+  "code": {
+    "baseGitHead": "1913e040f970780383ae11cc9eae74b3599e9c0e",
+    "branch": "codex/h2-rag-quality-closeout-20261015",
+    "evaluationScriptsWereUncommittedAtRunTime": true,
+    "scriptSha256": {
+      "run_iterative_batched_pilot.py": "94c517697d6fee2e0207474af61cbd2d961fbaba50acef33d2e0ddea51a4e495",
+      "codex_cli_batch_planner.py": "23376fd03b791ea55ad95d1910debddc1cb0fc1f2fefa8c4ac493a02c86a9713",
+      "merge_h2_e_final_delta.py": "69f338569ff355d92cad1b1aa9d37750b1af5500a3849bd2b62183d5a3b03635",
+      "prepare_h2_e_final_delta.py": "e867cb99947e71dbdf05174a31442b8a2b092c64a08b48296b1161e0c0693f12",
+      "run_h2_adaptive_sufficiency.py": "e534ba7506350ef1f1dc6002db32ac1dc236ccd21aac1ce9ad1a0d9bb0f20e9d",
+      "prepare_h2_qrel_extension.py": "8b95bea9e349874056d178b6e6fc71f0781a4e54e94cf0ae8203e93caddece41",
+      "merge_h2_judge_extension.py": "ab9969383815031502437e807a09e77d970059c5bb5264c651bdeefaed979289",
+      "judge_h2_codex.py": "00233115c61ddd610a871b7043737239d40f2078ea3b7233e8d3b0dd11740bd9",
+      "score_judge_runs.py": "21fa88f0ef64a3f6fa0722d3bc70e30182667b211d7e23ff273f06103b96145b",
+      "prepare_h2_answer_support.py": "08b63675f934601196b841ef10375d0c78c1043e1776c0815262939345623c7c",
+      "generate_h2_answers.py": "cac49f4fd352497cb717558230df1e00efbfeed84feccc0b1cfb12a100a738c4",
+      "judge_h2_answer_support.py": "a0130d9d3d320af85247e9d5e7b595632e28d0a8208fe759c4210d1a1d2e9e34",
+      "score_h2_answer_support.py": "067b857e54969047b55b3e5a84a5a5d865dc64b38a6d390fecc919283992e9b9",
+      "merge_h2_answer_support_scores.py": "2793a02d00f8258750cfa0e97c0acc623a630c28011be27609505994b3a686db",
+      "score_h2_source_anchor_coverage.py": "aee862d927324d2fe6884932754d1c9101d2b9291a89c4d48dcc36548ff5a4a2",
+      "score_h2_answerable_subset.py": "87e749cbecc815aa342b35cc2b3a79183c846174aa94ebe1554ec18917997261",
+      "analyze_h2_extended_bad_cases.py": "6060fbb9f2533e5b72370586b776d8f4534dca28b38aded4352d12b48c0d520f",
+      "test_score_h2_answer_support.py": "191307f1d18a13085632c614b2b2edc8c48b5fa7bbd74a84c011c9aa3e3c35ae"
+    }
+  },
+  "qrels": {
+    "candidateCount": 7940,
+    "resolvedCount": 7922,
+    "unresolvedCount": 18,
+    "reviewRequiredCount": 0,
+    "coverage": 0.997733,
+    "judgeModel": "gpt-6-luna",
+    "humanOrClinicalReview": false
+  },
+  "EFinalization": {
+    "finalDatasetSha256": "54ba19184a685b6fdb996efb915ffaf53af6b09b55edbc4339f95563ceb55b4b",
+    "runSha256": "583f3d25ce48cc61564c23885302d1c7a361013775585a56045ab9722d696556",
+    "reusedUnchangedQueryCount": 160,
+    "rerunChangedQueryCount": 40,
+    "priorStaleRunUsedForFinalMetrics": false
+  },
+  "FPolicy": {
+    "policyVersion": "h2-evidence-sufficiency-policy-v1b",
+    "finalRunSha256": "7035133b6e05e2d4ed7368d6c4db720a64628e43a0f533b474a31c61f9192681",
+    "decisionCounts": {
+      "keep": 138,
+      "search": 22,
+      "abstain": 40
+    },
+    "successfulQuestions": 200,
+    "noAnswerAbstainCount": 40,
+    "noAnswerQuestionCount": 40
+  },
+  "answerSupport": {
+    "selectedDistinctQuestions": 120,
+    "selection": "20 per each of semantic, exact_term, bilingual, multi_hop, applicability_boundary, no_answer; source-conflict category absent",
+    "arms": [
+      "Dense",
+      "D",
+      "E",
+      "F"
+    ],
+    "tasks": 480,
+    "allGenerationAndJudgeTasksComplete": true,
+    "generatorModel": "gpt-6-luna",
+    "judgeModel": "gpt-6-luna",
+    "sameModelSelfJudge": true,
+    "externalGoldAgreement": "unknown/unavailable",
+    "topK": 5,
+    "snippetChars": 800,
+    "generationPromptVersion": "h2-answer-generation-v1",
+    "judgePromptVersion": "h2-answer-support-judge-v1",
+    "answerSupportScoreSha256": "479fcfa0ec77e8a6ee9c25045f9d93da8862e6b432a76fda29fc3e948ccf5ec2",
+    "generatorTokens": 935179,
+    "judgeTokens": 554786
+  },
+  "scoring": {
+    "pairedBootstrapReplicates": 10000,
+    "seed": 20261015,
+    "runHashes": {
+      "denseRun": "a2e2208375556e11ad575591fcf63692153f75a262c79cc54f144ef46f1dfcfe",
+      "bm25Run": "5ec534b9565d3e702ffedb008749e1a761688f3afae68e04d014cc051afd806d",
+      "rrfRun": "eaa12d3961704e93cbab0a0e5f2a0e1a3c8e33dce6b035c4b173e08f33aa5a43",
+      "rerankerRun": "b713f5760a1424748e91682a7b74360a646347b8b7728b59273ce2e9f89840e4",
+      "eFinalRun": "583f3d25ce48cc61564c23885302d1c7a361013775585a56045ab9722d696556",
+      "fFinalRun": "7035133b6e05e2d4ed7368d6c4db720a64628e43a0f533b474a31c61f9192681"
+    },
+    "finalExtendedScoreSha256": "50a9d1853b8f12f8c1ec54a9ffc84c2b41d8838cede7071fc7492d476f546723",
+    "finalPairedDEFScoreSha256": "dac1e56c9ad9018202da12b0f9dc35665b4366b9917f8ded64199f204358ad77",
+    "sourceAnchorScoreSha256": "43a9a89821fe7e53459d8d9f706f29b7de4de84d0e33ac3779e49bc7d66e368e",
+    "answerableOnlyScoreSha256": "ade8ca1f2a2376a2fcf0d089b808c0e949487ecc560a6dab9d438f103a49f6a0"
+  },
+  "badCases": {
+    "count": 17,
+    "allArePairedQualityRegressions": true,
+    "externalOrClinicalReview": false,
+    "sha256": "8bce2f135ad9e3f97d0bb6b7a03f652e740dcada123db9a255fc196b455a95c8"
+  },
+  "artifacts": {
+    "datasetHoldout": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/dataset-holdout-draft.json",
+      "sha256": "54ba19184a685b6fdb996efb915ffaf53af6b09b55edbc4339f95563ceb55b4b",
+      "bytes": 120468
+    },
+    "corpusManifest": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/qwen3-corpus-manifest.json",
+      "sha256": "ccc89d1f6deef68536647541fbad6c79c98f7185cfbe2cd0c00698b15f5b37cf",
+      "bytes": 1667546
+    },
+    "sourceAnchorManifest": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/anchors-holdout-private.json",
+      "sha256": "5b422c5e1c8d55eef80f024e7e50e84ecaac418a2b4486416fbc0e94af600ea9",
+      "bytes": 295277
+    },
+    "privateReferenceKey": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/reference-key-holdout-private.json",
+      "sha256": "bc130cd6bddac27de3dc4beeb4b3baba6c31ee06ad8d81427c05b68a228e028c",
+      "bytes": 170167
+    },
+    "denseRun": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/holdout-abcd-top10-v12a-20261016/run-dense.json",
+      "sha256": "a2e2208375556e11ad575591fcf63692153f75a262c79cc54f144ef46f1dfcfe",
+      "bytes": 1091944
+    },
+    "bm25Run": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/holdout-abcd-top10-v12a-20261016/run-bm25.json",
+      "sha256": "5ec534b9565d3e702ffedb008749e1a761688f3afae68e04d014cc051afd806d",
+      "bytes": 1036773
+    },
+    "rrfRun": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/holdout-abcd-top10-v12a-20261016/run-rrf.json",
+      "sha256": "eaa12d3961704e93cbab0a0e5f2a0e1a3c8e33dce6b035c4b173e08f33aa5a43",
+      "bytes": 1093371
+    },
+    "rerankerRun": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/holdout-abcd-top10-v12a-20261016/run-rrf-reranker.json",
+      "sha256": "b713f5760a1424748e91682a7b74360a646347b8b7728b59273ce2e9f89840e4",
+      "bytes": 1076918
+    },
+    "eFinalRun": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/iterative-batched-v12a-20261016/final-holdout-e-delta-v12a-20261016/run-iterative-holdout-finalized-v12a.json",
+      "sha256": "583f3d25ce48cc61564c23885302d1c7a361013775585a56045ab9722d696556",
+      "bytes": 1104801
+    },
+    "fFinalRun": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/iterative-batched-v12a-20261016/f-adaptive-v1b-20261016/holdout-final-v12a/run-adaptive-holdout-codex-cli.json",
+      "sha256": "7035133b6e05e2d4ed7368d6c4db720a64628e43a0f533b474a31c61f9192681",
+      "bytes": 548535
+    },
+    "finalQrelPacket": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/iterative-batched-v12a-20261016/f-adaptive-v1b-20261016/holdout-final-v12a/qrel-extension-f-final/annotation-packet-a-d-e2-plus-f-final.blinded.json",
+      "sha256": "9ec19d202ceceea48d42ea176ad2067afeed3eb6c5fd70bce102ffcc059c9e27",
+      "bytes": 8097417
+    },
+    "finalQrelJudge": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/iterative-batched-v12a-20261016/f-adaptive-v1b-20261016/holdout-final-v12a/qrel-extension-f-final/judge-run-abcd-plus-e2-plus-f.json",
+      "sha256": "865ec1bc9847c40f7a5676ed655a6c0e7efc99faf05de7b42d42754a9b139094",
+      "bytes": 6887621
+    },
+    "extendedHoldoutScore": {
+      "path": "docs/rag/H2-QUALITY-EXTENDED-HOLDOUT-SCORE-20261016.json",
+      "sha256": "50a9d1853b8f12f8c1ec54a9ffc84c2b41d8838cede7071fc7492d476f546723",
+      "bytes": 2075817
+    },
+    "pairedDefScore": {
+      "path": "docs/rag/H2-QUALITY-HOLDOUT-PAIRED-DEF-20261016.json",
+      "sha256": "dac1e56c9ad9018202da12b0f9dc35665b4366b9917f8ded64199f204358ad77",
+      "bytes": 714207
+    },
+    "answerSupportPacket": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-v1b-budget-20261016/answer-generation-packet.json",
+      "sha256": "31b821f4237b001275527ebfdb3ee0ea2e2592f2c3b42e88963912abbd2d4424",
+      "bytes": 1786336
+    },
+    "answerSupportGenerationDEF": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-v1b-budget-20261016/answer-generation-run.json",
+      "sha256": "93c72ca4f59564591650273862bed29032d943e22c8ae84ee26ed78c819a4161",
+      "bytes": 238148
+    },
+    "answerSupportJudgeDEF": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-v1b-budget-20261016/answer-support-judge-run.json",
+      "sha256": "81abd4841f939043984f72a3d21fb393f580a62f3db5e3338f6b8a7333303d91",
+      "bytes": 381351
+    },
+    "answerSupportScoreDEF": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-v1b-budget-20261016/answer-support-score.json",
+      "sha256": "936660a4175edcf1546f5567520442c49cd9f238e42204c98772c877cc4474fe",
+      "bytes": 231780
+    },
+    "answerSupportPacketDense": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-dense-v1b-budget-20261016/answer-generation-packet.json",
+      "sha256": "6ef1d12030891f9071271aecdcd6eca90c3ddc8d65006684a017d5787dc2e6f0",
+      "bytes": 611708
+    },
+    "answerSupportGenerationDense": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-dense-v1b-budget-20261016/answer-generation-run.json",
+      "sha256": "e3ca2da18d2dfdb2cb511781edf119dee1fbb67a152ed844508ee8820145b7c2",
+      "bytes": 78832
+    },
+    "answerSupportJudgeDense": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-dense-v1b-budget-20261016/answer-support-judge-run.json",
+      "sha256": "fe7a286188dfc8815d2b507ea7133a4aa834146c240380ff8c37b8d66ee2757a",
+      "bytes": 120800
+    },
+    "answerSupportScoreDense": {
+      "path": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-quality-v12-20261015/runs/answer-support-dense-v1b-budget-20261016/answer-support-score.json",
+      "sha256": "b604f2289d0aff2d29c5a74022eeb1e87ccd77217c0040c16d9d5ea9cfa37d9b",
+      "bytes": 78326
+    },
+    "answerSupportPairedScore": {
+      "path": "docs/rag/H2-QUALITY-ANSWER-SUPPORT-PAIRED-20261016.json",
+      "sha256": "479fcfa0ec77e8a6ee9c25045f9d93da8862e6b432a76fda29fc3e948ccf5ec2",
+      "bytes": 313688
+    },
+    "sourceAnchorScore": {
+      "path": "docs/rag/H2-QUALITY-SOURCE-ANCHOR-COVERAGE-20261016.json",
+      "sha256": "43a9a89821fe7e53459d8d9f706f29b7de4de84d0e33ac3779e49bc7d66e368e",
+      "bytes": 269242
+    },
+    "answerableOnlyScore": {
+      "path": "docs/rag/H2-QUALITY-ANSWERABLE-SUBSET-20261016.json",
+      "sha256": "ade8ca1f2a2376a2fcf0d089b808c0e949487ecc560a6dab9d438f103a49f6a0",
+      "bytes": 9886
+    },
+    "extendedBadCases": {
+      "path": "docs/rag/H2-QUALITY-EXTENDED-BAD-CASES-20261016.json",
+      "sha256": "8bce2f135ad9e3f97d0bb6b7a03f652e740dcada123db9a255fc196b455a95c8",
+      "bytes": 204400
+    }
+  },
+  "tokenCostsKnown": {
+    "abcdCandidateJudge": 2700565,
+    "e2CandidateJudge": 193505,
+    "fCandidateJudge": 47126,
+    "ePlanner": 390137,
+    "fPlanner": 296799,
+    "answerGeneratorDEF": 699751,
+    "answerJudgeDEF": 463773,
+    "answerGeneratorDense": 235428,
+    "answerJudgeDense": 91013,
+    "discardedOversizedAnswerGenerationTrial": 136730
+  },
+  "limitations": [
+    "LLM labels are engineering assessment only.",
+    "Answer generator and answer-support judge use the same model family; self-judging may bias results.",
+    "Source URI presence is counted; external URL or DOI resolution is not tested.",
+    "Only structured claim lists are checked; all factual clauses in free prose are not independently atomized.",
+    "Exact source-anchor hit requires exact chunk documentId and may miss adjacent semantically equivalent chunks.",
+    "No source-conflict cohort and no external human/clinical Gold."
+  ]
+}

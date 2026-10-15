@@ -104,6 +104,24 @@ def score(
     dataset_questions = dataset.get("questions", [])
     question_by_id = {item["questionId"]: item for item in dataset_questions}
     pool_questions = {item["questionId"]: item for item in candidate_pool.get("questions", [])}
+    # The judge packet deliberately uses blinded question IDs. Join its
+    # candidate pool back to the frozen dataset by exact query text when IDs
+    # differ; reject ambiguous matches instead of silently scoring zero rows.
+    pool_by_query: dict[str, list[dict[str, Any]]] = {}
+    for item in candidate_pool.get("questions", []):
+        query = item.get("query")
+        if isinstance(query, str):
+            pool_by_query.setdefault(query, []).append(item)
+    for question in dataset_questions:
+        question_id = question["questionId"]
+        if question_id in pool_questions:
+            continue
+        matches = pool_by_query.get(question.get("query"), [])
+        if len(matches) != 1:
+            raise ValueError(
+                f"cannot map blinded candidate pool to dataset question {question_id}: {len(matches)} exact query matches"
+            )
+        pool_questions[question_id] = matches[0]
     judgments_by_question = _question_judgments(judge)
     if any(key.startswith("__ordinal_") for key in judgments_by_question):
         ordinals = {
@@ -116,8 +134,6 @@ def score(
         }
     review_by_question = _review_ids_by_question(judge, dataset_questions)
     review_ids = set().union(*review_by_question.values()) if review_by_question else set()
-    if not allow_review_required and review_ids:
-        raise ValueError(f"low-confidence labels need review before scoring: {len(review_ids)} candidate(s)")
 
     run_documents: dict[str, dict[str, dict[str, Any]]] = {}
     run_hashes: dict[str, str] = {}
@@ -153,6 +169,8 @@ def score(
                 for candidate_id, item in candidate_grades.items()
                 if candidate_id in pool_map and isinstance(item.get("relevanceGrade"), int)
             }
+            pool_document_ids = set(pool_map.values())
+            unresolved_pool_document_ids = pool_document_ids - set(grades)
             run_row = questions.get(question_id, {"status": "missing", "results": []})
             if run_row.get("status") != "ok":
                 results = []
@@ -174,31 +192,69 @@ def score(
                 "reviewRequiredCandidateCount": len(candidate_review_ids),
                 "reviewRequiredLabelsIncluded": bool(allow_review_required and candidate_review_ids),
                 "returnedResultCount": len(results),
+                "unresolvedPoolCandidateCount": len(unresolved_pool_document_ids),
             }
             for k in ks:
-                row.update(_metrics(results, grades, k))
+                top_documents = {item["documentId"] for item in results[:k]}
+                outside_pool_documents = top_documents - pool_document_ids
+                eligible = not unresolved_pool_document_ids and not outside_pool_documents
+                row[f"metricEligibility@{k}"] = "eligible" if eligible else "excluded_incomplete_qrels_or_unpooled_results"
+                row[f"unpooledReturnedCount@{k}"] = len(outside_pool_documents)
+                if eligible:
+                    row.update(_metrics(results, grades, k))
+                else:
+                    row.update({
+                        f"ndcg@{k}": None,
+                        f"mrr@{k}": None,
+                        f"precision@{k}": None,
+                        f"pooledRecall@{k}": None,
+                        f"contextPrecision@{k}": None,
+                        f"contextRecall@{k}": None,
+                        f"relevantFound@{k}": None,
+                        f"pooledRelevantCount@{k}": None,
+                        f"contextRelevantFound@{k}": None,
+                        f"contextRelevantCount@{k}": None,
+                        f"mrrContext@{k}": None,
+                    })
             method_rows.append(row)
         per_method[method] = method_rows
 
     summary: dict[str, Any] = {}
     for method, rows in per_method.items():
         metrics = {}
+        metric_question_counts = {}
         for k in ks:
             for name in (f"ndcg@{k}", f"mrr@{k}", f"precision@{k}", f"pooledRecall@{k}", f"contextPrecision@{k}", f"contextRecall@{k}", f"mrrContext@{k}"):
                 values = [row[name] for row in rows if isinstance(row.get(name), (int, float))]
                 metrics[name] = round(sum(values) / len(values), 6) if values else None
+                metric_question_counts[name] = len(values)
         by_category: dict[str, Any] = {}
         for category in sorted({str(row.get("taskCategory", "unknown")) for row in rows}):
             selected = [row for row in rows if str(row.get("taskCategory", "unknown")) == category]
             category_metrics = {}
+            category_metric_question_counts = {}
             for k in ks:
                 for name in (f"ndcg@{k}", f"mrr@{k}", f"precision@{k}", f"pooledRecall@{k}", f"contextPrecision@{k}", f"contextRecall@{k}", f"mrrContext@{k}"):
                     values = [row[name] for row in selected if isinstance(row.get(name), (int, float))]
                     category_metrics[name] = round(sum(values) / len(values), 6) if values else None
-            by_category[category] = {"questionCount": len(selected), "metrics": category_metrics}
+                    category_metric_question_counts[name] = len(values)
+            by_category[category] = {
+                "questionCount": len(selected),
+                "metrics": category_metrics,
+                "metricQuestionCounts": category_metric_question_counts,
+            }
         summary[method] = {
             "questionCount": len(rows),
+            "metricEligibleQuestionCountByK": {
+                str(k): sum(row.get(f"metricEligibility@{k}") == "eligible" for row in rows)
+                for k in ks
+            },
+            "ineligibleQuestionCountByK": {
+                str(k): sum(row.get(f"metricEligibility@{k}") != "eligible" for row in rows)
+                for k in ks
+            },
             "metrics": metrics,
+            "metricQuestionCounts": metric_question_counts,
             "metricsByCategory": by_category,
             "macroAggregation": "unweighted macro over scored questions",
         }
@@ -222,12 +278,39 @@ def score(
                     }
             paired[method] = metric_differences
 
+    pairwise: dict[str, Any] = {}
+    method_names = sorted(per_method)
+    for comparison_index, comparison in enumerate(method_names):
+        comparison_rows = {row["questionId"]: row for row in per_method[comparison]}
+        for baseline in method_names[:comparison_index]:
+            baseline_rows = {row["questionId"]: row for row in per_method[baseline]}
+            common = sorted(set(comparison_rows) & set(baseline_rows))
+            metrics: dict[str, Any] = {}
+            for k in ks:
+                for name in (f"ndcg@{k}", f"mrr@{k}", f"precision@{k}", f"pooledRecall@{k}"):
+                    deltas = [
+                        comparison_rows[qid][name] - baseline_rows[qid][name]
+                        for qid in common
+                        if isinstance(comparison_rows[qid].get(name), (int, float))
+                        and isinstance(baseline_rows[qid].get(name), (int, float))
+                    ]
+                    metrics[name] = {
+                        "pairedQuestionCount": len(deltas),
+                        "meanDifference": round(sum(deltas) / len(deltas), 6) if deltas else None,
+                        "bootstrap95PercentileCI": _bootstrap_mean_ci(deltas),
+                    }
+            pairwise[f"{comparison}_vs_{baseline}"] = {
+                "comparisonMethod": comparison,
+                "baselineMethod": baseline,
+                "metrics": metrics,
+            }
+
     label_mode = judge.get("judge", {}).get("executionMode", judge.get("judgeMode", "unknown"))
     if not judgments_by_question:
         raise ValueError("judge run contains no scoreable query judgments")
     return {
         "schemaVersion": "huiyi-rag-llm-judge-score/v1",
-        "status": "exploratory_only" if len(judgments_by_question) < 100 or judge.get("status", "").endswith("not_final_qrels") else "scored",
+        "status": "exploratory_only" if len(judgments_by_question) < 100 or review_ids or judge.get("status", "").endswith("not_final_qrels") else "scored",
         "datasetId": dataset.get("datasetId"),
         "split": dataset.get("split"),
         "corpusVersion": dataset.get("corpusVersion"),
@@ -237,18 +320,21 @@ def score(
         "questionCount": len(judgments_by_question),
         "reviewRequiredLabelCount": len(review_ids),
         "reviewRequiredLabelsIncluded": bool(allow_review_required and review_ids),
+        "reviewRequiredLabelsExcluded": bool(review_ids and not allow_review_required),
         "pooledQrelsOnly": True,
         "fullCorpusRecallClaimed": False,
         "relevanceGradeMeaning": {"0": "irrelevant", "1": "partial/topical", "2": "direct support"},
         "relevanceThresholdForPrecisionRecallMrr": 2,
         "contextRelevanceThreshold": 1,
         "manifestSha256": candidate_pool.get("manifestSha256"),
-        "metricNote": "Precision/pooledRecall/MRR count only direct-support grade 2; contextPrecision/contextRecall/mrrContext include partial grade 1. nDCG uses graded gains over 0/1/2.",
+        "metricNote": "Standard retrieval metrics are scored only for a query with fully resolved labels for its entire pooled candidate set and no unpooled Top-K results; otherwise that query's metric is null, never defaulted to grade 0. Precision/pooledRecall/MRR count direct-support grade 2; context metrics include grade 1; nDCG uses graded gains 0/1/2.",
         "metricsByMethod": summary,
         "pairedAgainstDense": paired,
+        "pairedComparisons": pairwise,
         "perMethodPerQuestion": per_method,
         "inputHashes": {
             "judgeOutput": hashlib.sha256(json.dumps(judge, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest(),
+            "scorer": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "runs": run_hashes,
         },
     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a bounded, local Codex GPT-6-Luna Planner ablation on H2 DEV drafts."""
+"""Run the bounded H2 iterative-retrieval arm against local Codex GPT-6-Luna."""
 
 from __future__ import annotations
 
@@ -40,6 +40,11 @@ def main() -> int:
     parser.add_argument("--verification", required=True, type=Path)
     parser.add_argument("--query-encoder", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--split", choices=["dev", "holdout"], default="dev")
+    parser.add_argument("--planner-route", choices=["local-api", "codex-cli"], default="local-api")
+    parser.add_argument("--planner-model", default="gpt-6-luna")
+    parser.add_argument("--reasoning-effort", choices=["low", "medium", "high", "xhigh"], default="low")
+    parser.add_argument("--resume", action="store_true", help="continue a hash-matched .partial output")
     parser.add_argument("--top-k", type=int, default=20)
     parser.add_argument("--device", choices=["cuda", "cpu"], default="cuda")
     parser.add_argument("--max-rounds", type=int, default=2)
@@ -82,14 +87,33 @@ def main() -> int:
     verified = json.loads(args.verification.read_text(encoding="utf-8"))
     if verified.get("status") != "verified" or verified.get("manifestSha256") != manifest_sha:
         raise RuntimeError("the five-source Qwen manifest does not match the verified index artifact")
-    if dataset.get("corpusVersion") != manifest.get("corpusVersion") or dataset.get("split") != "dev":
-        raise RuntimeError("dataset must use the selected corpusVersion and DEV split")
+    if dataset.get("corpusVersion") != manifest.get("corpusVersion") or dataset.get("split") != args.split:
+        raise RuntimeError("dataset must use the selected corpusVersion and explicitly selected split")
     if args.out.exists():
         raise RuntimeError("output exists; choose a new run filename to preserve prior measurements")
+    partial_path = args.out.with_suffix(args.out.suffix + ".partial")
+    if partial_path.exists() and not args.resume:
+        raise RuntimeError("partial output exists; pass --resume to continue the frozen run")
+
+    # Configure the local corpus paths from explicit CLI arguments. The Codex
+    # route uses an in-memory placeholder only to construct RagSettings; it
+    # never sends an HTTP request to that URL.
+    os.environ["HUIYI_RAG_CORPUS_ROOT"] = str(args.corpus_root.resolve())
+    os.environ["HUIYI_RAG_MANIFEST_PATH"] = str(args.manifest.resolve())
+    os.environ["HUIYI_RAG_QUERY_ENCODER_PATH"] = str(args.query_encoder.resolve())
+    if args.planner_route == "codex-cli":
+        os.environ["HUIYI_RAG_PLANNER_BASE_URL"] = "http://127.0.0.1:8333/v1/chat/completions"
+        os.environ["HUIYI_RAG_PLANNER_MODEL"] = args.planner_model
+        os.environ["HUIYI_RAG_PLANNER_API_KEY"] = "not-used-by-codex-cli-adapter"
 
     settings = RagSettings.from_env()
-    if settings.planner_model != "gpt-6-luna" or settings.planner_url != "http://127.0.0.1:8333/v1/chat/completions":
-        raise RuntimeError("planner must use the verified local Codex GPT-6-Luna loopback route")
+    if args.planner_route == "local-api" and (
+        settings.planner_model != args.planner_model
+        or settings.planner_url != "http://127.0.0.1:8333/v1/chat/completions"
+    ):
+        raise RuntimeError("local-api planner must use the configured GPT-6-Luna loopback route")
+    if args.planner_route == "codex-cli" and args.planner_model != "gpt-6-luna":
+        raise RuntimeError("the evaluation-only Codex CLI route is pinned to gpt-6-luna")
     settings = replace(
         settings,
         query_encoder_path=args.query_encoder,
@@ -108,12 +132,26 @@ def main() -> int:
     if corpus.version != manifest["corpusVersion"] or corpus.retriever_name != "Qwen3-Embedding-0.6B":
         raise RuntimeError("loaded corpus does not match the intended Qwen3 five-source manifest")
     retriever = Qwen3EmbeddingRetriever(corpus, str(args.query_encoder), device=args.device, query_max_length=512)
-    planner = QueryPlanner(settings)
+    if args.planner_route == "codex-cli":
+        from codex_cli_planner import CodexCliPlanner
+
+        planner = CodexCliPlanner(
+            model=args.planner_model,
+            reasoning_effort=args.reasoning_effort,
+            max_queries=settings.max_queries_per_round,
+            timeout_seconds=args.planner_timeout_seconds,
+            work_dir=args.out.parent / "codex-cli-work",
+            audit_dir=args.out.parent / "codex-cli-planner-audit",
+            schema_path=args.out.parent / "codex-planner-output.schema.json",
+        )
+    else:
+        planner = QueryPlanner(settings)
     acquirer = IterativeEvidenceAcquirer(settings, retriever, planner)
 
     run: dict[str, Any] = {
         "schemaVersion": "huiyi-rag-retrieval-run/v1",
         "datasetId": dataset["datasetId"],
+        "split": dataset["split"],
         "corpusVersion": corpus.version,
         "method": "dense-iterative-gpt6-luna",
         "candidateBudget": args.top_k,
@@ -124,7 +162,7 @@ def main() -> int:
             "name": corpus.retriever_name,
             "revision": corpus.query_encoder_revision,
             "planner": settings.planner_model,
-            "plannerRoute": "local-codex-app-server-loopback",
+            "plannerRoute": "local-codex-cli" if args.planner_route == "codex-cli" else "local-codex-app-server-loopback",
         },
         "retrieverConfig": {
             "topKPerPlannedQuery": args.top_k,
@@ -135,16 +173,38 @@ def main() -> int:
             "plannerTimeoutSeconds": args.planner_timeout_seconds,
             "device": args.device,
             "mode": "iterative",
+            "plannerReasoningEffort": args.reasoning_effort if args.planner_route == "codex-cli" else None,
         },
         "runnerSha256": _sha256(Path(__file__)),
         "startedAt": datetime.now(timezone.utc).isoformat(),
         "queries": [],
     }
 
+    if partial_path.exists():
+        if not args.resume:
+            raise RuntimeError("partial output exists; refusing to overwrite it")
+        prior = json.loads(partial_path.read_text(encoding="utf-8"))
+        if (
+            prior.get("datasetSha256") != dataset_sha
+            or prior.get("manifestSha256") != manifest_sha
+            or prior.get("datasetId") != dataset.get("datasetId")
+            or prior.get("retrieverConfig") != run.get("retrieverConfig")
+            or prior.get("model") != run.get("model")
+        ):
+            raise RuntimeError("partial run does not match the frozen dataset, manifest or configuration")
+        run = prior
+    elif args.resume:
+        raise RuntimeError("--resume was requested but no .partial output exists")
+
+    completed_question_ids = {item.get("questionId") for item in run.get("queries", [])}
     run_started = time.monotonic()
     for question in dataset["questions"]:
         started = time.perf_counter()
         question_id = question["questionId"]
+        if question_id in completed_question_ids:
+            continue
+        planner_call_start = len(getattr(planner, "call_records", []))
+        planner_token_start = int(getattr(planner, "total_tokens_used", 0))
         if time.monotonic() - run_started >= args.max_run_seconds:
             row = {
                 "questionId": question_id,
@@ -154,11 +214,13 @@ def main() -> int:
                 "plannerCalls": 0,
                 "plannerInputTokens": None,
                 "plannerOutputTokens": None,
+                "plannerCodexTokens": 0,
+                "plannerCallTrace": [],
                 "abstained": False,
                 "results": [],
             }
             run["queries"].append(row)
-            _write_json(args.out.with_suffix(args.out.suffix + ".partial"), run)
+            _write_json(partial_path, run)
             print(json.dumps({"questionId": question_id, "status": "timeout", "failureClass": "RunBudgetExhausted"}, ensure_ascii=False), flush=True)
             continue
         try:
@@ -190,6 +252,8 @@ def main() -> int:
                 "plannerCalls": acquisition.planner_calls,
                 "plannerInputTokens": acquisition.planner_input_tokens,
                 "plannerOutputTokens": acquisition.planner_output_tokens,
+                "plannerCodexTokens": int(getattr(planner, "total_tokens_used", 0)) - planner_token_start,
+                "plannerCallTrace": list(getattr(planner, "call_records", [])[planner_call_start:]),
                 "plannerLatencyMs": round(acquisition.planner_latency_ms, 1),
                 "retrievalLatencyMs": round(acquisition.retrieval_latency_ms, 1),
                 "degraded": acquisition.degraded,
@@ -206,11 +270,13 @@ def main() -> int:
                 "plannerCalls": 0,
                 "plannerInputTokens": None,
                 "plannerOutputTokens": None,
+                "plannerCodexTokens": int(getattr(planner, "total_tokens_used", 0)) - planner_token_start,
+                "plannerCallTrace": list(getattr(planner, "call_records", [])[planner_call_start:]),
                 "abstained": False,
                 "results": [],
             }
         run["queries"].append(row)
-        _write_json(args.out.with_suffix(args.out.suffix + ".partial"), run)
+        _write_json(partial_path, run)
         print(json.dumps({
             "questionId": question_id,
             "status": row["status"],
@@ -223,6 +289,8 @@ def main() -> int:
 
     run["finishedAt"] = datetime.now(timezone.utc).isoformat()
     _write_json(args.out, run)
+    if partial_path.exists():
+        partial_path.unlink()
     print(json.dumps({
         "status": "complete_pending_qrels",
         "method": run["method"],
@@ -231,6 +299,7 @@ def main() -> int:
         "degradedCount": sum(item["status"] == "degraded" for item in run["queries"]),
         "errorCount": sum(item["status"] == "error" for item in run["queries"]),
         "totalPlannerCalls": sum(int(item.get("plannerCalls") or 0) for item in run["queries"]),
+        "totalCodexTokens": sum(int(item.get("plannerCodexTokens") or 0) for item in run["queries"]),
         "out": str(args.out),
     }, ensure_ascii=False, indent=2))
     return 0

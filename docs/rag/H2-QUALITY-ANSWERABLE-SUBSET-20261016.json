@@ -1,0 +1,349 @@
+{
+  "schemaVersion": "huiyi-h2-answerable-only-score/v1",
+  "status": "scored",
+  "datasetId": "h2-quality-v12a-holdout-20261016",
+  "datasetSha256": "54ba19184a685b6fdb996efb915ffaf53af6b09b55edbc4339f95563ceb55b4b",
+  "sourceScoreSha256": "50a9d1853b8f12f8c1ec54a9ffc84c2b41d8838cede7071fc7492d476f546723",
+  "answerableCohortQuestionCount": 160,
+  "methods": {
+    "A": {
+      "answerableQuestionCount": 143,
+      "ndcgAt10": 0.749229,
+      "mrrAt10": 0.774076,
+      "metricMeaning": "macro average on answerable, qrel-eligible questions only; no-answer tasks excluded"
+    },
+    "B": {
+      "answerableQuestionCount": 143,
+      "ndcgAt10": 0.537398,
+      "mrrAt10": 0.650763,
+      "metricMeaning": "macro average on answerable, qrel-eligible questions only; no-answer tasks excluded"
+    },
+    "C": {
+      "answerableQuestionCount": 143,
+      "ndcgAt10": 0.68916,
+      "mrrAt10": 0.78766,
+      "metricMeaning": "macro average on answerable, qrel-eligible questions only; no-answer tasks excluded"
+    },
+    "D": {
+      "answerableQuestionCount": 143,
+      "ndcgAt10": 0.828669,
+      "mrrAt10": 0.92331,
+      "metricMeaning": "macro average on answerable, qrel-eligible questions only; no-answer tasks excluded"
+    },
+    "E": {
+      "answerableQuestionCount": 143,
+      "ndcgAt10": 0.755002,
+      "mrrAt10": 0.769192,
+      "metricMeaning": "macro average on answerable, qrel-eligible questions only; no-answer tasks excluded"
+    },
+    "F": {
+      "answerableQuestionCount": 143,
+      "ndcgAt10": 0.830333,
+      "mrrAt10": 0.926457,
+      "metricMeaning": "macro average on answerable, qrel-eligible questions only; no-answer tasks excluded"
+    }
+  },
+  "pairedComparisons": {
+    "B_minus_A": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.211831,
+      "bootstrap95PercentileCI": {
+        "lower": -0.266275,
+        "upper": -0.159098,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "C_minus_A": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.060069,
+      "bootstrap95PercentileCI": {
+        "lower": -0.089645,
+        "upper": -0.030989,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "D_minus_A": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.07944,
+      "bootstrap95PercentileCI": {
+        "lower": 0.053928,
+        "upper": 0.104526,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "E_minus_A": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.005773,
+      "bootstrap95PercentileCI": {
+        "lower": -0.019823,
+        "upper": 0.030345,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "F_minus_A": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.081104,
+      "bootstrap95PercentileCI": {
+        "lower": 0.054957,
+        "upper": 0.106405,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "A_minus_B": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.211831,
+      "bootstrap95PercentileCI": {
+        "lower": 0.159075,
+        "upper": 0.266256,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "C_minus_B": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.151762,
+      "bootstrap95PercentileCI": {
+        "lower": 0.122366,
+        "upper": 0.181902,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "D_minus_B": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.291271,
+      "bootstrap95PercentileCI": {
+        "lower": 0.24618,
+        "upper": 0.338183,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "E_minus_B": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.217604,
+      "bootstrap95PercentileCI": {
+        "lower": 0.16282,
+        "upper": 0.272885,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "F_minus_B": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.292935,
+      "bootstrap95PercentileCI": {
+        "lower": 0.248303,
+        "upper": 0.33922,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "A_minus_C": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.060069,
+      "bootstrap95PercentileCI": {
+        "lower": 0.030917,
+        "upper": 0.089644,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "B_minus_C": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.151762,
+      "bootstrap95PercentileCI": {
+        "lower": -0.181924,
+        "upper": -0.122397,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "D_minus_C": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.139508,
+      "bootstrap95PercentileCI": {
+        "lower": 0.111334,
+        "upper": 0.167487,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "E_minus_C": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.065842,
+      "bootstrap95PercentileCI": {
+        "lower": 0.030494,
+        "upper": 0.101339,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "F_minus_C": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.141172,
+      "bootstrap95PercentileCI": {
+        "lower": 0.112591,
+        "upper": 0.169447,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "A_minus_D": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.07944,
+      "bootstrap95PercentileCI": {
+        "lower": -0.104539,
+        "upper": -0.053961,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "B_minus_D": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.291271,
+      "bootstrap95PercentileCI": {
+        "lower": -0.338214,
+        "upper": -0.246225,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "C_minus_D": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.139508,
+      "bootstrap95PercentileCI": {
+        "lower": -0.167498,
+        "upper": -0.11134,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "E_minus_D": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.073666,
+      "bootstrap95PercentileCI": {
+        "lower": -0.107568,
+        "upper": -0.039882,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "F_minus_D": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.001664,
+      "bootstrap95PercentileCI": {
+        "lower": -0.0047,
+        "upper": 0.007025,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "A_minus_E": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.005773,
+      "bootstrap95PercentileCI": {
+        "lower": -0.030358,
+        "upper": 0.019809,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "B_minus_E": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.217604,
+      "bootstrap95PercentileCI": {
+        "lower": -0.272893,
+        "upper": -0.162822,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "C_minus_E": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.065842,
+      "bootstrap95PercentileCI": {
+        "lower": -0.101364,
+        "upper": -0.030506,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "D_minus_E": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.073666,
+      "bootstrap95PercentileCI": {
+        "lower": 0.039882,
+        "upper": 0.10755,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "F_minus_E": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": 0.07533,
+      "bootstrap95PercentileCI": {
+        "lower": 0.041289,
+        "upper": 0.109447,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "A_minus_F": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.081104,
+      "bootstrap95PercentileCI": {
+        "lower": -0.106449,
+        "upper": -0.054958,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "B_minus_F": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.292935,
+      "bootstrap95PercentileCI": {
+        "lower": -0.339232,
+        "upper": -0.2484,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "C_minus_F": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.141172,
+      "bootstrap95PercentileCI": {
+        "lower": -0.169497,
+        "upper": -0.112655,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "D_minus_F": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.001664,
+      "bootstrap95PercentileCI": {
+        "lower": -0.007026,
+        "upper": 0.004699,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    },
+    "E_minus_F": {
+      "pairedQuestionCount": 143,
+      "ndcgAt10MeanDifference": -0.07533,
+      "bootstrap95PercentileCI": {
+        "lower": -0.109476,
+        "upper": -0.041306,
+        "replicates": 10000,
+        "seed": 20261016
+      }
+    }
+  },
+  "interpretation": "Diagnostic ranking view only. Overall policy assessment also reports no-answer abstention correctness separately; this does not replace the primary all-task pooled-qrels score."
+}

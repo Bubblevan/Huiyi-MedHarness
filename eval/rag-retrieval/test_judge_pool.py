@@ -4,6 +4,8 @@ import json
 import unittest
 
 from judge_pool import SYSTEM_PROMPT, build_user_message, parse_judgments
+from finalize_h2_translation_top10_qrels import valid as valid_translation_label
+from resolve_h2_judge_review import valid_label as valid_review_label
 
 
 class JudgePoolTests(unittest.TestCase):
@@ -40,6 +42,32 @@ class JudgePoolTests(unittest.TestCase):
             {"candidateId": "c2", "relevanceGrade": 0, "answerSupport": "unsupported", "evidenceQuote": "", "conflictType": "none", "explanation": "Unrelated.", "confidence": 0.99},
         ]})
         with self.assertRaisesRegex(ValueError, "quote_not_found_verbatim_in_passage"):
+            parse_judgments(raw, self.candidates)
+
+    def test_topically_relevant_passage_may_not_support_specific_answer(self) -> None:
+        raw = json.dumps({"judgments": [
+            {"candidateId": "c1", "relevanceGrade": 1, "answerSupport": "unsupported", "evidenceQuote": "Compare the medication list with discharge records.", "conflictType": "none", "explanation": "Topically relevant but contains no patient-specific record.", "confidence": 0.92},
+            {"candidateId": "c2", "relevanceGrade": 0, "answerSupport": "unsupported", "evidenceQuote": "", "conflictType": "none", "explanation": "Unrelated to the requested patient-specific fact.", "confidence": 0.99},
+        ]})
+        parsed = parse_judgments(raw, self.candidates)
+        self.assertEqual(parsed[0]["answerSupport"], "unsupported")
+        normalized = {
+            "relevance_grade": 1,
+            "answer_support": "unsupported",
+            "conflict_type": "none",
+            "parse_status": "ok",
+            "confidence": 0.92,
+            "evidence_quote": "Compare the medication list with discharge records.",
+        }
+        self.assertEqual(valid_review_label(normalized, self.candidates[0]["snippet"]), (True, []))
+        self.assertEqual(valid_translation_label({**normalized, "explanation": "Relevant, but not the requested fact."}, self.candidates[0]["snippet"]), [])
+
+    def test_grade_zero_cannot_be_marked_as_supported(self) -> None:
+        raw = json.dumps({"judgments": [
+            {"candidateId": "c1", "relevanceGrade": 0, "answerSupport": "supported", "evidenceQuote": "", "conflictType": "none", "explanation": "Direct support.", "confidence": 0.92},
+            {"candidateId": "c2", "relevanceGrade": 0, "answerSupport": "unsupported", "evidenceQuote": "", "conflictType": "none", "explanation": "Unrelated.", "confidence": 0.99},
+        ]})
+        with self.assertRaisesRegex(ValueError, "relevance_grade_answer_support_mismatch"):
             parse_judgments(raw, self.candidates)
 
     def test_system_prompt_forbids_answering_question(self) -> None:

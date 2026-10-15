@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["results"],
+  "properties": {
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["questionId", "query", "language", "taskCategory", "referenceAnswer", "evidence", "sourceBoundary", "qualityIssues"],
+        "properties": {
+          "questionId": { "type": "string", "minLength": 1 },
+          "query": { "type": "string", "minLength": 12 },
+          "language": { "enum": ["zh", "en", "mixed"] },
+          "taskCategory": { "enum": ["semantic", "exact_term", "bilingual", "multi_hop", "applicability_boundary"] },
+          "referenceAnswer": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchorId", "exactQuote", "requiredEvidenceElement"],
+              "properties": {
+                "anchorId": { "type": "string", "minLength": 1 },
+                "exactQuote": { "type": "string", "minLength": 8 },
+                "requiredEvidenceElement": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "sourceBoundary": { "type": "string", "minLength": 1 },
+          "qualityIssues": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

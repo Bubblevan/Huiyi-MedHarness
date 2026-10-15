@@ -17,10 +17,20 @@ from urllib.parse import urlparse
 import requests
 
 
-PROMPT_VERSION = "huiyi-h2-pooled-relevance-judge-v1"
+PROMPT_VERSION = "huiyi-h2-pooled-relevance-judge-v2"
 SYSTEM_PROMPT = """You are a retrieval-evaluation judge, not a clinician. Judge only whether each passage is useful evidence for the query. Do not answer the medical question or infer facts that are absent from the passage. Method, rank, retrieval score, and original question category are intentionally withheld.
 
-Use relevanceGrade: 0 = unrelated or unusable for the query; 1 = topical/contextual or supports only a limited aspect; 2 = directly supports a material part of the query. Use answerSupport: supported only when the passage directly supports the specific information requested; partial when it supports one aspect or provides relevant context; unsupported when it does not support the requested information; uncertain only when the passage/query is too ambiguous to decide. Quote an exact, short substring from the passage for grades 1 or 2; use an empty quote for grade 0. Set conflictType to none unless the passage itself presents a source/population/time/topic conflict relevant to the query. Return one judgment for every supplied candidate ID, with a confidence from 0 to 1. Do not guess when uncertain."""
+Use relevanceGrade and answerSupport as separate judgments. relevanceGrade: 0 = unrelated or unusable; 1 = topically/contextually relevant or supports only a limited aspect; 2 = directly supports a material part of the requested evidence. answerSupport describes whether this passage supports the specific fact requested: supported = direct support, partial = supports only part, unsupported = does not support the requested fact even if topically relevant, uncertain = query or passage is too ambiguous. In particular, a topical grade-1 passage may have answerSupport=unsupported, such as general medical material returned for a patient-specific chart question. Grade 0 must be unsupported or uncertain; grade 2 must be supported or partial. Quote an exact, short substring for grades 1 or 2; use an empty quote for grade 0. Set conflictType to none unless the passage itself presents a source/population/time/topic conflict relevant to the query. Return one judgment for every supplied candidate ID, with a confidence from 0 to 1. Do not guess when uncertain."""
+
+
+def support_grade_is_valid(grade: int, support: str) -> bool:
+    """Keep topical relevance independent from support for the requested fact."""
+    allowed = {
+        0: {"unsupported", "uncertain"},
+        1: {"partial", "unsupported", "uncertain"},
+        2: {"supported", "partial"},
+    }
+    return support in allowed.get(grade, set())
 
 
 def _sha256(raw: bytes) -> str:
@@ -106,10 +116,8 @@ def parse_judgments(raw: str, candidates: list[dict[str, Any]]) -> list[dict[str
             raise ValueError("invalid_relevance_grade")
         if item["answerSupport"] not in {"supported", "partial", "unsupported", "uncertain"}:
             raise ValueError("invalid_answer_support")
-        if item["relevanceGrade"] == 0 and item["answerSupport"] not in {"unsupported", "uncertain"}:
-            raise ValueError("grade_zero_requires_unsupported_or_uncertain")
-        if item["relevanceGrade"] > 0 and item["answerSupport"] == "unsupported":
-            raise ValueError("positive_grade_conflicts_with_unsupported")
+        if not support_grade_is_valid(item["relevanceGrade"], item["answerSupport"]):
+            raise ValueError("relevance_grade_answer_support_mismatch")
         if item["conflictType"] not in {"none", "topic", "population", "time", "source", "other"}:
             raise ValueError("invalid_conflict_type")
         quote = item["evidenceQuote"]

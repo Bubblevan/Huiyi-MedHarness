@@ -1,0 +1,3830 @@
+{
+  "schemaVersion": "huiyi-h2-v12-quality-bad-cases/v1",
+  "status": "holdout_engineering_review_no_clinician_validation",
+  "split": "holdout",
+  "datasetId": "h2-quality-v12a-holdout-20261016",
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "judgeModel": "gpt-6-luna",
+  "candidateLabelCoverage": {
+    "judged": 6973,
+    "candidateCount": 6991,
+    "coverage": 0.997425,
+    "unresolved": 18,
+    "reviewRequired": 0
+  },
+  "caseCount": 18,
+  "observedQualityRegressionCount": 15,
+  "humanReview": false,
+  "clinicalAccuracyClaimed": false,
+  "inputHashes": {
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\dataset-holdout-draft.json": "54ba19184a685b6fdb996efb915ffaf53af6b09b55edbc4339f95563ceb55b4b",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\holdout-abcd-top10-v12a-20261016\\annotation-packet.blinded.json": "3eb0d71f44c51725a3bbb888e421b01ec58e43b46be1431ad1cdaf878f94f868",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\holdout-abcd-top10-v12a-20261016\\judge-holdout-codex-cli.json": "45ac4052fe649f9ddef597479c7b112db357cc69ec4304e1f23740157f849cc6",
+    "docs\\rag\\H2-QUALITY-HOLDOUT-SCORE-20261016.json": "acd7ac01877b2ce13226241db2c8d7739fc63a3d5054b68e474cac17ac189968",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\holdout-abcd-top10-v12a-20261016\\run-dense.json": "a2e2208375556e11ad575591fcf63692153f75a262c79cc54f144ef46f1dfcfe",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\holdout-abcd-top10-v12a-20261016\\run-bm25.json": "5ec534b9565d3e702ffedb008749e1a761688f3afae68e04d014cc051afd806d",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\holdout-abcd-top10-v12a-20261016\\run-rrf.json": "eaa12d3961704e93cbab0a0e5f2a0e1a3c8e33dce6b035c4b173e08f33aa5a43",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\holdout-abcd-top10-v12a-20261016\\run-rrf-reranker.json": "b713f5760a1424748e91682a7b74360a646347b8b7728b59273ce2e9f89840e4"
+  },
+  "analysisScriptSha256": "f9897cdd6efbaa3c19b08b595963b003e4c5a38ee16031f94904059be15db543",
+  "cases": [
+    {
+      "caseId": "H2-H-V12-BC-01",
+      "questionId": "H2-H-076",
+      "query": "2012 年综述发现，哪类安全型静脉导管与更高的环境血液污染率相关？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 1.0,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.501899,
+      "rerankerNdcgAt10": 1.0,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-27010:38",
+          "source": "statpearls",
+          "title": "Peripheral Line Placement -- Enhancing Healthcare Team Outcomes",
+          "sourceUri": null,
+          "judgeExplanation": "直接说明2012年综述中，与更高环境血液污染率相关的是主动型安全导管。"
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27010:38",
+              "source": "statpearls",
+              "title": "Peripheral Line Placement -- Enhancing Healthcare Team Outcomes",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0004:10102",
+              "source": "pubmed",
+              "title": "Intravenous feeding in a gastroenterological unit: a prospective study of infective complications.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0008:14682",
+              "source": "pubmed",
+              "title": "[Evaluation of 1200 venous catheterizations in reanimation].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0014:4745",
+              "source": "pubmed",
+              "title": "[Bacteriological investigation of drains and catheters in pediatric surgery (author's transl)].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0016:10914",
+              "source": "pubmed",
+              "title": "Risk of infection in prolonged central venous catheterization.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-61f827069bf3ec6a5b84:0",
+              "source": "huiyi",
+              "title": "暑期护眼小知识",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-01931c0a02d339056076:0",
+              "source": "huiyi",
+              "title": "眼睑的小包块痒痒的，能挤挤吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-d830ae8c8cadc29ac9c6:0",
+              "source": "huiyi",
+              "title": "我不经意间照镜子发现眼角长了一块息肉，正常吗，需要治疗吗？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.501899,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.3125,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-27010:38",
+              "source": "statpearls",
+              "title": "Peripheral Line Placement -- Enhancing Healthcare Team Outcomes",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-61f827069bf3ec6a5b84:0",
+              "source": "huiyi",
+              "title": "暑期护眼小知识",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0004:10102",
+              "source": "pubmed",
+              "title": "Intravenous feeding in a gastroenterological unit: a prospective study of infective complications.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-01931c0a02d339056076:0",
+              "source": "huiyi",
+              "title": "眼睑的小包块痒痒的，能挤挤吗？",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27010:38",
+              "source": "statpearls",
+              "title": "Peripheral Line Placement -- Enhancing Healthcare Team Outcomes",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0014:4745",
+              "source": "pubmed",
+              "title": "[Bacteriological investigation of drains and catheters in pediatric surgery (author's transl)].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0010:3753",
+              "source": "pubmed",
+              "title": "Bacterial contamination of radial artery catheters.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0016:10914",
+              "source": "pubmed",
+              "title": "Risk of infection in prolonged central venous catheterization.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:InternalMed_Harrison:11280",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-02",
+      "questionId": "H2-H-087",
+      "query": "该病例组中，单纯病例的平均病程是多少天？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 1.0,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.669862,
+      "rerankerNdcgAt10": 0.933746,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.526316,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Neurology_Adams:8865",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Neurology_Adams:8621",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18371:13",
+              "source": "statpearls",
+              "title": "Blepharochalasis Syndrome -- Epidemiology",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21637:51",
+              "source": "statpearls",
+              "title": "Fatal Familial Insomnia -- Prognosis",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-143645:15",
+              "source": "statpearls",
+              "title": "Superficial Siderosis -- History and Physical",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d830ae8c8cadc29ac9c6:0",
+              "source": "huiyi",
+              "title": "我不经意间照镜子发现眼角长了一块息肉，正常吗，需要治疗吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.669862,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.421053,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d830ae8c8cadc29ac9c6:0",
+              "source": "huiyi",
+              "title": "我不经意间照镜子发现眼角长了一块息肉，正常吗，需要治疗吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Neurology_Adams:8865",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Neurology_Adams:8621",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-18371:13",
+              "source": "statpearls",
+              "title": "Blepharochalasis Syndrome -- Epidemiology",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.933746,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.473684,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21637:51",
+              "source": "statpearls",
+              "title": "Fatal Familial Insomnia -- Prognosis",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:13953",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Neurology_Adams:8621",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Pathology_Robbins:3535",
+              "source": "textbooks",
+              "title": "Pathology_Robbins",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-32752:54",
+              "source": "statpearls",
+              "title": "Erythema Annulare Centrifugum -- Prognosis",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-03",
+      "questionId": "H2-H-069",
+      "query": "第三脑室底部最常见哪类细胞？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.938755,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.520675,
+      "rerankerNdcgAt10": 0.88207,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0019:4416",
+          "source": "pubmed",
+          "title": "Scanning electron microscopy of the third ventricular floor of the rat.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/561807/",
+          "judgeExplanation": "Describes cell-surface features across regions of the rat third ventricular floor, including ciliated cells, but does not identify which cell type is most common overall."
+        },
+        {
+          "documentId": "statpearls:article-22271:5",
+          "source": "statpearls",
+          "title": "Histology, Glial Cells -- Structure",
+          "sourceUri": null,
+          "judgeExplanation": "直接说明第三脑室底部最常见的是伸展细胞（tanycytes）。"
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.938755,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.642857,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0019:4416",
+              "source": "pubmed",
+              "title": "Scanning electron microscopy of the third ventricular floor of the rat.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0014:12043",
+              "source": "pubmed",
+              "title": "Morphology and distribution of type II supraependymal cells in the third ventricle of the guinea pig.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0020:7977",
+              "source": "pubmed",
+              "title": "The fine structure of the ependymal surface of the recessus infundibularis in the rat.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0011:5199",
+              "source": "pubmed",
+              "title": "Scanning electron microscopy of the wall of the third ventricle in the brain of Rana temporaria. Part IV.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-22271:5",
+              "source": "statpearls",
+              "title": "Histology, Glial Cells -- Structure",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-0f1d98612548f2b7d2e3:0",
+              "source": "huiyi",
+              "title": "宝宝歪头不是萌，小儿斜视要排除!",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-6491ff945592acd85627:0",
+              "source": "huiyi",
+              "title": "综合眼病专科",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-01931c0a02d339056076:0",
+              "source": "huiyi",
+              "title": "眼睑的小包块痒痒的，能挤挤吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-2a68ea4db2382196702a:0",
+              "source": "huiyi",
+              "title": "小孩放学回家，眼睛变红了怎么办？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-b6ece951d7c3de44b874:0",
+              "source": "huiyi",
+              "title": "眼底病专科",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.520675,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.357143,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-0f1d98612548f2b7d2e3:0",
+              "source": "huiyi",
+              "title": "宝宝歪头不是萌，小儿斜视要排除!",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0019:4416",
+              "source": "pubmed",
+              "title": "Scanning electron microscopy of the third ventricular floor of the rat.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-6491ff945592acd85627:0",
+              "source": "huiyi",
+              "title": "综合眼病专科",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0014:12043",
+              "source": "pubmed",
+              "title": "Morphology and distribution of type II supraependymal cells in the third ventricle of the guinea pig.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-01931c0a02d339056076:0",
+              "source": "huiyi",
+              "title": "眼睑的小包块痒痒的，能挤挤吗？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.88207,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.642857,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-22271:5",
+              "source": "statpearls",
+              "title": "Histology, Glial Cells -- Structure",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0014:2348",
+              "source": "pubmed",
+              "title": "The ventricular system in neuroendocrine mechanisms. III. Supraependymal neuronal networks in the primate brain.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0014:12043",
+              "source": "pubmed",
+              "title": "Morphology and distribution of type II supraependymal cells in the third ventricle of the guinea pig.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0011:5199",
+              "source": "pubmed",
+              "title": "Scanning electron microscopy of the wall of the third ventricle in the brain of Rana temporaria. Part IV.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:2047",
+              "source": "pubmed",
+              "title": "Transcallosal approach to third ventricle tumor: case report. Partial removal of an infundibuloma (grade I astrocytoma arising from the floor of the third ventricle).",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-04",
+      "questionId": "H2-H-064",
+      "query": "人体无法合成或无法合成足量的必需氨基酸，因此需要通过什么途径获得？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.928428,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.440858,
+      "rerankerNdcgAt10": 0.885546,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "textbooks:Biochemistry_Lippincott:915",
+          "source": "textbooks",
+          "title": "Biochemistry_Lippinco",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states that essential amino acids must be obtained through the diet."
+        },
+        {
+          "documentId": "statpearls:article-36202:1",
+          "source": "statpearls",
+          "title": "Biochemistry, Essential Amino Acids (Archived) -- Introduction",
+          "sourceUri": null,
+          "judgeExplanation": "Directly says essential amino acids must be supplied from the diet."
+        },
+        {
+          "documentId": "statpearls:article-25040:19",
+          "source": "statpearls",
+          "title": "Physiology, Metabolism -- Mechanism -- Amino Acid Metabolism",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states that essential amino acids must be obtained from the diet."
+        },
+        {
+          "documentId": "textbooks:InternalMed_Harrison:29285",
+          "source": "textbooks",
+          "title": "InternalMed_Harrison",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states that essential amino acids must come from dietary sources."
+        },
+        {
+          "documentId": "textbooks:Physiology_Levy:3003",
+          "source": "textbooks",
+          "title": "Physiology_Levy",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states that essential amino acids must be obtained from the diet."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.928428,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.526316,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Biochemistry_Lippincott:915",
+              "source": "textbooks",
+              "title": "Biochemistry_Lippinco",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-741:7",
+              "source": "statpearls",
+              "title": "Biochemistry, Amino Acid Synthesis and Degradation -- Function",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Cell_Biology_Alberts:378",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:29285",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-741:11",
+              "source": "statpearls",
+              "title": "Biochemistry, Amino Acid Synthesis and Degradation -- Mechanism",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-b7531ff1510287f38a69:0",
+              "source": "huiyi",
+              "title": "近视手术前后需要几天？近视手术前需要做什么准备呢？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:5",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.440858,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.263158,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Biochemistry_Lippincott:915",
+              "source": "textbooks",
+              "title": "Biochemistry_Lippinco",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-b7531ff1510287f38a69:0",
+              "source": "huiyi",
+              "title": "近视手术前后需要几天？近视手术前需要做什么准备呢？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-741:7",
+              "source": "statpearls",
+              "title": "Biochemistry, Amino Acid Synthesis and Degradation -- Function",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.885546,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.526316,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 3,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Biochemistry_Lippincott:915",
+              "source": "textbooks",
+              "title": "Biochemistry_Lippinco",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-36202:11",
+              "source": "statpearls",
+              "title": "Biochemistry, Essential Amino Acids (Archived) -- Mechanism",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Physiology_Levy:3003",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-36202:1",
+              "source": "statpearls",
+              "title": "Biochemistry, Essential Amino Acids (Archived) -- Introduction",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-741:7",
+              "source": "statpearls",
+              "title": "Biochemistry, Amino Acid Synthesis and Degradation -- Function",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-05",
+      "questionId": "H2-H-084",
+      "query": "段落称，哪类同工酶主要存在于产生类固醇激素的细胞中？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.909821,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.501899,
+      "rerankerNdcgAt10": 0.907615,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.909821,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0007:5675",
+              "source": "pubmed",
+              "title": "[Histochemical study of the phosphomonoesterases of cells producing steroid hormones].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0014:14622",
+              "source": "pubmed",
+              "title": "The ultrastructural localization of the enzymes related to steroid hormone metabolism in the guinea-pig testis.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0007:14386",
+              "source": "pubmed",
+              "title": "Comparative histochemical study of the enzyme changes in the ovary and uterus of mammals with special references to steroidogenesis.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0005:7384",
+              "source": "pubmed",
+              "title": "Enzyme histochemistry of ovarina lipoid cell hyperplasia in a masculinized patient.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:6428",
+              "source": "pubmed",
+              "title": "Endogenous steroid production in cellular and subcellular fractions of rat testis after prolonged treatment with gonadotropins.",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-0f1d98612548f2b7d2e3:0",
+              "source": "huiyi",
+              "title": "宝宝歪头不是萌，小儿斜视要排除!",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-227671a34f7c604a21ad:0",
+              "source": "huiyi",
+              "title": "人工晶体要不要清洗或要换？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-ee8eeb35f48defdf0116:0",
+              "source": "huiyi",
+              "title": "妊娠对青光眼有影响吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-0290333d1ede47e131f7:0",
+              "source": "huiyi",
+              "title": "白内障手术效果如何？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-8c8d872821e569d9c95b:0",
+              "source": "huiyi",
+              "title": "如何分辨真性近视与假性近视？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.501899,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.3125,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-0f1d98612548f2b7d2e3:0",
+              "source": "huiyi",
+              "title": "宝宝歪头不是萌，小儿斜视要排除!",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0007:5675",
+              "source": "pubmed",
+              "title": "[Histochemical study of the phosphomonoesterases of cells producing steroid hormones].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-227671a34f7c604a21ad:0",
+              "source": "huiyi",
+              "title": "人工晶体要不要清洗或要换？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0014:14622",
+              "source": "pubmed",
+              "title": "The ultrastructural localization of the enzymes related to steroid hormone metabolism in the guinea-pig testis.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-ee8eeb35f48defdf0116:0",
+              "source": "huiyi",
+              "title": "妊娠对青光眼有影响吗？",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.907615,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0007:5675",
+              "source": "pubmed",
+              "title": "[Histochemical study of the phosphomonoesterases of cells producing steroid hormones].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0007:14386",
+              "source": "pubmed",
+              "title": "Comparative histochemical study of the enzyme changes in the ovary and uterus of mammals with special references to steroidogenesis.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0007:629",
+              "source": "pubmed",
+              "title": "[Ultrastructural aspects of cells with 3 beta-HSDH (delta-5-betahydroxysteroid dehydrogenase) activity in female ducks. I. Female Peking duck (Anas platyrhynchos)].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0006:6428",
+              "source": "pubmed",
+              "title": "Endogenous steroid production in cellular and subcellular fractions of rat testis after prolonged treatment with gonadotropins.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0005:7384",
+              "source": "pubmed",
+              "title": "Enzyme histochemistry of ovarina lipoid cell hyperplasia in a masculinized patient.",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-06",
+      "questionId": "H2-H-040",
+      "query": "In what year was etoposide first synthesized?",
+      "taskCategory": "exact_term",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.500324,
+      "denseNdcgAt10": 0.915263,
+      "bm25NdcgAt10": 0.537789,
+      "rrfNdcgAt10": 0.500324,
+      "rerankerNdcgAt10": 0.915613,
+      "firstDirectSupportRank": 1,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-21400:2",
+          "source": "statpearls",
+          "title": "Etoposide -- Indications",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states the year etoposide was first synthesized."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.915263,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.421053,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21400:2",
+              "source": "statpearls",
+              "title": "Etoposide -- Indications",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Pharmacology_Katzung:5952",
+              "source": "textbooks",
+              "title": "Pharmacology_Katzung",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:6335",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21400:6",
+              "source": "statpearls",
+              "title": "Etoposide -- Administration",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-21400:0",
+              "source": "statpearls",
+              "title": "Etoposide -- Continuing Education Activity",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.537789,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.263158,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21400:2",
+              "source": "statpearls",
+              "title": "Etoposide -- Indications",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-26243:49",
+              "source": "statpearls",
+              "title": "Optic Nerve Glioma -- Medical Oncology -- Systemic Chemotherapy",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:27024",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0018:2139",
+              "source": "pubmed",
+              "title": "[Recurrence in ulcerative colitis following colectomy?--Only what may be, can be (author's transl)].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-21400:7",
+              "source": "statpearls",
+              "title": "Etoposide -- Administration",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.500324,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.263158,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21400:2",
+              "source": "statpearls",
+              "title": "Etoposide -- Indications",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21400:7",
+              "source": "statpearls",
+              "title": "Etoposide -- Administration",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-21400:16",
+              "source": "statpearls",
+              "title": "Etoposide -- Enhancing Healthcare Team Outcomes",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21400:1",
+              "source": "statpearls",
+              "title": "Etoposide -- Continuing Education Activity -- Objectives:",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-21400:4",
+              "source": "statpearls",
+              "title": "Etoposide -- Indications",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.915613,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.421053,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21400:2",
+              "source": "statpearls",
+              "title": "Etoposide -- Indications",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:6335",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Pharmacology_Katzung:5952",
+              "source": "textbooks",
+              "title": "Pharmacology_Katzung",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21400:0",
+              "source": "statpearls",
+              "title": "Etoposide -- Continuing Education Activity",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-21400:6",
+              "source": "statpearls",
+              "title": "Etoposide -- Administration",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-07",
+      "questionId": "H2-H-021",
+      "query": "What cardiovascular effect was observed with mexilithene at high doses per kilogram?",
+      "taskCategory": "semantic",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.693147,
+      "denseNdcgAt10": 1.0,
+      "bm25NdcgAt10": 0.458466,
+      "rrfNdcgAt10": 0.693147,
+      "rerankerNdcgAt10": 1.0,
+      "firstDirectSupportRank": 1,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0016:2211",
+          "source": "pubmed",
+          "title": "[Mexiletine, a drug with anti-arrhythmic action. Experimental research on the cardiovascular system].",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/464786/",
+          "judgeExplanation": "Directly states the cardiovascular effects observed with high per-kilogram doses of mexilithene."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0016:2211",
+              "source": "pubmed",
+              "title": "[Mexiletine, a drug with anti-arrhythmic action. Experimental research on the cardiovascular system].",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-36481:12",
+              "source": "statpearls",
+              "title": "Mexiletine -- Adverse Effects",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-36481:18",
+              "source": "statpearls",
+              "title": "Mexiletine -- Toxicity",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Pharmacology_Katzung:1415",
+              "source": "textbooks",
+              "title": "Pharmacology_Katzung",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0004:14104",
+              "source": "pubmed",
+              "title": "[Hemodynamic effects of mexiletine].",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.458466,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.05,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0016:2211",
+              "source": "pubmed",
+              "title": "[Mexiletine, a drug with anti-arrhythmic action. Experimental research on the cardiovascular system].",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0018:6909",
+              "source": "pubmed",
+              "title": "Potassium toxicity and acid-base balance from large oral doses of potassium to young calves.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0001:8710",
+              "source": "pubmed",
+              "title": "The effect of umbilical vein occlusion on fetal oxygenation, cardiovascular parameters, and fetal electroencephalogram.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0018:4392",
+              "source": "pubmed",
+              "title": "Diarrhoea as a side effect of amoxycillin therapy.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:9648",
+              "source": "pubmed",
+              "title": "Systemic and uterine hemodynamic responses to dopamine in pregnant and nonpregnant sheep.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.693147,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.25,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0016:2211",
+              "source": "pubmed",
+              "title": "[Mexiletine, a drug with anti-arrhythmic action. Experimental research on the cardiovascular system].",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0018:6909",
+              "source": "pubmed",
+              "title": "Potassium toxicity and acid-base balance from large oral doses of potassium to young calves.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-36481:12",
+              "source": "statpearls",
+              "title": "Mexiletine -- Adverse Effects",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0001:8710",
+              "source": "pubmed",
+              "title": "The effect of umbilical vein occlusion on fetal oxygenation, cardiovascular parameters, and fetal electroencephalogram.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-36481:18",
+              "source": "statpearls",
+              "title": "Mexiletine -- Toxicity",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0016:2211",
+              "source": "pubmed",
+              "title": "[Mexiletine, a drug with anti-arrhythmic action. Experimental research on the cardiovascular system].",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0016:8761",
+              "source": "pubmed",
+              "title": "[The effects of intravenous mexiletine on cardiac performance (author's transl)].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-36481:12",
+              "source": "statpearls",
+              "title": "Mexiletine -- Adverse Effects",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0004:14104",
+              "source": "pubmed",
+              "title": "[Hemodynamic effects of mexiletine].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-36481:18",
+              "source": "statpearls",
+              "title": "Mexiletine -- Toxicity",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-08",
+      "questionId": "H2-H-160",
+      "query": "According to the passage, does cancer after transplantation provide acceptable evidence for the immune surveillance theory?",
+      "taskCategory": "applicability_boundary",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.581897,
+      "denseNdcgAt10": 0.863444,
+      "bm25NdcgAt10": 0.41179,
+      "rrfNdcgAt10": 0.581897,
+      "rerankerNdcgAt10": 0.697149,
+      "firstDirectSupportRank": 1,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0002:7997",
+          "source": "pubmed",
+          "title": "Chronic antigenic stimulation, herpesvirus infection, and cancer in transplant recipients.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/48901/",
+          "judgeExplanation": "Directly discusses cancer incidence in transplant recipients and argues that its pattern cannot be explained by impaired immunosurveillance, but does not make the exact judgment about whether it is acceptable evidence."
+        },
+        {
+          "documentId": "textbooks:Immunology_Janeway:4095",
+          "source": "textbooks",
+          "title": "Immunology_Janeway",
+          "sourceUri": null,
+          "judgeExplanation": "Directly presents post-transplant cancer as clinical support for the immune-related equilibrium phase, supporting an affirmative answer to the query."
+        },
+        {
+          "documentId": "pubmed:pubmed23n0013:5543",
+          "source": "pubmed",
+          "title": "The significance of cancer after renal transplantation.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/381689/",
+          "judgeExplanation": "Directly states that cancer after transplantation is not acceptable evidence for the theory, answering the specific query."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.863444,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.4,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0013:5543",
+              "source": "pubmed",
+              "title": "The significance of cancer after renal transplantation.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0012:4871",
+              "source": "pubmed",
+              "title": "Immunosurveillance and cancer: epidemiologic observations.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0012:7326",
+              "source": "pubmed",
+              "title": "Cancer as a late-onset complication of kidney transplantation.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:18338",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0004:7532",
+              "source": "pubmed",
+              "title": "Immunological surveillance against neoplasia: an immunological quandary.",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.41179,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.16,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0013:5543",
+              "source": "pubmed",
+              "title": "The significance of cancer after renal transplantation.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0012:4871",
+              "source": "pubmed",
+              "title": "Immunosurveillance and cancer: epidemiologic observations.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-22665:34",
+              "source": "statpearls",
+              "title": "Heart Transplantation -- Complications -- Rejection",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-24494:35",
+              "source": "statpearls",
+              "title": "Small Cell Lung Cancer -- Treatment / Management -- Extensive Stage",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0012:5501",
+              "source": "pubmed",
+              "title": "Immune surveillance and tumors of the nervous system.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.581897,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.28,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0013:5543",
+              "source": "pubmed",
+              "title": "The significance of cancer after renal transplantation.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0012:4871",
+              "source": "pubmed",
+              "title": "Immunosurveillance and cancer: epidemiologic observations.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0012:7326",
+              "source": "pubmed",
+              "title": "Cancer as a late-onset complication of kidney transplantation.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-22665:34",
+              "source": "statpearls",
+              "title": "Heart Transplantation -- Complications -- Rejection",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-24494:35",
+              "source": "statpearls",
+              "title": "Small Cell Lung Cancer -- Treatment / Management -- Extensive Stage",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.697149,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.32,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0013:5543",
+              "source": "pubmed",
+              "title": "The significance of cancer after renal transplantation.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0012:4871",
+              "source": "pubmed",
+              "title": "Immunosurveillance and cancer: epidemiologic observations.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0019:9852",
+              "source": "pubmed",
+              "title": "A critical examination of the foundations of immunotherapy for cancer.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-27562:2",
+              "source": "statpearls",
+              "title": "Posttransplantation Cancer -- Introduction",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Immunology_Janeway:4097",
+              "source": "textbooks",
+              "title": "Immunology_Janeway",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-09",
+      "questionId": "H2-H-007",
+      "query": "Which group does the passage say commonly experiences weight loss and reduced appetite?",
+      "taskCategory": "semantic",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.283885,
+      "denseNdcgAt10": 0.560693,
+      "bm25NdcgAt10": 0.128727,
+      "rrfNdcgAt10": 0.283885,
+      "rerankerNdcgAt10": 0.664718,
+      "firstDirectSupportRank": 7,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-28362:21",
+          "source": "statpearls",
+          "title": "Renal Mass -- History and Physical -- Clinical Symptoms",
+          "sourceUri": null,
+          "judgeExplanation": "Directly identifies renal cell carcinoma as commonly associated with both loss of appetite and unexplained weight loss."
+        },
+        {
+          "documentId": "textbooks:InternalMed_Harrison:3177",
+          "source": "textbooks",
+          "title": "InternalMed_Harrison",
+          "sourceUri": null,
+          "judgeExplanation": "Directly describes elderly persons as predisposed to weight loss and experiencing declines in appetite."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.560693,
+          "mrrAt10": 0.333333,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": 3,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-131518:3",
+              "source": "statpearls",
+              "title": "Physiology, Appetite And Weight Regulation -- Issues of Concern",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-131508:10",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Overview -- Hormonal regulation of appetite",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:3177",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-131518:54",
+              "source": "statpearls",
+              "title": "Physiology, Appetite And Weight Regulation -- Clinical Significance -- Malnutrition",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Psichiatry_DSM-5:1703",
+              "source": "textbooks",
+              "title": "Psichiatry_DSM-5",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.128727,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.190476,
+          "firstDirectSupportRank": 17,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-131508:23",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Significance -- Appetite Hormone Regulation and Pharmacotherapy",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-131508:10",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Overview -- Hormonal regulation of appetite",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-148945:3",
+              "source": "statpearls",
+              "title": "Setmelanotide -- Indications",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-131518:46",
+              "source": "statpearls",
+              "title": "Physiology, Appetite And Weight Regulation -- Clinical Significance",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-131508:11",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Overview -- Hypothalamic and neuroendocrine responses",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.283885,
+          "mrrAt10": 0.142857,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.285714,
+          "firstDirectSupportRank": 7,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-131508:10",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Overview -- Hormonal regulation of appetite",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-131518:54",
+              "source": "statpearls",
+              "title": "Physiology, Appetite And Weight Regulation -- Clinical Significance -- Malnutrition",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-131518:3",
+              "source": "statpearls",
+              "title": "Physiology, Appetite And Weight Regulation -- Issues of Concern",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0014:12438",
+              "source": "pubmed",
+              "title": "Reduced caloric intake following small bowel bypass surgery: a systematic study of possible causes.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-131508:23",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Significance -- Appetite Hormone Regulation and Pharmacotherapy",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.664718,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:3177",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21993:24",
+              "source": "statpearls",
+              "title": "Pediatric Functional Constipation -- Differential Diagnosis -- Red Flags Concerning for an Organic Disorder",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Psichiatry_DSM-5:1688",
+              "source": "textbooks",
+              "title": "Psichiatry_DSM-5",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Psichiatry_DSM-5:836",
+              "source": "textbooks",
+              "title": "Psichiatry_DSM-5",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-131508:10",
+              "source": "statpearls",
+              "title": "Physical Activity and Weight Loss Maintenance -- Clinical Overview -- Hormonal regulation of appetite",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-10",
+      "questionId": "H2-H-163",
+      "query": "合成病历 H2-SYN-H-163 是否记载了就诊科室？请给出对应的原始条目。",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "reranker_ordering_regression",
+      "focusMethod": "rrf-reranker",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.0,
+      "bm25NdcgAt10": 0.5,
+      "rrfNdcgAt10": 0.386853,
+      "rerankerNdcgAt10": 0.0,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:25402",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:17879",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18347:11",
+              "source": "statpearls",
+              "title": "Human Bites -- Consultations",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-28938:77",
+              "source": "statpearls",
+              "title": "Severe Combined Immunodeficiency -- History and Physical",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-105819:10",
+              "source": "statpearls",
+              "title": "Initial Antepartum Care -- Clinical Overview -- Clinical history",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.5,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-e14a3fa0df6ad055cb5e:0",
+              "source": "huiyi",
+              "title": "青光眼能预防吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-f4192c1c3d2bf358d6d4:0",
+              "source": "huiyi",
+              "title": "孩子患了斜视该如何治疗？",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.386853,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:25402",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-e14a3fa0df6ad055cb5e:0",
+              "source": "huiyi",
+              "title": "青光眼能预防吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:17879",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f4192c1c3d2bf358d6d4:0",
+              "source": "huiyi",
+              "title": "孩子患了斜视该如何治疗？",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-29827:40",
+              "source": "statpearls",
+              "title": "Syringomyelia -- History and Physical",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-105819:10",
+              "source": "statpearls",
+              "title": "Initial Antepartum Care -- Clinical Overview -- Clinical history",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-22785:40",
+              "source": "statpearls",
+              "title": "Hepatitis A -- Treatment / Management -- Supportive Management",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-28938:77",
+              "source": "statpearls",
+              "title": "Severe Combined Immunodeficiency -- History and Physical",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:InternalMed_Harrison:25402",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: reranking lowers graded nDCG@10 against its RRF candidate order. Hypothesis: cross-encoder pair scoring overweights a topical but less directly supportive passage; reranker score calibration was not separately tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-11",
+      "questionId": "H2-H-119",
+      "query": "What characteristic is given for the Multidimensional Body-Self Relations Questionnaire, and which named measure is listed for assessing the attitudinal component of body image in children?",
+      "taskCategory": "multi_hop",
+      "answerability": "answerable",
+      "caseType": "reranker_ordering_regression",
+      "focusMethod": "rrf-reranker",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.772499,
+      "denseNdcgAt10": 0.954364,
+      "bm25NdcgAt10": 0.950438,
+      "rrfNdcgAt10": 1.0,
+      "rerankerNdcgAt10": 0.772499,
+      "firstDirectSupportRank": 5,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-18424:47",
+          "source": "statpearls",
+          "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+          "sourceUri": null,
+          "judgeExplanation": "Directly gives the MBSRQ characteristic, but does not name the children's attitudinal measure requested."
+        },
+        {
+          "documentId": "statpearls:article-18424:46",
+          "source": "statpearls",
+          "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+          "sourceUri": null,
+          "judgeExplanation": "Directly lists named measures for assessing the attitudinal component in children; the passage does not cover the MBSRQ characteristic."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.954364,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.428571,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-18424:46",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-18424:47",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18424:45",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-18424:36",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- History and Physical",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-18424:44",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.950438,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.428571,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-18424:47",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-18424:46",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18424:45",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-18424:44",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0017:94",
+              "source": "pubmed",
+              "title": "Body self-image and homosexuality.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.47619,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-18424:46",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-18424:47",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18424:45",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-18424:44",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-18424:50",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Other Useful Measures",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.772499,
+          "mrrAt10": 0.2,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.47619,
+          "firstDirectSupportRank": 5,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-18424:45",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-18424:36",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- History and Physical",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18424:44",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-18424:6",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Introduction -- Definition",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-18424:46",
+              "source": "statpearls",
+              "title": "Body Image Distortion (Archived) -- Evaluation -- Measuring the Attitudinal Component",
+              "relevanceGrade": 2
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: reranking lowers graded nDCG@10 against its RRF candidate order. Hypothesis: cross-encoder pair scoring overweights a topical but less directly supportive passage; reranker score calibration was not separately tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-12",
+      "questionId": "H2-H-194",
+      "query": "What does the visit record for H2-SYN-H-194 show under emergency contact relationship?",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "reranker_ordering_regression",
+      "focusMethod": "rrf-reranker",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.445857,
+      "denseNdcgAt10": 0.607842,
+      "bm25NdcgAt10": 0.488829,
+      "rrfNdcgAt10": 0.642187,
+      "rerankerNdcgAt10": 0.445857,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.607842,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.4,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-147785:20",
+              "source": "statpearls",
+              "title": "Terminating the Therapeutic Relationship -- Clinical Significance -- Utilize standardized notification procedures",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-141818:33",
+              "source": "statpearls",
+              "title": "Packaging and Shipping Infectious Materials -- Issues of Concern -- Emergency Response Information",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-21814:23",
+              "source": "statpearls",
+              "title": "Flexible Nasopharyngoscopy -- Technique or Treatment -- Step 5: Post-procedure",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-130814:32",
+              "source": "statpearls",
+              "title": "Understanding and Application of CDC Immunization Guidelines -- Clinical Significance -- Haemophilus Influenza Type B (Hib) Vaccination",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:nurse-article-23224:12",
+              "source": "statpearls",
+              "title": "Hypertensive Emergency (Nursing) -- When To Seek Help",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.488829,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.266667,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27048:0",
+              "source": "statpearls",
+              "title": "Personal Health Record -- Definition/Introduction",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-127545:56",
+              "source": "statpearls",
+              "title": "New York State Child Abuse, Maltreatment, and Neglect -- History and Physical -- Virtual environment",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-63854:15",
+              "source": "statpearls",
+              "title": "Record and Data Retention in Medical Simulation -- Continuing Education",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-95346:3",
+              "source": "statpearls",
+              "title": "Abandonment -- Definition/Introduction",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:3806",
+              "source": "pubmed",
+              "title": "Does patient satisfaction correlate with succes?",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.642187,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27048:0",
+              "source": "statpearls",
+              "title": "Personal Health Record -- Definition/Introduction",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0019:11982",
+              "source": "pubmed",
+              "title": "A record system for contact tracing.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-147785:20",
+              "source": "statpearls",
+              "title": "Terminating the Therapeutic Relationship -- Clinical Significance -- Utilize standardized notification procedures",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-127545:56",
+              "source": "statpearls",
+              "title": "New York State Child Abuse, Maltreatment, and Neglect -- History and Physical -- Virtual environment",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-141818:33",
+              "source": "statpearls",
+              "title": "Packaging and Shipping Infectious Materials -- Issues of Concern -- Emergency Response Information",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.445857,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.4,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0017:8518",
+              "source": "pubmed",
+              "title": "Prediction of multiple visits by a community mental health center's psychiatric emergency home visiting team.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-63854:15",
+              "source": "statpearls",
+              "title": "Record and Data Retention in Medical Simulation -- Continuing Education",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-95346:3",
+              "source": "statpearls",
+              "title": "Abandonment -- Definition/Introduction",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0017:1322",
+              "source": "pubmed",
+              "title": "Controlled clinical trial of pediatric telephone protocols.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:2956",
+              "source": "pubmed",
+              "title": "Nonemergency visits to a pediatric emergency department.",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: reranking lowers graded nDCG@10 against its RRF candidate order. Hypothesis: cross-encoder pair scoring overweights a topical but less directly supportive passage; reranker score calibration was not separately tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-13",
+      "questionId": "H2-H-148",
+      "query": "What follow-up limitation did the authors identify before definite conclusions could be drawn from their preliminary report?",
+      "taskCategory": "applicability_boundary",
+      "answerability": "answerable",
+      "caseType": "dense_ranking_weakness",
+      "focusMethod": "dense",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.17081,
+      "denseNdcgAt10": 0.17081,
+      "bm25NdcgAt10": 0.898893,
+      "rrfNdcgAt10": 0.748585,
+      "rerankerNdcgAt10": 0.817304,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0015:4885",
+          "source": "pubmed",
+          "title": "Microsurgical lumbar discectomy: preliminary report of 83 consecutive cases.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/440544/",
+          "judgeExplanation": "Directly identifies short follow-up as the limitation making the results tentative."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.17081,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.142857,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:17626",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-18125:21",
+              "source": "statpearls",
+              "title": "Balloon Sinuplasty -- Complications",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-24687:47",
+              "source": "statpearls",
+              "title": "Malingering -- Treatment / Management",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-132856:130",
+              "source": "statpearls",
+              "title": "Duane Retraction Syndrome -- Pertinent Studies and Ongoing Trials -- Key Study Themes and Findings",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-132018:16",
+              "source": "statpearls",
+              "title": "Common Pitfalls In The Research Process -- Issues of Concern -- Phase I Pitfalls: Planning a Study",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.898893,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.428571,
+          "firstDirectSupportRank": 5,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0015:3334",
+              "source": "pubmed",
+              "title": "Allopurinol in the prevention of calcium oxalate renal stones. Preliminary results.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0016:10885",
+              "source": "pubmed",
+              "title": "A follow-up study of cardiac patients. A preliminary report.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:13046",
+              "source": "pubmed",
+              "title": "Transfer factor treatment of patients with multuple sclerosis. I. Preliminary report of changes in immunological parameters.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0010:6635",
+              "source": "pubmed",
+              "title": "Splenectomy in early chronic myeloid leukemia.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0015:4885",
+              "source": "pubmed",
+              "title": "Microsurgical lumbar discectomy: preliminary report of 83 consecutive cases.",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.748585,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": 9,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0015:3334",
+              "source": "pubmed",
+              "title": "Allopurinol in the prevention of calcium oxalate renal stones. Preliminary results.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:17626",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0016:10885",
+              "source": "pubmed",
+              "title": "A follow-up study of cardiac patients. A preliminary report.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-18125:21",
+              "source": "statpearls",
+              "title": "Balloon Sinuplasty -- Complications",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:13046",
+              "source": "pubmed",
+              "title": "Transfer factor treatment of patients with multuple sclerosis. I. Preliminary report of changes in immunological parameters.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.817304,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": 5,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0015:3334",
+              "source": "pubmed",
+              "title": "Allopurinol in the prevention of calcium oxalate renal stones. Preliminary results.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0018:4226",
+              "source": "pubmed",
+              "title": "[A procedure for avoiding reflux in uretero-ileal implantations during enterocystoplasty (author's transl)].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0010:6635",
+              "source": "pubmed",
+              "title": "Splenectomy in early chronic myeloid leukemia.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0009:3628",
+              "source": "pubmed",
+              "title": "Cobalt radiation to prevent reankylosis after repeated surgical failures: report of case.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0015:4885",
+              "source": "pubmed",
+              "title": "Microsurgical lumbar discectomy: preliminary report of 83 consecutive cases.",
+              "relevanceGrade": 2
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: Dense nDCG@10 is below 0.60 although judged direct-support documents exist in the pooled candidate set. This shows a ranking weakness; the specific embedding/query interaction remains a hypothesis.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-14",
+      "questionId": "H2-H-054",
+      "query": "Which scanner generation could use the system without additional hardware?",
+      "taskCategory": "exact_term",
+      "answerability": "answerable",
+      "caseType": "dense_ranking_weakness",
+      "focusMethod": "dense",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.334111,
+      "denseNdcgAt10": 0.334111,
+      "bm25NdcgAt10": 0.789948,
+      "rrfNdcgAt10": 0.463797,
+      "rerankerNdcgAt10": 0.966452,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0021:1234",
+          "source": "pubmed",
+          "title": "The rubber circle: a technique for analyzing computed tomography scans.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/615210/",
+          "judgeExplanation": "Directly identifies first-generation EMI scanners as able to use the system without additional hardware."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.334111,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.277778,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-129482:11",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- First and second generation scanners",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-129482:15",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- Third generation scanners",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0004:9998",
+              "source": "pubmed",
+              "title": "A new unidirectional moving whole body scanner: comparative study of performances.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0020:9901",
+              "source": "pubmed",
+              "title": "A graphic display system for use with a computerized tomographic scanner.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-129482:12",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- First and second generation scanners",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.789948,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.388889,
+          "firstDirectSupportRank": 6,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0021:1557",
+              "source": "pubmed",
+              "title": "Use of automated measurements of mean density as an adjunct to computed tomography.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0018:189",
+              "source": "pubmed",
+              "title": "Advantages of a fourth generation CT scanner in the management of patients with orbital mass lesions.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0012:8756",
+              "source": "pubmed",
+              "title": "The MEDLINE hardware and software.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0004:11001",
+              "source": "pubmed",
+              "title": "Coronal and sagittal reconstructions using a 4.8 second CT body scanner: developments and applications.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-129482:14",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- Third generation scanners",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.463797,
+          "mrrAt10": 0.142857,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.388889,
+          "firstDirectSupportRank": 12,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0020:9901",
+              "source": "pubmed",
+              "title": "A graphic display system for use with a computerized tomographic scanner.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-129482:12",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- First and second generation scanners",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-129482:15",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- Third generation scanners",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-129482:11",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- First and second generation scanners",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-129482:14",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- Third generation scanners",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.966452,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.555556,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0021:1234",
+              "source": "pubmed",
+              "title": "The rubber circle: a technique for analyzing computed tomography scans.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0004:11001",
+              "source": "pubmed",
+              "title": "Coronal and sagittal reconstructions using a 4.8 second CT body scanner: developments and applications.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0021:1557",
+              "source": "pubmed",
+              "title": "Use of automated measurements of mean density as an adjunct to computed tomography.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-129482:14",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- Third generation scanners",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-129482:12",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Computed Tomography Physics -- Clinical Overview -- First and second generation scanners",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: Dense nDCG@10 is below 0.60 although judged direct-support documents exist in the pooled candidate set. This shows a ranking weakness; the specific embedding/query interaction remains a hypothesis.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-15",
+      "questionId": "H2-H-026",
+      "query": "该科室共有多少名医护和医技人员？",
+      "taskCategory": "semantic",
+      "answerability": "answerable",
+      "caseType": "dense_ranking_weakness",
+      "focusMethod": "dense",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.391914,
+      "denseNdcgAt10": 0.391914,
+      "bm25NdcgAt10": 0.503908,
+      "rrfNdcgAt10": 0.735214,
+      "rerankerNdcgAt10": 0.814764,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.391914,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0005:8508",
+              "source": "pubmed",
+              "title": "[Work of the centralized pathoanatomical department of the Cheliabinsk district clinical hospital].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0013:10083",
+              "source": "pubmed",
+              "title": "[Thirty years of Radiology Department in Hokkaido University Hospital (author's transl)].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-98cf1e6f40be2cd1fc7b:0",
+              "source": "huiyi",
+              "title": "医院介绍",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-129332:93",
+              "source": "statpearls",
+              "title": "Nuclear Medicine Instrumentation -- Nursing, Allied Health, and Interprofessional Team Interventions",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f8e320af0c06119c4581:0",
+              "source": "huiyi",
+              "title": "神经眼科",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.503908,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.125,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-9ebb7d28f0e8294389fc:0",
+              "source": "huiyi",
+              "title": "视光、斜弱视与小儿眼科",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-b96b3d9cf0cbd00601ce:0",
+              "source": "huiyi",
+              "title": "廖康达",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-9a5e2f1bb99a1460d6ef:0",
+              "source": "huiyi",
+              "title": "院长致辞",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.735214,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-9ebb7d28f0e8294389fc:0",
+              "source": "huiyi",
+              "title": "视光、斜弱视与小儿眼科",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0005:8508",
+              "source": "pubmed",
+              "title": "[Work of the centralized pathoanatomical department of the Cheliabinsk district clinical hospital].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-b96b3d9cf0cbd00601ce:0",
+              "source": "huiyi",
+              "title": "廖康达",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0013:10083",
+              "source": "pubmed",
+              "title": "[Thirty years of Radiology Department in Hokkaido University Hospital (author's transl)].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-98cf1e6f40be2cd1fc7b:0",
+              "source": "huiyi",
+              "title": "医院介绍",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.814764,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-9ebb7d28f0e8294389fc:0",
+              "source": "huiyi",
+              "title": "视光、斜弱视与小儿眼科",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0005:8508",
+              "source": "pubmed",
+              "title": "[Work of the centralized pathoanatomical department of the Cheliabinsk district clinical hospital].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-140466:16",
+              "source": "statpearls",
+              "title": "Indocyanine Green (ICG) Angiography -- Personnel",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0019:384",
+              "source": "pubmed",
+              "title": "[Tasks and organization of the State Neurosurgical Scientific Institute, Budapest].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-23322:34",
+              "source": "statpearls",
+              "title": "Hysteroscopy -- Personnel",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: Dense nDCG@10 is below 0.60 although judged direct-support documents exist in the pooled candidate set. This shows a ranking weakness; the specific embedding/query interaction remains a hypothesis.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-16",
+      "questionId": "H2-H-161",
+      "query": "合成病历 H2-SYN-H-161 是否记载了病案号？请给出对应的原始条目。",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "no_answer_retrieval_risk",
+      "focusMethod": "dense",
+      "observedQualityRegression": false,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.636682,
+      "denseNdcgAt10": 0.636682,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.41443,
+      "rerankerNdcgAt10": 0.43731,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.636682,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0016:11645",
+              "source": "pubmed",
+              "title": "[The computerized anaesthetic record of the 'Universitätsklinik Köln' (author's transl)].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0020:8494",
+              "source": "pubmed",
+              "title": "The Birmingham Histopathology Data Pool: a co-operative project among 10 laboratories.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-22785:40",
+              "source": "statpearls",
+              "title": "Hepatitis A -- Treatment / Management -- Supportive Management",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:23669",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:63",
+              "source": "pubmed",
+              "title": "Improved synthesis of 16alpha-hydroxylated androgens: intermediates of estriol formation in pregnancy.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-5f50eae66608a1a95181:0",
+              "source": "huiyi",
+              "title": "经常散瞳对眼睛有害吗？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-b7531ff1510287f38a69:0",
+              "source": "huiyi",
+              "title": "近视手术前后需要几天？近视手术前需要做什么准备呢？",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.41443,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0016:11645",
+              "source": "pubmed",
+              "title": "[The computerized anaesthetic record of the 'Universitätsklinik Köln' (author's transl)].",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0020:8494",
+              "source": "pubmed",
+              "title": "The Birmingham Histopathology Data Pool: a co-operative project among 10 laboratories.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": null
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.43731,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.75,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-29827:40",
+              "source": "statpearls",
+              "title": "Syringomyelia -- History and Physical",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-28938:77",
+              "source": "statpearls",
+              "title": "Severe Combined Immunodeficiency -- History and Physical",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-22785:40",
+              "source": "statpearls",
+              "title": "Hepatitis A -- Treatment / Management -- Supportive Management",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-133042:46",
+              "source": "statpearls",
+              "title": "Postacute Coronavirus (COVID-19) Syndrome -- Evaluation",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:63",
+              "source": "pubmed",
+              "title": "Improved synthesis of 16alpha-hydroxylated androgens: intermediates of estriol formation in pregnancy.",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: a synthetic chart-only question receives general-corpus passages. This is a retrieval-boundary risk, not evidence of a false generated answer; answer generation/abstention was not tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-17",
+      "questionId": "H2-H-162",
+      "query": "For synthetic encounter H2-SYN-H-162, what entry is recorded for date of birth?",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "no_answer_retrieval_risk",
+      "focusMethod": "dense",
+      "observedQualityRegression": false,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.0,
+      "bm25NdcgAt10": 0.378501,
+      "rrfNdcgAt10": 0.208294,
+      "rerankerNdcgAt10": 0.444097,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0011:11453",
+              "source": "pubmed",
+              "title": "Synthetic identification as a hexapeptide of alpha substance-IB inducing sexual agglutination in Saccharomyces cerevisiae.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0015:7530",
+              "source": "pubmed",
+              "title": "A human chorionic gonadotropin-specific antiserum against synthetic peptide analogs to the carboxyl-terminal peptide of its beta-subunit.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0019:4144",
+              "source": "pubmed",
+              "title": "Synthesis and distribution of H-2 antigens in preimplantation mouse embryos.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:428",
+              "source": "pubmed",
+              "title": "Prenatal monitoring for the Hunter syndrome: the heterozygous female fetus.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.378501,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.272727,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-137458:26",
+              "source": "statpearls",
+              "title": "Phlebotomy -- Preparation",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0017:8933",
+              "source": "pubmed",
+              "title": "[\"Portio priming\" in post date pregnancies and low pelvic score (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Obstentrics_Williams:829",
+              "source": "textbooks",
+              "title": "Obstentrics_Williams",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Neurology_Adams:3520",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0015:436",
+              "source": "pubmed",
+              "title": "Extraversion, neuroticism, and date of birth: a Southern hemisphere study.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.208294,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.181818,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0011:11453",
+              "source": "pubmed",
+              "title": "Synthetic identification as a hexapeptide of alpha substance-IB inducing sexual agglutination in Saccharomyces cerevisiae.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-137458:26",
+              "source": "statpearls",
+              "title": "Phlebotomy -- Preparation",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0015:7530",
+              "source": "pubmed",
+              "title": "A human chorionic gonadotropin-specific antiserum against synthetic peptide analogs to the carboxyl-terminal peptide of its beta-subunit.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0017:8933",
+              "source": "pubmed",
+              "title": "[\"Portio priming\" in post date pregnancies and low pelvic score (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0019:4144",
+              "source": "pubmed",
+              "title": "Synthesis and distribution of H-2 antigens in preimplantation mouse embryos.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.444097,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.272727,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-34639:9",
+              "source": "statpearls",
+              "title": "Sexual Assault Evidence Collection and Documentation -- Introduction",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-137458:26",
+              "source": "statpearls",
+              "title": "Phlebotomy -- Preparation",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0019:4144",
+              "source": "pubmed",
+              "title": "Synthesis and distribution of H-2 antigens in preimplantation mouse embryos.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Obstentrics_Williams:829",
+              "source": "textbooks",
+              "title": "Obstentrics_Williams",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Neurology_Adams:3520",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: a synthetic chart-only question receives general-corpus passages. This is a retrieval-boundary risk, not evidence of a false generated answer; answer generation/abstention was not tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-H-V12-BC-18",
+      "questionId": "H2-H-164",
+      "query": "For synthetic encounter H2-SYN-H-164, what entry is recorded for encounter identifier?",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "no_answer_retrieval_risk",
+      "focusMethod": "dense",
+      "observedQualityRegression": false,
+      "qrelsStatus": "complete candidate-pool labels for all methods; questions with unresolved or review-required labels are excluded",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.0,
+      "bm25NdcgAt10": 0.447289,
+      "rrfNdcgAt10": 0.229244,
+      "rerankerNdcgAt10": 0.102097,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0011:11453",
+              "source": "pubmed",
+              "title": "Synthetic identification as a hexapeptide of alpha substance-IB inducing sexual agglutination in Saccharomyces cerevisiae.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0015:7530",
+              "source": "pubmed",
+              "title": "A human chorionic gonadotropin-specific antiserum against synthetic peptide analogs to the carboxyl-terminal peptide of its beta-subunit.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:15377",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0020:3690",
+              "source": "pubmed",
+              "title": "Synthesis of carbon-14 and tritium labeled sagamicin.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-30716:101",
+              "source": "statpearls",
+              "title": "Type III Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.447289,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.6,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0003:5517",
+              "source": "pubmed",
+              "title": "An optoelectronic slide identifier.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-22897:33",
+              "source": "statpearls",
+              "title": "Health Insurance Portability and Accountability Act (HIPAA) Compliance -- Key Clinical Considerations -- Unique Identifiers Rule (National Provider Identifier)",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-24940:41",
+              "source": "statpearls",
+              "title": "Melas Syndrome -- Treatment / Management -- Additional Treatment Options",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-181909:32",
+              "source": "statpearls",
+              "title": "Artificial Intelligence and Deep Learning in the Diagnosis of Pythium Keratitis -- Pathophysiology -- 1. Entry and Initiation of Infection",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-137458:26",
+              "source": "statpearls",
+              "title": "Phlebotomy -- Preparation",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.229244,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.4,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0003:5517",
+              "source": "pubmed",
+              "title": "An optoelectronic slide identifier.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0011:11453",
+              "source": "pubmed",
+              "title": "Synthetic identification as a hexapeptide of alpha substance-IB inducing sexual agglutination in Saccharomyces cerevisiae.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0015:7530",
+              "source": "pubmed",
+              "title": "A human chorionic gonadotropin-specific antiserum against synthetic peptide analogs to the carboxyl-terminal peptide of its beta-subunit.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-22897:33",
+              "source": "statpearls",
+              "title": "Health Insurance Portability and Accountability Act (HIPAA) Compliance -- Key Clinical Considerations -- Unique Identifiers Rule (National Provider Identifier)",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.102097,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.2,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0007:7420",
+              "source": "pubmed",
+              "title": "Studies on cytochrome c. XIV. Synthesis of the protected heptadecapeptide (sequence 88-104) of horse heart cytochrome c.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0006:10462",
+              "source": "pubmed",
+              "title": "[Studies on the antigenicity of synthetic ACTH (beta1-24-corticotropin) in normal subjects (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0015:7530",
+              "source": "pubmed",
+              "title": "A human chorionic gonadotropin-specific antiserum against synthetic peptide analogs to the carboxyl-terminal peptide of its beta-subunit.",
+              "relevanceGrade": null
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:InternalMed_Harrison:15377",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": null
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: a synthetic chart-only question receives general-corpus passages. This is a retrieval-boundary risk, not evidence of a false generated answer; answer generation/abstention was not tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    }
+  ]
+}

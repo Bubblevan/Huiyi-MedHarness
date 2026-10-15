@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run bounded Dense/BM25/RRF/reranker candidate pooling for a draft H2 DEV set."""
+"""Run bounded Dense/BM25/RRF/reranker candidate pooling for a frozen H2 DEV or HOLDOUT split."""
 
 from __future__ import annotations
 
@@ -135,8 +135,8 @@ def main() -> int:
         raise RuntimeError("the five-source Qwen manifest does not match the verified index artifact")
     if dataset.get("corpusVersion") != manifest.get("corpusVersion"):
         raise RuntimeError("draft dataset corpusVersion differs from the selected corpus manifest")
-    if dataset.get("split") != "dev":
-        raise RuntimeError("pilot candidate pooling is restricted to DEV queries")
+    if dataset.get("split") not in {"dev", "holdout"}:
+        raise RuntimeError("candidate pooling requires an explicitly split DEV or HOLDOUT dataset")
 
     corpus = CorpusRepository(args.corpus_root, args.manifest, verify_hashes=False).load()
     if corpus.version != manifest["corpusVersion"] or corpus.retriever_name != "Qwen3-Embedding-0.6B":

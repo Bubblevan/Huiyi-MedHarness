@@ -1,0 +1,280 @@
+{
+  "schemaVersion": "huiyi-rag-judge-adjudication/v1",
+  "judgeModel": "gpt-6-luna",
+  "humanReview": false,
+  "policy": "Use first pass when valid; flagged labels resolve only when an independent second pass is valid and agrees on grade and support. Otherwise exclude from scoring.",
+  "resolutionScriptSha256": "d59f89b7c14d452513b2bd302e48ce8be7630fcff353cce9d601882bbb79b9ec",
+  "summary": {
+    "firstPassCandidateCount": 539,
+    "secondPassCandidateCount": 17,
+    "flaggedCandidateCount": 17,
+    "resolvedByAgreeingSecondPass": 13,
+    "reviewRequired": 4
+  },
+  "candidateDecisions": [
+    {
+      "questionId": "Q-47842f6341",
+      "candidateId": "C-b2fee8cd4c23",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.58,
+      "secondPassConfidence": 0.96,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    },
+    {
+      "questionId": "Q-f559be1ad9",
+      "candidateId": "C-bfca7cfb27b8",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.79,
+      "secondPassConfidence": 0.94,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote"
+      ]
+    },
+    {
+      "questionId": "Q-f559be1ad9",
+      "candidateId": "C-f9ac66fd3408",
+      "outcome": "review_required",
+      "firstPassGrade": 2,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.9,
+      "secondPassConfidence": 0.91,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote",
+        "pass_disagreement"
+      ]
+    },
+    {
+      "questionId": "Q-7499dbb20a",
+      "candidateId": "C-11a4cddccdc0",
+      "outcome": "review_required",
+      "firstPassGrade": 1,
+      "secondPassGrade": 0,
+      "firstPassConfidence": 0.61,
+      "secondPassConfidence": 0.99,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence",
+        "pass_disagreement"
+      ]
+    },
+    {
+      "questionId": "Q-7499dbb20a",
+      "candidateId": "C-1c49b9c25619",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.62,
+      "secondPassConfidence": 0.92,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    },
+    {
+      "questionId": "Q-7499dbb20a",
+      "candidateId": "C-5fd085ac25f0",
+      "outcome": "review_required",
+      "firstPassGrade": 1,
+      "secondPassGrade": 0,
+      "firstPassConfidence": 0.62,
+      "secondPassConfidence": 0.99,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence",
+        "pass_disagreement"
+      ]
+    },
+    {
+      "questionId": "Q-7499dbb20a",
+      "candidateId": "C-8c96d296866e",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.62,
+      "secondPassConfidence": 0.94,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    },
+    {
+      "questionId": "Q-7499dbb20a",
+      "candidateId": "C-9a7986ee4e97",
+      "outcome": "review_required",
+      "firstPassGrade": 1,
+      "secondPassGrade": 0,
+      "firstPassConfidence": 0.61,
+      "secondPassConfidence": 0.98,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence",
+        "pass_disagreement"
+      ]
+    },
+    {
+      "questionId": "Q-e08df45bd1",
+      "candidateId": "C-2f4ee2502a36",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.75,
+      "secondPassConfidence": 0.94,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote"
+      ]
+    },
+    {
+      "questionId": "Q-e08df45bd1",
+      "candidateId": "C-30250077456c",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.64,
+      "secondPassConfidence": 0.96,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    },
+    {
+      "questionId": "Q-e08df45bd1",
+      "candidateId": "C-3c8dc8b4f0c7",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.55,
+      "secondPassConfidence": 0.97,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    },
+    {
+      "questionId": "Q-e08df45bd1",
+      "candidateId": "C-5844cbdd97fd",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.74,
+      "secondPassConfidence": 0.95,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote"
+      ]
+    },
+    {
+      "questionId": "Q-e08df45bd1",
+      "candidateId": "C-a49692b2f7c3",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.62,
+      "secondPassConfidence": 0.95,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    },
+    {
+      "questionId": "Q-e08df45bd1",
+      "candidateId": "C-aa17b36de2ee",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.73,
+      "secondPassConfidence": 0.95,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote"
+      ]
+    },
+    {
+      "questionId": "Q-a316817697",
+      "candidateId": "C-fdeb8834bb57",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.77,
+      "secondPassConfidence": 0.95,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote"
+      ]
+    },
+    {
+      "questionId": "Q-ce66d8cea4",
+      "candidateId": "C-d93e75f2f539",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.76,
+      "secondPassConfidence": 0.94,
+      "firstPassExactQuote": false,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "invalid_exact_quote"
+      ]
+    },
+    {
+      "questionId": "Q-9078de2ff2",
+      "candidateId": "C-d8c067db5894",
+      "outcome": "resolved_by_agreeing_second_pass",
+      "firstPassGrade": 1,
+      "secondPassGrade": 1,
+      "firstPassConfidence": 0.59,
+      "secondPassConfidence": 0.96,
+      "firstPassExactQuote": true,
+      "secondPassExactQuote": true,
+      "reasonCodes": [
+        "low_confidence"
+      ]
+    }
+  ],
+  "inputHashes": {
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\pilot-queries.pending.json": "b3f73e4bdca0ffdd6b0f47f4dd5e2097f2fa189c006f9a6b7070604222bde336",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\annotation-packet.blinded.json": "297ac33ead29488f36c2c9c2a3f6690a33a15b2fe5f10df8ccc7944bd3f28f14",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\candidate-pool.private.json": "1dfd30e844843e0511f8e57e09fe5caf0530140637610c13d9ab6eeba934eca3",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\review-flagged.json": "5cf6a7ddec2e5f2505b847885201a867dc430310519de05725f7732feddce38f",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\review-flagged.raw.json": "6a42ce6a87720d74fb624aba61e741aca90edab26274b7a7be36a81aeeb5dfe7",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\prompt.md": "b96ffff0c66d163b6c13601613b8856d6a38bbb9524dc18d151c71f3c7e99ec5",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\review-prompt.md": "3692b828749a66897bd5468c922f72cd4ca2b117d6f2949928949cdb195ce6a0",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-01.json": "73ba8e542e066229a00e41e9ee9bc8b91d22385e21511073d3bebc9ec529348c",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-02.json": "5252952d378fcde569d852032dafe612dc5bfaef36837722d1546eb3655b731c",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-03.json": "6e6b9261878a2d5882364b8fa0c7debbc144ffc7f720a952d784c2a17827eadc",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-04.json": "23239e929b72ae82fab3e9eeee31046c5aa6a5a54e83e7d4264155efa74994a7",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-01.raw.json": "bdf2bf4c205a2acb76232b94f18864f6c97c521771c7e1a5d60efec96627641f",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-02.raw.json": "e079146eebdc75393742e702fc3bfb8a79462e158af49bbc31a4d913dcb3bd58",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-03.raw.json": "42199f702b1130c82272dd442a2d53f7817b013c63862077c71369c95884ade0",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-04.raw.json": "44f6ba1c33a015cf48f904db08799e2177512ee8d6040f7dbe6b5a8b714d7aa3",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-01.events.jsonl": "f7f02423a607c39e0bf6fe537b6ff9b03f2f3181dee491a793eec667b9103478",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-02.events.jsonl": "36fa25252b0d31349428e5d6d310146e1923e437d87b48f8e92fc9594a1f924a",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-03.events.jsonl": "73c3cb5142f3e7aaa9a38eb8a2544a8e3a8203105718b9e7af6e8b6d5e82fedd",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\batch-04.events.jsonl": "2cab3a19a35335c53fcda0f26e5abe284697ce45e6c878d3d3b76378940ecf3d",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-pilot-v2\\judge-cli-batches\\review-flagged.events.jsonl": "e04250754b003323c7a3ffc3e390af0b87f3ba879577017a7dc25422d605942d"
+  }
+}

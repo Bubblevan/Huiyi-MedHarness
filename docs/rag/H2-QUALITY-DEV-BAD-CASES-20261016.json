@@ -1,0 +1,3972 @@
+{
+  "schemaVersion": "huiyi-h2-v12-quality-bad-cases/v1",
+  "status": "dev_exploratory_engineering_review_no_clinician_validation",
+  "datasetId": "h2-quality-v12-dev-20261015",
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "judgeModel": "gpt-6-luna",
+  "candidateLabelCoverage": {
+    "judged": 1769,
+    "candidateCount": 1786,
+    "coverage": 0.989922,
+    "unresolved": 17,
+    "reviewRequired": 1
+  },
+  "caseCount": 18,
+  "observedQualityRegressionCount": 15,
+  "humanReview": false,
+  "clinicalAccuracyClaimed": false,
+  "inputHashes": {
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\dataset-dev-draft.json": "69f9f8744f58b671f2fee939e179b294c4bbde7714c439c50ee339bdcd38a37d",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\annotation-packet.blinded.json": "7901b0a48f54692da90f9d7351490aac3901fa00480e7751e5addd2660e25f37",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\judge-run-codex-luna.json": "a16d418ae38e4117670b9ba58f23f303378d3a2ab6105eae69d6ee8d314d66c5",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\score-dev-abcd-top10-20261016.json": "6dde81941099af5d17641735a6770d0cc9bdb87663e5b35ff5a0ae70ea111403",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\run-dense.json": "0aa4c7f2c50afb15636cc5c23c503f9a0c851772c56f0c3fb1c2126c4fb948db",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\run-bm25.json": "94c9405e00cee6b328192cd1966f65a934d35f403f7a714d69fa245e31c61d99",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\run-rrf.json": "3c3039a07b9739d85a4c5e655ea59f9ac7155a20daaae33999ed5f6562453889",
+    "services\\health-engine\\data\\local-rag-hc-rag-002\\sparse-eval\\h2-quality-v12-20261015\\runs\\dev-abcd-top10-20261015\\run-rrf-reranker.json": "b1f4b33073ff5fc5ec732780c4bf351aea5cef43b51924868d53fe2530a70b97"
+  },
+  "analysisScriptSha256": "45d6ef5c077a857b65e02dbf9e86366df8a418c9335e37ff6a3e67204e67fb64",
+  "cases": [
+    {
+      "caseId": "H2-V12-BC-01",
+      "questionId": "H2-D-047",
+      "query": "哪些遗传因素会影响乙醇的毒代动力学？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 1.0,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.581107,
+      "rerankerNdcgAt10": 0.84722,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-41867:16",
+          "source": "statpearls",
+          "title": "Auto-Brewery Syndrome -- Etiology -- Genetics",
+          "sourceUri": null,
+          "judgeExplanation": "直接指出影响乙醇肝代谢的遗传多态性及其作用。"
+        },
+        {
+          "documentId": "pubmed:pubmed23n0015:11418",
+          "source": "pubmed",
+          "title": "[Pathobiochemistry of alcoholism].",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/454882/",
+          "judgeExplanation": "说明ADH遗传多态性影响乙醇代谢速率及乙醛水平。"
+        },
+        {
+          "documentId": "statpearls:article-21385:27",
+          "source": "statpearls",
+          "title": "Ethanol Toxicity -- Toxicokinetics -- Special Considerations",
+          "sourceUri": null,
+          "judgeExplanation": "直接将ADH和ALDH遗传多态性列为影响乙醇毒代动力学的个体因素。"
+        },
+        {
+          "documentId": "statpearls:article-21385:9",
+          "source": "statpearls",
+          "title": "Ethanol Toxicity -- Etiology",
+          "sourceUri": null,
+          "judgeExplanation": "明确列出ADH和ALDH活性的遗传变异为相关个体因素。"
+        },
+        {
+          "documentId": "statpearls:article-161505:9",
+          "source": "statpearls",
+          "title": "Pharmacogenomics Overview -- Clinical Significance -- Genes and Alcohol Use Disorder",
+          "sourceUri": null,
+          "judgeExplanation": "直接描述ADH变异与乙醇代谢速度的关系，并提及ALDH多态性。"
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 5,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21385:27",
+              "source": "statpearls",
+              "title": "Ethanol Toxicity -- Toxicokinetics -- Special Considerations",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-41867:16",
+              "source": "statpearls",
+              "title": "Auto-Brewery Syndrome -- Etiology -- Genetics",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-161505:9",
+              "source": "statpearls",
+              "title": "Pharmacogenomics Overview -- Clinical Significance -- Genes and Alcohol Use Disorder",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21385:9",
+              "source": "statpearls",
+              "title": "Ethanol Toxicity -- Etiology",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0015:11418",
+              "source": "pubmed",
+              "title": "[Pathobiochemistry of alcoholism].",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:1",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:2",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-0290333d1ede47e131f7:0",
+              "source": "huiyi",
+              "title": "白内障手术效果如何？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-9e72ae6235c93edd9601:0",
+              "source": "huiyi",
+              "title": "青光眼会遗传吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-5088499cc27ba9471ef0:0",
+              "source": "huiyi",
+              "title": "有哪些比较好的弱视治疗方法？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.581107,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:1",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21385:27",
+              "source": "statpearls",
+              "title": "Ethanol Toxicity -- Toxicokinetics -- Special Considerations",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:2",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-41867:16",
+              "source": "statpearls",
+              "title": "Auto-Brewery Syndrome -- Etiology -- Genetics",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-0290333d1ede47e131f7:0",
+              "source": "huiyi",
+              "title": "白内障手术效果如何？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.84722,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 5,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21385:27",
+              "source": "statpearls",
+              "title": "Ethanol Toxicity -- Toxicokinetics -- Special Considerations",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21385:9",
+              "source": "statpearls",
+              "title": "Ethanol Toxicity -- Etiology",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-161505:9",
+              "source": "statpearls",
+              "title": "Pharmacogenomics Overview -- Clinical Significance -- Genes and Alcohol Use Disorder",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0015:11418",
+              "source": "pubmed",
+              "title": "[Pathobiochemistry of alcoholism].",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-41867:16",
+              "source": "statpearls",
+              "title": "Auto-Brewery Syndrome -- Etiology -- Genetics",
+              "relevanceGrade": 2
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-02",
+      "questionId": "H2-D-054",
+      "query": "在第一项实验的积极条件下，受试者向哪类测试者提供了更多帮助？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 1.0,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.63093,
+      "rerankerNdcgAt10": 1.0,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0005:13454",
+          "source": "pubmed",
+          "title": "When courtesy offends: effects of positive and negative behavior by the pbysically disabled on altruism and anger in normals.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/151135/",
+          "judgeExplanation": "直接报告第一项实验积极条件下，受试者向正常测试者提供的帮助多于向残障测试者提供的帮助。"
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0005:13454",
+              "source": "pubmed",
+              "title": "When courtesy offends: effects of positive and negative behavior by the pbysically disabled on altruism and anger in normals.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0012:4020",
+              "source": "pubmed",
+              "title": "The effect of test taking on acceptance of bogus personality statements.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0018:6502",
+              "source": "pubmed",
+              "title": "The effects of introtacts on hypothesis testing in kindergarten and first-grade children.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0022:330",
+              "source": "pubmed",
+              "title": "Reviewing results of psychological tests in a patient group.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0009:145",
+              "source": "pubmed",
+              "title": "Increasing nurses' person-centeredness.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-4736a0aa1b793509f963:0",
+              "source": "huiyi",
+              "title": "角膜病与眼表专科",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-f978e0fee1aa51b2a2da:0",
+              "source": "huiyi",
+              "title": "杨方列",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-490d3363897629cfce0e:0",
+              "source": "huiyi",
+              "title": "施继光",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:6",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.63093,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-4736a0aa1b793509f963:0",
+              "source": "huiyi",
+              "title": "角膜病与眼表专科",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0005:13454",
+              "source": "pubmed",
+              "title": "When courtesy offends: effects of positive and negative behavior by the pbysically disabled on altruism and anger in normals.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-fa5db15b3336d550192a:0",
+              "source": "huiyi",
+              "title": "近视手术后是否安全，是否可以进行重体力训练？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0012:4020",
+              "source": "pubmed",
+              "title": "The effect of test taking on acceptance of bogus personality statements.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f978e0fee1aa51b2a2da:0",
+              "source": "huiyi",
+              "title": "杨方列",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 1.0,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0005:13454",
+              "source": "pubmed",
+              "title": "When courtesy offends: effects of positive and negative behavior by the pbysically disabled on altruism and anger in normals.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0022:330",
+              "source": "pubmed",
+              "title": "Reviewing results of psychological tests in a patient group.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0012:4020",
+              "source": "pubmed",
+              "title": "The effect of test taking on acceptance of bogus personality statements.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0018:6502",
+              "source": "pubmed",
+              "title": "The effects of introtacts on hypothesis testing in kindergarten and first-grade children.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0009:145",
+              "source": "pubmed",
+              "title": "Increasing nurses' person-centeredness.",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-03",
+      "questionId": "H2-D-058",
+      "query": "在马的远端肢体接受止血带 120 分钟后，止血带肢体静脉出现了哪种局部酸碱变化？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.998087,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.525095,
+      "rerankerNdcgAt10": 0.791185,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0002:5534",
+          "source": "pubmed",
+          "title": "Effect of pneumatic tourniquet application to the distal extremities of the horse: blood gas, serum electrolyte, osmolality, and hematologic alterations.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/43108/",
+          "judgeExplanation": "直接描述马远端肢体止血带应用120分钟后，止血带肢体静脉出现局部酸血症。"
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.998087,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0002:5534",
+              "source": "pubmed",
+              "title": "Effect of pneumatic tourniquet application to the distal extremities of the horse: blood gas, serum electrolyte, osmolality, and hematologic alterations.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0001:3519",
+              "source": "pubmed",
+              "title": "Intracellular and extracellular acid-base changes in hemorrhagic shock.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0001:1964",
+              "source": "pubmed",
+              "title": "Acid-base values of standardbred horses recovering from strenuous exercise.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0001:9866",
+              "source": "pubmed",
+              "title": "Role of sympathetics in the response to acute venous occlusion.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0001:7494",
+              "source": "pubmed",
+              "title": "Acid-base status before and after arterial clamping.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-01931c0a02d339056076:0",
+              "source": "huiyi",
+              "title": "眼睑的小包块痒痒的，能挤挤吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-deddcbda3a65948ed8e5:0",
+              "source": "huiyi",
+              "title": "眼前老是有蚊虫样黑影舞动是怎么回事？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-d46e44a2c56c77c743aa:0",
+              "source": "huiyi",
+              "title": "孩子弱视带上眼镜后还能摘吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-0290333d1ede47e131f7:0",
+              "source": "huiyi",
+              "title": "白内障手术效果如何？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.525095,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.555556,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-01931c0a02d339056076:0",
+              "source": "huiyi",
+              "title": "眼睑的小包块痒痒的，能挤挤吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0002:5534",
+              "source": "pubmed",
+              "title": "Effect of pneumatic tourniquet application to the distal extremities of the horse: blood gas, serum electrolyte, osmolality, and hematologic alterations.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-deddcbda3a65948ed8e5:0",
+              "source": "huiyi",
+              "title": "眼前老是有蚊虫样黑影舞动是怎么回事？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0001:3519",
+              "source": "pubmed",
+              "title": "Intracellular and extracellular acid-base changes in hemorrhagic shock.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.791185,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.555556,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0002:5534",
+              "source": "pubmed",
+              "title": "Effect of pneumatic tourniquet application to the distal extremities of the horse: blood gas, serum electrolyte, osmolality, and hematologic alterations.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0001:1964",
+              "source": "pubmed",
+              "title": "Acid-base values of standardbred horses recovering from strenuous exercise.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0001:9866",
+              "source": "pubmed",
+              "title": "Role of sympathetics in the response to acute venous occlusion.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0001:3519",
+              "source": "pubmed",
+              "title": "Intracellular and extracellular acid-base changes in hemorrhagic shock.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0001:7494",
+              "source": "pubmed",
+              "title": "Acid-base status before and after arterial clamping.",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-04",
+      "questionId": "H2-D-041",
+      "query": "在视杆细胞中，光吸收会激活哪种G蛋白？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.992889,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.487293,
+      "rerankerNdcgAt10": 0.710444,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-25887:5",
+          "source": "statpearls",
+          "title": "Physiology, Night Vision -- Mechanism",
+          "sourceUri": null,
+          "judgeExplanation": "Directly identifies the G protein activated in rod phototransduction."
+        },
+        {
+          "documentId": "statpearls:article-19738:1",
+          "source": "statpearls",
+          "title": "Color Vision -- Key Clinical Considerations",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states that light-activated rhodopsin signaling activates transducin."
+        },
+        {
+          "documentId": "textbooks:Physiology_Levy:734",
+          "source": "textbooks",
+          "title": "Physiology_Levy",
+          "sourceUri": null,
+          "judgeExplanation": "Directly answers which G protein is activated in rods after light absorption."
+        },
+        {
+          "documentId": "textbooks:Physiology_Levy:249",
+          "source": "textbooks",
+          "title": "Physiology_Levy",
+          "sourceUri": null,
+          "judgeExplanation": "Directly names transducin as the G protein activated by light in rod cells."
+        },
+        {
+          "documentId": "statpearls:article-21504:4",
+          "source": "statpearls",
+          "title": "Physiology, Eye -- Mechanism",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states the G protein activated in rods following light exposure."
+        },
+        {
+          "documentId": "textbooks:Cell_Biology_Alberts:4218",
+          "source": "textbooks",
+          "title": "Cell_Biology_Alberts",
+          "sourceUri": null,
+          "judgeExplanation": "Directly identifies transducin as the G protein in the rod light-response pathway."
+        },
+        {
+          "documentId": "pubmed:pubmed23n0008:4768",
+          "source": "pubmed",
+          "title": "Predictive value of the analogy between hormone-sensitive adenylate cyclase and light-sensitive photoreceptor cyclic GMP phosphodiesterase: a specific role for a light-sensitive GTPase  as a component in the activation sequence.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/222967/",
+          "judgeExplanation": "Directly concerns the light-activated GTPase in rod photoreceptor signaling, but does not identify which G-protein it is."
+        },
+        {
+          "documentId": "statpearls:article-684:7",
+          "source": "statpearls",
+          "title": "Physiology, Vision -- Cellular Level",
+          "sourceUri": null,
+          "judgeExplanation": "Directly names transducin as activated in the light response of rods or cones."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.992889,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 5,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Physiology_Levy:249",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21504:4",
+              "source": "statpearls",
+              "title": "Physiology, Eye -- Mechanism",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-25887:5",
+              "source": "statpearls",
+              "title": "Physiology, Night Vision -- Mechanism",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Cell_Biology_Alberts:4218",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Physiology_Levy:734",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-db1593d7a7637ed364fc:1",
+              "source": "huiyi",
+              "title": "透气、耐用……还可抑制近视发展，这种眼镜居然很多人不知道！",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-b6ece951d7c3de44b874:0",
+              "source": "huiyi",
+              "title": "眼底病专科",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-b4980c08d9f1d1797c9a:0",
+              "source": "huiyi",
+              "title": "治愈后，弱视会复发吗？怎么预防？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-f8e320af0c06119c4581:0",
+              "source": "huiyi",
+              "title": "神经眼科",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.487293,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-db1593d7a7637ed364fc:1",
+              "source": "huiyi",
+              "title": "透气、耐用……还可抑制近视发展，这种眼镜居然很多人不知道！",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Physiology_Levy:249",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-b6ece951d7c3de44b874:0",
+              "source": "huiyi",
+              "title": "眼底病专科",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21504:4",
+              "source": "statpearls",
+              "title": "Physiology, Eye -- Mechanism",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-b4980c08d9f1d1797c9a:0",
+              "source": "huiyi",
+              "title": "治愈后，弱视会复发吗？怎么预防？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.710444,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 5,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Physiology_Levy:734",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Physiology_Levy:249",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-21504:4",
+              "source": "statpearls",
+              "title": "Physiology, Eye -- Mechanism",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-25887:5",
+              "source": "statpearls",
+              "title": "Physiology, Night Vision -- Mechanism",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Cell_Biology_Alberts:4218",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 2
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-05",
+      "questionId": "H2-D-055",
+      "query": "这项研究中，女性的异性性经验与手淫经验相比，哪一种更能表征其对色情材料的性反应？",
+      "taskCategory": "bilingual",
+      "answerability": "answerable",
+      "caseType": "cross_language_sparse_regression",
+      "focusMethod": "bm25",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.99014,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.554647,
+      "rerankerNdcgAt10": 0.83119,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0002:9948",
+          "source": "pubmed",
+          "title": "Sexual experience and sexual responsiveness: sex differences.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/53040/",
+          "judgeExplanation": "直接比较女性异性性经验与手淫经验作为色情材料性反应指标的效用，报告前者相当或更优。"
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.99014,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0002:9948",
+              "source": "pubmed",
+              "title": "Sexual experience and sexual responsiveness: sex differences.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0014:10556",
+              "source": "pubmed",
+              "title": "An empirical investigation of experimentally induced masturbatory fantasies.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0017:3029",
+              "source": "pubmed",
+              "title": "Models of female orgasm.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Gynecology_Novak:1327",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0009:1762",
+              "source": "pubmed",
+              "title": "Lesbian sexuality.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d830ae8c8cadc29ac9c6:0",
+              "source": "huiyi",
+              "title": "我不经意间照镜子发现眼角长了一块息肉，正常吗，需要治疗吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-4312235ce9f20149740d:0",
+              "source": "huiyi",
+              "title": "刘梓林",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-f11fee4da15b067e99e1:0",
+              "source": "huiyi",
+              "title": "什么是全飞秒SMILE？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "wikipedia:wiki20220301en004:1378",
+              "source": "wikipedia",
+              "title": "Burakumin",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f978e0fee1aa51b2a2da:0",
+              "source": "huiyi",
+              "title": "杨方列",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.554647,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d830ae8c8cadc29ac9c6:0",
+              "source": "huiyi",
+              "title": "我不经意间照镜子发现眼角长了一块息肉，正常吗，需要治疗吗？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0002:9948",
+              "source": "pubmed",
+              "title": "Sexual experience and sexual responsiveness: sex differences.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-4312235ce9f20149740d:0",
+              "source": "huiyi",
+              "title": "刘梓林",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0014:10556",
+              "source": "pubmed",
+              "title": "An empirical investigation of experimentally induced masturbatory fantasies.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f11fee4da15b067e99e1:0",
+              "source": "huiyi",
+              "title": "什么是全飞秒SMILE？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.83119,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0002:9948",
+              "source": "pubmed",
+              "title": "Sexual experience and sexual responsiveness: sex differences.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0017:3029",
+              "source": "pubmed",
+              "title": "Models of female orgasm.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0014:10556",
+              "source": "pubmed",
+              "title": "An empirical investigation of experimentally induced masturbatory fantasies.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0009:1762",
+              "source": "pubmed",
+              "title": "Lesbian sexuality.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Gynecology_Novak:1327",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: BM25 nDCG@10 is materially below Dense on this bilingual query. Hypothesis: lexical token overlap fails across the query/source language boundary; no intervention isolated the cause.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-06",
+      "questionId": "H2-D-006",
+      "query": "What does the passage say about seeking a minor’s agreement to care?",
+      "taskCategory": "semantic",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.370981,
+      "denseNdcgAt10": 0.820901,
+      "bm25NdcgAt10": 0.042705,
+      "rrfNdcgAt10": 0.370981,
+      "rerankerNdcgAt10": 0.633977,
+      "firstDirectSupportRank": 4,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "textbooks:First_Aid_Step1:266",
+          "source": "textbooks",
+          "title": "First_Aid_Step1",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states that a physician should seek a minor’s assent even when the minor’s consent is not required."
+        },
+        {
+          "documentId": "textbooks:Surgery_Schwartz:13478",
+          "source": "textbooks",
+          "title": "Surgery_Schwartz",
+          "sourceUri": null,
+          "judgeExplanation": "Directly describes soliciting the child’s assent for treatment while parents or surrogates provide formal informed consent."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.820901,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 1.0,
+          "contextRecallAt10": 0.909091,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21001:7",
+              "source": "statpearls",
+              "title": "Emancipated Minor -- Clinical Significance",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:First_Aid_Step1:266",
+              "source": "textbooks",
+              "title": "First_Aid_Step1",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:First_Aid_Step2:256",
+              "source": "textbooks",
+              "title": "First_Aid_Step2",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:First_Aid_Step2:254",
+              "source": "textbooks",
+              "title": "First_Aid_Step2",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-28309:10",
+              "source": "statpearls",
+              "title": "Refusal of Care -- Issues of Concern -- Minors",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.042705,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.090909,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-131545:9",
+              "source": "statpearls",
+              "title": "Practitioners and Prescriptive Authority -- Issues of Concern",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0013:1367",
+              "source": "pubmed",
+              "title": "What did Eugen Bleuler really say?",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0015:13064",
+              "source": "pubmed",
+              "title": "What the patients say: A study of reactions to an intensive care unit.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0016:10784",
+              "source": "pubmed",
+              "title": "Parents of schizophrenic individuals: what we say is what we see.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Psichiatry_DSM-5:3530",
+              "source": "textbooks",
+              "title": "Psichiatry_DSM-5",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.370981,
+          "mrrAt10": 0.25,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.454545,
+          "firstDirectSupportRank": 4,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-131545:9",
+              "source": "statpearls",
+              "title": "Practitioners and Prescriptive Authority -- Issues of Concern",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21001:7",
+              "source": "statpearls",
+              "title": "Emancipated Minor -- Clinical Significance",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0013:1367",
+              "source": "pubmed",
+              "title": "What did Eugen Bleuler really say?",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:First_Aid_Step1:266",
+              "source": "textbooks",
+              "title": "First_Aid_Step1",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0015:13064",
+              "source": "pubmed",
+              "title": "What the patients say: A study of reactions to an intensive care unit.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.633977,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.454545,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:First_Aid_Step1:266",
+              "source": "textbooks",
+              "title": "First_Aid_Step1",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21001:7",
+              "source": "statpearls",
+              "title": "Emancipated Minor -- Clinical Significance",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-28309:10",
+              "source": "statpearls",
+              "title": "Refusal of Care -- Issues of Concern -- Minors",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:First_Aid_Step2:254",
+              "source": "textbooks",
+              "title": "First_Aid_Step2",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:First_Aid_Step2:256",
+              "source": "textbooks",
+              "title": "First_Aid_Step2",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-07",
+      "questionId": "H2-D-028",
+      "query": "What is the acronym for the major histocompatibility complex?",
+      "taskCategory": "exact_term",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.599372,
+      "denseNdcgAt10": 0.917511,
+      "bm25NdcgAt10": 0.312991,
+      "rrfNdcgAt10": 0.599372,
+      "rerankerNdcgAt10": 0.780749,
+      "firstDirectSupportRank": 3,
+      "directSupportHitsAt5": 2,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0005:8657",
+          "source": "pubmed",
+          "title": "[Biological and evolutionary significance of the major histocompatibility complex].",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/140091/",
+          "judgeExplanation": "Names the requested term; the acronym MHC appears in the passage’s title."
+        },
+        {
+          "documentId": "pubmed:pubmed23n0004:6185",
+          "source": "pubmed",
+          "title": "The major histocompatibility complex of the mouse.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/104386/",
+          "judgeExplanation": "Directly states the requested acronym."
+        },
+        {
+          "documentId": "statpearls:article-22909:0",
+          "source": "statpearls",
+          "title": "Genetics, Histocompatibility Antigen -- Introduction",
+          "sourceUri": null,
+          "judgeExplanation": "Directly supplies the acronym."
+        },
+        {
+          "documentId": "textbooks:InternalMed_Harrison:24667",
+          "source": "textbooks",
+          "title": "InternalMed_Harrison",
+          "sourceUri": null,
+          "judgeExplanation": "Directly gives the requested acronym."
+        },
+        {
+          "documentId": "textbooks:InternalMed_Harrison:24721",
+          "source": "textbooks",
+          "title": "InternalMed_Harrison",
+          "sourceUri": null,
+          "judgeExplanation": "Names the requested term but does not include its acronym in the supplied passage."
+        },
+        {
+          "documentId": "textbooks:Pathology_Robbins:747",
+          "source": "textbooks",
+          "title": "Pathology_Robbins",
+          "sourceUri": null,
+          "judgeExplanation": "The passage explicitly uses MHC repeatedly as the acronym for the complex."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.917511,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.6,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 4,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:24721",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0005:7050",
+              "source": "pubmed",
+              "title": "Products of the major histocompatibility complex and their relationship to the immune response.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:24667",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-22909:0",
+              "source": "statpearls",
+              "title": "Genetics, Histocompatibility Antigen -- Introduction",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0004:6185",
+              "source": "pubmed",
+              "title": "The major histocompatibility complex of the mouse.",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.312991,
+          "mrrAt10": 0.1,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.533333,
+          "firstDirectSupportRank": 10,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-23030:15",
+              "source": "statpearls",
+              "title": "Genetics, Human Major Histocompatibility Complex (MHC) -- Review Questions",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-23030:11",
+              "source": "statpearls",
+              "title": "Genetics, Human Major Histocompatibility Complex (MHC) -- Testing -- Crossmatching",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0012:3580",
+              "source": "pubmed",
+              "title": "Major histocompatibility complex and non-major histocompatibility complex antigens on mouse ectoplacental cone and placental trophoblastic cells.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0005:7050",
+              "source": "pubmed",
+              "title": "Products of the major histocompatibility complex and their relationship to the immune response.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0008:620",
+              "source": "pubmed",
+              "title": "The influence of the major histocompatibility complex (H-2) on experimental diabetes in mice.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.599372,
+          "mrrAt10": 0.333333,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.533333,
+          "firstDirectSupportRank": 3,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0005:7050",
+              "source": "pubmed",
+              "title": "Products of the major histocompatibility complex and their relationship to the immune response.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-23030:15",
+              "source": "statpearls",
+              "title": "Genetics, Human Major Histocompatibility Complex (MHC) -- Review Questions",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0004:6185",
+              "source": "pubmed",
+              "title": "The major histocompatibility complex of the mouse.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:24721",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-23030:11",
+              "source": "statpearls",
+              "title": "Genetics, Human Major Histocompatibility Complex (MHC) -- Testing -- Crossmatching",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.780749,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.533333,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 3,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-22909:0",
+              "source": "statpearls",
+              "title": "Genetics, Histocompatibility Antigen -- Introduction",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0004:6185",
+              "source": "pubmed",
+              "title": "The major histocompatibility complex of the mouse.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0012:4048",
+              "source": "pubmed",
+              "title": "Influence of the major histocompatibility complex in the pig (SLA) on serum haemolytic complement levels.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:24667",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0008:620",
+              "source": "pubmed",
+              "title": "The influence of the major histocompatibility complex (H-2) on experimental diabetes in mice.",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-08",
+      "questionId": "H2-D-090",
+      "query": "Which experimental preparation did the authors use when repeating the enzyme-discharge experiments?",
+      "taskCategory": "applicability_boundary",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.681751,
+      "denseNdcgAt10": 0.984365,
+      "bm25NdcgAt10": 0.302629,
+      "rrfNdcgAt10": 0.681751,
+      "rerankerNdcgAt10": 0.713769,
+      "firstDirectSupportRank": 1,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0015:12803",
+          "source": "pubmed",
+          "title": "Cholecystokinin/pancreozymin induces the parallel discharge of digestive enzymes from the in vitro rabbit pancreas.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/457677/",
+          "judgeExplanation": "Directly addresses repeating the enzyme-discharge experiments and states that the preparation and stimulant were the same as in the prior experiments."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.984365,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0015:12803",
+              "source": "pubmed",
+              "title": "Cholecystokinin/pancreozymin induces the parallel discharge of digestive enzymes from the in vitro rabbit pancreas.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0016:7377",
+              "source": "pubmed",
+              "title": "The separation of sheep liver cytoplasmic and mitochondrial aldehyde dehydrogenases by isoelectric focusing, and observations on the purity of preparations of the cytoplasmic enzyme, and their sensitivity towards inhibition by disulfiram.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:15463",
+              "source": "pubmed",
+              "title": "Purification of phosphodiesterase II from rat and guinea-pig intestinal mucosa.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0005:12481",
+              "source": "pubmed",
+              "title": "[Administration of immobilized firefly luciferase for quantitative estimation of ATP and enzymes synthesizing and destroying ATP].",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0011:12441",
+              "source": "pubmed",
+              "title": "Evaluation of some of the parameters of the enzyme-linked immunospecific assay.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.302629,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.111111,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0019:1499",
+              "source": "pubmed",
+              "title": "[Research in experimental electrocardiography. I: action of DCA-ajmaline on the electrocardiogram of the rat].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0015:12803",
+              "source": "pubmed",
+              "title": "Cholecystokinin/pancreozymin induces the parallel discharge of digestive enzymes from the in vitro rabbit pancreas.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0019:4323",
+              "source": "pubmed",
+              "title": "[Absence of cutaneous phenomena of delayed hypersensitivity in the use of zymosan as adjuvant in comparison with Freund's complete adjuvant in autoimmune experimental orchitis].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0003:11976",
+              "source": "pubmed",
+              "title": "[Pharmacological properties and antitumor activity of a preparation diiodo-benzo-tepa in experiments].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0004:12307",
+              "source": "pubmed",
+              "title": "[Experimental protective of fraction I of the plague microbe].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.681751,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.444444,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0015:12803",
+              "source": "pubmed",
+              "title": "Cholecystokinin/pancreozymin induces the parallel discharge of digestive enzymes from the in vitro rabbit pancreas.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0019:1499",
+              "source": "pubmed",
+              "title": "[Research in experimental electrocardiography. I: action of DCA-ajmaline on the electrocardiogram of the rat].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0016:7377",
+              "source": "pubmed",
+              "title": "The separation of sheep liver cytoplasmic and mitochondrial aldehyde dehydrogenases by isoelectric focusing, and observations on the purity of preparations of the cytoplasmic enzyme, and their sensitivity towards inhibition by disulfiram.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0006:15463",
+              "source": "pubmed",
+              "title": "Purification of phosphodiesterase II from rat and guinea-pig intestinal mucosa.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0019:4323",
+              "source": "pubmed",
+              "title": "[Absence of cutaneous phenomena of delayed hypersensitivity in the use of zymosan as adjuvant in comparison with Freund's complete adjuvant in autoimmune experimental orchitis].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.713769,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.444444,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0015:12803",
+              "source": "pubmed",
+              "title": "Cholecystokinin/pancreozymin induces the parallel discharge of digestive enzymes from the in vitro rabbit pancreas.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0006:15463",
+              "source": "pubmed",
+              "title": "Purification of phosphodiesterase II from rat and guinea-pig intestinal mucosa.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0016:7377",
+              "source": "pubmed",
+              "title": "The separation of sheep liver cytoplasmic and mitochondrial aldehyde dehydrogenases by isoelectric focusing, and observations on the purity of preparations of the cytoplasmic enzyme, and their sensitivity towards inhibition by disulfiram.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0019:4323",
+              "source": "pubmed",
+              "title": "[Absence of cutaneous phenomena of delayed hypersensitivity in the use of zymosan as adjuvant in comparison with Freund's complete adjuvant in autoimmune experimental orchitis].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0019:1499",
+              "source": "pubmed",
+              "title": "[Research in experimental electrocardiography. I: action of DCA-ajmaline on the electrocardiogram of the rat].",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-09",
+      "questionId": "H2-D-068",
+      "query": "What cleaning method is described as trapping toxic particles, and which period of pregnancy is highlighted as especially important for reducing exposure risks?",
+      "taskCategory": "multi_hop",
+      "answerability": "answerable",
+      "caseType": "rank_fusion_regression",
+      "focusMethod": "rrf",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.567298,
+      "denseNdcgAt10": 0.819272,
+      "bm25NdcgAt10": 0.208948,
+      "rrfNdcgAt10": 0.567298,
+      "rerankerNdcgAt10": 0.615995,
+      "firstDirectSupportRank": 2,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-27609:41",
+          "source": "statpearls",
+          "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+          "sourceUri": null,
+          "judgeExplanation": "Identifies organogenesis as an especially important period for reducing environmental exposure risks in pregnancy, but does not give the cleaning method."
+        },
+        {
+          "documentId": "statpearls:article-27609:43",
+          "source": "statpearls",
+          "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+          "sourceUri": null,
+          "judgeExplanation": "Directly describes the cleaning method that traps toxic particles, but does not identify the pregnancy period highlighted for reducing risks."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.819272,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.8,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27609:43",
+              "source": "statpearls",
+              "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Obstentrics_Williams:2331",
+              "source": "textbooks",
+              "title": "Obstentrics_Williams",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-27237:50",
+              "source": "statpearls",
+              "title": "Enterobius Vermicularis -- Pearls and Other Issues",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Gynecology_Novak:6430",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-27609:42",
+              "source": "statpearls",
+              "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.208948,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.2,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-154903:0",
+              "source": "statpearls",
+              "title": "Toluene Toxicity -- Continuing Education Activity",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-28176:0",
+              "source": "statpearls",
+              "title": "Radiation Exposure In Pregnancy -- Introduction",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:6668",
+              "source": "pubmed",
+              "title": "\"Ultramicroinjection\" of macromolecules or small particles into animal cells. A new technique based on virus-induced cell fusion.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0015:10660",
+              "source": "pubmed",
+              "title": "High capacity suction technique. A method of reducing the aspiration hazard during induction.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0010:4590",
+              "source": "pubmed",
+              "title": "[Measurement of the abrasive effect of tooth pastes after oral tooth cleaning experiments].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.567298,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.6,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-154903:0",
+              "source": "statpearls",
+              "title": "Toluene Toxicity -- Continuing Education Activity",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-27609:43",
+              "source": "statpearls",
+              "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-28176:0",
+              "source": "statpearls",
+              "title": "Radiation Exposure In Pregnancy -- Introduction",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Obstentrics_Williams:2331",
+              "source": "textbooks",
+              "title": "Obstentrics_Williams",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:6668",
+              "source": "pubmed",
+              "title": "\"Ultramicroinjection\" of macromolecules or small particles into animal cells. A new technique based on virus-induced cell fusion.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.615995,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.6,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27609:43",
+              "source": "statpearls",
+              "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-27237:50",
+              "source": "statpearls",
+              "title": "Enterobius Vermicularis -- Pearls and Other Issues",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:6668",
+              "source": "pubmed",
+              "title": "\"Ultramicroinjection\" of macromolecules or small particles into animal cells. A new technique based on virus-induced cell fusion.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-27609:42",
+              "source": "statpearls",
+              "title": "Preconception Counseling -- Key Clinical Considerations -- Toxin and Environmental Exposures",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-28176:0",
+              "source": "statpearls",
+              "title": "Radiation Exposure In Pregnancy -- Introduction",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: rank fusion lowers nDCG@10 against Dense under the same pooled qrels and result budget. Hypothesis: adding lower-ranked sparse candidates dilutes dense ordering; this run did not isolate fusion parameters.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-10",
+      "questionId": "H2-D-005",
+      "query": "Why can repeated signals from the same synapse trigger a spike when a single signal may not?",
+      "taskCategory": "semantic",
+      "answerability": "answerable",
+      "caseType": "reranker_ordering_regression",
+      "focusMethod": "rrf-reranker",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.607393,
+      "denseNdcgAt10": 0.851754,
+      "bm25NdcgAt10": 0.455991,
+      "rrfNdcgAt10": 0.686356,
+      "rerankerNdcgAt10": 0.607393,
+      "firstDirectSupportRank": 1,
+      "directSupportHitsAt5": 1,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "textbooks:Physiology_Levy:494",
+          "source": "textbooks",
+          "title": "Physiology_Levy",
+          "sourceUri": null,
+          "judgeExplanation": "Directly explains temporal summation at the same synapse: closely spaced EPSPs overlap, increasing their combined amplitude toward threshold."
+        },
+        {
+          "documentId": "textbooks:Cell_Biology_Alberts:3120",
+          "source": "textbooks",
+          "title": "Cell_Biology_Alberts",
+          "sourceUri": null,
+          "judgeExplanation": "Directly supports why a single excitatory input may not trigger a spike and describes summation across synapses, but this excerpt does not specify repeated input at the same synapse."
+        },
+        {
+          "documentId": "textbooks:Physiology_Levy:586",
+          "source": "textbooks",
+          "title": "Physiology_Levy",
+          "sourceUri": null,
+          "judgeExplanation": "Relevant to repeated stimulation and synaptic efficacy, but does not directly state that temporal summation of repeated EPSPs triggers a spike."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.851754,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 0.818182,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Physiology_Levy:494",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Cell_Biology_Alberts:6078",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Cell_Biology_Alberts:3134",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Physiology_Levy:394",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:9214",
+              "source": "pubmed",
+              "title": "Effect of repetitive activation on the afterhyperpolarization in dorsal spinocerebellar tract neurones.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.455991,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.4,
+          "contextRecallAt10": 0.363636,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0022:6265",
+              "source": "pubmed",
+              "title": "A single-unit analysis of inferior colliculus in unanesthetized bats: response patterns and spike-count functions generated by constant-frequency and frequency-modulated sounds.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Physiology_Levy:494",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:Cell_Biology_Alberts:3120",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0008:9387",
+              "source": "pubmed",
+              "title": "[Summarized extracellular postsynaptic potential of a single axon, an EEG quantum in the rabbit neocortex].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:6640",
+              "source": "pubmed",
+              "title": "Critical-band effects in two-channel auditory signal detection.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.686356,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.454545,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Physiology_Levy:494",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Cell_Biology_Alberts:3120",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0022:6265",
+              "source": "pubmed",
+              "title": "A single-unit analysis of inferior colliculus in unanesthetized bats: response patterns and spike-count functions generated by constant-frequency and frequency-modulated sounds.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Cell_Biology_Alberts:6078",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Cell_Biology_Alberts:3134",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.607393,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.454545,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Physiology_Levy:494",
+              "source": "textbooks",
+              "title": "Physiology_Levy",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Cell_Biology_Alberts:3134",
+              "source": "textbooks",
+              "title": "Cell_Biology_Alberts",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0008:9387",
+              "source": "pubmed",
+              "title": "[Summarized extracellular postsynaptic potential of a single axon, an EEG quantum in the rabbit neocortex].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0021:9214",
+              "source": "pubmed",
+              "title": "Effect of repetitive activation on the afterhyperpolarization in dorsal spinocerebellar tract neurones.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0022:6265",
+              "source": "pubmed",
+              "title": "A single-unit analysis of inferior colliculus in unanesthetized bats: response patterns and spike-count functions generated by constant-frequency and frequency-modulated sounds.",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: reranking lowers graded nDCG@10 against its RRF candidate order. Hypothesis: cross-encoder pair scoring overweights a topical but less directly supportive passage; reranker score calibration was not separately tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-11",
+      "questionId": "H2-D-094",
+      "query": "What does synthetic encounter H2-SYN-D-094 record for date of the last follow-up on 2026-04-22?",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "reranker_ordering_regression",
+      "focusMethod": "rrf-reranker",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.397801,
+      "denseNdcgAt10": 0.0,
+      "bm25NdcgAt10": 0.984218,
+      "rrfNdcgAt10": 0.475343,
+      "rerankerNdcgAt10": 0.397801,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:10462",
+              "source": "pubmed",
+              "title": "[Studies on the antigenicity of synthetic ACTH (beta1-24-corticotropin) in normal subjects (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-36238:17",
+              "source": "statpearls",
+              "title": "Methylprednisolone -- Indications -- Off-Label Uses",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-35323:12",
+              "source": "statpearls",
+              "title": "Periprocedural Care for Patients Undergoing Bariatric Device Placement and Endoscopic Procedures -- Clinical Significance -- Critical safety update (FDA postmarket surveillance)",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.984218,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.9,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-29919:8",
+              "source": "statpearls",
+              "title": "Temper Tantrums -- History and Physical",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-142048:13",
+              "source": "statpearls",
+              "title": "Pretransfusion Testing -- Specimen Requirements and Procedure",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-920:33",
+              "source": "statpearls",
+              "title": "Afatinib -- Enhancing Healthcare Team Outcomes",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-40665:112",
+              "source": "statpearls",
+              "title": "Kentucky Domestic Violence -- Treatment / Management -- Medical Record",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Neurology_Adams:3519",
+              "source": "textbooks",
+              "title": "Neurology_Adams",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.475343,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.555556,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-29919:8",
+              "source": "statpearls",
+              "title": "Temper Tantrums -- History and Physical",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-142048:13",
+              "source": "statpearls",
+              "title": "Pretransfusion Testing -- Specimen Requirements and Procedure",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0006:10462",
+              "source": "pubmed",
+              "title": "[Studies on the antigenicity of synthetic ACTH (beta1-24-corticotropin) in normal subjects (author's transl)].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.397801,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.555556,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0006:10462",
+              "source": "pubmed",
+              "title": "[Studies on the antigenicity of synthetic ACTH (beta1-24-corticotropin) in normal subjects (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-920:33",
+              "source": "statpearls",
+              "title": "Afatinib -- Enhancing Healthcare Team Outcomes",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-35323:12",
+              "source": "statpearls",
+              "title": "Periprocedural Care for Patients Undergoing Bariatric Device Placement and Endoscopic Procedures -- Clinical Significance -- Critical safety update (FDA postmarket surveillance)",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: reranking lowers graded nDCG@10 against its RRF candidate order. Hypothesis: cross-encoder pair scoring overweights a topical but less directly supportive passage; reranker score calibration was not separately tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-12",
+      "questionId": "H2-D-092",
+      "query": "What does synthetic encounter H2-SYN-D-092 record for documented medication allergen on 2026-02-08?",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "reranker_ordering_regression",
+      "focusMethod": "rrf-reranker",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.653341,
+      "denseNdcgAt10": 0.313394,
+      "bm25NdcgAt10": 0.831721,
+      "rrfNdcgAt10": 0.714588,
+      "rerankerNdcgAt10": 0.653341,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.313394,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.222222,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0003:5113",
+              "source": "pubmed",
+              "title": "Pharmacologic profile of a new antiallergic compound PRD-92-Ea.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0001:164",
+              "source": "pubmed",
+              "title": "In vitro antagonism of the mediators of allergy by a benzopyrano-benzopyran carboxylic acid PR-D-92-EA.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-30714:44",
+              "source": "statpearls",
+              "title": "Type II Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0001:12105",
+              "source": "pubmed",
+              "title": "[Anaphylactoid reactions following administration of plasma substitutes in man. Prevention of this side-effect of haemaccel by premedication with H1- and H2-receptor antagonists (author's transl)].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.831721,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.777778,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-17921:17",
+              "source": "statpearls",
+              "title": "Asthma Medication in Children -- Introduction -- Medications, Biologics, and Immunotherapy for Pediatric Asthma",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:945",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-22315:22",
+              "source": "statpearls",
+              "title": "Glucose-6-Phosphate Dehydrogenase Deficiency -- Treatment / Management -- Medication safety and stewardship",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-24883:22",
+              "source": "statpearls",
+              "title": "Medication Dispensing Errors and Prevention -- Key Clinical Considerations -- Known Allergen",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0011:7989",
+              "source": "pubmed",
+              "title": "Computer-simulated clinical encounter. II. Case flow and program content.",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.714588,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.666667,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-17921:17",
+              "source": "statpearls",
+              "title": "Asthma Medication in Children -- Introduction -- Medications, Biologics, and Immunotherapy for Pediatric Asthma",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0003:5113",
+              "source": "pubmed",
+              "title": "Pharmacologic profile of a new antiallergic compound PRD-92-Ea.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:InternalMed_Harrison:945",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0001:164",
+              "source": "pubmed",
+              "title": "In vitro antagonism of the mediators of allergy by a benzopyrano-benzopyran carboxylic acid PR-D-92-EA.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.653341,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.666667,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-30714:44",
+              "source": "statpearls",
+              "title": "Type II Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-17921:17",
+              "source": "statpearls",
+              "title": "Asthma Medication in Children -- Introduction -- Medications, Biologics, and Immunotherapy for Pediatric Asthma",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0001:164",
+              "source": "pubmed",
+              "title": "In vitro antagonism of the mediators of allergy by a benzopyrano-benzopyran carboxylic acid PR-D-92-EA.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0001:12105",
+              "source": "pubmed",
+              "title": "[Anaphylactoid reactions following administration of plasma substitutes in man. Prevention of this side-effect of haemaccel by premedication with H1- and H2-receptor antagonists (author's transl)].",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: reranking lowers graded nDCG@10 against its RRF candidate order. Hypothesis: cross-encoder pair scoring overweights a topical but less directly supportive passage; reranker score calibration was not separately tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-13",
+      "questionId": "H2-D-040",
+      "query": "What percentage of the 458 patients had normal pre-biopsy films?",
+      "taskCategory": "exact_term",
+      "answerability": "answerable",
+      "caseType": "dense_ranking_weakness",
+      "focusMethod": "dense",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.069976,
+      "denseNdcgAt10": 0.069976,
+      "bm25NdcgAt10": 0.534566,
+      "rrfNdcgAt10": 0.31277,
+      "rerankerNdcgAt10": 0.726229,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "pubmed:pubmed23n0022:1453",
+          "source": "pubmed",
+          "title": "Normal chest roentgenograms in chronic diffuse infiltrative lung disease.",
+          "sourceUri": "https://pubmed.ncbi.nlm.nih.gov/642974/",
+          "judgeExplanation": "Directly reports the requested percentage for 458 patients with histologically confirmed chronic diffuse infiltrative lung diseases."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.069976,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:5893",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0016:745",
+              "source": "pubmed",
+              "title": "Pathological findings after preoperative irradiation for carcinoma of the urinary bladder.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0021:8196",
+              "source": "pubmed",
+              "title": "[Early diagnosis of cancer of the prostate by rectal palpation (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0020:765",
+              "source": "pubmed",
+              "title": "Breast biopsy evaluation by paraffin-block radiography.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0014:3914",
+              "source": "pubmed",
+              "title": "The significance of needle biopsy after irradiation for stage C adenocarcinoma of the prostate.",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.534566,
+          "mrrAt10": 0.5,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 0.666667,
+          "firstDirectSupportRank": 2,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27833:133",
+              "source": "statpearls",
+              "title": "Prostate Cancer -- Evaluation -- Post-Prostate-Specific Antigen Pre-Biopsy Prostate Cancer Bioassay Risk Stratification Tests",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0022:1453",
+              "source": "pubmed",
+              "title": "Normal chest roentgenograms in chronic diffuse infiltrative lung disease.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-27833:132",
+              "source": "statpearls",
+              "title": "Prostate Cancer -- Evaluation -- Post-Prostate-Specific Antigen Pre-Biopsy Prostate Cancer Bioassay Risk Stratification Tests",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-27833:131",
+              "source": "statpearls",
+              "title": "Prostate Cancer -- Evaluation -- Post-Prostate-Specific Antigen Pre-Biopsy Prostate Cancer Bioassay Risk Stratification Tests",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-27833:130",
+              "source": "statpearls",
+              "title": "Prostate Cancer -- Evaluation -- Post-Prostate-Specific Antigen Pre-Biopsy Prostate Cancer Bioassay Risk Stratification Tests",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.31277,
+          "mrrAt10": 0.25,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": 4,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-27833:133",
+              "source": "statpearls",
+              "title": "Prostate Cancer -- Evaluation -- Post-Prostate-Specific Antigen Pre-Biopsy Prostate Cancer Bioassay Risk Stratification Tests",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:InternalMed_Harrison:5893",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0016:745",
+              "source": "pubmed",
+              "title": "Pathological findings after preoperative irradiation for carcinoma of the urinary bladder.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0022:1453",
+              "source": "pubmed",
+              "title": "Normal chest roentgenograms in chronic diffuse infiltrative lung disease.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0021:8196",
+              "source": "pubmed",
+              "title": "[Early diagnosis of cancer of the prostate by rectal palpation (author's transl)].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.726229,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.1,
+          "contextRecallAt10": 0.333333,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0022:1453",
+              "source": "pubmed",
+              "title": "Normal chest roentgenograms in chronic diffuse infiltrative lung disease.",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0014:3914",
+              "source": "pubmed",
+              "title": "The significance of needle biopsy after irradiation for stage C adenocarcinoma of the prostate.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0016:745",
+              "source": "pubmed",
+              "title": "Pathological findings after preoperative irradiation for carcinoma of the urinary bladder.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0021:8196",
+              "source": "pubmed",
+              "title": "[Early diagnosis of cancer of the prostate by rectal palpation (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:InternalMed_Harrison:5893",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: Dense nDCG@10 is below 0.60 although judged direct-support documents exist in the pooled candidate set. This shows a ranking weakness; the specific embedding/query interaction remains a hypothesis.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-14",
+      "questionId": "H2-D-083",
+      "query": "What proportion of IgG4-positive plasma cells to total IgG-positive cells does the passage specify?",
+      "taskCategory": "applicability_boundary",
+      "answerability": "answerable",
+      "caseType": "dense_ranking_weakness",
+      "focusMethod": "dense",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.499523,
+      "denseNdcgAt10": 0.499523,
+      "bm25NdcgAt10": 0.463797,
+      "rrfNdcgAt10": 0.659435,
+      "rerankerNdcgAt10": 0.890851,
+      "firstDirectSupportRank": 4,
+      "directSupportHitsAt5": 2,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "statpearls:article-28479:23",
+          "source": "statpearls",
+          "title": "Retroperitoneal Fibrosis -- Histopathology",
+          "sourceUri": null,
+          "judgeExplanation": "Directly specifies the requested ratio threshold."
+        },
+        {
+          "documentId": "statpearls:article-18024:11",
+          "source": "statpearls",
+          "title": "IgG4-Related Disease -- Pathophysiology -- The Japanese Comprehensive Clinical Diagnostic (CCD) Criteria for IgG-4RD",
+          "sourceUri": null,
+          "judgeExplanation": "Directly specifies the requested proportion threshold."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.499523,
+          "mrrAt10": 0.25,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": 4,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0021:8528",
+              "source": "pubmed",
+              "title": "Expression of IgGFc receptors on human plasma cells.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0002:8674",
+              "source": "pubmed",
+              "title": "Cytoplasmic immunofluorescence of bone marrow plasma cells producing immunoglobulins of the four IgG subclasses.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:25920",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-18024:11",
+              "source": "statpearls",
+              "title": "IgG4-Related Disease -- Pathophysiology -- The Japanese Comprehensive Clinical Diagnostic (CCD) Criteria for IgG-4RD",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-28479:23",
+              "source": "statpearls",
+              "title": "Retroperitoneal Fibrosis -- Histopathology",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.463797,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.7,
+          "contextRecallAt10": 0.7,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:25920",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-20245:21",
+              "source": "statpearls",
+              "title": "Dacryoadenitis -- Histopathology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0002:8674",
+              "source": "pubmed",
+              "title": "Cytoplasmic immunofluorescence of bone marrow plasma cells producing immunoglobulins of the four IgG subclasses.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-28479:22",
+              "source": "statpearls",
+              "title": "Retroperitoneal Fibrosis -- Histopathology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-25967:25",
+              "source": "statpearls",
+              "title": "Nonspecific Interstitial Pneumonia (Archived) -- Differential Diagnosis",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.659435,
+          "mrrAt10": 0.2,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.8,
+          "firstDirectSupportRank": 5,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:InternalMed_Harrison:25920",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0002:8674",
+              "source": "pubmed",
+              "title": "Cytoplasmic immunofluorescence of bone marrow plasma cells producing immunoglobulins of the four IgG subclasses.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0021:8528",
+              "source": "pubmed",
+              "title": "Expression of IgGFc receptors on human plasma cells.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-20245:21",
+              "source": "statpearls",
+              "title": "Dacryoadenitis -- Histopathology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-18024:11",
+              "source": "statpearls",
+              "title": "IgG4-Related Disease -- Pathophysiology -- The Japanese Comprehensive Clinical Diagnostic (CCD) Criteria for IgG-4RD",
+              "relevanceGrade": 2
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.890851,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 0.8,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 2,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-28479:23",
+              "source": "statpearls",
+              "title": "Retroperitoneal Fibrosis -- Histopathology",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-20245:21",
+              "source": "statpearls",
+              "title": "Dacryoadenitis -- Histopathology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-18024:11",
+              "source": "statpearls",
+              "title": "IgG4-Related Disease -- Pathophysiology -- The Japanese Comprehensive Clinical Diagnostic (CCD) Criteria for IgG-4RD",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0002:8674",
+              "source": "pubmed",
+              "title": "Cytoplasmic immunofluorescence of bone marrow plasma cells producing immunoglobulins of the four IgG subclasses.",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:InternalMed_Harrison:25920",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: Dense nDCG@10 is below 0.60 although judged direct-support documents exist in the pooled candidate set. This shows a ranking weakness; the specific embedding/query interaction remains a hypothesis.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-15",
+      "questionId": "H2-D-025",
+      "query": "What kind of confirmation do most studies evaluating endometriosis prevalence in women of reproductive age lack?",
+      "taskCategory": "exact_term",
+      "answerability": "answerable",
+      "caseType": "dense_ranking_weakness",
+      "focusMethod": "dense",
+      "observedQualityRegression": true,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.502527,
+      "denseNdcgAt10": 0.502527,
+      "bm25NdcgAt10": 0.872262,
+      "rrfNdcgAt10": 0.738918,
+      "rerankerNdcgAt10": 0.928968,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [
+        {
+          "documentId": "textbooks:Gynecology_Novak:2546",
+          "source": "textbooks",
+          "title": "Gynecology_Novak",
+          "sourceUri": null,
+          "judgeExplanation": "Directly states the kind of confirmation missing in most such studies."
+        }
+      ],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.502527,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.714286,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Gynecology_Novak:2544",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Gynecology_Novak:2545",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-21106:5",
+              "source": "statpearls",
+              "title": "Endometrioma (Archived) -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-152943:9",
+              "source": "statpearls",
+              "title": "Endosalpingiosis -- Epidemiology",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-21107:6",
+              "source": "statpearls",
+              "title": "Endometriosis -- Epidemiology",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.872262,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.714286,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Gynecology_Novak:2546",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Gynecology_Novak:2544",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-32743:9",
+              "source": "statpearls",
+              "title": "Cutaneous Endometriosis -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21106:5",
+              "source": "statpearls",
+              "title": "Endometrioma (Archived) -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Gynecology_Novak:2561",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.738918,
+          "mrrAt10": 0.25,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.857143,
+          "firstDirectSupportRank": 4,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Gynecology_Novak:2544",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21106:5",
+              "source": "statpearls",
+              "title": "Endometrioma (Archived) -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-21107:6",
+              "source": "statpearls",
+              "title": "Endometriosis -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "textbooks:Gynecology_Novak:2546",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:Gynecology_Novak:2545",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.928968,
+          "mrrAt10": 1.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 0.857143,
+          "firstDirectSupportRank": 1,
+          "directSupportHitsAt5": 1,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "textbooks:Gynecology_Novak:2546",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 2
+            },
+            {
+              "rank": 2,
+              "documentId": "textbooks:Gynecology_Novak:2544",
+              "source": "textbooks",
+              "title": "Gynecology_Novak",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-21106:5",
+              "source": "statpearls",
+              "title": "Endometrioma (Archived) -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21107:6",
+              "source": "statpearls",
+              "title": "Endometriosis -- Epidemiology",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-32743:9",
+              "source": "statpearls",
+              "title": "Cutaneous Endometriosis -- Epidemiology",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: Dense nDCG@10 is below 0.60 although judged direct-support documents exist in the pooled candidate set. This shows a ranking weakness; the specific embedding/query interaction remains a hypothesis.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-16",
+      "questionId": "H2-D-093",
+      "query": "在合成记录 H2-SYN-D-093 的 2026-03-15 次复诊中，病历记载的当前处方剂量是什么？",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "no_answer_retrieval_risk",
+      "focusMethod": "dense",
+      "observedQualityRegression": false,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.993322,
+      "denseNdcgAt10": 0.993322,
+      "bm25NdcgAt10": 0.0,
+      "rrfNdcgAt10": 0.511537,
+      "rerankerNdcgAt10": 0.745791,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.993322,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.8,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-17695:43",
+              "source": "statpearls",
+              "title": "Antihistamines -- Administration -- Adult Dosage",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-29036:11",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Hypertriglyceridemia",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "textbooks:InternalMed_Harrison:14224",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-29036:9",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Homozygous Familial Hypercholesterolemia",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-29036:10",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Heterozygous Familial Hypercholesterolemia",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f8e320af0c06119c4581:0",
+              "source": "huiyi",
+              "title": "神经眼科",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.511537,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-17695:43",
+              "source": "statpearls",
+              "title": "Antihistamines -- Administration -- Adult Dosage",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-29036:11",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Hypertriglyceridemia",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.745791,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.5,
+          "contextRecallAt10": 0.625,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-29036:11",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Hypertriglyceridemia",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-17695:43",
+              "source": "statpearls",
+              "title": "Antihistamines -- Administration -- Adult Dosage",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-29036:9",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Homozygous Familial Hypercholesterolemia",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-29036:10",
+              "source": "statpearls",
+              "title": "Simvastatin -- Administration -- Heterozygous Familial Hypercholesterolemia",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "textbooks:InternalMed_Harrison:14224",
+              "source": "textbooks",
+              "title": "InternalMed_Harrison",
+              "relevanceGrade": 1
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: a synthetic chart-only question receives general-corpus passages. This is a retrieval-boundary risk, not evidence of a false generated answer; answer generation/abstention was not tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-17",
+      "questionId": "H2-D-097",
+      "query": "在合成记录 H2-SYN-D-097 的 2026-07-16 次复诊中，病历记载的停药日期是什么？",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "no_answer_retrieval_risk",
+      "focusMethod": "dense",
+      "observedQualityRegression": false,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.0,
+      "bm25NdcgAt10": 0.378002,
+      "rrfNdcgAt10": 0.0,
+      "rerankerNdcgAt10": 0.0,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-36238:20",
+              "source": "statpearls",
+              "title": "Methylprednisolone -- Indications -- Off-Label Uses",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-126937:216",
+              "source": "statpearls",
+              "title": "Florida Controlled Substance Prescribing -- Enhancing Healthcare Team Outcomes -- Interprofessional Team Case Study",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-555:11",
+              "source": "statpearls",
+              "title": "Genetics, Histone Code -- Clinical Significance -- Current FDA Approved Drugs",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-36238:15",
+              "source": "statpearls",
+              "title": "Methylprednisolone -- Indications -- Off-Label Uses",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0001:15022",
+              "source": "pubmed",
+              "title": "[Influence of the Benzodiazepine-derivative Ro 06-9098/000 on choreo-athetotic syndromes (author's transl)].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.378002,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.2,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-f8e320af0c06119c4581:0",
+              "source": "huiyi",
+              "title": "神经眼科",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "huiyi:huiyi-doc-265301ed5bb313583027:0",
+              "source": "huiyi",
+              "title": "什么情况下可诱发青光眼发作？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-36238:20",
+              "source": "statpearls",
+              "title": "Methylprednisolone -- Indications -- Off-Label Uses",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "huiyi:huiyi-doc-d31f4fa214bf0760bc87:0",
+              "source": "huiyi",
+              "title": "什么是医学验光？",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-126937:216",
+              "source": "statpearls",
+              "title": "Florida Controlled Substance Prescribing -- Enhancing Healthcare Team Outcomes -- Interprofessional Team Case Study",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-28f8c93b987fe8196d49:0",
+              "source": "huiyi",
+              "title": "ICL和“飞秒”手术有什么区别？",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-555:11",
+              "source": "statpearls",
+              "title": "Genetics, Histone Code -- Clinical Significance -- Current FDA Approved Drugs",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-36238:15",
+              "source": "statpearls",
+              "title": "Methylprednisolone -- Indications -- Off-Label Uses",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-126937:216",
+              "source": "statpearls",
+              "title": "Florida Controlled Substance Prescribing -- Enhancing Healthcare Team Outcomes -- Interprofessional Team Case Study",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "pubmed:pubmed23n0001:15022",
+              "source": "pubmed",
+              "title": "[Influence of the Benzodiazepine-derivative Ro 06-9098/000 on choreo-athetotic syndromes (author's transl)].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "huiyi:huiyi-doc-4a6fbf86acfb02a82b23:0",
+              "source": "huiyi",
+              "title": "关于近视，这些知识点您需要记住",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: a synthetic chart-only question receives general-corpus passages. This is a retrieval-boundary risk, not evidence of a false generated answer; answer generation/abstention was not tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    },
+    {
+      "caseId": "H2-V12-BC-18",
+      "questionId": "H2-D-098",
+      "query": "What does synthetic encounter H2-SYN-D-098 record for reported symptom onset date on 2026-08-23?",
+      "taskCategory": "no_answer",
+      "answerability": "no_answer",
+      "caseType": "no_answer_retrieval_risk",
+      "focusMethod": "dense",
+      "observedQualityRegression": false,
+      "qrelsStatus": "complete_pool_labels_for_all_methods; one low-confidence query excluded globally",
+      "focusedMethodNdcgAt10": 0.0,
+      "denseNdcgAt10": 0.0,
+      "bm25NdcgAt10": 0.906714,
+      "rrfNdcgAt10": 0.412337,
+      "rerankerNdcgAt10": 0.497863,
+      "firstDirectSupportRank": null,
+      "directSupportHitsAt5": 0,
+      "directSupportDocsInJudgedPool": [],
+      "top5ByMethod": {
+        "dense": {
+          "ndcgAt10": 0.0,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.0,
+          "contextRecallAt10": 0.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0007:470",
+              "source": "pubmed",
+              "title": "[Action of a new synthetic ACTH drug in psoriatic arthropathy].",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-30716:101",
+              "source": "statpearls",
+              "title": "Type III Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-30714:44",
+              "source": "statpearls",
+              "title": "Type II Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "bm25": {
+          "ndcgAt10": 0.906714,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.6,
+          "contextRecallAt10": 1.0,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-29182:5",
+              "source": "statpearls",
+              "title": "SOAP Notes -- Clinical Overview -- Subjective",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-21111:217",
+              "source": "statpearls",
+              "title": "Bacterial Endophthalmitis -- Enhancing Healthcare Team Outcomes -- Communication and Documentation",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-40665:112",
+              "source": "statpearls",
+              "title": "Kentucky Domestic Violence -- Treatment / Management -- Medical Record",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-120608:7",
+              "source": "statpearls",
+              "title": "Menetrier Disease -- Epidemiology",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "statpearls:article-130922:164",
+              "source": "statpearls",
+              "title": "Kentucky KASPER and Controlled Substance Prescribing -- Pearls and Other Issues -- KASPAR (Kentucky All Schedule Prescription Reporting)",
+              "relevanceGrade": 1
+            }
+          ]
+        },
+        "rrf": {
+          "ndcgAt10": 0.412337,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "pubmed:pubmed23n0006:14932",
+              "source": "pubmed",
+              "title": "Treatment of a case of allergic asthma with a synthetic human ACTH preparation.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-29182:5",
+              "source": "statpearls",
+              "title": "SOAP Notes -- Clinical Overview -- Subjective",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 3,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-21111:217",
+              "source": "statpearls",
+              "title": "Bacterial Endophthalmitis -- Enhancing Healthcare Team Outcomes -- Communication and Documentation",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0007:470",
+              "source": "pubmed",
+              "title": "[Action of a new synthetic ACTH drug in psoriatic arthropathy].",
+              "relevanceGrade": 0
+            }
+          ]
+        },
+        "rrf-reranker": {
+          "ndcgAt10": 0.497863,
+          "mrrAt10": 0.0,
+          "contextPrecisionAt10": 0.3,
+          "contextRecallAt10": 0.5,
+          "firstDirectSupportRank": null,
+          "directSupportHitsAt5": 0,
+          "top5": [
+            {
+              "rank": 1,
+              "documentId": "statpearls:article-21111:217",
+              "source": "statpearls",
+              "title": "Bacterial Endophthalmitis -- Enhancing Healthcare Team Outcomes -- Communication and Documentation",
+              "relevanceGrade": 1
+            },
+            {
+              "rank": 2,
+              "documentId": "statpearls:article-120608:7",
+              "source": "statpearls",
+              "title": "Menetrier Disease -- Epidemiology",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 3,
+              "documentId": "statpearls:article-30714:44",
+              "source": "statpearls",
+              "title": "Type II Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 4,
+              "documentId": "statpearls:article-30716:101",
+              "source": "statpearls",
+              "title": "Type III Hypersensitivity Reaction -- Differential Diagnosis",
+              "relevanceGrade": 0
+            },
+            {
+              "rank": 5,
+              "documentId": "pubmed:pubmed23n0017:11555",
+              "source": "pubmed",
+              "title": "Formation of antibodies to synthetic human calcitonin during treatment of Paget's disease.",
+              "relevanceGrade": 0
+            }
+          ]
+        }
+      },
+      "rootCauseStatus": "observed_metric_plus_unverified_engineering_hypothesis",
+      "rootCauseHypothesis": "Observed: a synthetic chart-only question receives general-corpus passages. This is a retrieval-boundary risk, not evidence of a false generated answer; answer generation/abstention was not tested.",
+      "fixStatus": "not tested in this frozen comparison",
+      "clinicalAccuracyClaimed": false
+    }
+  ]
+}
