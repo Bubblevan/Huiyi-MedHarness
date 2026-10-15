@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "huiyi-rag-retrieval-dataset/v1",
+  "datasetId": "h2-pilot-dev-draft-v1",
+  "split": "dev",
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "annotationProtocolVersion": "h2-pilot-annotation-v1",
+  "questions": [
+    {
+      "questionId": "H2-P-001",
+      "query": "药物核对（medication reconciliation）时，应如何比较患者自述、处方清单与出院用药记录？",
+      "language": "zh",
+      "taskCategory": "exact_term",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-002",
+      "query": "过敏史的来源、发生时间和不确定性通常应记录哪些信息？",
+      "language": "zh",
+      "taskCategory": "exact_term",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-003",
+      "query": "患者难以执行既定健康计划时，复诊沟通应如何识别和记录障碍？",
+      "language": "zh",
+      "taskCategory": "semantic",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-004",
+      "query": "居家血压记录在复诊时如何与测量时间、测量方式和症状一起整理？",
+      "language": "zh",
+      "taskCategory": "semantic",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-005",
+      "query": "出院后用药调整与待完成检查如何一起纳入连续随访核对？",
+      "language": "zh",
+      "taskCategory": "multi_hop",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-006",
+      "query": "多病共存复诊时，如何同时梳理药物变更、监测检查和下一次随访安排？",
+      "language": "zh",
+      "taskCategory": "multi_hop",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-007",
+      "query": "Please explain follow-up for discharge medication changes（出院用药调整）and pending tests（待完成检查）.",
+      "language": "mixed",
+      "taskCategory": "bilingual",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-008",
+      "query": "How should home monitoring（居家监测）records be reconciled with the follow-up timeline and current symptoms?",
+      "language": "mixed",
+      "taskCategory": "bilingual",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-009",
+      "query": "患者自述的药物过敏与既往病历记录不一致时，如何保留来源、日期及不确定性？",
+      "language": "zh",
+      "taskCategory": "source_conflict",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-010",
+      "query": "患者当前用药清单与最近一次出院小结不一致时，怎样核对各记录的时间和来源？",
+      "language": "zh",
+      "taskCategory": "source_conflict",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-011",
+      "query": "慧宜医院非公开的 2026 年眼科急诊绿色通道内部操作规程第 4 条原文是什么？",
+      "language": "zh",
+      "taskCategory": "no_answer",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    },
+    {
+      "questionId": "H2-P-012",
+      "query": "慧宜医院内部 2026 年第三季度未公开的药品目录调整备忘录具体内容是什么？",
+      "language": "zh",
+      "taskCategory": "no_answer",
+      "corpusVersion": "medtext-local-cc7d43568501e6b7",
+      "answerability": "pending",
+      "reviewStatus": "pending",
+      "candidatePool": [],
+      "qrels": [],
+      "annotations": []
+    }
+  ]
+}

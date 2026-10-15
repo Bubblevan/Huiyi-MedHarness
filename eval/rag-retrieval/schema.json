@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://huiyi.local/schemas/rag-retrieval-eval-v1.json",
+  "title": "Huiyi medical retrieval evaluation dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "datasetId", "split", "corpusVersion", "questions"],
+  "properties": {
+    "schemaVersion": { "const": "huiyi-rag-retrieval-dataset/v1" },
+    "datasetId": { "type": "string", "minLength": 1 },
+    "split": { "enum": ["dev", "holdout"] },
+    "corpusVersion": { "type": "string", "minLength": 1 },
+    "annotationProtocolVersion": { "type": "string", "minLength": 1 },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["questionId", "query", "language", "taskCategory", "answerability", "reviewStatus", "qrels", "annotations"],
+        "properties": {
+          "questionId": { "type": "string", "minLength": 1 },
+          "query": { "type": "string", "minLength": 1 },
+          "language": { "enum": ["zh", "en", "mixed"] },
+          "taskCategory": { "enum": ["exact_term", "semantic", "multi_hop", "bilingual", "source_conflict", "no_answer"] },
+          "corpusVersion": { "type": "string", "minLength": 1 },
+          "answerability": { "enum": ["answerable", "no_answer", "pending"] },
+          "answerabilityAdjudicationNote": { "type": "string", "minLength": 1 },
+          "reviewStatus": { "enum": ["pending", "double_reviewed", "adjudicated"] },
+          "candidatePool": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["documentId", "source", "candidateMethods"],
+              "properties": {
+                "documentId": { "type": "string", "minLength": 1 },
+                "source": { "type": "string", "minLength": 1 },
+                "candidateMethods": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+                "sourceDocumentId": { "type": "string" },
+                "chunkId": { "type": "string" }
+              }
+            }
+          },
+          "qrels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["documentId", "relevance", "applicability"],
+              "properties": {
+                "documentId": { "type": "string", "minLength": 1 },
+                "relevance": { "type": "integer", "minimum": 0, "maximum": 3 },
+                "applicability": { "enum": ["applicable", "partly_applicable", "not_applicable", "conflicting", "not_assessed"] },
+                "adjudicationNote": { "type": "string" }
+              }
+            }
+          },
+          "annotations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reviewerId", "answerability", "judgments"],
+              "properties": {
+                "reviewerId": { "type": "string", "minLength": 1 },
+                "answerability": { "enum": ["answerable", "no_answer"] },
+                "judgments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["documentId", "relevance", "applicability"],
+                    "properties": {
+                      "documentId": { "type": "string", "minLength": 1 },
+                      "relevance": { "type": "integer", "minimum": 0, "maximum": 3 },
+                      "applicability": { "enum": ["applicable", "partly_applicable", "not_applicable", "conflicting", "not_assessed"] }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1008 @@
+{
+  "schemaVersion": "huiyi-rag-llm-judge-score/v1",
+  "status": "exploratory_only",
+  "datasetId": "h2-source-grounded-seed-dev-v1",
+  "split": "dev",
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "judgeMode": "codex-cli",
+  "judgeExactModelId": null,
+  "externalGoldAgreement": null,
+  "questionCount": 1,
+  "reviewRequiredLabelCount": 0,
+  "reviewRequiredLabelsIncluded": false,
+  "pooledQrelsOnly": true,
+  "fullCorpusRecallClaimed": false,
+  "relevanceGradeMeaning": {
+    "0": "irrelevant",
+    "1": "partial/topical",
+    "2": "direct support"
+  },
+  "relevanceThresholdForPrecisionRecallMrr": 2,
+  "contextRelevanceThreshold": 1,
+  "manifestSha256": "ccc89d1f6deef68536647541fbad6c79c98f7185cfbe2cd0c00698b15f5b37cf",
+  "metricNote": "Precision/pooledRecall/MRR count only direct-support grade 2; contextPrecision/contextRecall/mrrContext include partial grade 1. nDCG uses graded gains over 0/1/2.",
+  "metricsByMethod": {
+    "dense": {
+      "questionCount": 1,
+      "metrics": {
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.86131,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.886434,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 1.0,
+        "contextRecall@10": 0.333333,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.953179,
+        "mrr@20": 1.0,
+        "precision@20": 0.15,
+        "pooledRecall@20": 1.0,
+        "contextPrecision@20": 1.0,
+        "contextRecall@20": 0.666667,
+        "mrrContext@20": 1.0
+      },
+      "metricsByCategory": {
+        "multi_hop": {
+          "questionCount": 1,
+          "metrics": {
+            "ndcg@1": 1.0,
+            "mrr@1": 1.0,
+            "precision@1": 1.0,
+            "pooledRecall@1": 0.333333,
+            "contextPrecision@1": 1.0,
+            "contextRecall@1": 0.033333,
+            "mrrContext@1": 1.0,
+            "ndcg@5": 0.86131,
+            "mrr@5": 1.0,
+            "precision@5": 0.4,
+            "pooledRecall@5": 0.666667,
+            "contextPrecision@5": 1.0,
+            "contextRecall@5": 0.166667,
+            "mrrContext@5": 1.0,
+            "ndcg@10": 0.886434,
+            "mrr@10": 1.0,
+            "precision@10": 0.2,
+            "pooledRecall@10": 0.666667,
+            "contextPrecision@10": 1.0,
+            "contextRecall@10": 0.333333,
+            "mrrContext@10": 1.0,
+            "ndcg@20": 0.953179,
+            "mrr@20": 1.0,
+            "precision@20": 0.15,
+            "pooledRecall@20": 1.0,
+            "contextPrecision@20": 1.0,
+            "contextRecall@20": 0.666667,
+            "mrrContext@20": 1.0
+          }
+        }
+      },
+      "macroAggregation": "unweighted macro over scored questions"
+    },
+    "bm25": {
+      "questionCount": 1,
+      "metrics": {
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.86131,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.850607,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 0.9,
+        "contextRecall@10": 0.3,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.841134,
+        "mrr@20": 1.0,
+        "precision@20": 0.1,
+        "pooledRecall@20": 0.666667,
+        "contextPrecision@20": 0.85,
+        "contextRecall@20": 0.566667,
+        "mrrContext@20": 1.0
+      },
+      "metricsByCategory": {
+        "multi_hop": {
+          "questionCount": 1,
+          "metrics": {
+            "ndcg@1": 1.0,
+            "mrr@1": 1.0,
+            "precision@1": 1.0,
+            "pooledRecall@1": 0.333333,
+            "contextPrecision@1": 1.0,
+            "contextRecall@1": 0.033333,
+            "mrrContext@1": 1.0,
+            "ndcg@5": 0.86131,
+            "mrr@5": 1.0,
+            "precision@5": 0.4,
+            "pooledRecall@5": 0.666667,
+            "contextPrecision@5": 1.0,
+            "contextRecall@5": 0.166667,
+            "mrrContext@5": 1.0,
+            "ndcg@10": 0.850607,
+            "mrr@10": 1.0,
+            "precision@10": 0.2,
+            "pooledRecall@10": 0.666667,
+            "contextPrecision@10": 0.9,
+            "contextRecall@10": 0.3,
+            "mrrContext@10": 1.0,
+            "ndcg@20": 0.841134,
+            "mrr@20": 1.0,
+            "precision@20": 0.1,
+            "pooledRecall@20": 0.666667,
+            "contextPrecision@20": 0.85,
+            "contextRecall@20": 0.566667,
+            "mrrContext@20": 1.0
+          }
+        }
+      },
+      "macroAggregation": "unweighted macro over scored questions"
+    },
+    "rrf": {
+      "questionCount": 1,
+      "metrics": {
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.86131,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.886434,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 1.0,
+        "contextRecall@10": 0.333333,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.887611,
+        "mrr@20": 1.0,
+        "precision@20": 0.1,
+        "pooledRecall@20": 0.666667,
+        "contextPrecision@20": 0.95,
+        "contextRecall@20": 0.633333,
+        "mrrContext@20": 1.0
+      },
+      "metricsByCategory": {
+        "multi_hop": {
+          "questionCount": 1,
+          "metrics": {
+            "ndcg@1": 1.0,
+            "mrr@1": 1.0,
+            "precision@1": 1.0,
+            "pooledRecall@1": 0.333333,
+            "contextPrecision@1": 1.0,
+            "contextRecall@1": 0.033333,
+            "mrrContext@1": 1.0,
+            "ndcg@5": 0.86131,
+            "mrr@5": 1.0,
+            "precision@5": 0.4,
+            "pooledRecall@5": 0.666667,
+            "contextPrecision@5": 1.0,
+            "contextRecall@5": 0.166667,
+            "mrrContext@5": 1.0,
+            "ndcg@10": 0.886434,
+            "mrr@10": 1.0,
+            "precision@10": 0.2,
+            "pooledRecall@10": 0.666667,
+            "contextPrecision@10": 1.0,
+            "contextRecall@10": 0.333333,
+            "mrrContext@10": 1.0,
+            "ndcg@20": 0.887611,
+            "mrr@20": 1.0,
+            "precision@20": 0.1,
+            "pooledRecall@20": 0.666667,
+            "contextPrecision@20": 0.95,
+            "contextRecall@20": 0.633333,
+            "mrrContext@20": 1.0
+          }
+        }
+      },
+      "macroAggregation": "unweighted macro over scored questions"
+    },
+    "reranker": {
+      "questionCount": 1,
+      "metrics": {
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.824993,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.856695,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 1.0,
+        "contextRecall@10": 0.333333,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.866706,
+        "mrr@20": 1.0,
+        "precision@20": 0.1,
+        "pooledRecall@20": 0.666667,
+        "contextPrecision@20": 0.95,
+        "contextRecall@20": 0.633333,
+        "mrrContext@20": 1.0
+      },
+      "metricsByCategory": {
+        "multi_hop": {
+          "questionCount": 1,
+          "metrics": {
+            "ndcg@1": 1.0,
+            "mrr@1": 1.0,
+            "precision@1": 1.0,
+            "pooledRecall@1": 0.333333,
+            "contextPrecision@1": 1.0,
+            "contextRecall@1": 0.033333,
+            "mrrContext@1": 1.0,
+            "ndcg@5": 0.824993,
+            "mrr@5": 1.0,
+            "precision@5": 0.4,
+            "pooledRecall@5": 0.666667,
+            "contextPrecision@5": 1.0,
+            "contextRecall@5": 0.166667,
+            "mrrContext@5": 1.0,
+            "ndcg@10": 0.856695,
+            "mrr@10": 1.0,
+            "precision@10": 0.2,
+            "pooledRecall@10": 0.666667,
+            "contextPrecision@10": 1.0,
+            "contextRecall@10": 0.333333,
+            "mrrContext@10": 1.0,
+            "ndcg@20": 0.866706,
+            "mrr@20": 1.0,
+            "precision@20": 0.1,
+            "pooledRecall@20": 0.666667,
+            "contextPrecision@20": 0.95,
+            "contextRecall@20": 0.633333,
+            "mrrContext@20": 1.0
+          }
+        }
+      },
+      "macroAggregation": "unweighted macro over scored questions"
+    }
+  },
+  "pairedAgainstDense": {
+    "bm25": {
+      "ndcg@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.035827,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.112045,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.05,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.333333,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      }
+    },
+    "rrf": {
+      "ndcg@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.065568,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.05,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.333333,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      }
+    },
+    "reranker": {
+      "ndcg@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@1": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.036317,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@5": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.029739,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@10": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "ndcg@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.086473,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "mrr@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": 0.0,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "precision@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.05,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      },
+      "pooledRecall@20": {
+        "pairedQuestionCount": 1,
+        "meanDifference": -0.333333,
+        "bootstrap95PercentileCI": {
+          "lower": null,
+          "upper": null,
+          "replicates": 0,
+          "reason": "fewer than two paired questions"
+        }
+      }
+    }
+  },
+  "perMethodPerQuestion": {
+    "dense": [
+      {
+        "questionId": "H2-SG-001",
+        "taskCategory": "multi_hop",
+        "language": "en",
+        "runStatus": "ok",
+        "judgedPoolCoverage": 1.0,
+        "resolvedPoolCoverage": 1.0,
+        "reviewRequiredCandidateCount": 0,
+        "reviewRequiredLabelsIncluded": false,
+        "returnedResultCount": 20,
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "relevantFound@1": 1,
+        "pooledRelevantCount": 3,
+        "contextRelevantFound@1": 1,
+        "contextRelevantCount": 30,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.86131,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "relevantFound@5": 2,
+        "contextRelevantFound@5": 5,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.886434,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 1.0,
+        "contextRecall@10": 0.333333,
+        "relevantFound@10": 2,
+        "contextRelevantFound@10": 10,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.953179,
+        "mrr@20": 1.0,
+        "precision@20": 0.15,
+        "pooledRecall@20": 1.0,
+        "contextPrecision@20": 1.0,
+        "contextRecall@20": 0.666667,
+        "relevantFound@20": 3,
+        "contextRelevantFound@20": 20,
+        "mrrContext@20": 1.0
+      }
+    ],
+    "bm25": [
+      {
+        "questionId": "H2-SG-001",
+        "taskCategory": "multi_hop",
+        "language": "en",
+        "runStatus": "ok",
+        "judgedPoolCoverage": 1.0,
+        "resolvedPoolCoverage": 1.0,
+        "reviewRequiredCandidateCount": 0,
+        "reviewRequiredLabelsIncluded": false,
+        "returnedResultCount": 20,
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "relevantFound@1": 1,
+        "pooledRelevantCount": 3,
+        "contextRelevantFound@1": 1,
+        "contextRelevantCount": 30,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.86131,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "relevantFound@5": 2,
+        "contextRelevantFound@5": 5,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.850607,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 0.9,
+        "contextRecall@10": 0.3,
+        "relevantFound@10": 2,
+        "contextRelevantFound@10": 9,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.841134,
+        "mrr@20": 1.0,
+        "precision@20": 0.1,
+        "pooledRecall@20": 0.666667,
+        "contextPrecision@20": 0.85,
+        "contextRecall@20": 0.566667,
+        "relevantFound@20": 2,
+        "contextRelevantFound@20": 17,
+        "mrrContext@20": 1.0
+      }
+    ],
+    "rrf": [
+      {
+        "questionId": "H2-SG-001",
+        "taskCategory": "multi_hop",
+        "language": "en",
+        "runStatus": "ok",
+        "judgedPoolCoverage": 1.0,
+        "resolvedPoolCoverage": 1.0,
+        "reviewRequiredCandidateCount": 0,
+        "reviewRequiredLabelsIncluded": false,
+        "returnedResultCount": 20,
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "relevantFound@1": 1,
+        "pooledRelevantCount": 3,
+        "contextRelevantFound@1": 1,
+        "contextRelevantCount": 30,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.86131,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "relevantFound@5": 2,
+        "contextRelevantFound@5": 5,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.886434,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 1.0,
+        "contextRecall@10": 0.333333,
+        "relevantFound@10": 2,
+        "contextRelevantFound@10": 10,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.887611,
+        "mrr@20": 1.0,
+        "precision@20": 0.1,
+        "pooledRecall@20": 0.666667,
+        "contextPrecision@20": 0.95,
+        "contextRecall@20": 0.633333,
+        "relevantFound@20": 2,
+        "contextRelevantFound@20": 19,
+        "mrrContext@20": 1.0
+      }
+    ],
+    "reranker": [
+      {
+        "questionId": "H2-SG-001",
+        "taskCategory": "multi_hop",
+        "language": "en",
+        "runStatus": "ok",
+        "judgedPoolCoverage": 1.0,
+        "resolvedPoolCoverage": 1.0,
+        "reviewRequiredCandidateCount": 0,
+        "reviewRequiredLabelsIncluded": false,
+        "returnedResultCount": 20,
+        "ndcg@1": 1.0,
+        "mrr@1": 1.0,
+        "precision@1": 1.0,
+        "pooledRecall@1": 0.333333,
+        "contextPrecision@1": 1.0,
+        "contextRecall@1": 0.033333,
+        "relevantFound@1": 1,
+        "pooledRelevantCount": 3,
+        "contextRelevantFound@1": 1,
+        "contextRelevantCount": 30,
+        "mrrContext@1": 1.0,
+        "ndcg@5": 0.824993,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "pooledRecall@5": 0.666667,
+        "contextPrecision@5": 1.0,
+        "contextRecall@5": 0.166667,
+        "relevantFound@5": 2,
+        "contextRelevantFound@5": 5,
+        "mrrContext@5": 1.0,
+        "ndcg@10": 0.856695,
+        "mrr@10": 1.0,
+        "precision@10": 0.2,
+        "pooledRecall@10": 0.666667,
+        "contextPrecision@10": 1.0,
+        "contextRecall@10": 0.333333,
+        "relevantFound@10": 2,
+        "contextRelevantFound@10": 10,
+        "mrrContext@10": 1.0,
+        "ndcg@20": 0.866706,
+        "mrr@20": 1.0,
+        "precision@20": 0.1,
+        "pooledRecall@20": 0.666667,
+        "contextPrecision@20": 0.95,
+        "contextRecall@20": 0.633333,
+        "relevantFound@20": 2,
+        "contextRelevantFound@20": 19,
+        "mrrContext@20": 1.0
+      }
+    ]
+  },
+  "inputHashes": {
+    "judgeOutput": "753d8c3c5c23cd16eacbd1aa1e4392ae7b23dfbca02dbe443b0caaa37867a366",
+    "runs": {
+      "dense": "84bd18731f85da94b0fc6c931c61239de9a2c269c95d111375395276f9ce735c",
+      "bm25": "1366289a31a3f50bbac2f1f85366d55c7e3a68ecd38e920fdd73e413374a9658",
+      "rrf": "b45d6caf5b9bb5a53c69746f6de997547c26fcf2ce4aa7971faef8672f9e741b",
+      "reranker": "d3035964517f693e35c9dea39e3734439b653a90f3fc586fc13a180bfec3ad5c"
+    },
+    "dataset": "3e41ba179c60eb2402fadc22fb34aba5595d6ac45967527c3a71704c47e7eda5",
+    "candidatePool": "7ec5ed9f3bf9cd3dac5823302bf44c7a6fcdc2b1e46262c6f867e6a6f0bcd839",
+    "judgeRun": "a848adaa915b8d20a909745aee2a7938833534b9abcccd3112bac7e319d409eb"
+  }
+}

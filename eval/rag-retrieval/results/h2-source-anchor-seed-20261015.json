@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "huiyi-rag-source-anchor-score/v1",
+  "status": "diagnostic_not_gold",
+  "evaluation": "Exact source-anchor retrieval sanity check",
+  "datasetId": "h2-source-grounded-seed-dev-v1",
+  "datasetSha256": "3e41ba179c60eb2402fadc22fb34aba5595d6ac45967527c3a71704c47e7eda5",
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "corpusManifestSha256": "ccc89d1f6deef68536647541fbad6c79c98f7185cfbe2cd0c00698b15f5b37cf",
+  "questionCount": 3,
+  "split": "dev_seed_only",
+  "interpretation": "Synthetic queries authored from exact frozen-corpus chunks. A hit means the exact chunk anchor was retrieved. These labels are author-selected anchors, not independent/expert qrels; 3-query ceiling results do not compare relevance quality or establish generalization.",
+  "arms": [
+    {
+      "arm": "dense",
+      "runSha256": "84bd18731f85da94b0fc6c931c61239de9a2c269c95d111375395276f9ce735c",
+      "n": 3,
+      "anchorHitAt1": 1.0,
+      "anchorHitAt5": 1.0,
+      "anchorHitAt10": 1.0,
+      "anchorHitAt20": 1.0,
+      "anchorMRR": 1.0,
+      "perQuestion": [
+        {
+          "questionId": "H2-SG-001",
+          "anchorRanks": [
+            {
+              "documentId": "statpearls:article-100024:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-002",
+          "anchorRanks": [
+            {
+              "documentId": "pubmed:pubmed23n0001:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-003",
+          "anchorRanks": [
+            {
+              "documentId": "huiyi:huiyi-doc-60e4200153baaec423ff:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        }
+      ]
+    },
+    {
+      "arm": "bm25",
+      "runSha256": "1366289a31a3f50bbac2f1f85366d55c7e3a68ecd38e920fdd73e413374a9658",
+      "n": 3,
+      "anchorHitAt1": 1.0,
+      "anchorHitAt5": 1.0,
+      "anchorHitAt10": 1.0,
+      "anchorHitAt20": 1.0,
+      "anchorMRR": 1.0,
+      "perQuestion": [
+        {
+          "questionId": "H2-SG-001",
+          "anchorRanks": [
+            {
+              "documentId": "statpearls:article-100024:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-002",
+          "anchorRanks": [
+            {
+              "documentId": "pubmed:pubmed23n0001:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-003",
+          "anchorRanks": [
+            {
+              "documentId": "huiyi:huiyi-doc-60e4200153baaec423ff:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        }
+      ]
+    },
+    {
+      "arm": "rrf",
+      "runSha256": "b45d6caf5b9bb5a53c69746f6de997547c26fcf2ce4aa7971faef8672f9e741b",
+      "n": 3,
+      "anchorHitAt1": 1.0,
+      "anchorHitAt5": 1.0,
+      "anchorHitAt10": 1.0,
+      "anchorHitAt20": 1.0,
+      "anchorMRR": 1.0,
+      "perQuestion": [
+        {
+          "questionId": "H2-SG-001",
+          "anchorRanks": [
+            {
+              "documentId": "statpearls:article-100024:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-002",
+          "anchorRanks": [
+            {
+              "documentId": "pubmed:pubmed23n0001:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-003",
+          "anchorRanks": [
+            {
+              "documentId": "huiyi:huiyi-doc-60e4200153baaec423ff:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        }
+      ]
+    },
+    {
+      "arm": "rrf-reranker",
+      "runSha256": "d3035964517f693e35c9dea39e3734439b653a90f3fc586fc13a180bfec3ad5c",
+      "n": 3,
+      "anchorHitAt1": 1.0,
+      "anchorHitAt5": 1.0,
+      "anchorHitAt10": 1.0,
+      "anchorHitAt20": 1.0,
+      "anchorMRR": 1.0,
+      "perQuestion": [
+        {
+          "questionId": "H2-SG-001",
+          "anchorRanks": [
+            {
+              "documentId": "statpearls:article-100024:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-002",
+          "anchorRanks": [
+            {
+              "documentId": "pubmed:pubmed23n0001:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        },
+        {
+          "questionId": "H2-SG-003",
+          "anchorRanks": [
+            {
+              "documentId": "huiyi:huiyi-doc-60e4200153baaec423ff:0",
+              "rank": 1
+            }
+          ],
+          "bestAnchorRank": 1.0
+        }
+      ]
+    }
+  ]
+}

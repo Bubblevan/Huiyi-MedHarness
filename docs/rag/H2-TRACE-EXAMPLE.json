@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "huiyi-h2-evidence-trace-summary/v1",
+  "status": "verified_single_query_to_evidence_set",
+  "traceId": "h2-trace-3e9fe33472bfa994",
+  "createdAt": "2026-10-15T05:06:24.624921+00:00",
+  "questionId": "H2-P-001",
+  "inputQuerySha256": "1d11f75d2196cc1d17334f081684f8f33c728875995ce89090677e00f49d6b91",
+  "request": {
+    "service": "Health Engine RagService.search",
+    "mode": "single",
+    "topK": 3,
+    "patientContextIncluded": false,
+    "memoryAccessed": false,
+    "plannerCalls": 0
+  },
+  "corpus": {
+    "version": "medtext-local-cc7d43568501e6b7",
+    "manifestSha256": "ccc89d1f6deef68536647541fbad6c79c98f7185cfbe2cd0c00698b15f5b37cf",
+    "encoder": "Qwen3-Embedding-0.6B",
+    "encoderRevision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "device": "cuda",
+    "localOnly": true
+  },
+  "retrieval": {
+    "rounds": 1,
+    "retrievalCalls": 1,
+    "candidateCount": 20,
+    "uniqueDocuments": 19,
+    "returnedEvidenceCount": 3,
+    "latencyMs": 683.5,
+    "degraded": false
+  },
+  "evidenceSet": {
+    "responseSha256": "6b47d16eb5114f7962acb63486cc8858f9ba7972c387ece6a9352ad96f39affc",
+    "evidence": [
+      {
+        "evidenceId": "MED-A18A7141AC8B2023",
+        "rank": 1,
+        "source": "statpearls",
+        "sourceDocumentId": "article-25895",
+        "chunkId": "19",
+        "score": 0.6767873167991638,
+        "sourceUri": null
+      },
+      {
+        "evidenceId": "MED-90F5E28ACB4E0AB1",
+        "rank": 2,
+        "source": "statpearls",
+        "sourceDocumentId": "article-41082",
+        "chunkId": "8",
+        "score": 0.6650943160057068,
+        "sourceUri": null
+      },
+      {
+        "evidenceId": "MED-D25341EC5C8047C7",
+        "rank": 3,
+        "source": "statpearls",
+        "sourceDocumentId": "article-24883",
+        "chunkId": "45",
+        "score": 0.6386016011238098,
+        "sourceUri": null
+      }
+    ]
+  },
+  "fullLocalTrace": "services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-pilot-v1/trace-healthengine-evidence-set.json",
+  "limitations": [
+    "The trace proves ID and source-document/chunk resolution inside one EvidenceSet; it does not score whether a generated medical claim is supported.",
+    "All three returned StatPearls hits lack sourceUri in this snapshot, so external URL resolution is unavailable for this trace."
+  ]
+}

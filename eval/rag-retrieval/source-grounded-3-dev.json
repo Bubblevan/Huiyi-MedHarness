@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "huiyi-rag-retrieval-dataset/v1",
+  "datasetId": "h2-source-grounded-seed-dev-v1",
+  "split": "dev",
+  "corpusVersion": "medtext-local-cc7d43568501e6b7",
+  "generation": {
+    "mode": "source-grounded conversational-model fallback",
+    "modelFamily": "GPT-6",
+    "exactServingModelIdAvailable": false,
+    "syntheticQuestions": true,
+    "medicalExpertReview": false,
+    "selectionNote": "Three diagnostic seeds were authored from exact chunks in the frozen local five-source corpus. They are not part of the target 300-question set and do not establish external validity."
+  },
+  "questions": [
+    {
+      "questionId": "H2-SG-001",
+      "query": "For coronary angiography-identified chronic total occlusion, which hard cardiovascular outcomes have not shown benefit from revascularization, and what symptom-related goal is commonly cited instead?",
+      "language": "en",
+      "taskCategory": "multi_hop",
+      "difficulty": "two evidence elements",
+      "answerability": "answerable",
+      "reviewStatus": "pending",
+      "qrels": [],
+      "annotations": [],
+      "sourceAnchors": [
+        {
+          "documentId": "statpearls:article-100024:0",
+          "source": "statpearls",
+          "title": "Chronic Total Occlusion of the Coronary Artery -- Continuing Education Activity",
+          "evidenceQuote": "CTO revascularization has not shown benefit in rates of all-cause mortality, myocardial infarction, stroke, and repeat revascularization and is commonly performed to improve a patient's quality of life by reducing their angina symptoms.",
+          "requiredEvidenceElements": [
+            "The excerpt reports no shown benefit for all-cause mortality, myocardial infarction, stroke, and repeat revascularization.",
+            "The cited symptomatic goal is quality-of-life improvement through angina symptom reduction."
+          ]
+        }
+      ]
+    },
+    {
+      "questionId": "H2-SG-002",
+      "query": "In the in-vitro alpha-bisabolol study on pepsin, what reduction in proteolytic activity was reported at a 1:0.5 ratio, and under which contact condition was the antipeptic effect lost?",
+      "language": "en",
+      "taskCategory": "exact_term",
+      "difficulty": "exact compound and condition",
+      "answerability": "answerable",
+      "reviewStatus": "pending",
+      "qrels": [],
+      "annotations": [],
+      "sourceAnchors": [
+        {
+          "documentId": "pubmed:pubmed23n0001:0",
+          "source": "pubmed",
+          "title": "[Biochemical studies on camomile components/III. In vitro studies about the antipeptic activity of (--)-alpha-bisabolol (author's transl)].",
+          "evidenceQuote": "The proteolytic activity of pepsin is reduced by 50 percent through addition of bisabolol in the ratio of 1/0.5. The antipeptic action of bisabolol only occurs in case of direct contact. In case of a previous contact with the substrate, the inhibiting effect is lost.",
+          "requiredEvidenceElements": [
+            "A 50 percent reduction in pepsin proteolytic activity at the stated 1/0.5 ratio.",
+            "The inhibitory effect is lost after prior contact with the substrate; the excerpt says it occurs only with direct contact."
+          ]
+        }
+      ]
+    },
+    {
+      "questionId": "H2-SG-003",
+      "query": "慧宜眼科的公开健康问答把长时间近距离看屏幕后视疲劳归因于哪两个过程？页面提出了哪些一般性缓解方式？",
+      "language": "zh",
+      "taskCategory": "semantic",
+      "difficulty": "two mechanisms plus source-limited response",
+      "answerability": "answerable",
+      "reviewStatus": "pending",
+      "qrels": [],
+      "annotations": [],
+      "sourceAnchors": [
+        {
+          "documentId": "huiyi:huiyi-doc-60e4200153baaec423ff:0",
+          "source": "huiyi",
+          "title": "工作时电脑使用频率高，电子产品接触多，老是眼睛疲劳怎么办？",
+          "evidenceQuote": "眨眼的频率减少，眼表泪液涂抹的次数减少，导致眼表水分蒸发快，引起眼部不适；在较长时间的近距离用眼后，眼部发生调节疲劳，这两个因素是我们视疲劳的主要原因。",
+          "requiredEvidenceElements": [
+            "Reduced blinking/tear-film spreading increases ocular-surface water evaporation and discomfort.",
+            "Prolonged near work is associated with accommodative fatigue.",
+            "The page mentions a short rest and legitimate dry-eye prevention/treatment measures; do not expand this into patient-specific medical advice."
+          ]
+        }
+      ]
+    }
+  ]
+}
