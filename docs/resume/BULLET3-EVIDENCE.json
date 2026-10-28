@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "huiyi-bullet3-engineering-score/v1",
+  "scope": "Reuses B1-EVAL-001 frozen synthetic longitudinal cohort and blind semantic scores; no new model requests.",
+  "sample": {
+    "cases": 6,
+    "fullyCompletedPairedCases": 5,
+    "completeTurnPairs": 40,
+    "allPlannedTurnPairs": 48,
+    "finalTaskRecords": 96,
+    "failedRunsRetained": 7,
+    "retryAttemptsNotCountedAsNewTasks": 5
+  },
+  "historyFactReference": {
+    "definition": "Correct reference among historical facts explicitly disclosed in the actual same-arm synthetic patient exchanges; hidden facts are excluded.",
+    "rawByArm": {
+      "single-agent": { "correct": 21, "disclosedFactDenominator": 46, "percent": 45.65 },
+      "integrated": { "correct": 30, "disclosedFactDenominator": 44, "percent": 68.18 }
+    },
+    "pairedCommonFacts": {
+      "single-agent": { "correct": 19, "denominator": 44, "percent": 43.18 },
+      "integrated": { "correct": 30, "denominator": 44, "percent": 68.18 },
+      "integratedMinusSinglePercentagePoints": 25.0,
+      "integratedWins": 13,
+      "singleWins": 2,
+      "ties": 29,
+      "decisions": "See docs/resume/BULLET1-EVIDENCE.json pairedMetrics.historicalFactReference.differences for each synthetic case/turn/fact."
+    }
+  },
+  "clinicianReviewSummaryTask": {
+    "single-agent": { "completed": 13, "denominator": 18, "percent": 72.22 },
+    "integrated": { "completed": 14, "denominator": 18, "percent": 77.78 },
+    "integratedMinusSinglePercentagePoints": 5.56,
+    "integratedWins": 3,
+    "singleWins": 2,
+    "ties": 13
+  },
+  "collaborationSmoke": {
+    "artifact": "artifacts/clinical-eval/smokes/smoke-20261010222030-1a2b1d4e.json",
+    "status": "passed",
+    "caseCount": 1,
+    "turnId": "HCE-0001-T06",
+    "complexity": "advanced",
+    "completedChildRuns": 6,
+    "failedChildRuns": 0,
+    "degraded": false,
+    "durationMs": 123067,
+    "interpretation": "One successful advanced-case coordination path; not a rate or broad stability result."
+  },
+  "limitations": {
+    "amaSourceProvenance": "Frozen run rows have aggregate AMA counters, but no per-fact recalledFacts/sourceId records. This score does not prove the AMA store was the source of a recalled fact.",
+    "clinicalReview": "Synthetic engineering scoring only; no clinician approval or clinical validation.",
+    "complexPointCoverage": "No separately frozen list/scorer for complex-case critical analysis points; coverage-rate claim is not supported.",
+    "sampleSize": "Six synthetic longitudinal cases; five complete paired cases and one partial case with failures retained."
+  },
+  "recommendedResumeBullet": "在 GPT-6-Luna 驱动的 6 例合成纵向复诊 A/B 工程评测中，对两臂共同披露的 44 组既往事实进行盲化判定，正确引用率由 43.2% 提升至 68.2%（+25 个百分点；Integrated 独胜 13、Single 独胜 2、平 29）；另完成 1 次高级病例协作 smoke，6/6 个子任务成功。",
+  "sourceArtifacts": [
+    "docs/resume/BULLET1-EVIDENCE.json",
+    "artifacts/clinical-eval/smokes/smoke-20261010222030-1a2b1d4e.json"
+  ]
+}

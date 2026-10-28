@@ -11,6 +11,14 @@ export interface WireDemoEvent {
   data: Record<string, unknown>;
 }
 
+function nextPaint(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+}
+
+function safeTraceHeader(value: string | null): string | undefined {
+  return value && /^[A-Za-z0-9_-]{8,80}$/.test(value) ? value : undefined;
+}
+
 interface AdapterOptions {
   patientId: string;
   encounterId?: string;
@@ -47,6 +55,9 @@ export function createDemoAdapter(options: AdapterOptions): ChatModelAdapter {
         ?.flatMap((part) => part.type === "text" && typeof part.text === "string" ? [part.text] : []).join("\n").trim();
       if (!message) throw new Error("INVALID_REQUEST");
 
+      const requestStartedAt = performance.now();
+      let firstAssistantDeltaAt: number | undefined;
+      let visibleTraceScheduled = false;
       let runId: string | null = null;
       const cancel = () => {
         if (!runId) return;
@@ -82,6 +93,7 @@ export function createDemoAdapter(options: AdapterOptions): ChatModelAdapter {
           throw new Error(code);
         }
         runId = response.headers.get("x-run-id");
+        const traceId = safeTraceHeader(response.headers.get("x-request-id"));
         if (abortSignal.aborted) cancel();
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -100,8 +112,22 @@ export function createDemoAdapter(options: AdapterOptions): ChatModelAdapter {
               if (event.event === "assistant.delta") {
                 const delta = event.data.text;
                 if (typeof delta === "string") {
+                  if (firstAssistantDeltaAt === undefined) firstAssistantDeltaAt = performance.now();
                   answer += delta;
                   yield { content: [{ type: "text", text: answer }] };
+                  if (!visibleTraceScheduled) {
+                    visibleTraceScheduled = true;
+                    void nextPaint().then(() => {
+                      const visibleAt = performance.now();
+                      console.info("[huiyi:trace] browser.assistant.first_visible", {
+                        ...(traceId ? { traceId } : {}),
+                        ...(safeTraceHeader(runId) ? { runId } : {}),
+                        firstDeltaMs: Math.round((firstAssistantDeltaAt ?? visibleAt) - requestStartedAt),
+                        firstVisibleMs: Math.round(visibleAt - requestStartedAt),
+                        deltaToVisibleMs: Math.round(visibleAt - (firstAssistantDeltaAt ?? visibleAt)),
+                      });
+                    });
+                  }
                 }
               } else if (event.event === "run.failed") {
                 const code = typeof event.data.code === "string" ? event.data.code : "BACKEND_UNAVAILABLE";

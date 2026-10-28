@@ -1,6 +1,8 @@
 # H2 Phase B/C Pilot and Quality-Judge Status
 
-As of 2026-10-15. The full 12-question pilot is still not a validated quality result. A one-question model-judge smoke score is now recorded separately below.
+> **2026-10-16 superseding update:** The 100-DEV / 200-HOLDOUT H2 V12 A–D evaluation is complete. See [H2-QUALITY-CLOSEOUT-20261016.md](H2-QUALITY-CLOSEOUT-20261016.md) for the current cohort, HOLDOUT qrels, quality metrics, bad cases and remaining E/F/answer-support work. The 12-question results below are historical pilot data and are not the current target-set result.
+
+As of 2026-10-15. The 12-question DEV pilot now has a strict-qrel retrieval-quality comparison across A–E plus a separately scored English BM25 query-translation arm. Standard metrics use nine questions with complete resolved qrels; five candidate labels remain unresolved and three questions are excluded. The results are exploratory model judgments and do not satisfy the 100-DEV/200-HOLDOUT target.
 
 ## Frozen inputs
 
@@ -26,7 +28,37 @@ A–D timings are one-pass DEV observations, not stable service-latency benchmar
 
 The D timing recomputation, per-query component sums and source run hashes are in the Git-ignored `h2-pilot-v2/d-stage-latency-audit.json`; it does not change either frozen run file.
 
-## First retrieval-quality smoke score
+## Strict-qrel retrieval-quality pilot (12 frozen DEV queries; metric denominator n=9)
+
+The initial A–E pool had 539 candidates, of which 535 were resolved by blinded GPT-6-Luna labels. A separate English lexical BM25 diagnostic added 87 query-document candidates from its Top-10. The combined pool contains 626 pairs; 86/87 new labels were accepted and one grade disagreement remains unresolved, for **621/626 resolved (99.2%)**. Twenty-four previously judged controls were mixed into the blind packet: initial exact-grade agreement was 21/24; a second pass agreed with the prior adjudicated grades for all three discrepancies (24/24 final control agreement). This measures same-model consistency, not human/external agreement.
+
+The scoring rule was tightened after discovering that the prior scorer implicitly treated unresolved labels as grade 0. The revised scorer emits null metrics whenever any pooled label for a question is unresolved or a Top-K result is outside the judged pool. Three questions are therefore excluded from standard metrics: H2-P-003, H2-P-005 and H2-P-006. Nine of 12 are eligible for nDCG/MRR; only six have resolved direct-support qrels for P/R metrics. Failed executions remain in the denominator; unresolved relevance does not become zero.
+
+| Arm | nDCG@10 (n=9) | MRR@10 (n=9) | Precision@5 (n=6) | Pooled Recall@5 (n=6) | Δ nDCG@10 vs Dense (95% paired CI) |
+|---|---:|---:|---:|---:|---:|
+| A · Dense | 0.6130 | 0.2722 | 0.2667 | 0.2583 | — |
+| B · BM25 | 0.1694 | 0.0833 | 0.0667 | 0.1111 | −0.4436 (−0.6425, −0.2571) |
+| C · RRF | 0.3826 | 0.2214 | 0.1667 | 0.1542 | −0.2304 (−0.3479, −0.1186) |
+| D · RRF + BGE reranker | 0.6062 | 0.3704 | 0.4000 | 0.4014 | −0.0068 (−0.0999, +0.0957) |
+| E* · iterative GPT-6-Luna planner | 0.6748 | 0.3333 | 0.3000 | 0.2417 | +0.0618 (−0.0146, +0.1428) |
+| BM25 + English lexical translation† | 0.4829 | 0.2917 | 0.1333 | 0.1875 | — |
+
+† Separate exploratory arm, not part of frozen A–E or production behavior. Against original Chinese BM25 on the same nine eligible questions, translation improves nDCG@10 by +0.3135 (paired percentile CI [+0.1636, +0.4624]) and MRR@10 by +0.2083 (CI [+0.0556, +0.4028]). On H2-P-002, the first known direct-support result moves from absent in BM25 Top-20 to rank 2. This is a measured small-pilot quality signal that supports cross-language lexical mismatch as a BM25 failure mechanism, not a validated/generalizable win: GPT-6-Luna produced translations and judgments, the dataset remains draft DEV, and HOLDOUT has not been opened.
+
+| Category (eligible n) | Dense | BM25 | RRF | Reranker | Iterative | English BM25† |
+|---|---:|---:|---:|---:|---:|---:|
+| Bilingual (2) | 0.6384 | 0.5333 | 0.5597 | 0.7485 | 0.6445 | 0.5753 |
+| Exact term (2) | 0.6830 | 0.1920 | 0.5445 | 0.7511 | 0.7493 | 0.6288 |
+| Multi-hop (0) | — | — | — | — | — | — |
+| No-answer (2) | 0.2813 | 0.0367 | 0.0882 | 0.0997 | 0.4401 | 0.3379 |
+| Semantic (1) | 0.6944 | 0.0000 | 0.3091 | 0.6944 | 0.6944 | 0.4330 |
+| Source conflict (2) | 0.8084 | 0.0000 | 0.3746 | 0.7812 | 0.8553 | 0.4145 |
+
+The two no-answer-intended questions still have pending answerability gold; retrieval nDCG is not an abstention or false-support measure. Category means are descriptive only at n≤2. These results establish that the pilot now has performance metrics as well as latency, but do not meet the 100-DEV/200-HOLDOUT target or prove generalization.
+
+Combined CLI usage for initial judgments, translation generation, and incremental judgments: 1,727,835 input tokens (1,441,024 cached), 106,414 output tokens and 54,024 reasoning tokens. The full strict-qrel score with per-task rows, category counts and all paired comparisons is `eval/rag-retrieval/results/h2-pilot-v2-english-top10-augmented-score-20261015.json`. The earlier all-12 score remains preserved but is superseded; it treated unresolved labels as irrelevant in the ranking calculation.
+
+## Earlier one-question conversational judge smoke (superseded by the 12-question table)
 
 The new H2-RAG-QUALITY request supersedes the old Excel-first review gate. An automatic judge runner and a pooled-qrels scorer now exist in `eval/rag-retrieval/judge_pool.py` and `score_judge_runs.py`. The configured GPT-6-Luna loopback was probed with one six-candidate batch and returned HTTP 401; no user-level planner key is configured in this shell. The runner correctly kept all 38 query-1 candidates unresolved and did not turn the failure into zero-relevance labels.
 
@@ -85,11 +117,17 @@ BM25 P95 is dominated by two bilingual draft queries, not only by cold start. Th
 
 These are retained as measured performance limitations. No tokenizer, query, cohort, or qrel was changed after observing the timings.
 
+### English lexical BM25 query-translation arm (separately scored)
+
+This arm was scored after adding its Top-10 candidates to the blind pool and judging the new candidates. On the same nine complete-qrel questions, nDCG@10 is 0.4829 vs original Chinese BM25 0.1694; paired Δ is +0.3135 (95% bootstrap CI [+0.1636, +0.4624]). MRR@10 is 0.2917 vs 0.0833. These are same-model exploratory DEV results: GPT-6-Luna generated translations and judged relevance, so larger blinded DEV and untouched HOLDOUT confirmation are required. Full score: `eval/rag-retrieval/results/h2-pilot-v2-english-top10-augmented-score-20261015.json`. The previous known-qrel lower-bound score remains archived separately and is not the final comparison.
+
 ## Full quality-evaluation gate
 
-The original A–D pool had 461 query–document candidates. E added 78 candidates outside that pool, so the frozen A–E pool has 539 query–document candidates across the same 12 queries. The v2 pool includes candidates from all five arms. The old reviewer workbooks remain available as artifacts, but the new TRD says not to make manual Excel completion the default gate; they have not supplied external labels and were not used for the smoke score.
+The original A–D pool had 461 query–document candidates; E added 78, for 539 A–E candidates. The English-translation Top-10 arm added 87, bringing the augmented pool to 626 query-document pairs. Five labels remain unresolved (four original and one new), and standard metrics exclude all three affected questions instead of defaulting unresolved labels to grade 0. The old reviewer workbooks remain available but did not supply external labels.
 
-Only H2-P-001 has a model-fallback smoke judgment. The remaining 11 questions have no judged pool. The complete 12-question A–E comparison, category results, answerability, evidence-support rate, agreement with external Gold, and answer-generation support remain unmeasured. The pilot is too small for a method conclusion, and the current local GPT-6-Luna judge route is not authenticated. No BioASQ files were found in the local corpus or the known MedCorp roots; the local V4 30-case/90-task fixture is a patient-workflow benchmark, not a source-grounded RAG retrieval set, so it is not being relabeled as one. Pooled Recall will measure recovery of judged candidates, not exhaustive recall over all 823,450 chunks.
+Nine of 12 DEV questions now have strict-qrel A–E and English-translation comparisons; direct-support P/R metrics use six questions. Multi-hop has no eligible question because both cases contain unresolved pool labels. The remaining gates are unchanged: 100 DEV + 200 HOLDOUT, fixed answerability checks, at least 100 fixed-generator answer-support runs, no-answer false-support and evidence-support metrics, external-Gold agreement, a quality-checked question set, and at least 15 real bad-case analyses (10 quality-related). The local GPT-6-Luna HTTP-compatible endpoint remains unauthorized; the CLI fallback completed this small judgment batch, but its token usage is high. No official BioASQ passage-qrel package was found locally; the local V4 30-case/90-task fixture is a patient-workflow benchmark, not source-grounded retrieval qrels. Pooled Recall remains limited to the judged A–E candidate union, not all 823,450 chunks.
+
+Fifteen method–query observations have now been extracted into [the pilot bad-case report](H2-PILOT-BAD-CASES-20261015.md) and [machine-readable case set](../../eval/rag-retrieval/results/h2-pilot-v2-quality-bad-cases.json). Eleven are counted as comparative retrieval-quality regressions; two no-answer-intended rows remain unvalidated risks because `answerability` and `reviewStatus` are still pending, and two Dense rows are ranking-weakness observations rather than counted failures. An all-token BM25 AND probe returned 0/12 queries and is a negative diagnostic, not a repair. The judged English-translation arm improves exploratory nDCG@10 vs Chinese BM25 by +0.3135 on nine complete-qrel queries (95% paired CI [+0.1636, +0.4624]); same-model and small-sample limitations prevent a generalization claim. RRF/reranker/iterative root causes remain hypotheses from frozen rankings and inspected code. These pilot cases do not by themselves satisfy the final bad-case gate on a 300-question quality-checked set.
 
 The new blinded workbooks and machine-readable integrity record are under the Git-ignored services/health-engine/data/local-rag-hc-rag-002/sparse-eval/h2-pilot-v2/ directory. The A–D and E run JSONs remain under the v1 run directory and are referenced by hash in the v2 integrity record. The three-question seed's A–D runs are under the ignored `h2-source-seed-20261015/` directory and its compact hash-bound anchor score is tracked in `eval/rag-retrieval/results/`.
 
@@ -99,12 +137,23 @@ One single-mode query was executed through RagService.search over the same local
 
 ## Remaining H2 work
 
+| Goal gate | Current evidence | Status |
+|---|---|---|
+| 300 valid questions; fixed 100 DEV / 200 HOLDOUT | 12 draft DEV questions; query and answerability review still pending | **Incomplete** |
+| Automated judge coverage ≥95%; unresolved excluded | 621/626 resolved (99.2%); five remain unresolved and are excluded from standard metrics | **Pilot met; target-set gate incomplete** |
+| A–E relevance metrics by split/category | Strict-qrel score, n=9; six category rows with eligible n=0–2; separate English BM25 arm | **Pilot met; target-set gate incomplete** |
+| F adaptive sufficiency retrieval run | No F arm in the frozen runs | **Incomplete** |
+| 100 fixed-generator answer-support runs | None in this H2 evaluation | **Incomplete** |
+| ≥15 bad cases, including ≥10 quality failures | 15 pilot method–query observations; 11 comparative quality regressions, with model-judge limitations and unisolated root causes | **Pilot evidence only** |
+| Bind all results to versions and parameters | Pilot score/adjudication include dataset, corpus, run, prompt, raw/event, and scorer hashes | **Pilot met** |
+| Final quality report | Pilot report exists; no full 300-question/answer-support report | **Incomplete** |
+| `QUALITY_IMPROVEMENT_DEMONSTRATED` | 12-question DEV point estimates only; no HOLDOUT and no answer-support gate | **Not demonstrated** |
+
 - Reach 300 quality-checked questions with fixed 100 DEV / 200 HOLDOUT; first validate source-grounded generation, semantic deduplication and category balance without downloading new corpora or rebuilding the Qwen index.
-- The local OpenAI-compatible route is still unauthorized; the authenticated Codex CLI route works but the first one-question run used 76,605 input tokens. Establish a lower-overhead, bounded batching path, then run blinded labels, review low-confidence/parse-failure/disagreement cases, and preserve raw outputs. The one-question CLI result remains diagnostic only.
+- The local OpenAI-compatible route is still unauthorized. The Codex CLI route judged 626 query-document candidates with 621 resolved, using a combined 1,727,835 input tokens (1,441,024 cached). Do not extrapolate this path to the 300-question target without reducing cost or obtaining a license-compatible expert-qrel source. Human/external-Gold agreement remains unknown.
 - Run A–E under one frozen question set and candidate budget; add evidence-sufficiency adaptive F only after the DEV policy and stop criteria are fixed. Evaluate final-generation support on at least 100 questions using one fixed generator and prompt.
-- Report relevance and support metrics by split/category, paired deltas and deterministic bootstrap intervals; compare judge labels with an external-Gold subset if a license-compatible set can be obtained.
-- Produce at least 15 real failure analyses, including at least 10 retrieval/coverage/support failures, and a version-bound final report.
-- Only after labels exist, analyze at least 10 relevance/coverage Bad Cases. Current verified bad cases are performance/cost observations; they do not establish a relevance failure.
+- Extend relevance metrics by split/category, paired deltas and deterministic bootstrap intervals to the frozen 100 DEV / 200 HOLDOUT set; compare judge labels with an external-Gold subset if a license-compatible set can be obtained.
+- Pilot qrels now exist and 15 observations are documented; the all-token AND negative diagnostic is recorded separately, but it is not a repair. Isolate at least one BM25/RRF quality root cause on DEV, analyze at least 10 quality Bad Cases on the final quality-checked set, and produce a version-bound final report.
 - Current cost/performance observations are listed in H2-PERFORMANCE-BAD-CASES.md; the attached ChatGPT analysis and corrected interview wording are reviewed in H2-CHATGPT-ANALYSIS-REVIEW.md.
 - Phase D source-metadata gaps are audited in H2-PHASE-D-METADATA-AUDIT.md. The separate citation-ID and claim-support protocol is in H2-PHASE-D-EVIDENCE-SUPPORT-PROTOCOL.md, with a machine-readable query-to-EvidenceSet example in H2-TRACE-EXAMPLE.json. Source authority and applicability have not been inferred from corpus names.
 - No Health Engine or DSH product behavior, API contract, active FAISS index, model weights, or source corpus changed in this pilot.

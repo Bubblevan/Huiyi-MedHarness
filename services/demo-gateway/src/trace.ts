@@ -15,6 +15,8 @@ const traceKeys = new Set([
   "evidenceItemCount", "modelDeltaCount", "modelOutputChars", "outputChars", "emittedBytes", "sseBytes", "sseEventCount", "sseDataBytes",
   "activeTurns", "queuedTurns", "maxConcurrentTurns", "retryCount", "retryReason",
   "attempt", "turnIdPresent", "runIdPresent", "hasVisibleText", "usagePresent",
+  "rootInputTokens", "rootOutputTokens", "rootTotalTokens", "subagentInputTokens",
+  "subagentOutputTokens", "subagentTotalTokens", "subagentSessionCount",
 ]);
 
 const tracePath = resolve(process.env.HUIYI_DEMO_TRACE_PATH?.trim() || join(

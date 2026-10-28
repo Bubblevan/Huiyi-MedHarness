@@ -18,11 +18,11 @@ afterEach(cleanup);
 describe("clinical demo panels", () => {
   it("shows synthetic patient, context, and a memory card separate from evidence", () => {
     render(<PatientContext patient={patient} />);
-    expect(screen.getByText("Synthetic demo patient")).toBeInTheDocument();
-    expect(screen.getByText("长期记忆摘要")).toBeInTheDocument();
+    expect(screen.getByText("模拟患者 · 非真实病历")).toBeInTheDocument();
+    expect(screen.getByText("既往摘要")).toBeInTheDocument();
     expect(screen.getByText("合成长期记忆摘要。")).toBeInTheDocument();
     expect(screen.getByText("既往复诊 1")).toBeInTheDocument();
-    expect(screen.getByText("patient-htn-enc-01")).toBeInTheDocument();
+    expect(screen.queryByText("patient-htn-enc-01")).not.toBeInTheDocument();
     expect(screen.getByText("曾建议核对家庭血压记录。")).toBeInTheDocument();
     expect(screen.queryByText("Demo evidence fixture")).not.toBeInTheDocument();
   });
@@ -57,7 +57,7 @@ describe("clinical demo panels", () => {
     ];
     render(<AgentActivity events={events} />);
     expect(screen.getByText("6 条摘要项")).toBeInTheDocument();
-    expect(screen.getByText(/simulated execution/)).toBeInTheDocument();
+    expect(screen.getByText(/模拟流程/)).toBeInTheDocument();
     expect(screen.queryByText("private answer omitted")).not.toBeInTheDocument();
   });
 
@@ -97,8 +97,8 @@ describe("clinical demo panels", () => {
     const item: EvidenceRecord = { evidenceId: "ev-001", rank: 1, source: "Demo evidence fixture", title: "居家血压记录（合成资料）", snippet: "合成证据摘要。" };
     const onClose = vi.fn();
     render(<EvidenceDrawer open items={[item]} onClose={onClose} />);
-    expect(screen.getByRole("dialog", { name: "Evidence Sources" })).toBeInTheDocument();
-    expect(screen.getAllByText("Demo evidence fixture")).toHaveLength(2);
+    expect(screen.getByRole("dialog", { name: "医学证据来源" })).toBeInTheDocument();
+    expect(screen.getAllByText("模拟资料来源")).toHaveLength(2);
     expect(screen.getByText("ev-001")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "关闭证据抽屉" }));
     expect(onClose).toHaveBeenCalledOnce();
@@ -108,16 +108,16 @@ describe("clinical demo panels", () => {
     const maliciousText = "<img src=x onerror=alert(1)>";
     const item: EvidenceRecord = { evidenceId: "ev-live", rank: 1, source: "Textbooks", title: "Reference", snippet: maliciousText };
     const { container } = render(<EvidenceDrawer open items={[item]} onClose={() => undefined} backend="dsh" />);
-    expect(screen.getByText("本地医学检索结果")).toBeInTheDocument();
+    expect(screen.getByText("医学检索来源")).toBeInTheDocument();
     expect(screen.queryByText("Demo evidence fixture")).not.toBeInTheDocument();
     expect(screen.getByText(maliciousText)).toBeInTheDocument();
     expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText(/检索片段来自本地医学语料/)).toBeInTheDocument();
+    expect(screen.getByText(/检索片段需结合原始出处和具体临床情境核验/)).toBeInTheDocument();
   });
 
   it("identifies the backend mode and presents safe service errors", () => {
-    render(<><BackendBadge backend="fixture" /><ErrorNotice message="FIXTURE_FAILURE" /></>);
-    expect(screen.getByText("Local · fixture")).toBeInTheDocument();
+    render(<><BackendBadge backend="dsh" providerName="local-test" modelName="test-model" /><ErrorNotice message="FIXTURE_FAILURE" /></>);
+    expect(screen.getByText("local-test · test-model")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("服务暂时不可用，请稍后重试。");
     expect(screen.getByRole("alert")).toHaveTextContent("FIXTURE_FAILURE");
   });

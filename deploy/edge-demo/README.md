@@ -1,5 +1,7 @@
 # Huiyi edge demo deployment package
 
+> **Historical deployment candidate.** This Docker Compose + WireGuard package documents an earlier edge architecture and its 2026-10-12 local acceptance run. It is not the deployment currently exercised through the Ubuntu host. The active implementation is the Go service in `services/edge-gateway`, with the static bundle and SSH reverse tunnel described in that service's README. Use this file only when intentionally returning to the Compose/WireGuard candidate; its status and network checklist do not describe the live host.
+
 **Local acceptance status: `READY_TO_BUY_VPS` for an edge-only synthetic demo.** On 2026-10-12 the Docker Compose edge, local HTTPS ingress, login, patient/Encounter switching, SSE, one GPT-6-Luna + local RAG browser request, draft review action, logout, and synthetic account isolation were exercised. This is not public deployment or production clinical readiness.
 
 ## Boundary and topology

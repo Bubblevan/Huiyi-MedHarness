@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "huiyi-bullet2-evidence/v1",
+  "scope": "Existing local RAG/index evidence only; no new model requests, downloads, service starts, or index builds this turn.",
+  "currentIndex": {
+    "status": "verified",
+    "corpusVersion": "medtext-local-cc7d43568501e6b7",
+    "retriever": "Qwen3-Embedding-0.6B",
+    "sourceCount": 5,
+    "chunkCount": 823450,
+    "verifiedAssetBytes": 4717040705,
+    "manifestSha256": "ccc89d1f6deef68536647541fbad6c79c98f7185cfbe2cd0c00698b15f5b37cf",
+    "indexHash": "3973c79aaee45d77d70997b736bb96e87359fcaa96361b476c549f4cd103a25e",
+    "sources": [
+      { "name": "textbooks", "documentCount": 18, "chunkCount": 125847 },
+      { "name": "statpearls", "documentCount": 9651, "chunkCount": 384050 },
+      { "name": "pubmed", "availableShardCount": 23, "chunkCount": 280070 },
+      { "name": "wikipedia", "availableShardCount": 5, "chunkCount": 33414 },
+      { "name": "huiyi-public-hospital-website", "documentCount": 59, "chunkCount": 69 }
+    ]
+  },
+  "currentIndexRetrievalSmoke": {
+    "singlePass": {
+      "status": "pass",
+      "queryCount": 2,
+      "passedQueryCount": 2,
+      "answerGenerationRequests": 0,
+      "results": [
+        { "language": "en", "retrievalCalls": 1, "returnedEvidenceCount": 3, "returnedCorpora": ["pubmed", "statpearls"], "latencyMs": 284.0 },
+        { "language": "zh-Hans", "retrievalCalls": 1, "returnedEvidenceCount": 3, "returnedCorpora": ["pubmed"], "latencyMs": 283.2 }
+      ]
+    },
+    "iterative": {
+      "status": "pass",
+      "queryCount": 1,
+      "passedQueryCount": 1,
+      "plannerModel": "gpt-6-luna",
+      "embeddingModel": "Qwen3-Embedding-0.6B",
+      "rounds": 2,
+      "generatedQueries": 4,
+      "retrievalCalls": 4,
+      "candidateCount": 12,
+      "uniqueDocuments": 9,
+      "returnedEvidenceCount": 3,
+      "returnedCorpora": ["pubmed"],
+      "retrievalLatencyMs": 1127.9,
+      "plannerLatencyMs": 10433.5,
+      "totalLatencyMs": 11561.6,
+      "plannerInputTokens": 34833,
+      "plannerOutputTokens": 139,
+      "degraded": false
+    },
+    "priorBilingualIterativeAttempt": {
+      "status": "partial",
+      "queryCount": 2,
+      "passedQueryCount": 1,
+      "note": "One language fell back to single-pass in the earlier mixed batch; a later isolated query passed. Separate attempts are not pooled into a stability rate."
+    },
+    "limitation": "Retrieval operations only; no final answer generation, evidence-support judgement, or clinical accuracy score."
+  },
+  "legacyMedCptRetrievalParity": {
+    "caseCount": 100,
+    "topK": 32,
+    "corpusVersion": "medtext-2026-10-07-c840ea8370341f41",
+    "chunkCount": 509897,
+    "sources": ["textbooks", "statpearls"],
+    "queryEncoder": "MedCPT-Query-Encoder",
+    "inferenceInputSha256": "75249dab3bf047d58e2a0729477d7463825a1306ae33a5a5812ac79181f38415",
+    "metrics": {
+      "top1MatchRate": 1.0,
+      "meanTopKOverlap": 1.0,
+      "minimumTopKOverlap": 1.0,
+      "meanRankAgreement": 1.0,
+      "medianRankAgreement": 1.0,
+      "maxAbsoluteScoreDelta": 0.0
+    },
+    "limitation": "Parity is exact agreement with pinned MedRAG retrieval on an older two-source snapshot; it is not evidence relevance or support, and does not describe the current 823450-chunk index."
+  },
+  "legacyMedQaLiveValidation": {
+    "sampleCount": 45,
+    "model": "Qwen3-8B",
+    "corpusChunkCount": 509897,
+    "corpusSources": ["textbooks", "statpearls"],
+    "arms": {
+      "pinned-MedRAG-upstream": { "correct": 35, "count": 45, "accuracyPercent": 77.78, "parseFailures": 0, "runtimeFailures": 0 },
+      "Huiyi-Health-Engine-direct": { "correct": 37, "count": 45, "accuracyPercent": 82.22, "parseFailures": 1, "runtimeFailures": 0 },
+      "DSH-AgentLoop": { "correct": 31, "count": 45, "accuracyPercent": 68.89, "parseFailures": 7, "runtimeFailures": 6 }
+    },
+    "pairedDifferences": {
+      "directMinusUpstreamPercentagePoints": 4.44,
+      "directMinusUpstreamPaired95PercentInterval": [-6.67, 15.56],
+      "upstreamMinusDshPercentagePoints": 13.33,
+      "upstreamMinusDshPaired95PercentInterval": [2.22, 24.44],
+      "dshParityGate": "failed"
+    },
+    "limitation": "Frozen validation subset and older MedCPT corpus; direct-minus-upstream interval includes zero. Not an accuracy score for the current five-source Qwen3 index and not an evidence citation/support metric."
+  },
+  "notMeasured": {
+    "medicalEvidenceSupportRate": "No scorer adjudicated whether retrieved passages support generated medical claims.",
+    "citationCorrectnessRate": "Current-index query smokes generated no answer; QA runs scored answer choice accuracy, not citation correctness. The existing browser E2E stores evidence counts but no answer or evidence text.",
+    "currentIndexAnswerAccuracy": "No answer-generation benchmark is attached to the current 823450-chunk corpus."
+  },
+  "existingBrowserE2EAudit": {
+    "artifact": "artifacts/clinical-eval/browser-e2e/browser-e2e-20261011-225644-c5a5caac.json",
+    "httpStatus": 200,
+    "runCompleted": true,
+    "ragToolCompleted": true,
+    "evidenceItemCount": 3,
+    "draftEvidenceItemCount": 3,
+    "rawConversationBodyStored": false,
+    "scoreableAnswerEvidencePairs": 0,
+    "limitation": "The artifact stores status/count metadata only; no answer body or evidence passages are retained for a citation audit."
+  },
+  "recommendedResumeBullet": "构建并验证基于 Qwen3-Embedding-0.6B 与 FAISS 的五源医学知识索引，共 823,450 个文本片段；现役索引中英 single-pass 检索 smoke 2/2 通过，另完成一次两轮迭代检索；在独立 MedCPT 509,897 段旧快照的 100 条冻结查询上复现 pinned MedRAG Top-1、Top-32 与排序结果（匹配率均 100%）。",
+  "sourceArtifacts": [
+    "artifacts/rag-index-verifications/qwen3-index-20261011.json",
+    "artifacts/clinical-eval/rag-smokes/rag-single-20261011-082052.json",
+    "artifacts/clinical-eval/rag-smokes/rag-iterative-20261011-070402.json",
+    "artifacts/clinical-eval/browser-e2e/browser-e2e-20261011-225644-c5a5caac.json",
+    "artifacts/clinical-eval/rag-smokes/rag-iterative-20261011-070232.json",
+    "artifacts/hc-rag-002/retrieval-parity.json",
+    "artifacts/hc-rag-002/validation-parity-45-metadata.json",
+    "eval/rag-parity/README.md"
+  ]
+}

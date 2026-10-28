@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "huiyi-bullet4-training-readiness/v1",
+  "status": "no_training_result",
+  "currentMachine": {
+    "baseModelDirectory": "E:/Health-Copilot-Models/models/qwen3-8b",
+    "files": [
+      { "name": "Qwen3-8B-Q4_K_M.gguf", "bytes": 5027783488 }
+    ],
+    "huggingFaceConfigPresent": false,
+    "fullSafetensorsCheckpointPresent": false,
+    "checkedStandardHfCacheSnapshotCount": 0,
+    "pythonVersion": "3.12.4",
+    "pythonPackages": {
+      "torch": true,
+      "transformers": true,
+      "safetensors": true,
+      "trl": false,
+      "peft": false,
+      "accelerate": false,
+      "bitsandbytes": false,
+      "datasets": false
+    },
+    "gpu": { "name": "NVIDIA GeForce RTX 4090 Laptop GPU", "freeMemoryMiB": 15841, "totalMemoryMiB": 16376 },
+    "systemMemoryGiB": 63.75,
+    "freeSystemMemoryGiB": 41.1
+  },
+  "trainingEvidence": {
+    "optimizerSteps": 0,
+    "loraAdapterCreated": false,
+    "checkpointSaveReload": false,
+    "grpoRollouts": 0,
+    "heldOutModelQualityScore": null
+  },
+  "decision": "Do not install/download training stack or claim SFT/RL gains without an approved full trainable checkpoint, task-scoped data, and frozen evaluation plan.",
+  "existingReference": "artifacts/hc-perf-001/final-report.md",
+  "projectBoundary": "MediX-R1 training artifacts in another directory are not attributed to Huiyi-MedHarness."
+}

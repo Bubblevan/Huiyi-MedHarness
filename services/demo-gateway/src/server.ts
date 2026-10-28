@@ -185,7 +185,10 @@ export function createDemoServer(options: DemoServerOptions = {}): Server {
     })
     : undefined;
   const backend: DemoBackend = options.backend ?? (backendName === "dsh"
-    ? new DshDemoBackend({ resolvePatient: clinicalEvaluation ? (patientId, encounterId) => evaluationDataset?.getPatientForBackend(patientId, encounterId) : undefined })
+    ? new DshDemoBackend({
+      resolvePatient: clinicalEvaluation ? (patientId, encounterId) => evaluationDataset?.getPatientForBackend(patientId, encounterId) : undefined,
+      observeTokenUsage: (runId, usage) => writeLocalGatewayTrace({ event: "run.token_usage", runId, ...usage }),
+    })
     : new FixtureDemoBackend());
   const activeRuns = new Map<string, { controller: AbortController; sessionId: string; startedAt: number; settled: Promise<void>; settle: () => void; ownerAuthSessionId?: string }>();
   const pendingLogoutCleanups = new Set<Promise<void>>();

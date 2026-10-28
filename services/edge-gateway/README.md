@@ -10,6 +10,7 @@ This small Go service is the server-side edge layer for the synthetic workstatio
 - Every session is bound to the authenticated account, patient ID, encounter ID, and expiry. The chat route rechecks the binding before forwarding and removes client-controlled scenario and identity fields.
 - Audit records contain account ID, operation, patient/encounter IDs, timestamp, request ID, result, and HTTP status. They never contain passwords, patient messages, model text, evidence snippets, cookies, or IP addresses. The log is append-only in service operation, mode `0600`, and capped at 50 MiB; protected operations fail closed if audit writing fails.
 - Demo account records contain PBKDF2-HMAC-SHA256 verifiers, random salts, iteration counts, roles, and explicit patient-ID grants. No plaintext password is stored.
+- Use a unique, strong password for each test account. A password shared in chat or reused elsewhere is compromised and must be rotated before the account is shared again. These synthetic accounts are not institution-managed identities.
 
 ## Stream trace
 
@@ -24,6 +25,16 @@ Correlate one request with the Edge `traceId`, local Gateway `edgeTraceId`, and 
 3. Codex bridge: `model.request.queued/admitted`, `model.thread.started`, `model.turn_start.accepted`, `model.first_delta`, 15-second `model.turn.heartbeat`, and `model.turn.terminal`.
 
 This distinguishes queue delay, app-server/thread setup, no model delta, model output that has not completed its structured turn, DSH/tool activity before a visible answer, and a stream that failed between the local Gateway and Edge. The Codex bridge buffers its structured response until the app-server turn completes, so `model.first_delta` can precede the browser-visible `run.first_assistant_delta`.
+
+The browser additionally emits a metadata-only DevTools record, `[huiyi:trace] browser.assistant.first_visible`, with the Edge request ID, local run ID, first delta receipt time, and first rendered-text time. It contains no patient text. This is browser-local diagnostic output; it is not yet uploaded to either JSONL trace.
+
+## Lifecycle and acceptance boundary
+
+Logout revokes the Edge cookie and starts cancellation for active local runs. The current Edge/local-Demo-Gateway path does not yet expose a separately authenticated DSH-session disposal endpoint, so closing an idle browser binding can leave its in-memory DSH session until the Gateway's bounded session eviction or restart. Edge authorization is revoked immediately; this is a resource-cleanup gap, not a way to replay the old patient binding. DSH memory lifecycle code skips persistence for cancelled or otherwise non-completed turns, but the cancellation/disconnect path still needs an end-to-end trace. Do not describe DSH disposal as verified until a private Edge-to-Gateway lifecycle endpoint is added and exercised.
+
+The next end-to-end checks are ordered to distinguish capability wiring from autonomous model selection: (1) force `search_medical_evidence` and confirm tool/evidence events, then try model-selected retrieval; (2) test AMA recall across a newly created session; (3) invoke `consult_clinical_team` for the complex synthetic case; (4) cancel a running turn and interrupt the laptop Gateway, checking terminal events and orphan runs; and (5) attempt a different patient's scope and confirm rejection before model or memory work. The completed page → Edge → laptop Gateway path so far is ordinary synthetic Q&A only; it does not establish these capabilities.
+
+The current tunnel-based demo requires an exact configured Origin and loopback-only Edge/Gateway upstreams. Keep the API ports private. Before allowing users to enter credentials without the SSH tunnel, require a real HTTPS origin, Secure session cookies, a reviewed Origin allowlist, and rotated account credentials.
 
 Inspect from PowerShell:
 

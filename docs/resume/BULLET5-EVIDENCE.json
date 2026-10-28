@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "huiyi-bullet5-local-deployment-evidence/v1",
+  "scope": "Local synthetic Gateway and browser E2E evidence only; no public server deployment was measured.",
+  "authorizationSweep": {
+    "artifact": "artifacts/clinical-eval/authz-sweeps/authz-sweep-20261011-154507.json",
+    "status": "pass",
+    "cohortPatients": 300,
+    "encounterCount": 3,
+    "syntheticAccounts": 2,
+    "plannedContextChecks": 600,
+    "allowedContextReads": 150,
+    "outOfScopeContextReadsDenied": 450,
+    "unauthorizedContextSuccesses": 0,
+    "unexpectedStatuses": 0,
+    "contextReadP95Ms": 2.59,
+    "modelGenerationRequests": 0,
+    "sessionOwnership": { "crossAccountDeleteStatus": 404, "ownerDeleteStatus": 204 },
+    "logoutStatuses": [204, 204],
+    "protectedPatientListAfterLogoutStatuses": [401, 401],
+    "limitations": [
+      "In-memory synthetic accounts and records only.",
+      "Does not prove production SSO, database row-level security, cross-device revocation, or clinical safety."
+    ]
+  },
+  "browserE2E": {
+    "artifact": "artifacts/clinical-eval/browser-e2e/browser-e2e-20261011-225644-c5a5caac.json",
+    "status": "passed",
+    "scope": "Synthetic local browser -> authenticated Gateway -> DSH GPT-6-Luna -> local RAG",
+    "model": "gpt-6-luna",
+    "patientOptions": 75,
+    "patientSwitchCreatedNewSession": true,
+    "chatHttpStatus": 200,
+    "runCompleted": true,
+    "ragToolCompleted": true,
+    "evidenceItemCount": 3,
+    "structuredDraftCreated": true,
+    "draftEvidenceItemCount": 3,
+    "demoReviewActionPersisted": true,
+    "clinicalApprovalPerformed": false,
+    "responseWallTimeMs": 47677,
+    "freeMemoryGiBAtRequestStart": 34,
+    "rawConversationContentInResultArtifact": false
+  },
+  "deploymentNotMeasured": {
+    "publicCloudPortal": "No public endpoint or deployment result in this evidence set.",
+    "wireGuard": "No tunnel acceptance record in this evidence set.",
+    "httpsProductionIngress": "No public TLS/production reverse-proxy result in this evidence set.",
+    "productionIdentity": "No production OIDC/SSO or real database row-level authorization result.",
+    "concurrentSessions": "No load or concurrency measurement from this browser E2E.",
+    "modelServiceP95": "The 2.59 ms authz P95 is a no-generation local read check; the browser run is one observation, not P95."
+  },
+  "recommendedResumeBullet": "实现患者级授权 Gateway 与临床工作台浏览器链路；在 300 例合成数据的 600 次上下文访问检查中，授权/拒绝分别为 150/450，越权读取 0 次（只读请求 P95 2.59 ms）；并完成 1 条 GPT-6-Luna、RAG、结构化复诊草稿及审阅留痕的浏览器端到端流程（HTTP 200，47.7 秒）。",
+  "sourceArtifacts": [
+    "artifacts/clinical-eval/authz-sweeps/authz-sweep-20261011-154507.json",
+    "artifacts/clinical-eval/browser-e2e/browser-e2e-20261011-225644-c5a5caac.json"
+  ]
+}

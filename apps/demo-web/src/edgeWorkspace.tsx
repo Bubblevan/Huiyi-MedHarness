@@ -139,7 +139,14 @@ export function EdgeWorkspace() {
   async function logout() {
     setBusy(true);
     try {
-      if (sessionRef.current) await closeBoundSession(sessionRef.current);
+      if (sessionRef.current) {
+        try { await closeBoundSession(sessionRef.current); }
+        catch (error) {
+          const outcome = error instanceof Error && error.message === "SESSION_BUSY" ? "session_busy" : "session_close_failed";
+          console.warn("[huiyi:trace] session.close.before_logout", { outcome });
+          // Logout must still revoke the account and cancel any remaining run.
+        }
+      }
       await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: "{}" });
     } finally {
       accountRef.current = null;
